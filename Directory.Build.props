@@ -1,0 +1,23 @@
+<Project>
+
+  <!--
+    UNA SOLA CARTELLA DI USCITA, comunque tu lanci la compilazione.
+
+    Senza questo file la cartella cambia nome a seconda di come si invoca il
+    compilatore: partendo dalla soluzione la piattaforma e' x64 e l'uscita finisce in
+    bin\x64\Release, mentre puntando direttamente al .csproj la piattaforma resta quella
+    predefinita e l'uscita finisce in bin\Release. Due cartelle, due binari con date
+    diverse, e uno script di verifica che ne guarda una sola: e' cosi' che si finisce
+    per promuovere una compilazione vecchia credendo di aver controllato quella nuova.
+
+    Il valore non e' una preferenza: N.I.N.A. 3.x e' x64 e un plugin non ha alternative,
+    quindi la piattaforma predefinita del progetto e' l'unica che esista davvero.
+
+    Questo file viene letto prima che MSBuild assegni il valore predefinito, ed e' il
+    solo punto in cui la riga qui sotto ha effetto: dentro il .csproj arriverebbe tardi.
+  -->
+  <PropertyGroup>
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+  </PropertyGroup>
+
+</Project>
