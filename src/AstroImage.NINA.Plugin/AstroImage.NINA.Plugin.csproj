@@ -1,0 +1,105 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- N.I.N.A. 3.x e' un eseguibile desktop Windows x64 self-contained: un plugin
+         non ha scelta sul framework ne' sulla piattaforma. Niente suffisso di versione
+         di Windows perche' non serve a nulla di quello che facciamo qui; il giorno in
+         cui volessimo ospitare una pagina in WebView2 andrebbe alzato a
+         net8.0-windows10.0.17763.0, che e' il minimo richiesto da quel controllo. -->
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <Nullable>disable</Nullable>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+
+    <RootNamespace>AstroImage.NINA.Plugin</RootNamespace>
+    <AssemblyName>AstroImage.NINA.Plugin</AssemblyName>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <!-- I metadati del manifest li scriviamo a mano in Properties/AssemblyInfo.cs:
+         PluginBase li rilegge per riflessione, quindi devono stare li' e non essere
+         rigenerati dall'SDK. -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <!-- NU1701: dipendenze transitive di N.I.N.A. compilate per .NET Framework. Sono
+         irrilevanti a runtime perche' e' N.I.N.A. a fornire le proprie DLL. -->
+    <NoWarn>NU1701</NoWarn>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      L'SDK di N.I.N.A., e SOLO per compilare.
+
+      `ExcludeAssets: runtime` non e' un dettaglio: N.I.N.A. distribuisce nella propria
+      cartella tutte queste DLL, e un plugin che se le portasse dietro caricherebbe una
+      seconda copia degli stessi tipi. Da li' in poi un `ISequenceItem` del plugin non
+      sarebbe piu' lo stesso tipo di quello di N.I.N.A., e il caricamento fallirebbe in
+      un modo che non dice perche'.
+
+      La versione e' la piu' recente STABILE, e coincide con quella dichiarata come
+      MinimumApplicationVersion: si compila contro cio' che si dichiara di richiedere.
+      Ed e' un pavimento, non un tetto: un plugin compilato contro la 3.2 stabile gira
+      anche sulle nightly 3.3. Non e' una deduzione — lo fa gia' AdaptiveAgentForPHD2 su
+      questa stessa macchina, con lo stesso riferimento e la stessa dichiarazione.
+    -->
+    <PackageReference Include="NINA.Plugin" Version="3.2.0.9001">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+
+    <!--
+      WEBVIEW2, ESCLUSO PER INTERO, E NON PERCHE' NON CI PIACCIA.
+
+      Arriva per via transitiva da uno dei pacchetti di N.I.N.A., e senza questa riga
+      la cartella di uscita pesa 1,8 MB invece di 10 KB: tre assembly piu' un loader
+      nativo che nessuno ha chiesto. La causa non e' la risoluzione delle dipendenze
+      ma un file di build dentro il pacchetto — buildTransitive/Microsoft.Web.WebView2.targets
+      — che copia i propri file con Content Include e CopyToOutputDirectory. Un target
+      di compilazione non lo ferma nessuna impostazione sulla copia: si esclude il
+      pacchetto, e per farlo davvero serve «all», che comprende anche i suoi target.
+
+      Perche' importa: N.I.N.A. distribuisce le proprie DLL di WebView2, e quel
+      componente usa versioning stretto. Un plugin che se ne porta una copia diversa
+      manda in errore il collegamento a runtime — e' il guasto documentato nel .csproj
+      di AdaptiveAgentForPHD2, che WebView2 lo usa davvero e ha dovuto fissarne la
+      versione esatta.
+
+      Il giorno in cui questo ponte volesse ospitare una pagina, la riga da scrivere
+      non e' togliere questa esclusione: e' dichiarare WebView2 con la versione ESATTA
+      distribuita da N.I.N.A. e «ExcludeAssets: runtime».
+    -->
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3296.44">
+      <ExcludeAssets>all</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!--
+    INSTALLAZIONE PER LO SVILUPPO, spenta di proposito.
+
+    N.I.N.A. carica i plugin da %LOCALAPPDATA%\NINA\Plugins\<Major.Minor.Build>, una
+    cartella che dipende dalla versione dell'applicazione. Copiarci dentro il DLL a ogni
+    compilazione e' comodo mentre si sviluppa, ma e' anche un effetto collaterale su
+    un'installazione vera: `dotnet build` non deve installare niente a sorpresa.
+
+    Per accenderla:  dotnet build -p:DeployToNina=true
+  -->
+  <PropertyGroup>
+    <DeployToNina Condition="'$(DeployToNina)' == ''">false</DeployToNina>
+    <!-- La cartella NON porta la versione del pacchetto ma quella dell'APPLICAZIONE
+         senza revisione, e per tutta la linea 3.x vale 3.0.0. Verificato guardando dove
+         vivono i plugin gia' installati su questa macchina: Astro PM, Advanced API,
+         Target Scheduler e Touch 'N' Stars stanno tutti sotto Plugins\3.0.0. Scrivere
+         3.2.0 avrebbe prodotto una copia in una cartella che N.I.N.A. non guarda mai. -->
+    <NinaPluginsFolder Condition="'$(NinaPluginsFolder)' == ''">$(LOCALAPPDATA)\NINA\Plugins\3.0.0\$(AssemblyName)</NinaPluginsFolder>
+  </PropertyGroup>
+
+  <Target Name="DeployPluginToNina" AfterTargets="Build" Condition="'$(DeployToNina)' == 'true'">
+    <MakeDir Directories="$(NinaPluginsFolder)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(NinaPluginsFolder)" />
+    <Message Importance="high" Text="Plugin copiato in $(NinaPluginsFolder)" />
+  </Target>
+
+</Project>

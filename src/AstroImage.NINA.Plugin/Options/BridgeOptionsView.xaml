@@ -1,0 +1,22 @@
+<UserControl
+    x:Class="AstroImage.NINA.Plugin.Options.BridgeOptionsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Niente stili, niente colori: si prendono quelli di N.I.N.A. Un pannello di
+        plugin che si porta la propria tavolozza si vede subito, e si vede male.
+    -->
+    <StackPanel Margin="0,10,0,0" MaxWidth="760" HorizontalAlignment="Left">
+
+        <TextBlock FontWeight="Bold" Margin="0,0,0,6"
+                   Text="AstroImage Strategy Bridge" />
+
+        <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
+                   Text="Porta dentro N.I.N.A. la prescrizione decisa da AstroImage-Strategy: quali canali riprendere, con quante pose, quale posa e quale modo di guadagno. Il ponte non decide niente — riceve una prescrizione già presa e la costruisce nel Sequenziatore Avanzato." />
+
+        <TextBlock TextWrapping="Wrap" FontStyle="Italic"
+                   Text="Questa è una versione di impianto: fissa l'identità del plugin e i suoi punti di innesto, e non fa ancora nulla. Il collegamento con Strategy, la lettura del profilo e la costruzione della sequenza arrivano dopo." />
+
+    </StackPanel>
+</UserControl>

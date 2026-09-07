@@ -1,0 +1,18 @@
+# compilazione
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# pacchetti
+packages/
+*.nupkg
+
+# il motore di AstroImage-Strategy NON deve MAI finire qui dentro.
+# Questo repository e' pubblico e con licenza MIT perche' il catalogo di N.I.N.A. non
+# accetta plugin a sorgente chiuso; il motore, il catalogo curato e i dati fotometrici
+# restano nel loro. Le righe qui sotto non sono un promemoria: sono una rete.
+index.html
+data/
+*.strategy.json
