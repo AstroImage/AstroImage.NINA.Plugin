@@ -68,5 +68,20 @@ $estranei = Get-ChildItem $uscita -Recurse -File |
 Verifica "il plugin non si porta dietro DLL di N.I.N.A. o di WebView2" `
     ($estranei.Count -eq 0) $(if ($estranei.Count) { ($estranei | ForEach-Object { $_.Name }) -join ', ' } else { 'solo il proprio DLL' })
 
+Write-Host "`n--- la copia installata in N.I.N.A. ---"
+# Da quando l'installazione avviene a ogni compilazione, la domanda vera non e' piu'
+# "esiste una copia" ma "quella che N.I.N.A. carichera' e' l'ultima compilata". Un DLL
+# vecchio in quella cartella non da' nessun errore: da' un plugin che si comporta come
+# la versione di ieri, ed e' il modo piu' rapido di perdere un'ora.
+$inNina = Join-Path $env:LOCALAPPDATA 'NINA\Plugins\3.0.0\AstroImage.NINA.Plugin\AstroImage.NINA.Plugin.dll'
+if (Test-Path $inNina) {
+    $a = (Get-FileHash $dll    -Algorithm SHA256).Hash
+    $b = (Get-FileHash $inNina -Algorithm SHA256).Hash
+    Verifica "N.I.N.A. ha l'ultimo binario compilato" ($a -eq $b) `
+        $(if ($a -eq $b) { "identici" } else { "DIVERSI: ricompila" })
+} else {
+    Write-Host "  --    non installato   [dotnet build -c Release lo installa]"
+}
+
 Write-Host "`n$ok verifiche superate, $ko fallite`n"
 if ($ko -gt 0) { exit 1 }
