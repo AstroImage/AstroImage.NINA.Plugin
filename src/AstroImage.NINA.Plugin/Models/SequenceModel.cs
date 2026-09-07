@@ -190,9 +190,11 @@ namespace AstroImage.NINA.Plugin.Models {
     /// <para>
     /// Due precisazioni. <see cref="Fine"/> e' l'ultimo campione utile piu' il passo di
     /// cinque minuti, quindi puo' cadere qualche minuto dopo la fine del buio
-    /// astronomico. E <see cref="Data"/> e' la data civile della macchina che ha fatto
-    /// il conto, non del sito: coincidono quando si riprende da casa propria — il caso
-    /// normale — ma non quando si pilota un telescopio dall'altra parte del mondo.
+    /// astronomico. E <see cref="Data"/> e' la data CHIESTA da chi pianifica: «la notte
+    /// del 15 settembre» e' quella che segue il mezzogiorno solare del 15 AL SITO, e il
+    /// fuso della macchina che ha fatto il conto non ci entra. Vale da quando il motore
+    /// ancora la notte al sito e non all'orologio di chi guarda; prima, con un
+    /// telescopio in hosting dall'altra parte del mondo, non usciva nessun piano.
     /// </para>
     /// </summary>
     public sealed class Quando {
