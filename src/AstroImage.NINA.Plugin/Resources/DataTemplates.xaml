@@ -1,0 +1,25 @@
+<ResourceDictionary
+    x:Class="AstroImage.NINA.Plugin.Resources.DataTemplates"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:options="clr-namespace:AstroImage.NINA.Plugin.Options">
+
+    <!--
+        LA PAGINA DELLE OPZIONI NON SI DICHIARA: SI CHIAMA COL NOME GIUSTO.
+
+        Non esiste un'interfaccia da implementare. N.I.N.A. cerca fra le risorse
+        dell'applicazione un DataTemplate la cui chiave sia il nome del plugin seguito
+        da "_Options", dove il nome e' l'AssemblyTitle. E' una convenzione, non un
+        contratto: se la chiave non combacia CARATTERE PER CARATTERE, la pagina esce
+        vuota e non lo dice nessuno — nessun errore, nessun avviso in log.
+
+        Per questo il nome del plugin e' scritto in ASCII puro: un trattino lungo o una
+        lettera accentata scritti diversamente nei due posti costano una serata.
+
+        Il DataContext che N.I.N.A. mette qui e' l'istanza del plugin stessa.
+    -->
+    <DataTemplate x:Key="AstroImage Strategy Bridge_Options">
+        <options:BridgeOptionsView />
+    </DataTemplate>
+
+</ResourceDictionary>
