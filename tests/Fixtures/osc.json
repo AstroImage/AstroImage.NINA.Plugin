@@ -1,0 +1,72 @@
+{
+  "notte": 1,
+  "nome": "M31 — OSC, notte 1",
+  "bersaglio": {
+    "nome": "M31",
+    "rot": 0,
+    "off": null,
+    "ra_deg": 10.68,
+    "dec_deg": 41.27,
+    "spostato": false
+  },
+  "ottica": {
+    "tel": "William Optics RedCat 51",
+    "camera": "ZWO ASI 2600MC Pro",
+    "montatura": "ZWO AM5",
+    "focale_mm": 250,
+    "rapporto": 4.9,
+    "pixel_um": 3.76,
+    "riduttore": 1,
+    "scala_arcsec_px": 3.102,
+    "bin": 1,
+    "matrice": true
+  },
+  "sito": {
+    "lat": 46.0167,
+    "lon": 10.3333
+  },
+  "cap": {
+    "raffredda": true,
+    "ruota": true,
+    "focheggiatore": true,
+    "guida": true,
+    "rotatore": false,
+    "home": true,
+    "tempC": -10,
+    "minutiFreddo": 8,
+    "minutiCaldo": 10
+  },
+  "blocchi": [
+    {
+      "canali": [
+        "L"
+      ],
+      "filtro": "L",
+      "sec": 240,
+      "n": 75,
+      "gain": 0,
+      "offset": 50,
+      "modo": "LCG"
+    },
+    {
+      "canali": [
+        "R",
+        "G",
+        "B"
+      ],
+      "filtro": "L",
+      "sec": 120,
+      "n": 30,
+      "gain": 0,
+      "offset": 50,
+      "modo": "LCG"
+    }
+  ],
+  "nonFusi": [
+    "R 120s contro L 240s"
+  ],
+  "dither": {
+    "ogniPose": 2
+  },
+  "flip": true
+}

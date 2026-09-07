@@ -1,0 +1,85 @@
+{
+  "notte": 1,
+  "nome": null,
+  "bersaglio": {
+    "nome": "NGC 7000",
+    "rot": 0,
+    "off": null,
+    "ra_deg": 314.82,
+    "dec_deg": 44.52,
+    "spostato": false
+  },
+  "ottica": {
+    "tel": null,
+    "camera": null,
+    "montatura": null,
+    "focale_mm": null,
+    "rapporto": null,
+    "pixel_um": null,
+    "riduttore": null,
+    "scala_arcsec_px": null,
+    "bin": 1,
+    "matrice": false
+  },
+  "sito": null,
+  "cap": {
+    "raffredda": false,
+    "ruota": false,
+    "focheggiatore": false,
+    "guida": false,
+    "rotatore": false,
+    "home": false,
+    "tempC": -10,
+    "minutiFreddo": 8,
+    "minutiCaldo": 10
+  },
+  "blocchi": [
+    {
+      "canali": [
+        "Ha"
+      ],
+      "filtro": "H",
+      "sec": 600,
+      "n": 22,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    },
+    {
+      "canali": [
+        "R"
+      ],
+      "filtro": "R",
+      "sec": 180,
+      "n": 16,
+      "gain": 0,
+      "offset": 50,
+      "modo": "LCG"
+    },
+    {
+      "canali": [
+        "G"
+      ],
+      "filtro": "G",
+      "sec": 180,
+      "n": 16,
+      "gain": 0,
+      "offset": 50,
+      "modo": "LCG"
+    },
+    {
+      "canali": [
+        "B"
+      ],
+      "filtro": "B",
+      "sec": 180,
+      "n": 16,
+      "gain": 0,
+      "offset": 50,
+      "modo": "LCG"
+    }
+  ],
+  "nonFusi": [],
+  "dither": null,
+  "flip": true
+}

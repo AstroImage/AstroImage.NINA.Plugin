@@ -3,8 +3,9 @@
 Un plugin per [N.I.N.A.](https://nighttime-imaging.eu/) che porta dentro il
 Sequenziatore Avanzato la prescrizione decisa da **AstroImage-Strategy**.
 
-> **Stato: scheletro.** Questa versione non fa ancora nulla. Esiste per fissare
-> l'identità del plugin, i suoi punti di innesto e il confine con il motore.
+> **Stato: scheletro più il contratto.** Il plugin non fa ancora nulla dentro N.I.N.A.:
+> ha l'identità, i punti di innesto, il confine con il motore e ora il modello di
+> sequenza che saprà ricevere. Manca tutto il resto.
 
 ## Che cosa fa, e che cosa non fa
 
@@ -77,6 +78,19 @@ Per controllare che sia un plugin e non solo un DLL che compila:
 ```
 powershell -File scripts/verifica-scheletro.ps1
 ```
+
+Per eseguire i test del contratto:
+
+```
+dotnet test -c Release
+```
+
+I due controlli guardano cose diverse. Lo script verifica che N.I.N.A. riconoscerebbe
+questo DLL come plugin; i test verificano che il modello di sequenza sia il gemello
+fedele del contratto che il motore produce, usando come fixture JSON usciti dal motore
+vero. I test **non installano mai niente**, nemmeno lanciati in Release: installare è un atto
+della compilazione, e collaudare non lo è. Senza quella guardia `dotnet test -c Release`
+metteva il plugin in N.I.N.A. *prima* di sapere se i test passavano.
 
 ## Requisiti
 
