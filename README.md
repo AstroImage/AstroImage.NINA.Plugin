@@ -51,18 +51,32 @@ locale — senza portarsi dietro mezzo programma.
 Serve l'SDK .NET 8 e nient'altro: il pacchetto NuGet `NINA.Plugin` porta i riferimenti
 necessari, e non occorre compilare N.I.N.A.
 
+I comandi vanno dati **dalla radice di questo repository**, quella che contiene il file
+`.sln`. Altrove `dotnet` non trova nulla da compilare e risponde `MSB1003`.
+
 ```
+cd C:\Users\<nome>\Documents\AstroImage.NINA.Plugin
 dotnet build -c Release
 ```
 
-Per installarlo nella propria N.I.N.A. mentre si sviluppa:
+Il DLL esce sempre in `src/AstroImage.NINA.Plugin/bin/x64/Release` — uno solo, una
+decina di KB — **e viene installato subito** in
+`%LOCALAPPDATA%\NINA\Plugins\3.0.0\AstroImage.NINA.Plugin`,
+così quello che si prova è sempre l'ultimo compilato. N.I.N.A. legge quella cartella
+all'avvio: se è già aperto, il plugin compare al riavvio successivo. Per toglierlo si
+cancella la cartella.
+
+Per compilare senza installare:
 
 ```
-dotnet build -c Release -p:DeployToNina=true
+dotnet build -c Release -p:DeployToNina=false
 ```
 
-La copia automatica è **spenta di proposito**: `dotnet build` non deve installare niente
-a sorpresa su un'installazione vera.
+Per controllare che sia un plugin e non solo un DLL che compila:
+
+```
+powershell -File scripts/verifica-scheletro.ps1
+```
 
 ## Requisiti
 
