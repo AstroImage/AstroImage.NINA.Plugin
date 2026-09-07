@@ -16,3 +16,8 @@ packages/
 index.html
 data/
 *.strategy.json
+
+# uscite del banco di prova
+TestResults/
+*.trx
+coverage.cobertura.xml

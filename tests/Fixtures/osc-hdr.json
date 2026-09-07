@@ -1,0 +1,83 @@
+{
+  "notte": 1,
+  "nome": "M27 — OSC + duobanda, notte 1",
+  "bersaglio": {
+    "nome": "M27",
+    "rot": 0,
+    "off": null,
+    "ra_deg": 299.9,
+    "dec_deg": 22.72,
+    "spostato": false
+  },
+  "ottica": {
+    "tel": "Askar 71F",
+    "camera": "ZWO ASI 2600MC Pro",
+    "montatura": "ZWO AM5",
+    "focale_mm": 367,
+    "rapporto": 5.17,
+    "pixel_um": 3.76,
+    "riduttore": 0.75,
+    "scala_arcsec_px": 2.113,
+    "bin": 1,
+    "matrice": true
+  },
+  "sito": {
+    "lat": 46.0167,
+    "lon": 10.3333
+  },
+  "cap": {
+    "raffredda": true,
+    "ruota": true,
+    "focheggiatore": true,
+    "guida": true,
+    "rotatore": false,
+    "home": true,
+    "tempC": -10,
+    "minutiFreddo": 8,
+    "minutiCaldo": 10
+  },
+  "blocchi": [
+    {
+      "canali": [
+        "Ha+OIII"
+      ],
+      "filtro": "HO",
+      "sec": 20,
+      "n": 25,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    },
+    {
+      "canali": [
+        "Ha+OIII"
+      ],
+      "filtro": "HO",
+      "sec": 180,
+      "n": 63,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    },
+    {
+      "canali": [
+        "R",
+        "G",
+        "B"
+      ],
+      "filtro": "L",
+      "sec": 30,
+      "n": 24,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    }
+  ],
+  "nonFusi": [
+    "Ha+OIII 180s contro Ha+OIII 20s"
+  ],
+  "dither": {
+    "ogniPose": 2
+  },
+  "flip": true
+}

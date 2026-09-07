@@ -1,0 +1,101 @@
+{
+  "notte": 1,
+  "nome": null,
+  "bersaglio": {
+    "nome": "NGC 6888",
+    "rot": 0,
+    "off": null,
+    "ra_deg": 303.03,
+    "dec_deg": 38.35,
+    "spostato": false
+  },
+  "ottica": {
+    "tel": "Tecnosky 115/800 tripletto",
+    "camera": "ZWO ASI 2600MM Pro",
+    "montatura": "iOptron CEM70G",
+    "focale_mm": 640,
+    "rapporto": 5.57,
+    "pixel_um": 3.76,
+    "riduttore": 0.8,
+    "scala_arcsec_px": 1.212,
+    "bin": 1,
+    "matrice": false
+  },
+  "sito": {
+    "lat": 46.0167,
+    "lon": 10.3333
+  },
+  "cap": {
+    "raffredda": true,
+    "ruota": true,
+    "focheggiatore": true,
+    "guida": true,
+    "rotatore": false,
+    "home": true,
+    "tempC": -10,
+    "minutiFreddo": 8,
+    "minutiCaldo": 10
+  },
+  "blocchi": [
+    {
+      "canali": [
+        "OIII"
+      ],
+      "filtro": "O",
+      "sec": 600,
+      "n": 20,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    },
+    {
+      "canali": [
+        "Ha"
+      ],
+      "filtro": "H",
+      "sec": 600,
+      "n": 7,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    },
+    {
+      "canali": [
+        "R"
+      ],
+      "filtro": "R",
+      "sec": 60,
+      "n": 9,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    },
+    {
+      "canali": [
+        "G"
+      ],
+      "filtro": "G",
+      "sec": 60,
+      "n": 9,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    },
+    {
+      "canali": [
+        "B"
+      ],
+      "filtro": "B",
+      "sec": 60,
+      "n": 9,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    }
+  ],
+  "nonFusi": [],
+  "dither": {
+    "ogniPose": 2
+  },
+  "flip": true
+}

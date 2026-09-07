@@ -1,0 +1,75 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Stesso quadro del progetto plugin. MSTest e non xUnit perche' e' quello che
+         gira gia' su questa macchina nell'altro plugin di N.I.N.A.: una configurazione
+         provata vale piu' di una preferita. -->
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <NoWarn>NU1701;CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
+
+    <!--
+      SYSTEM.TEXT.JSON, E SOLO QUI. Non e' una dipendenza nuova del ponte: e' quella
+      che il ponte ha gia', resa disponibile al banco di prova.
+
+      La catena, perche' non si scopra di nuovo da zero fra sei mesi. Il pacchetto
+      NINA.Plugin dipende da System.Text.Json 9.0.5, quindi il plugin compila contro
+      la 9 e non contro la 8 del framework. A runtime dentro N.I.N.A. il problema non
+      si pone: N.I.N.A. distribuisce la propria copia, oggi assembly 10.0.0.0, e
+      .NET accetta di soddisfare un riferimento alla 9 con una versione superiore. E'
+      lo stesso meccanismo su cui campano gli altri plugin installati su questa
+      macchina (Advanced API, Target Scheduler, Touch 'N' Stars, AdaptiveAgent):
+      nessuno di loro se ne porta una copia.
+
+      Il banco di prova pero' non e' N.I.N.A.: il test host e' dotnet, e in .NET 8 la
+      copia di serie e' la 8.0.0.0, cioe' PIU' BASSA di quella richiesta. Senza questa
+      riga ogni test che tocca il JSON muore con «Could not load file or assembly
+      System.Text.Json, Version=9.0.0.0».
+
+      Perche' qui e non nel progetto del plugin: nel plugin sarebbe un doppione del
+      transitivo, e il giorno in cui N.I.N.A. salisse alla 10 diventerebbe un blocco
+      alla versione precedente. Qui e' solo cio' che serve a far girare i test.
+    -->
+    <PackageReference Include="System.Text.Json" Version="9.0.5" />
+  </ItemGroup>
+
+  <!--
+    NESSUN RIFERIMENTO A N.I.N.A. QUI, ED E' IL PUNTO.
+
+    Il progetto di test dell'altro plugin il pacchetto NINA.Plugin ce l'ha, perche' i
+    suoi test toccano tipi di N.I.N.A. e il test host deve trovarli. Qui no: il
+    SequenceModel e' dati puri, e se i test girassero solo grazie alle DLL di N.I.N.A.
+    la loro indipendenza sarebbe un'affermazione invece di una prova.
+
+    Il riferimento al progetto del plugin porta i riferimenti di COMPILAZIONE di
+    N.I.N.A. (servono a compilare Plugin/AstroImageBridgePlugin.cs) ma non le DLL a
+    runtime, perche' il plugin dichiara quel pacchetto con ExcludeAssets=runtime. Il
+    risultato e' che questi test girano con zero assembly di N.I.N.A. nella cartella,
+    e c'e' un test che lo verifica invece di darlo per scontato.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AstroImage.NINA.Plugin\AstroImage.NINA.Plugin.csproj" />
+  </ItemGroup>
+
+  <!--
+    Le fixture sono JSON PRODOTTI DAL MOTORE VERO, non scritti a mano: e' l'unico modo
+    perche' un test sul contratto dimostri qualcosa. Vanno accanto all'eseguibile dei
+    test, non lette da un percorso del disco di chi le ha generate.
+  -->
+  <ItemGroup>
+    <None Include="..\Fixtures\**\*.json"
+          Link="Fixtures\%(RecursiveDir)%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

@@ -90,6 +90,21 @@
     aperto, non se ne accorge fino al riavvio successivo; e su Windows, se quel DLL
     fosse gia' caricato, la copia fallirebbe invece di corrompere qualcosa.
 
+    DUE GUARDIE SULLA CONDIZIONE, e nessuna delle due e' pignoleria.
+
+    SOLO IN RELEASE. `dotnet test` compila anche questo progetto, e lo compila in
+    Debug: senza questa clausola i test sostituirebbero in N.I.N.A. il binario di
+    Release con uno di Debug. Nessun errore, nessun avviso, e la verifica dello
+    scheletro che da quel momento dice «DIVERSI».
+
+    MAI DURANTE I TEST, nemmeno in Release. Il target e' AfterTargets="Build", e in
+    `dotnet test` la compilazione finisce PRIMA che i test partano: con la sola guardia
+    sulla configurazione, `dotnet test -c Release` installava il plugin e poi scopriva
+    che i test erano rossi. Nessun passo tornava indietro. VSTestSessionCorrelationId
+    la imposta `dotnet test` come proprieta' globale, quindi arriva fin qui ed e' vuota
+    in ogni `dotnet build`. Installare e' un atto della compilazione; collaudare non lo
+    e', e non deve lasciare niente dietro di se'.
+
     Per non installare:      dotnet build -p:DeployToNina=false
     Per installare altrove:  dotnet build -p:NinaPluginsFolder=...
   -->
@@ -103,10 +118,30 @@
     <NinaPluginsFolder Condition="'$(NinaPluginsFolder)' == ''">$(LOCALAPPDATA)\NINA\Plugins\3.0.0\$(AssemblyName)</NinaPluginsFolder>
   </PropertyGroup>
 
-  <Target Name="DeployPluginToNina" AfterTargets="Build" Condition="'$(DeployToNina)' == 'true'">
+  <Target Name="DeployPluginToNina" AfterTargets="Build"
+          Condition="'$(DeployToNina)' == 'true' And '$(Configuration)' == 'Release' And '$(VSTestSessionCorrelationId)' == ''">
     <MakeDir Directories="$(NinaPluginsFolder)" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(NinaPluginsFolder)" />
-    <Message Importance="high" Text="Plugin copiato in $(NinaPluginsFolder)" />
+
+    <!--
+      SE N.I.N.A. E' APERTO IL FILE E' BLOCCATO, e la copia non deve far cadere la
+      compilazione. Un assembly gia' caricato tiene aperto il proprio file: senza
+      ContinueOnError il rame diventa MSB3027, la build fallisce ed e' rossa per un
+      motivo che non riguarda il codice. Due tentativi e non di piu': un lock da
+      assembly caricato non si libera aspettando, ma due coprono il blocco passeggero
+      dell'antivirus sul file appena scritto.
+
+      E si dice come sono andate le cose: il messaggio «copiato» esce solo se la copia
+      e' avvenuta davvero, altrimenti esce un avviso che nomina la causa. Un messaggio
+      che dice «copiato» quando non lo e' e' peggio del silenzio.
+    -->
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(NinaPluginsFolder)"
+          Retries="2" ContinueOnError="WarnAndContinue">
+      <Output TaskParameter="CopiedFiles" ItemName="_PluginInstallato" />
+    </Copy>
+    <Message Importance="high" Condition="'@(_PluginInstallato)' != ''"
+             Text="Plugin copiato in $(NinaPluginsFolder)" />
+    <Warning Condition="'@(_PluginInstallato)' == ''"
+             Text="Plugin NON installato: il file e' in uso, quasi certamente N.I.N.A. e' aperto. Chiudilo e ricompila. scripts/verifica-scheletro.ps1 dice se in N.I.N.A. e' rimasto un binario vecchio." />
   </Target>
 
 </Project>

@@ -1,0 +1,82 @@
+{
+  "notte": 1,
+  "nome": "Sh2-155 Cave — ASTROFOTO notte 1",
+  "bersaglio": {
+    "nome": "Sh2-155",
+    "rot": 118.5,
+    "off": {
+      "du": 14,
+      "dv": -9
+    },
+    "ra_deg": 343.671266,
+    "dec_deg": 62.486516,
+    "spostato": true
+  },
+  "ottica": {
+    "tel": "Ritchey-Chretien 8\"",
+    "camera": "ZWO ASI 2600MM Pro",
+    "montatura": "iOptron CEM70G",
+    "focale_mm": 1624,
+    "rapporto": 7.99,
+    "pixel_um": 3.76,
+    "riduttore": 1,
+    "scala_arcsec_px": 0.478,
+    "bin": 1,
+    "matrice": false
+  },
+  "sito": {
+    "lat": 46.0167,
+    "lon": 10.3333
+  },
+  "cap": {
+    "raffredda": true,
+    "ruota": true,
+    "focheggiatore": true,
+    "guida": true,
+    "rotatore": true,
+    "home": true,
+    "tempC": -15,
+    "minutiFreddo": 12,
+    "minutiCaldo": 15
+  },
+  "blocchi": [
+    {
+      "canali": [
+        "SII"
+      ],
+      "filtro": "SII 3nm",
+      "sec": 600,
+      "n": 20,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    },
+    {
+      "canali": [
+        "OIII"
+      ],
+      "filtro": "OIII 3nm",
+      "sec": 600,
+      "n": 10,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    },
+    {
+      "canali": [
+        "Ha"
+      ],
+      "filtro": "Ha 3nm",
+      "sec": 600,
+      "n": 4,
+      "gain": 100,
+      "offset": 50,
+      "modo": "HCG"
+    }
+  ],
+  "nonFusi": [],
+  "dither": {
+    "ogniPose": 3
+  },
+  "flip": true
+}
