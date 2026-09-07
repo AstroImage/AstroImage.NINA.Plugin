@@ -33,6 +33,8 @@ chilobyte di JSON che non nomina N.I.N.A. da nessuna parte.
 ```json
 {
   "notte": 1,
+  "quando":    { "data": "2026-09-01", "inizio": "2026-09-01T19:45:00.000Z",
+                 "fine": "2026-09-02T01:55:00.000Z", "oreUtili": 5.317 },
   "bersaglio": { "nome": "IC 1318", "rot": 245, "ra_deg": 305.55, "dec_deg": 40.25 },
   "ottica":    { "camera": "…", "focale_mm": 367, "pixel_um": 3.76, "bin": 1, "matrice": false },
   "sito":      { "lat": 45.95, "lon": 10.2019 },
@@ -43,9 +45,25 @@ chilobyte di JSON che non nomina N.I.N.A. da nessuna parte.
 }
 ```
 
-Il motore lo produce già, ed è verificato che sopravvive intatto a un giro di JSON: è
-quello che gli permette di attraversare un confine — un file, gli appunti, una richiesta
-locale — senza portarsi dietro mezzo programma.
+Il motore lo produce già, ed è verificato che sopravvive intatto a un giro di JSON —
+anzi che torna indietro identico carattere per carattere: è quello che gli permette di
+attraversare un confine (un file, gli appunti, una richiesta locale) senza portarsi
+dietro mezzo programma.
+
+`quando` merita qualche riga. `notte: 1` da solo è un indice dentro un piano che sta
+dall'altra parte del confine, e chi riceve il modello quel piano non ce l'ha. `data` è la
+sera in forma civile; `inizio` e `fine` sono gli estremi dell'arco utile, in UTC. Senza
+di loro il ponte, per sapere quando cominciare, dovrebbe rifare crepuscoli e altezze:
+cioè rifare l'astronomia che sta dall'altra parte.
+
+**`oreUtili` è il campo che impedisce di leggere male gli altri due.** L'arco fra
+`inizio` e `fine` è un *inviluppo*, non una finestra piena: è il primo e l'ultimo
+campione sopra la soglia di altezza, e in mezzo ci può essere un tratto in cui il
+soggetto è sotto il pavimento. Su IC 1396 da Roma il 31 gennaio l'arco copre dieci ore e
+cinquantacinque mentre le ore vere sono 1,67: il soggetto tramonta e risorge. Chi
+trattasse l'arco come una finestra di ripresa comanderebbe nove ore di pose con l'oggetto
+troppo basso. `oreUtili` sono le ore che il piano assegna davvero a quella notte,
+overhead già tolto: se è molto minore dell'arco, l'arco non è pieno.
 
 ## Compilare
 

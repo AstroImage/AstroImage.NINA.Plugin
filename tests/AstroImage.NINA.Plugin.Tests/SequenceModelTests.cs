@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using AstroImage.NINA.Plugin.Models;
@@ -67,6 +68,19 @@ namespace AstroImage.NINA.Plugin.Tests {
                 case null:
                     return "null";
                 default:
+                    /*  UN ISTANTE E' UN DATO, NON UN TESTO. «...T19:45:00.000Z» e
+                     *  «...T19:45:00+00:00» sono lo stesso momento scritto in due modi:
+                     *  se il confronto sui DATI li chiamasse diversi, questo test e
+                     *  quello sul testo direbbero la stessa cosa e la coppia perderebbe
+                     *  il gradino che la giustifica. Solo le stringhe che sono istanti,
+                     *  riconosciute dalla T: «2026-09-01» resta una data civile e non
+                     *  va tradotta in un momento, che avrebbe bisogno di un fuso. */
+                    if (n is JsonValue v && v.TryGetValue<string>(out var testo) &&
+                        testo.Length >= 16 && testo[10] == 'T' &&
+                        DateTimeOffset.TryParse(testo, CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                            out var istante))
+                        return "\"" + istante.UtcTicks.ToString(CultureInfo.InvariantCulture) + "T\"";
                     return n.ToJsonString();
             }
         }
@@ -189,6 +203,138 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsTrue(m.Blocchi.Count > 0, "le pose ci sono lo stesso: si riprende anche cosi'");
         }
 
+        // ---------------------------------------------------------------- il tempo
+
+        [TestMethod]
+        [DynamicData(nameof(Fixture))]
+        public void OgniFixture_SaQuandoSiRiprende(string nome) {
+            var q = SequenceModel.Leggi(Testo(nome))!.Quando;
+            Assert.IsNotNull(q, "la notte deve portare il proprio tempo");
+            Assert.IsNotNull(q!.Data, "senza la sera, «notte 1» resta un indice di un piano che non abbiamo");
+            Assert.IsNotNull(q.Inizio); Assert.IsNotNull(q.Fine);
+
+            /*  Sono ISTANTI, e un istante non ha bisogno di sapere in che fuso lo si
+             *  guarda: arrivano in UTC e devono restarci. Se qui comparisse uno scarto
+             *  diverso da zero, vorrebbe dire che qualcuno li ha riletti con il fuso
+             *  della macchina, e la stessa sequenza comincerebbe a un'ora diversa a
+             *  seconda di dove si trova il computer che l'ha aperta. */
+            Assert.AreEqual(TimeSpan.Zero, q.Inizio!.Value.Offset, "l'inizio non e' in UTC");
+            Assert.AreEqual(TimeSpan.Zero, q.Fine!.Value.Offset, "la fine non e' in UTC");
+            Assert.IsTrue(q.Fine > q.Inizio, "la finestra finisce prima di cominciare");
+
+            /*  Una notte, non una settimana: la finestra sta dentro le ore di buio.
+             *  E' un controllo grossolano di proposito — serve solo a cogliere un
+             *  campo che sia finito nel posto sbagliato. */
+            var durata = q.Fine!.Value - q.Inizio!.Value;
+            Assert.IsTrue(durata > TimeSpan.FromMinutes(20) && durata < TimeSpan.FromHours(18),
+                $"finestra implausibile: {durata}");
+
+            /*  E la sera e' quella della finestra, non un'altra: l'inizio cade nel
+             *  giorno di `data` o nella notte che segue. */
+            var sera = q.Data!.Value;
+            var giornoInizio = DateOnly.FromDateTime(q.Inizio!.Value.UtcDateTime);
+            Assert.IsTrue(giornoInizio == sera || giornoInizio == sera.AddDays(1),
+                $"la sera dichiarata ({sera}) non c'entra con l'inizio ({giornoInizio})");
+
+            /*  LE ORE UTILI, che sono il campo che impedisce di leggere male gli altri
+             *  due. L'arco e' un inviluppo: puo' contenere un tratto in cui il soggetto
+             *  e' sotto la soglia, e su IC 1396 da Roma vale dieci ore contro 1,67 di
+             *  ore vere. Sempre minori dell'arco, di almeno l'overhead della notte. */
+            Assert.IsNotNull(q.OreUtili, "senza le ore utili l'arco si legge come una finestra piena");
+            Assert.IsTrue(q.OreUtili > 0, "una notte senza ore utili non sarebbe nel piano");
+            Assert.IsTrue(q.OreUtili < durata.TotalHours,
+                $"ore utili ({q.OreUtili}) non possono superare l'arco ({durata.TotalHours:F2} h)");
+        }
+
+        [TestMethod]
+        public void Istante_SenzaFuso_ELettoComeUtc() {
+            /*  UN ISTANTE SENZA LA Z NON E' UN ISTANTE LOCALE.
+             *
+             *  «2026-09-01T19:45:00» e' ISO 8601 legittimo, e il lettore di serie lo
+             *  attaccherebbe al fuso della MACCHINA: lo stesso file darebbe momenti
+             *  diversi a Roma e a Los Angeles, e la riscrittura fisserebbe lo
+             *  spostamento nella forma canonica, dove non si riconosce piu'. Qui si
+             *  verifica che venga letto come UTC, che e' l'unica lettura che non
+             *  dipende da dove si apre il file. */
+            var j = JsonNode.Parse(Testo("completo"))!.AsObject();
+            j["quando"]!.AsObject()["inizio"] = "2026-09-01T19:45:00";
+
+            var letto = SequenceModel.Leggi(j.ToJsonString())!.Quando!.Inizio!.Value;
+            Assert.AreEqual(TimeSpan.Zero, letto.Offset, "e' stato attaccato al fuso della macchina");
+            Assert.AreEqual(new DateTime(2026, 9, 1, 19, 45, 0, DateTimeKind.Utc), letto.UtcDateTime);
+        }
+
+        [TestMethod]
+        public void Istante_PiuFineDelMillesimo_NonVieneLimato() {
+            /*  Il motore scrive tre decimali, ma i setter del modello sono pubblici e
+             *  il valore piu' probabile che qualcuno assegnera' mai a Inizio e'
+             *  DateTimeOffset.UtcNow, che ne ha sette. Troncarli in silenzio farebbe
+             *  fallire un confronto fra il modello in memoria e quello riletto dal
+             *  file, per una ragione che nessuno andrebbe a cercare li'. */
+            var m = SequenceModel.Leggi(Testo("completo"))!;
+            var preciso = new DateTimeOffset(2026, 9, 1, 19, 45, 0, TimeSpan.Zero).AddTicks(1234567);
+            m.Quando!.Inizio = preciso;
+
+            var riletto = SequenceModel.Leggi(m.Scrivi())!.Quando!.Inizio!.Value;
+            Assert.AreEqual(preciso.UtcTicks, riletto.UtcTicks, "l'istante e' stato limato");
+
+            /*  E la forma corta resta corta quando basta: e' quella del contratto, ed e'
+             *  cio' che permette al file del motore di tornare indietro identico. */
+            var scritto = JsonNode.Parse(SequenceModel.Leggi(Testo("completo"))!.Scrivi())!;
+            StringAssert.EndsWith(scritto["quando"]!["fine"]!.GetValue<string>(), "Z");
+            Assert.AreEqual(24, scritto["quando"]!["fine"]!.GetValue<string>().Length,
+                "la forma del contratto ha tre decimali e la Z");
+        }
+
+        [TestMethod]
+        public void Quando_SiRiscriveNellaFormaDelMotore() {
+            /*  Il motore scrive gli istanti con Date.toISOString(): UTC, la Z finale,
+             *  tre decimali anche quando sono zeri. .NET, lasciato a se', riscriverebbe
+             *  lo stesso momento come «+00:00»: stesso istante, altro testo, e il file
+             *  non tornerebbe piu' identico a quello ricevuto. Il convertitore esiste
+             *  per questo, e questo test e' la ragione per cui non lo si toglie. */
+            var scritto = JsonNode.Parse(SequenceModel.Leggi(Testo("completo"))!.Scrivi())!;
+            var inizio = scritto["quando"]!["inizio"]!.GetValue<string>();
+            var data = scritto["quando"]!["data"]!.GetValue<string>();
+
+            StringAssert.Matches(inizio,
+                new System.Text.RegularExpressions.Regex(@"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$"),
+                "l'istante non e' nella forma del motore");
+            StringAssert.Matches(data,
+                new System.Text.RegularExpressions.Regex(@"^\d{4}-\d{2}-\d{2}$"),
+                "la sera deve restare una data civile, senza ora e senza fuso");
+        }
+
+        [TestMethod]
+        public void Quando_UnaNotteSenzaTempoNonNeRiceveUno() {
+            /*  Il motore mette `quando: null` quando la notte non porta tempo. Un
+             *  modello che ci sostituisse un oggetto vuoto, o peggio la data di oggi,
+             *  farebbe partire una sequenza nella notte sbagliata senza dirlo. */
+            var j = JsonNode.Parse(Testo("mono"))!.AsObject();
+            j["quando"] = null;
+            Assert.IsNull(SequenceModel.Leggi(j.ToJsonString())!.Quando);
+
+            /*  E lo stesso vale se la chiave manca del tutto, che e' come arriverebbe
+             *  un modello prodotto da una versione di Strategy precedente a questa. */
+            var vecchio = JsonNode.Parse(Testo("mono"))!.AsObject();
+            vecchio.Remove("quando");
+            var m = SequenceModel.Leggi(vecchio.ToJsonString())!;
+            Assert.IsNull(m.Quando, "un modello senza il campo non deve riceverne uno inventato");
+            Assert.IsTrue(m.Blocchi.Count > 0, "e tutto il resto arriva come prima");
+        }
+
+        [TestMethod]
+        public void Quando_UnPezzoSoloNonPortaViaGliAltri() {
+            /*  I tre campi sono indipendenti: il motore li riduce a null uno per uno.
+             *  Chi legge deve poter avere la finestra senza la sera, e viceversa. */
+            var j = JsonNode.Parse(Testo("completo"))!.AsObject();
+            j["quando"]!.AsObject()["data"] = null;
+            var m = SequenceModel.Leggi(j.ToJsonString())!;
+            Assert.IsNotNull(m.Quando);
+            Assert.IsNull(m.Quando!.Data);
+            Assert.IsNotNull(m.Quando.Inizio, "togliere la sera non deve portare via la finestra");
+        }
+
         // ------------------------------------------- i rami che nessuna fixture copre
 
         /*  I due test che seguono non usano un JSON inventato: prendono una fixture
@@ -273,8 +419,12 @@ namespace AstroImage.NINA.Plugin.Tests {
             var dopo = JsonNode.Parse(m.Scrivi())!.AsObject();
 
             CollectionAssert.AreEqual(
-                new[] { "notte", "nome", "bersaglio", "ottica", "sito", "cap", "blocchi", "nonFusi", "dither", "flip" },
+                new[] { "notte", "quando", "nome", "bersaglio", "ottica", "sito", "cap",
+                        "blocchi", "nonFusi", "dither", "flip" },
                 dopo.Select(p => p.Key).ToArray());
+            CollectionAssert.AreEqual(
+                new[] { "data", "inizio", "fine", "oreUtili" },
+                dopo["quando"]!.AsObject().Select(p => p.Key).ToArray());
             CollectionAssert.AreEqual(
                 new[] { "nome", "rot", "off", "ra_deg", "dec_deg", "spostato" },
                 dopo["bersaglio"]!.AsObject().Select(p => p.Key).ToArray());

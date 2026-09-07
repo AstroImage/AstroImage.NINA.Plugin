@@ -1,5 +1,11 @@
 {
   "notte": 1,
+  "quando": {
+    "data": "2026-09-01",
+    "inizio": "2026-09-01T19:45:00.000Z",
+    "fine": "2026-09-02T00:45:00.000Z",
+    "oreUtili": 4.4
+  },
   "nome": "M27 — OSC + duobanda, notte 1",
   "bersaglio": {
     "nome": "M27",

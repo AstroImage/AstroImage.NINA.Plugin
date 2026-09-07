@@ -15,6 +15,10 @@ scritto e chi lo legge hanno avuto la stessa idea sbagliata.
 | `completo.json` | campo spostato (`off` con `spostato: true`), rotazione, rotatore **dichiarato**, dither ogni 3 pose |
 | `scarno.json` | il caso povero: niente sito, niente autoguida, nessun nome di attrezzatura — tutti i campi che devono restare `null` |
 
+Tutte e cinque portano `quando`, perché il motore lo riempie da una notte vera. Il caso
+con `quando` nullo — una notte costruita a mano, senza tempo — non è raggiungibile dalla
+pagina, e i test lo ottengono degradando una fixture invece di inventarne una.
+
 Insieme coprono i rami che il contratto ha davvero: `nome` nullo e non nullo, `sito`
 nullo, `dither` nullo per assenza di guida, `matrice` vera e falsa, `off` presente e
 assente, `nonFusi` pieno e vuoto.

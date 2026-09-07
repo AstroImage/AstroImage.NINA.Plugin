@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -52,6 +53,13 @@ namespace AstroImage.NINA.Plugin.Models {
         /// </summary>
         [JsonPropertyName("notte")]
         public int? Notte { get; set; }
+
+        /// <summary>
+        /// Quando si riprende. Nullo se la notte non porta tempo: e' una notte costruita
+        /// a mano, e un contratto non inventa una data per riempire un campo.
+        /// </summary>
+        [JsonPropertyName("quando")]
+        public Quando? Quando { get; set; }
 
         /// <summary>
         /// Il nome che il motore propone per la sequenza. Puo' mancare: il motore lo
@@ -128,6 +136,10 @@ namespace AstroImage.NINA.Plugin.Models {
         public static readonly JsonSerializerOptions OpzioniJson = new JsonSerializerOptions {
             WriteIndented = true,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            /*  Gli istanti si riscrivono nella forma del motore e non in quella di
+             *  .NET: stesso momento, altro testo, e il file non tornerebbe piu'
+             *  identico a quello ricevuto. Vedi IstanteUtcConverter. */
+            Converters = { new Json.IstanteUtcConverter() },
         };
 
         /// <summary>Legge il modello dal JSON prodotto da Strategy.</summary>
@@ -137,6 +149,75 @@ namespace AstroImage.NINA.Plugin.Models {
         /// <summary>Riscrive il modello nella stessa forma in cui e' arrivato.</summary>
         public string Scrivi() =>
             JsonSerializer.Serialize(this, OpzioniJson);
+    }
+
+    /// <summary>
+    /// QUANDO SI RIPRENDE: una sera e due istanti, che rispondono a due domande diverse.
+    ///
+    /// <para>
+    /// <see cref="Data"/> e' la sera in cui la notte comincia, senza ora e senza fuso.
+    /// Risponde a «quale notte e'», ed e' quella che si scrive su un'etichetta. E' la
+    /// data CIVILE del luogo in cui il motore ha fatto il conto, non un giorno tradotto
+    /// in UTC: le due cose differiscono per mezza giornata di longitudine, e prendere
+    /// quella sbagliata sposta la sera di un giorno.
+    /// </para>
+    ///
+    /// <para>
+    /// <see cref="Inizio"/> e <see cref="Fine"/> sono i due estremi dell'arco utile,
+    /// in UTC perche' un istante non ha bisogno di sapere in che fuso lo si guarda. Li
+    /// calcola il motore scandendo il cielo ogni cinque minuti fra i crepuscoli; da
+    /// questa parte del confine non c'e' — e non ci sara' — nulla che sappia rifarlo.
+    /// </para>
+    ///
+    /// <para>
+    /// <b><see cref="OreUtili"/> E' IL CAMPO CHE IMPEDISCE DI LEGGERE MALE GLI ALTRI
+    /// DUE.</b> L'arco fra inizio e fine e' un INVILUPPO, non una finestra piena: e' il
+    /// primo e l'ultimo campione sopra la soglia di altezza, e in mezzo ci puo' essere
+    /// un tratto in cui il soggetto e' sotto il pavimento. Su IC 1396 da Roma il 31
+    /// gennaio l'arco copre dieci ore e cinquantacinque mentre le ore vere sono 1,67:
+    /// il soggetto tramonta e risorge. Chi trattasse l'arco come una finestra di
+    /// ripresa comanderebbe nove ore di pose con l'oggetto troppo basso.
+    /// </para>
+    ///
+    /// <para>
+    /// <see cref="OreUtili"/> sono le ore che il piano assegna davvero a quella notte,
+    /// overhead gia' tolto. Se <c>Fine - Inizio</c> e' molto piu' grande di
+    /// <see cref="OreUtili"/>, l'arco non e' pieno; anche nella notte piu' ordinaria i
+    /// due numeri differiscono di mezz'ora abbondante, che e' il tempo tolto per messa
+    /// a fuoco, plate solve, calibrazione della guida e flip.
+    /// </para>
+    ///
+    /// <para>
+    /// Due precisazioni. <see cref="Fine"/> e' l'ultimo campione utile piu' il passo di
+    /// cinque minuti, quindi puo' cadere qualche minuto dopo la fine del buio
+    /// astronomico. E <see cref="Data"/> e' la data civile della macchina che ha fatto
+    /// il conto, non del sito: coincidono quando si riprende da casa propria — il caso
+    /// normale — ma non quando si pilota un telescopio dall'altra parte del mondo.
+    /// </para>
+    /// </summary>
+    public sealed class Quando {
+
+        /// <summary>La sera in cui la notte comincia, data civile.</summary>
+        [JsonPropertyName("data")]
+        public DateOnly? Data { get; set; }
+
+        /// <summary>Primo istante dell'arco utile, in UTC.</summary>
+        [JsonPropertyName("inizio")]
+        public DateTimeOffset? Inizio { get; set; }
+
+        /// <summary>Ultimo istante dell'arco utile, in UTC.</summary>
+        [JsonPropertyName("fine")]
+        public DateTimeOffset? Fine { get; set; }
+
+        /// <summary>
+        /// Ore che il piano assegna a questa notte, overhead gia' tolto. Sempre minori
+        /// dell'arco: quanto minori dice se l'arco e' pieno o bucato.
+        /// </summary>
+        [JsonPropertyName("oreUtili")]
+        public double? OreUtili { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? Extra { get; set; }
     }
 
     /// <summary>
