@@ -1,5 +1,11 @@
 {
   "notte": 1,
+  "quando": {
+    "data": "2026-09-01",
+    "inizio": "2026-09-01T20:05:00.000Z",
+    "fine": "2026-09-02T03:00:00.000Z",
+    "oreUtili": 6.317
+  },
   "nome": "M31 — OSC, notte 1",
   "bersaglio": {
     "nome": "M31",
