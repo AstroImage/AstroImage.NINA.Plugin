@@ -198,8 +198,12 @@ namespace AstroImage.NINA.Plugin.Services {
                 Acceso = Protetto(() => (bool?)i.CoolerOn),
                 PotenzaPct = Finito(Protetto(() => (double?)i.CoolerPower)),
                 SetpointProfiloC = Finito(Protetto(() => (double?)cfg!.Temperature)),
-                MinutiFreddo = Positivo(Protetto(() => (double?)cfg!.CoolingDuration)),
-                MinutiCaldo = Positivo(Protetto(() => (double?)cfg!.WarmingDuration)),
+                /*  `Finito` e non `Positivo`: ZERO MINUTI E' UNA SCELTA, vuol dire
+                 *  «non aspettare». Scartarlo come se fosse un dato mancante
+                 *  cancellerebbe una decisione dell'utente. Sul banco in campo questi
+                 *  valgono 1 e 5, ma il giorno che uno mette 0 deve arrivare 0. */
+                MinutiFreddo = Finito(Protetto(() => (double?)cfg!.CoolingDuration)),
+                MinutiCaldo = Finito(Protetto(() => (double?)cfg!.WarmingDuration)),
             };
             c.Raffreddamento = freddo;
             return c;

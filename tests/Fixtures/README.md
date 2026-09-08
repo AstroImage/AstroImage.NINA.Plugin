@@ -44,16 +44,20 @@ sorgente è N.I.N.A., e N.I.N.A. non si mette dentro un test.
 
 | file | da dove viene |
 |---|---|
-| `profilo-osc.json` | generata dal file `.profile` **vero** di N.I.N.A. su questa macchina: focale 800, f/6.9, pixel 3,76 µm, matrice RGGB, sito 45,95 / 10,2019 a 1000 m, guadagno 100, offset 50 |
-| `profilo-mono.json` | idem, dal profilo con focale 1295 e disegno di matrice `None` |
-| `collegato.json` | **costruita.** Il profilo e le specifiche della camera sono veri — vengono dal catalogo di Strategy, ASI 2600MC Pro, 6248 × 4176 a 3,76 µm — ma lo stato vivo (temperatura del sensore, RMS, SQM) è plausibile, non misurato |
+| `profilo-osc.json` | generata dal file `.profile` **vero** di N.I.N.A.: focale 800, f/6.9, pixel 3,76 µm, matrice RGGB, sito 45,95 / 10,2019 a 1000 m, guadagno 100, offset 50, **ruota vuota** |
+| `campo-mono.json` | letta dal **mini PC operativo in campo**, N.I.N.A. 3.3, attraverso l'Advanced API: CEM70 + ASI 2600MM + RC8, focale 1624 f/8, matrice `None`, guadagno 0 (modo LCG), e una **ruota con sette vetri** — L R G B S H O con gli offset di fuoco veri, negativi, e binning di autofocus diverso fra banda larga e stretta |
+| `collegato.json` | **costruita.** Il profilo e le specifiche della camera sono veri — catalogo di Strategy, ASI 2600MC Pro, 6248 × 4176 a 3,76 µm — ma lo stato vivo (temperatura, RMS, SQM) è plausibile, non misurato |
 
 Nelle due generate dai profili la parte dei **dispositivi è nulla**, e non è una
 semplificazione: è la verità. Un profilo letto a telescopio spento non sa che cosa
 dichiari un driver, e il modello lo dice invece di riempire il vuoto.
 
-`collegato.json` va **rigenerata da una lettura vera** quando il pannello esisterà. Fino
+`collegato.json` va **rigenerata da una lettura vera** con l'attrezzatura collegata. Fino
 ad allora prova la forma del contratto, non i numeri.
+
+`campo-mono.json` è quella che copre il caso più difficile: la ruota piena. Nei profili
+di casa è vuota in tutti e sette, e senza il banco in campo l'elenco dei filtri sarebbe
+rimasto la parte meno provata del contratto.
 
 Una nota che vale per tutte e tre: i numeri interi si scrivono senza decimali (`2000`,
 non `2000.0`), perché è la forma che il serializzatore produce e il giro deve tornare

@@ -118,6 +118,17 @@ namespace AstroImage.NINA.Plugin.Tests {
              *  non una capacita' del driver. */
             Assert.AreEqual(100, m.Camera.Gain!.Profilo);
             Assert.IsNull(m.Camera.Gain.Max, "gli estremi invece li dichiara la camera");
+
+            /*  ZERO E' UN VALORE, NON UN'ASSENZA. Il banco in campo lavora a guadagno 0,
+             *  che sulla 2600MM e' il modo LCG: scartarlo come «non impostato»
+             *  cancellerebbe una scelta. E i minuti di attesa del raffreddamento hanno
+             *  la stessa natura — zero vuol dire «non aspettare». */
+            var campo = M("campo-mono");
+            Assert.AreEqual(0, campo.Camera!.Gain!.Profilo, "guadagno 0 = modo LCG");
+            Assert.AreEqual(50, campo.Camera.Offset!.Profilo);
+            Assert.AreEqual(1d, campo.Camera.Raffreddamento!.MinutiFreddo);
+            Assert.AreEqual(5d, campo.Camera.Raffreddamento.MinutiCaldo);
+            Assert.AreEqual(-10d, campo.Camera.Raffreddamento.SetpointProfiloC);
         }
 
         [TestMethod]
@@ -145,13 +156,13 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.AreEqual("RGGB", osc.Camera!.Sensore, "il nome esatto, non «a colori»");
             Assert.IsFalse(osc.Camera.Monocromatico);
 
-            /*  Il profilo mono di questa macchina dichiara «None» come disegno di
-             *  matrice: e' cosi' che N.I.N.A. scrive un sensore senza matrice, e va
-             *  portato com'e' invece di essere tradotto in un booleano che perde
-             *  quale matrice fosse. */
-            var mono = M("profilo-mono");
+            /*  Il banco in campo dichiara «None» come disegno di matrice: e' cosi'
+             *  che N.I.N.A. scrive un sensore senza matrice, e va portato com'e'
+             *  invece di essere tradotto in un booleano che perde quale matrice fosse. */
+            var mono = M("campo-mono");
             Assert.AreEqual("None", mono.Camera!.MatriceProfilo);
-            Assert.AreEqual(1295d, mono.Ottica!.FocaleMm);
+            Assert.AreEqual(1624d, mono.Ottica!.FocaleMm, "RC8 del banco in campo");
+            Assert.AreEqual(8d, mono.Ottica.Rapporto);
             Assert.IsNull(mono.Camera.Monocromatico,
                 "a camera scollegata non si sa: il profilo dice il disegno, non il sensore");
         }
@@ -173,6 +184,26 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.AreEqual(3, con.Ruota!.Filtri!.Count);
             Assert.AreEqual("Ha 3nm", con.Ruota.FiltroAttuale!.Nome);
             Assert.AreEqual(1, con.Ruota.FiltroAttuale.Posizione);
+
+            /*  E la ruota VERA del banco in campo: sette vetri, LRGB piu' SHO, con gli
+             *  offset di fuoco misurati da chi ci riprende davvero. E' il caso che
+             *  nessuno dei profili di casa copriva, perche' li' la ruota e' vuota. */
+            var campo = M("campo-mono");
+            Assert.AreEqual(7, campo.Ruota!.Filtri!.Count);
+            CollectionAssert.AreEqual(new[] { "L", "R", "G", "B", "S", "H", "O" },
+                campo.Ruota.Filtri.Select(f => f.Nome).ToArray(),
+                "nomi e ORDINE come stanno nella ruota");
+            CollectionAssert.AreEqual(new int?[] { 0, 1, 2, 3, 4, 5, 6 },
+                campo.Ruota.Filtri.Select(f => f.Posizione).ToArray());
+            /*  Gli offset di fuoco sono NEGATIVI, e devono restare tali: un filtro a
+             *  banda stretta mette a fuoco piu' dentro. Un lettore che scartasse i
+             *  numeri non positivi li perderebbe tutti tranne il primo. */
+            Assert.AreEqual(0, campo.Ruota.Filtri[0].OffsetFuoco, "la luminanza e' il riferimento");
+            Assert.AreEqual(-25, campo.Ruota.Filtri[4].OffsetFuoco, "SII, il piu' lontano");
+            Assert.IsTrue(campo.Ruota.Filtri.Skip(1).All(f => f.OffsetFuoco < 0));
+            /*  E l'autofocus cambia binning fra banda larga e banda stretta. */
+            Assert.AreEqual("1x1", campo.Ruota.Filtri[0].AutofocusBinning);
+            Assert.AreEqual("2x2", campo.Ruota.Filtri[5].AutofocusBinning);
         }
 
         [TestMethod]

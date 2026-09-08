@@ -1,0 +1,137 @@
+{
+  "versione": 1,
+  "letto": "2026-09-08T22:10:00.000Z",
+  "applicazione": {
+    "nome": "N.I.N.A.",
+    "versione": "3.3.0.1057",
+    "ponte": "0.1.0.0"
+  },
+  "profilo": {
+    "nome": "CEM70 - ASI 2600MMONO - RC8 EAF DA ASIAIR ",
+    "id": "84bea327-ee46-4cc0-bb14-5867e8f14794"
+  },
+  "sito": {
+    "lat": 45.945608,
+    "lon": 10.180174,
+    "elevazione_m": 967.3141601711534
+  },
+  "ottica": {
+    "nome": "RC8",
+    "focale_mm": 1624,
+    "rapporto": 8
+  },
+  "camera": {
+    "collegato": false,
+    "nome": null,
+    "driver": null,
+    "pixel_um": null,
+    "pixel_um_profilo": 3.76,
+    "larghezza_px": null,
+    "altezza_px": null,
+    "sensore": null,
+    "monocromatico": null,
+    "matrice_profilo": "None",
+    "bit": null,
+    "elettroni_per_adu": null,
+    "posa_min_s": null,
+    "posa_max_s": null,
+    "gain": {
+      "attuale": null,
+      "min": null,
+      "max": null,
+      "predefinito": null,
+      "valori": null,
+      "profilo": 0
+    },
+    "offset": {
+      "attuale": null,
+      "min": null,
+      "max": null,
+      "predefinito": null,
+      "valori": null,
+      "profilo": 50
+    },
+    "modi_lettura": null,
+    "modo_lettura": null,
+    "binning": null,
+    "raffreddamento": {
+      "disponibile": null,
+      "temperatura_c": null,
+      "setpoint_c": null,
+      "setpoint_profilo_c": -10,
+      "acceso": null,
+      "potenza_pct": null,
+      "minuti_freddo": 1,
+      "minuti_caldo": 5
+    }
+  },
+  "montatura": null,
+  "ruota": {
+    "collegato": false,
+    "nome": null,
+    "driver": null,
+    "filtri": [
+      {
+        "nome": "L",
+        "posizione": 0,
+        "offset_fuoco": 0,
+        "autofocus_posa_s": 3,
+        "autofocus_binning": "1x1",
+        "autofocus_gain": 0
+      },
+      {
+        "nome": "R",
+        "posizione": 1,
+        "offset_fuoco": -6,
+        "autofocus_posa_s": 3,
+        "autofocus_binning": "1x1",
+        "autofocus_gain": 0
+      },
+      {
+        "nome": "G",
+        "posizione": 2,
+        "offset_fuoco": -16,
+        "autofocus_posa_s": 3,
+        "autofocus_binning": "1x1",
+        "autofocus_gain": 0
+      },
+      {
+        "nome": "B",
+        "posizione": 3,
+        "offset_fuoco": -10,
+        "autofocus_posa_s": 3,
+        "autofocus_binning": "1x1",
+        "autofocus_gain": 0
+      },
+      {
+        "nome": "S",
+        "posizione": 4,
+        "offset_fuoco": -25,
+        "autofocus_posa_s": 10,
+        "autofocus_binning": "2x2",
+        "autofocus_gain": 100
+      },
+      {
+        "nome": "H",
+        "posizione": 5,
+        "offset_fuoco": -13,
+        "autofocus_posa_s": 10,
+        "autofocus_binning": "2x2",
+        "autofocus_gain": 100
+      },
+      {
+        "nome": "O",
+        "posizione": 6,
+        "offset_fuoco": -10,
+        "autofocus_posa_s": 10,
+        "autofocus_binning": "2x2",
+        "autofocus_gain": 100
+      }
+    ],
+    "filtro_attuale": null
+  },
+  "focheggiatore": null,
+  "rotatore": null,
+  "guida": null,
+  "meteo": null
+}
