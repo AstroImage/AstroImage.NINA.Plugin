@@ -10,4 +10,5 @@
 # fine riga secondo la macchina significherebbe che la fixture su disco non e' piu'
 # quella che il motore ha prodotto. Il test normalizza comunque i fine riga, ma la
 # fonte deve restare la fonte.
-tests/Fixtures/*.json -text
+tests/Fixtures/**/*.json -text
+tests/Fixtures/*.json    -text

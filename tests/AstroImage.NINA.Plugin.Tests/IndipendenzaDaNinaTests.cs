@@ -27,62 +27,23 @@ namespace AstroImage.NINA.Plugin.Tests {
 
         private const string SPAZIO = "AstroImage.NINA.Plugin.Models";
 
-        /*  DUE INSIEMI, E LA DIFFERENZA E' COSTATA UN BUCO.
-         *
-         *  `TipiDelContratto` sono i tipi che descrivono la forma del modello, e stanno
-         *  nel namespace esatto. `TipiSottoModels` comprende anche i sotto-namespace,
-         *  e serve alle guardie sulla purezza: quando e' nato Models/Json/ con il
-         *  convertitore degli istanti, il filtro sul namespace ESATTO ha smesso di
-         *  vedere l'unico codice eseguibile della cartella. Provato: mettendo dentro
-         *  quel tipo un CalcolaQualcosa() e una proprieta' calcolata, tutte e quattro
-         *  le guardie restavano verdi.
+        /*  I due insiemi stanno in TipiDelPonte, perche' servono anche ai test del
+         *  contratto del setup e un try/catch duplicato e' un try/catch che un giorno
+         *  diverge. `Nel` e' la forma di un contratto; `Sotto` comprende i
+         *  sotto-namespace e serve alle guardie sulla purezza: quando e' nato
+         *  Models/Json/ con il convertitore, il filtro sul namespace esatto ha smesso
+         *  di vedere l'unico codice eseguibile della cartella.
          *
          *  Il convertitore ha diritto a Read e Write: sono i due metodi che la classe
          *  base gli impone, non logica che qualcuno ha aggiunto. Tutto il resto no. */
-        private static Type[] TipiDelContratto() =>
-            TipiCaricati().Where(t => t.Namespace == SPAZIO).ToArray();
-
-        private static Type[] TipiSottoModels() =>
-            TipiCaricati().Where(t => t.Namespace == SPAZIO ||
-                                      (t.Namespace != null && t.Namespace.StartsWith(SPAZIO + ".",
-                                                                StringComparison.Ordinal))).ToArray();
+        private static Type[] TipiDelContratto() => TipiDelPonte.Nel(SPAZIO);
+        private static Type[] TipiSottoModels() => TipiDelPonte.Sotto(SPAZIO);
 
         private static bool EUnConvertitore(Type t) {
             for (var b = t.BaseType; b != null; b = b.BaseType)
                 if (b.Namespace == "System.Text.Json.Serialization" && b.Name.StartsWith("JsonConverter"))
                     return true;
             return false;
-        }
-
-        /*  L'assembly contiene ANCHE la classe del plugin, che da N.I.N.A. dipende
-         *  eccome: eredita da PluginBase. Senza le DLL di N.I.N.A. quel tipo non si
-         *  carica, e GetTypes() solleva. Non e' un guasto del test: e' la
-         *  dimostrazione. Si raccolgono i tipi che si sono caricati lo stesso, e i
-         *  nostri devono essere tutti li'. */
-        private static Type[] TipiCaricati() {
-            var asm = typeof(SequenceModel).Assembly;
-            Type?[] tutti;
-            try { tutti = asm.GetTypes(); }
-            catch (ReflectionTypeLoadException e) {
-                /*  E QUI STAVA LA FALLA, che e' il modo classico in cui una guardia
-                 *  smette di fare la guardia senza dirlo.
-                 *
-                 *  Un tipo che nomina N.I.N.A. NON SI CARICA, quindi arriva nullo.
-                 *  Buttare via i nulli senza contarli vuol dire che il tipo colpevole
-                 *  sparisce prima di essere esaminato: i controlli qui sotto rivedono
-                 *  gli stessi tipi innocenti di sempre e restano verdi PROPRIO sulla
-                 *  regressione per cui esistono. Provato: aggiungendo a Models una
-                 *  classe che eredita da PluginBase, tutti e quattro i test passavano.
-                 *
-                 *  Un nullo solo e' atteso ed e' la classe del plugin, che da N.I.N.A.
-                 *  dipende per mestiere. Il secondo e' la notizia. */
-                Assert.AreEqual(1, e.Types.Count(t => t is null),
-                    "oltre alla classe del plugin, un altro tipo di questo assembly non si e' " +
-                    "caricato senza N.I.N.A.: " +
-                    string.Join("; ", e.LoaderExceptions.Select(x => x?.Message)));
-                tutti = e.Types;
-            }
-            return tutti.Where(t => t is not null).Select(t => t!).ToArray();
         }
 
         [TestMethod]
