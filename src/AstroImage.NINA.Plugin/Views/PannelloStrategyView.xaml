@@ -1,0 +1,33 @@
+<UserControl x:Class="AstroImage.NINA.Plugin.Views.PannelloStrategyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf">
+
+    <!--
+        IL VETRO, E NIENTE ALTRO.
+
+        Qui non c'e' interfaccia: c'e' un contenitore per la pagina di Strategy e un
+        riquadro di ripiego per quando WebView2 non parte. Tutta la parte che si guarda
+        e si tocca vive nella pagina, ed e' una scelta: l'interfaccia di Strategy
+        esiste gia', e' quella che l'utente conosce dal browser, e riscriverla in WPF
+        vorrebbe dire mantenerne due.
+    -->
+    <Grid>
+        <wv2:WebView2 x:Name="Vetro" Visibility="Collapsed" />
+
+        <Border x:Name="Ripiego" Padding="18" Visibility="Visible">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock x:Name="RipiegoTitolo"
+                           Text="Avvio del pannello…"
+                           FontSize="15" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" />
+                <TextBlock x:Name="RipiegoMotivo"
+                           Margin="0,8,0,0" MaxWidth="460"
+                           TextWrapping="Wrap" TextAlignment="Center" Opacity="0.75" />
+                <Button x:Name="Riprova" Content="Riprova"
+                        Margin="0,16,0,0" Padding="16,5"
+                        HorizontalAlignment="Center" Click="AlRiprova" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
