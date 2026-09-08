@@ -3,9 +3,10 @@
 Un plugin per [N.I.N.A.](https://nighttime-imaging.eu/) che porta dentro il
 Sequenziatore Avanzato la prescrizione decisa da **AstroImage-Strategy**.
 
-> **Stato: scheletro più il contratto.** Il plugin non fa ancora nulla dentro N.I.N.A.:
-> ha l'identità, i punti di innesto, il confine con il motore e ora il modello di
-> sequenza che saprà ricevere. Manca tutto il resto.
+> **Stato: sa costruire la sequenza, non sa ancora riceverla.** Dato un modello, il
+> ponte costruisce il contenitore del bersaglio nel Sequenziatore Avanzato e lo
+> consegna come nuovo target. Manca il pezzo che porta il modello da Strategy fin qui,
+> e manca l'interfaccia.
 
 ## Che cosa fa, e che cosa non fa
 
