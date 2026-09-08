@@ -4,7 +4,6 @@ using System.Net.Http;
 using AstroImage.NINA.Plugin.Services;
 using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Profile.Interfaces;
-using NINA.Sequencer;
 using NINA.Sequencer.Interfaces.Mediator;
 using NINA.WPF.Base.ViewModel;
 
@@ -54,7 +53,10 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         /// impedisce di consegnare una riga di una risposta precedente.</summary>
         public PrescrizioneCorrente InMano { get; } = new PrescrizioneCorrente();
 
-        /// <summary>Il montatore, o null se N.I.N.A. non ha dato la fabbrica.</summary>
+        /// <summary>Da dove vengono i pezzi del Sequenziatore.</summary>
+        public IFonteDiPezzi Fonte { get; }
+
+        /// <summary>Il montatore, o null se non c'e' da dove prendere i pezzi.</summary>
         public SequenceBuilder Costruttore { get; }
 
         /// <summary>Chi accetta il bersaglio nel Sequenziatore, o null.</summary>
@@ -63,23 +65,24 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         /// <summary>Perche' non si puo' consegnare, quando non si puo'. Null se si puo'.</summary>
         public string PerCheNonConsegna { get; }
 
-        /*  I DUE SERVIZI SI CHIEDONO CON AllowDefault, e la ragione e' il modo in cui si
+        /*  IL MEDIATORE SI CHIEDE CON AllowDefault, e la ragione e' il modo in cui si
          *  guasta MEF. Un parametro di [ImportingConstructor] che non si risolve non
          *  produce un pannello a meta': fa fallire la composizione dell'intera parte, e
          *  il plugin sparisce dall'elenco senza spiegazioni. AllowDefault lo trasforma
          *  in un null, e allora il pannello si carica lo stesso e puo' DIRE che cosa gli
-         *  manca — che e' l'unica forma utile di questo guasto.
+         *  manca — che e' l'unica forma utile di questo guasto. E si e' gia' guadagnato
+         *  il posto: e' cosi' che abbiamo scoperto la fabbrica mancante, leggendo un
+         *  «non disponibile» invece di cercare per un'ora un plugin sparito.
          *
-         *  Che siano risolvibili e' verificato, non sperato: SimpleExposure di N.I.N.A.
-         *  stessa chiede ISequencerFactory con un [ImportingConstructor], e Orbitals —
-         *  installato e funzionante su questa macchina — chiede ISequenceMediator dentro
-         *  un DockableVM, che e' esattamente questo caso. Ma «verificato» e «garantito
-         *  per sempre» sono due cose diverse, e la differenza costa una riga.
+         *  QUI C'ERA ANCHE ISequencerFactory, e non c'e' piu'. Non e' una semplificazione:
+         *  N.I.N.A. quella fabbrica ai plugin non la fornisce. `PluginLoader.GetContainer`
+         *  compone trentanove servizi sulla 3.2 e quarantuno sulla 3.3 — la 3.3 aggiunge
+         *  symbolBroker e templateLinkResolver — e in nessuna delle due liste c'e'.
+         *  I pezzi arrivano clonando un modello di bersaglio: vedi FonteDaModello.
          */
         [ImportingConstructor]
         public PannelloStrategyVM(
                 IProfileService profileService,
-                [Import(AllowDefault = true)] ISequencerFactory fabbrica,
                 [Import(AllowDefault = true)] ISequenceMediator mediatore) : base(profileService) {
             Title = "AstroImage Strategy";
             CanClose = true;
@@ -91,13 +94,16 @@ namespace AstroImage.NINA.Plugin.ViewModels {
             Cliente = new ClienteStrategy(Trasporto, new Uri(Radice));
 
             Mediatore = mediatore;
-            Costruttore = fabbrica is null ? null : new SequenceBuilder(fabbrica, profileService);
+            /*  I pezzi si prendono clonando un modello di bersaglio di N.I.N.A.: la
+             *  fabbrica del Sequenziatore ai plugin non viene fornita, e questa e' la
+             *  strada che resta — che e' anche la piu' solida fra le versioni. */
+            var fonte = new FonteDaModello(mediatore);
+            Fonte = fonte;
+            Costruttore = fonte.Disponibile ? new SequenceBuilder(fonte, profileService) : null;
 
             PerCheNonConsegna =
-                fabbrica is null && mediatore is null
-                    ? "N.I.N.A. non ha fornito ne' la fabbrica del Sequenziatore ne' il mediatore."
-                : fabbrica is null ? "N.I.N.A. non ha fornito la fabbrica del Sequenziatore."
-                : mediatore is null ? "N.I.N.A. non ha fornito il mediatore delle sequenze."
+                mediatore is null ? "N.I.N.A. non ha fornito il mediatore delle sequenze."
+                : !fonte.Disponibile ? fonte.PerCheNo
                 : null;
         }
     }

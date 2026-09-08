@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    IL SECONDO BANCO, E PERCHE' NE SERVONO DUE.
+
+    Il banco accanto — AstroImage.NINA.Plugin.Tests — gira SENZA nessun assembly di
+    N.I.N.A., ed e' cosi' che dimostra l'indipendenza dei contratti: se le DLL ci
+    fossero, quella prova non varrebbe piu' niente. Ma allora nessun test puo'
+    chiamare SequenceBuilder, perche' per eseguirlo i tipi del Sequenziatore devono
+    caricarsi. Le due proprieta' non stanno nello stesso progetto.
+
+    Qui dentro N.I.N.A. c'e', e serve a provare l'altra meta': che il costruttore si
+    monti davvero. E' il buco che ci e' costato una serata — centoquindici verifiche
+    verdi su una dipendenza che nell'ambiente vero non esisteva, perche' nessuna
+    montava il pezzo: leggevano i metadati.
+
+    GLI ASSEMBLY VENGONO DAL NuGet, non dalla cartella di N.I.N.A. Niente
+    ExcludeAssets qui: servono anche a runtime. E niente percorsi di questa macchina,
+    o il banco funzionerebbe solo dove e' stato scritto.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <NoWarn>NU1701;CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
+
+    <!-- 3.2 come riferimento, la piu' bassa delle due in giro: un plugin compilato
+         contro la 3.2 gira anche sulla 3.3, il contrario no. Nessuna dipendenza da
+         develop/3.3. -->
+    <PackageReference Include="NINA.Plugin" Version="3.2.0.9001" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AstroImage.NINA.Plugin\AstroImage.NINA.Plugin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Fixtures\**\*.json"
+          Link="Fixtures\%(RecursiveDir)%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
