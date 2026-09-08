@@ -366,6 +366,22 @@ namespace AstroImage.NINA.Plugin.Models.Setup {
     /// posizione crederebbe a un angolo che nessuno ha mai misurato, e ci
     /// costruirebbe sopra un'inquadratura.
     /// </para>
+    ///
+    /// <para>
+    /// <b>DUE ANGOLI, E NON SONO LO STESSO.</b> L'angolo che si VUOLE vive nella
+    /// sequenza — in SequenceModel e' <c>bersaglio.rot</c>, e in N.I.N.A. e' il
+    /// <c>PositionAngle</c> del bersaglio. Quello che C'E' e' questo. Sul banco in
+    /// campo, con una sequenza su M 31 gia' preparata a 120 gradi, il rotatore
+    /// dichiarava ancora 0 e non sincronizzato: i due numeri si incontrano solo quando
+    /// la sequenza esegue davvero il centraggio con rotazione e qualcuno gira il
+    /// portaoculari e conferma.
+    /// </para>
+    ///
+    /// <para>
+    /// E' la ragione per cui i due contratti restano separati. Un modello che avesse
+    /// avuto «la rotazione» una volta sola avrebbe confuso l'intenzione con lo stato,
+    /// e avrebbe risposto 120 a chi chiedeva «com'e' orientato adesso il sensore».
+    /// </para>
     /// </summary>
     public sealed class Rotatore {
         [JsonPropertyName("collegato")] public bool? Collegato { get; set; }
