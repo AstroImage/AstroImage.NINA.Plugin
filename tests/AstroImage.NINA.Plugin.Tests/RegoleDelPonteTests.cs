@@ -105,6 +105,37 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "\nusa fabbrica.GetItem<T>() / GetContainer<T>() / GetTrigger<T>()");
         }
 
+
+        [TestMethod]
+        public void IlPonteNonNominaMaiLaVitaDellaSessione() {
+            /*  IL BERSAGLIO NON E' LA SESSIONE.
+             *
+             *  `Sequence2VM.AddTarget` mette il contenitore in `Items[1]`, l'area
+             *  centrale, fra lo Start e l'End che appartengono a chi riprende. Un
+             *  `CoolCamera` dentro un bersaglio raffredderebbe una volta PER BERSAGLIO
+             *  invece che una volta per sessione; `WarmCamera` e `FindHome` si
+             *  eseguirebbero dopo OGNI bersaglio invece che alla fine.
+             *
+             *  Il divieto e' gia' nella forma di IFonteDiPezzi, che quei pezzi non li
+             *  offre. Questo lo verifica sul BINARIO, dove non si puo' barare: se
+             *  qualcuno li ottenesse per un'altra strada — un `new`, un cast, un altro
+             *  servizio — il nome comparirebbe qui.
+             *
+             *  Il ponte costruisce che cosa riprendere. Quando accendere e spegnere
+             *  resta di chi c'e'. */
+            var vietati = new[] { "CoolCamera", "WarmCamera", "FindHome", "ParkScope",
+                                  "UnparkScope", "ShutdownPC", "SetTracking" };
+            var trovati = MembriNominati()
+                .Where(m => vietati.Contains(m.Split(new[] { "::" }, StringSplitOptions.None)[0]))
+                .Distinct().ToList();
+
+            Assert.AreEqual(0, trovati.Count,
+                "il ponte nomina la vita della sessione dentro un bersaglio:\n  " +
+                string.Join("\n  ", trovati) +
+                "\nquelle istruzioni appartengono allo Start e all'End della sequenza, " +
+                "che sono dell'utente");
+        }
+
         [TestMethod]
         public void LaProvaNonEVuota() {
             /*  Le due verifiche sopra passerebbero anche su un DLL che non nomina

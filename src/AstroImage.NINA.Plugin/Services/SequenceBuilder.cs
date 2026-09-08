@@ -8,14 +8,13 @@ using NINA.Profile.Interfaces;
 using NINA.Sequencer;
 using NINA.Sequencer.Conditions;
 using NINA.Sequencer.Container;
+using NINA.Sequencer.Trigger;
 using NINA.Sequencer.Interfaces.Mediator;
 using NINA.Sequencer.SequenceItem;
 using NINA.Sequencer.SequenceItem.Autofocus;
-using NINA.Sequencer.SequenceItem.Camera;
 using NINA.Sequencer.SequenceItem.FilterWheel;
 using NINA.Sequencer.SequenceItem.Guider;
 using NINA.Sequencer.SequenceItem.Imaging;
-using NINA.Sequencer.SequenceItem.Telescope;
 using NINA.Sequencer.Trigger.Guider;
 
 #nullable enable
@@ -46,12 +45,22 @@ namespace AstroImage.NINA.Plugin.Services {
      */
     public sealed class SequenceBuilder {
 
-        private readonly ISequencerFactory fabbrica;
+        private readonly IFonteDiPezzi fonte;
         private readonly IProfileService profilo;
 
-        public SequenceBuilder(ISequencerFactory fabbrica, IProfileService profilo) {
-            this.fabbrica = fabbrica ?? throw new ArgumentNullException(nameof(fabbrica));
-            this.profilo = profilo ?? throw new ArgumentNullException(nameof(profilo));
+        /// <param name="fonte">
+        /// Da dove vengono i pezzi. Non e' piu' <c>ISequencerFactory</c> perche' quella
+        /// ai plugin N.I.N.A. non la fornisce: e' un'interfaccia nostra, e questo e' il
+        /// motivo per cui adesso un banco di prova puo' montare davvero un costruttore.
+        /// </param>
+        /// <param name="profilo">
+        /// Serve a una cosa sola, cercare un filtro nella ruota. Puo' essere nullo: senza
+        /// profilo non si cambia vetro, e <see cref="FiltroDaRuota"/> lo dice tornando null
+        /// invece di far cadere il montaggio.
+        /// </param>
+        public SequenceBuilder(IFonteDiPezzi fonte, IProfileService profilo) {
+            this.fonte = fonte ?? throw new ArgumentNullException(nameof(fonte));
+            this.profilo = profilo;
         }
 
         /// <summary>
@@ -67,7 +76,17 @@ namespace AstroImage.NINA.Plugin.Services {
             ricetta = Traduzione.Traduci(modello);
             if (!ricetta.Costruibile) return null;
 
-            var dso = fabbrica.GetContainer<DeepSkyObjectContainer>();
+            if (!fonte.Disponibile) {
+                ricetta.Scartati.Add("Non c'e' da dove prendere i pezzi: " +
+                                     (fonte.PerCheNo ?? "motivo non dichiarato") + ".");
+                return null;
+            }
+
+            var dso = fonte.Contenitore();
+            if (dso is null) {
+                ricetta.Scartati.Add("Il contenitore del bersaglio non si e' potuto ottenere.");
+                return null;
+            }
             dso.Name = ricetta.Nome;
 
             /*  IL BERSAGLIO. Le coordinate arrivano in gradi e si consegnano in gradi:
@@ -78,39 +97,62 @@ namespace AstroImage.NINA.Plugin.Services {
                 new Coordinates(ricetta.RaGradi, ricetta.DecGradi, Epoch.J2000, Coordinates.RAType.Degrees);
             dso.Target.PositionAngle = ricetta.AngoloDiPosa;
 
-            /*  PRIMA DI RIPRENDERE. L'ordine e' quello che ha senso al telescopio:
-             *  prima si porta la camera in temperatura, poi si mette a fuoco, poi si
-             *  avvia la guida. Ognuna solo se il banco dichiara di averla. */
+            /*  PRIMA DI RIPRENDERE: fuoco e guida, e in quest'ordine.
+             *
+             *  QUI C'ERA IL RAFFREDDAMENTO, e non c'e' piu'. `Sequence2VM.AddTarget`
+             *  mette il bersaglio in `Items[1]`, l'area centrale, fra lo Start e l'End
+             *  della sequenza — che sono di chi riprende. Una `CoolCamera` dentro un
+             *  bersaglio raffredderebbe una volta PER BERSAGLIO invece che una volta per
+             *  sessione. La vita della sessione non e' affare di un bersaglio, e la
+             *  fonte dei pezzi non offre nemmeno piu' quel blocco: vedi IFonteDiPezzi. */
             if (ricetta.Raffredda) {
-                var freddo = fabbrica.GetItem<CoolCamera>();
-                if (ricetta.TemperaturaC is not null) freddo.Temperature = ricetta.TemperaturaC.Value;
-                if (ricetta.MinutiFreddo is not null) freddo.Duration = ricetta.MinutiFreddo.Value;
-                dso.Add(freddo);
+                ricetta.Note.Add("Il raffreddamento non entra nel bersaglio: appartiene all'avvio " +
+                                 "della sequenza, che resta tuo. Mettilo nell'area di Start.");
             }
-            if (ricetta.Focheggia) dso.Add(fabbrica.GetItem<RunAutofocus>());
-            if (ricetta.Guida) dso.Add(fabbrica.GetItem<StartGuiding>());
+            if (ricetta.Focheggia) {
+                var af = fonte.Autofocus();
+                if (af is not null) dso.Add(af);
+                else ricetta.Scartati.Add("Messa a fuoco automatica: nessun blocco disponibile da cui copiarla.");
+            }
+            if (ricetta.Guida) {
+                var g = fonte.AvvioGuida();
+                if (g is not null) dso.Add(g);
+                else ricetta.Scartati.Add("Avvio della guida: nessun blocco disponibile da cui copiarlo.");
+            }
 
             /*  I BLOCCHI, nell'ordine in cui il motore li ha messi. L'ordine e' una
              *  decisione gia' presa: la serie corta va in testa al suo gruppo perche'
              *  si fa il nucleo e poi si posa lungo, non il contrario. Qui non si
              *  riordina niente. */
-            foreach (var b in ricetta.Blocchi) dso.Add(Ripresa(b));
-
-            /*  DOPO. Si riscalda e si torna a casa, se il banco lo sa fare. */
-            if (ricetta.Raffredda) {
-                var caldo = fabbrica.GetItem<WarmCamera>();
-                if (ricetta.MinutiCaldo is not null) caldo.Duration = ricetta.MinutiCaldo.Value;
-                dso.Add(caldo);
+            var costruiti = 0;
+            foreach (var b in ricetta.Blocchi) {
+                var r = Ripresa(b);
+                if (r is not null) { dso.Add(r); costruiti++; }
+                else ricetta.Scartati.Add(
+                    $"{b.Etichetta}: nessun blocco di ripresa disponibile da cui copiare la posa.");
             }
-            if (ricetta.TornaACasa) dso.Add(fabbrica.GetItem<FindHome>());
+            /*  Un contenitore senza riprese non e' un bersaglio dimezzato: e' un
+             *  bersaglio che non fa niente, e consegnarlo sarebbe peggio che dire di no. */
+            if (costruiti == 0) return null;
+
+            /*  QUI C'ERANO IL RISCALDAMENTO E IL RITORNO A CASA. Stessa ragione del
+             *  raffreddamento: dentro un bersaglio si eseguirebbero dopo OGNI bersaglio.
+             *  Appartengono all'area di End, che e' di chi riprende. */
+            if (ricetta.Raffredda || ricetta.TornaACasa) {
+                ricetta.Note.Add("Riscaldamento e ritorno a casa non entrano nel bersaglio: " +
+                                 "appartengono alla chiusura della sequenza, che resta tua.");
+            }
 
             /*  IL DITHERING e' un innesco del contenitore, non un'istruzione in fila:
              *  scatta ogni N pose qualunque cosa stia succedendo. Esiste solo con la
              *  guida, perche' senza guida non c'e' niente da spostare. */
             if (ricetta.DitherOgniPose is not null) {
-                var dither = fabbrica.GetTrigger<DitherAfterExposures>();
-                dither.AfterExposures = ricetta.DitherOgniPose.Value;
-                dso.Add(dither);
+                var dither = fonte.Dither();
+                if (dither is not null && dso is ITriggerable innescabile) {
+                    dither.AfterExposures = ricetta.DitherOgniPose.Value;
+                    innescabile.Add(dither);
+                } else ricetta.Scartati.Add(
+                    "Dithering: nessun innesco disponibile da cui copiarlo. Le pose non verranno spostate.");
             }
 
             return dso;
@@ -122,8 +164,9 @@ namespace AstroImage.NINA.Plugin.Services {
         /// che il programma sa gia' fare e' il modo piu' sicuro di sbagliare due
         /// programmi invece di uno.
         /// </summary>
-        private ISequenceItem Ripresa(RicettaBlocco b) {
-            var se = fabbrica.GetItem<SmartExposure>();
+        private ISequenceItem? Ripresa(RicettaBlocco b) {
+            var se = fonte.Posa();
+            if (se is null) return null;
 
             var posa = se.GetTakeExposure();
             posa.ExposureTime = b.Secondi;
