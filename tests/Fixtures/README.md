@@ -46,7 +46,7 @@ sorgente è N.I.N.A., e N.I.N.A. non si mette dentro un test.
 |---|---|
 | `profilo-osc.json` | generata dal file `.profile` **vero** di N.I.N.A.: focale 800, f/6.9, pixel 3,76 µm, matrice RGGB, sito 45,95 / 10,2019 a 1000 m, guadagno 100, offset 50, **ruota vuota** |
 | `campo-mono.json` | letta dal **mini PC operativo in campo**, N.I.N.A. 3.3, attraverso l'Advanced API: CEM70 + ASI 2600MM + RC8, focale 1624 f/8, matrice `None`, guadagno 0 (modo LCG), e una **ruota con sette vetri** — L R G B S H O con gli offset di fuoco veri, negativi, e binning di autofocus diverso fra banda larga e stretta |
-| `collegato.json` | **letta dal mini PC in campo**, N.I.N.A. 3.3, Advanced API in sola lettura: AM5 + ASI 2600MC + Askar 71F a 490 mm f/6.9, ruota EFW con cinque vetri, focheggiatore EAF, guida PHD2. Rotatore e meteo non collegati. **Nessun numero è scritto a mano**, compreso l'RMS a zero |
+| `collegato.json` | **letta dal mini PC in campo**, N.I.N.A. 3.3, Advanced API in sola lettura: AM5 + ASI 2600MC + Askar 71F a 490 mm f/6.9, ruota EFW con cinque vetri, focheggiatore EAF, guida PHD2, rotatore manuale. Solo il meteo non è collegato. **Nessun numero è scritto a mano** |
 
 Nelle due generate dai profili la parte dei **dispositivi è nulla**, e non è una
 semplificazione: è la verità. Un profilo letto a telescopio spento non sa che cosa
@@ -65,9 +65,18 @@ codice:
   e in micrometri sarebbero sessanta centimetri per passo: ora si chiama `passo` e non
   afferma più un'unità che il valore smentisce.
 
-E una terza che resta come avvertenza invece che come correzione: l'RMS di PHD2 è **zero
-su tutti e cinque i valori**, perché al momento della lettura era collegato ma fermo.
-Zero non è inseguimento perfetto: quasi sempre vuol dire «non sta guidando».
+- il **rotatore manuale** — quello che usa chiunque non abbia un rotatore fisico —
+  risulta collegato e dichiara posizione **0** con `Synced` falso. Il modello non aveva
+  quel campo: senza, quello zero sarebbe passato per un angolo misurato, e chi legge ci
+  avrebbe costruito sopra un'inquadratura. Ora c'è `sincronizzato`.
+
+E una che resta come avvertenza invece che come correzione: l'RMS di PHD2 è **zero su
+tutti e cinque i valori**, perché al momento della lettura era collegato ma fermo. Zero
+non è inseguimento perfetto: quasi sempre vuol dire «non sta guidando».
+
+Il filo comune delle quattro è lo stesso: **un dispositivo collegato non è un
+dispositivo che sta dicendo qualcosa.** Servono tre stati, non due — spento, acceso e
+significativo, acceso e non ancora significativo.
 
 `campo-mono.json` è quella che copre il caso più difficile: la ruota piena. Nei profili
 di casa è vuota in tutti e sette, e senza il banco in campo l'elenco dei filtri sarebbe

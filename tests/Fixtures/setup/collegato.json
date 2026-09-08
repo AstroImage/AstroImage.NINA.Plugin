@@ -150,12 +150,14 @@
     "passo": 600000
   },
   "rotatore": {
-    "collegato": false,
-    "nome": null,
-    "driver": null,
-    "posizione_gradi": null,
-    "meccanica_gradi": null,
-    "puo_invertire": null
+    "collegato": true,
+    "nome": "Rotator Manuale",
+    "driver": "n.A.",
+    "posizione_gradi": 0,
+    "meccanica_gradi": 0,
+    "sincronizzato": false,
+    "puo_invertire": true,
+    "invertito": true
   },
   "guida": {
     "collegato": true,

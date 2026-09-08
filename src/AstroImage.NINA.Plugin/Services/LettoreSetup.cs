@@ -289,7 +289,13 @@ namespace AstroImage.NINA.Plugin.Services {
                 Driver = Testo(Protetto(() => i.DriverInfo)),
                 PosizioneGradi = Finito(Protetto(() => (double?)i.Position)),
                 MeccanicaGradi = Finito(Protetto(() => (double?)i.MechanicalPosition)),
+                /*  Il campo che rende leggibili i due sopra. Il rotatore manuale — che
+                 *  usa chiunque non ne abbia uno fisico — si collega e dichiara zero
+                 *  senza essere sincronizzato: senza questo, quello zero passerebbe per
+                 *  un angolo misurato. */
+                Sincronizzato = Protetto(() => (bool?)i.Synced),
                 PuoInvertire = Protetto(() => (bool?)i.CanReverse),
+                Invertito = Protetto(() => (bool?)i.Reverse),
             };
         }
 
