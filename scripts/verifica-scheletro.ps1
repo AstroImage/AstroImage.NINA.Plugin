@@ -68,6 +68,27 @@ $estranei = Get-ChildItem $uscita -Recurse -File |
 Verifica "il plugin non si porta dietro DLL di N.I.N.A. o di WebView2" `
     ($estranei.Count -eq 0) $(if ($estranei.Count) { ($estranei | ForEach-Object { $_.Name }) -join ', ' } else { 'solo il proprio DLL' })
 
+Write-Host "`n--- contro quale N.I.N.A. e' stato compilato ---"
+# IL GUASTO DI TARGET SCHEDULER, che su questa macchina si vede nel log di N.I.N.A.:
+#   "Could not load type 'NINA.Sequencer.Logic.ISymbolBroker' from assembly
+#    'NINA.Sequencer, Version=3.2.0.9001'"
+# Quel plugin e' compilato contro una 3.3 nightly e dichiara di bastarsi con meno.
+# Il tipo nella 3.2 non esiste, e il plugin muore al caricamento senza che l'utente
+# abbia sbagliato niente. La difesa e' che le due versioni coincidano: quella del
+# pacchetto con cui si compila, e quella che il manifest dichiara come minima. Se un
+# giorno si passa a un pacchetto piu' nuovo per usarne un'API, va alzata anche la
+# dichiarazione — e chi ha la 3.2 vedra' un messaggio invece di un plugin morto.
+$deps = Join-Path $uscita 'AstroImage.NINA.Plugin.deps.json'
+if (Test-Path $deps) {
+    $j = Get-Content $deps -Raw | ConvertFrom-Json
+    $pkg = ($j.libraries.PSObject.Properties.Name | Where-Object { $_ -like 'NINA.Plugin/*' } |
+            Select-Object -First 1) -replace '^NINA\.Plugin/', ''
+    $min = [regex]::Match($info, 'AssemblyMetadata\("MinimumApplicationVersion",\s*"([^"]+)"').Groups[1].Value
+    Verifica "compila contro la N.I.N.A. che dichiara di richiedere" ($pkg -eq $min) "$pkg contro $min"
+} else {
+    Write-Host "  --    deps.json assente: compila in Release prima"
+}
+
 Write-Host "`n--- la copia installata in N.I.N.A. ---"
 # Da quando l'installazione avviene a ogni compilazione, la domanda vera non e' piu'
 # "esiste una copia" ma "quella che N.I.N.A. carichera' e' l'ultima compilata". Un DLL
@@ -77,8 +98,14 @@ $inNina = Join-Path $env:LOCALAPPDATA 'NINA\Plugins\3.0.0\AstroImage.NINA.Plugin
 if (Test-Path $inNina) {
     $a = (Get-FileHash $dll    -Algorithm SHA256).Hash
     $b = (Get-FileHash $inNina -Algorithm SHA256).Hash
+    # Se N.I.N.A. e' aperto tiene il proprio DLL bloccato e la copia non e' potuta
+    # avvenire: dire "ricompila" sarebbe un consiglio che non funziona, perche' il file
+    # resta bloccato quante volte si ricompili. Si dice chi lo blocca.
+    $aperta = $null -ne (Get-Process NINA -ErrorAction SilentlyContinue)
     Verifica "N.I.N.A. ha l'ultimo binario compilato" ($a -eq $b) `
-        $(if ($a -eq $b) { "identici" } else { "DIVERSI: ricompila" })
+        $(if ($a -eq $b) { "identici" }
+          elseif ($aperta) { "DIVERSI: N.I.N.A. e' aperto e tiene il file, chiudilo e ricompila" }
+          else { "DIVERSI: ricompila" })
 } else {
     Write-Host "  --    non installato   [dotnet build -c Release lo installa]"
 }

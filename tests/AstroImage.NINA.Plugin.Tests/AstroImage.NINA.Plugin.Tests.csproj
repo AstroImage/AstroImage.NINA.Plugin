@@ -25,11 +25,13 @@
       La catena, perche' non si scopra di nuovo da zero fra sei mesi. Il pacchetto
       NINA.Plugin dipende da System.Text.Json 9.0.5, quindi il plugin compila contro
       la 9 e non contro la 8 del framework. A runtime dentro N.I.N.A. il problema non
-      si pone: N.I.N.A. distribuisce la propria copia, oggi assembly 10.0.0.0, e
-      .NET accetta di soddisfare un riferimento alla 9 con una versione superiore. E'
-      lo stesso meccanismo su cui campano gli altri plugin installati su questa
-      macchina (Advanced API, Target Scheduler, Touch 'N' Stars, AdaptiveAgent):
-      nessuno di loro se ne porta una copia.
+      si pone: N.I.N.A. distribuisce la propria copia. Sulla 3.2 stabile e' assembly
+      9.0.0.0, cioe' esattamente quella che il nostro DLL chiede; sulle nightly 3.3 e'
+      la 10.0.0.0, e .NET soddisfa un riferimento alla 9 con una versione superiore.
+      In tutti e due i casi funziona, e nessuno degli altri sedici plugin installati
+      su questa macchina se ne porta una copia. Vale anche per
+      System.Text.Encodings.Web, che il codificatore usa e che N.I.N.A. spedisce
+      con la stessa versione.
 
       Il banco di prova pero' non e' N.I.N.A.: il test host e' dotnet, e in .NET 8 la
       copia di serie e' la 8.0.0.0, cioe' PIU' BASSA di quella richiesta. Senza questa
