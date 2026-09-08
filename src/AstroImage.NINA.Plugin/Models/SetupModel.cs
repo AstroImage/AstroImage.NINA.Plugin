@@ -349,15 +349,44 @@ namespace AstroImage.NINA.Plugin.Models.Setup {
         [JsonExtensionData] public Dictionary<string, JsonElement>? Extra { get; set; }
     }
 
+    /// <summary>
+    /// Il rotatore di campo, fisico o virtuale.
+    ///
+    /// <para>
+    /// <b>SENZA <see cref="Sincronizzato"/> LA POSIZIONE NON VUOL DIRE NIENTE, e questo
+    /// e' il caso normale, non l'eccezione.</b> Chi non ha un rotatore fisico usa
+    /// quello manuale che N.I.N.A. mette a disposizione: si collega, risulta connesso,
+    /// e dichiara posizione 0 con <c>Synced = false</c>. Quello zero non vuol dire
+    /// «il campo e' dritto»: vuol dire «nessuno mi ha detto dove sono».
+    /// </para>
+    ///
+    /// <para>
+    /// Misurato sul banco in campo: rotatore manuale collegato, Position 0,
+    /// MechanicalPosition 0, Synced false. Un consumatore che leggesse la sola
+    /// posizione crederebbe a un angolo che nessuno ha mai misurato, e ci
+    /// costruirebbe sopra un'inquadratura.
+    /// </para>
+    /// </summary>
     public sealed class Rotatore {
         [JsonPropertyName("collegato")] public bool? Collegato { get; set; }
         [JsonPropertyName("nome")] public string? Nome { get; set; }
         [JsonPropertyName("driver")] public string? Driver { get; set; }
-        /// <summary>Angolo di posa del campo, in gradi.</summary>
+        /// <summary>
+        /// Angolo di posa del campo, in gradi. Da leggere SOLO se
+        /// <see cref="Sincronizzato"/> e' vero.
+        /// </summary>
         [JsonPropertyName("posizione_gradi")] public double? PosizioneGradi { get; set; }
         /// <summary>Angolo meccanico, che non e' l'angolo sul cielo.</summary>
         [JsonPropertyName("meccanica_gradi")] public double? MeccanicaGradi { get; set; }
+        /// <summary>
+        /// Vero se qualcuno ha detto al rotatore dove si trova davvero — con una
+        /// risoluzione di campo o a mano. Falso, e la posizione e' un numero senza
+        /// significato. Nullo, e non si sa nemmeno questo.
+        /// </summary>
+        [JsonPropertyName("sincronizzato")] public bool? Sincronizzato { get; set; }
         [JsonPropertyName("puo_invertire")] public bool? PuoInvertire { get; set; }
+        /// <summary>Vero se il verso di rotazione e' invertito rispetto al predefinito.</summary>
+        [JsonPropertyName("invertito")] public bool? Invertito { get; set; }
         [JsonExtensionData] public Dictionary<string, JsonElement>? Extra { get; set; }
     }
 

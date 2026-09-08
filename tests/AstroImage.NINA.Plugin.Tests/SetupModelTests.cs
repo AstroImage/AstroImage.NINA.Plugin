@@ -314,14 +314,34 @@ namespace AstroImage.NINA.Plugin.Tests {
              *  tutto il resto nullo. Se fosse `collegato: null` vorrebbe dire che non si
              *  e' potuto nemmeno chiedere. */
             var m = M("collegato");
-            Assert.IsFalse(m.Rotatore!.Collegato, "c'e', ed e' spento");
-            Assert.IsNull(m.Rotatore.PosizioneGradi, "quindi non ha una posizione");
-            Assert.IsNull(m.Rotatore.PuoInvertire, "e nemmeno capacita' note");
 
-            /*  Il meteo invece e' l'altro caso: dichiarato nel profilo, non collegato,
-             *  e quindi nessuna misura. */
+            /*  PRIMO STATO: dichiarato ma spento. Il meteo c'e' nel profilo, non e'
+             *  collegato, e quindi non misura niente. `collegato: false` e' una
+             *  informazione; se fosse `null` vorrebbe dire che non si e' potuto
+             *  nemmeno chiedere. */
             Assert.IsFalse(m.Meteo!.Collegato);
             Assert.IsNull(m.Meteo.Sqm);
+
+            /*  SECONDO STATO, ED E' QUELLO CHE MANCAVA: collegato, e con un numero che
+             *  NON SIGNIFICA NIENTE. Il rotatore manuale — quello che usa chiunque non
+             *  ne abbia uno fisico — risulta connesso e dichiara posizione 0 con
+             *  `Synced` falso: nessuno gli ha ancora detto dove si trova, perche' non
+             *  e' partita nessuna sequenza con un bersaglio.
+             *
+             *  Chi leggesse la sola posizione crederebbe che il campo e' dritto e ci
+             *  costruirebbe sopra un'inquadratura. E' il motivo per cui
+             *  `sincronizzato` esiste: senza, quello zero passerebbe per una misura. */
+            Assert.IsTrue(m.Rotatore!.Collegato, "il rotatore manuale e' connesso");
+            Assert.AreEqual("Rotator Manuale", m.Rotatore.Nome);
+            Assert.AreEqual(0d, m.Rotatore.PosizioneGradi, "e dichiara zero");
+            Assert.IsFalse(m.Rotatore.Sincronizzato,
+                "ma non e' sincronizzato: quello zero non e' un angolo misurato");
+            Assert.IsTrue(m.Rotatore.PuoInvertire);
+            Assert.IsTrue(m.Rotatore.Invertito, "e su questo banco il verso e' invertito");
+
+            /*  TERZO STATO: collegato e con dati veri. */
+            Assert.IsTrue(m.Camera!.Collegato);
+            Assert.IsNotNull(m.Camera.Sensore);
 
             Assert.IsTrue(m.Montatura!.PuoTornareACasa);
             Assert.IsTrue(m.Montatura.PuoParcheggiare);
