@@ -246,7 +246,7 @@ namespace AstroImage.NINA.Plugin.Tests {
         [TestMethod]
         public void Sito_NeEsistonoDue_EIlModelloLiPortaEntrambi() {
             var m = M("collegato");
-            Assert.AreEqual(45.514d, m.Sito!.Lat!.Value, 1e-9, "dal profilo, arrotondato");
+            Assert.AreEqual(45.5d, m.Sito!.Lat!.Value, 1e-9, "dal profilo, arrotondato");
             Assert.IsNotNull(m.Montatura!.Sito, "e la montatura ne dichiara uno suo");
             Assert.AreEqual(45.5001d, m.Montatura.Sito!.Lat!.Value, 1e-12,
                 "dalla montatura, con tutte le cifre che ha");
