@@ -1,0 +1,185 @@
+{
+  "versione": 1,
+  "letto": "2026-09-08T21:00:00.000Z",
+  "applicazione": {
+    "nome": "N.I.N.A.",
+    "versione": "3.2.0.9001",
+    "ponte": "0.1.0.0"
+  },
+  "profilo": {
+    "nome": "CEM70-ASI 2600-TS 115/800 EAF",
+    "id": "9c14374f-afeb-4cd4-b633-22ee103ece2b"
+  },
+  "sito": {
+    "lat": 45.95,
+    "lon": 10.201944444444443,
+    "elevazione_m": 1000
+  },
+  "ottica": {
+    "nome": "TS 115/800",
+    "focale_mm": 800,
+    "rapporto": 6.9
+  },
+  "camera": {
+    "collegato": true,
+    "nome": "ZWO ASI2600MC Pro",
+    "driver": "ZWO ASI Camera",
+    "pixel_um": 3.76,
+    "pixel_um_profilo": 3.76,
+    "larghezza_px": 6248,
+    "altezza_px": 4176,
+    "sensore": "RGGB",
+    "monocromatico": false,
+    "matrice_profilo": "RGGB",
+    "bit": 16,
+    "elettroni_per_adu": 0.25,
+    "posa_min_s": 0.001,
+    "posa_max_s": 2000,
+    "gain": {
+      "attuale": 100,
+      "min": 0,
+      "max": 570,
+      "predefinito": 100,
+      "valori": null,
+      "profilo": 100
+    },
+    "offset": {
+      "attuale": 50,
+      "min": 0,
+      "max": 1000,
+      "predefinito": 10,
+      "valori": null,
+      "profilo": 50
+    },
+    "modi_lettura": [
+      "Normal"
+    ],
+    "modo_lettura": 0,
+    "binning": [
+      "1x1",
+      "2x2",
+      "3x3",
+      "4x4"
+    ],
+    "raffreddamento": {
+      "disponibile": true,
+      "temperatura_c": -9.8,
+      "setpoint_c": -10,
+      "setpoint_profilo_c": -10,
+      "acceso": true,
+      "potenza_pct": 41,
+      "minuti_freddo": 3,
+      "minuti_caldo": 3
+    }
+  },
+  "montatura": {
+    "collegato": true,
+    "nome": "ZWO AM5",
+    "driver": "ASCOM ZWO AM5",
+    "sito": {
+      "lat": 45.95,
+      "lon": 10.201944,
+      "elevazione_m": 1000
+    },
+    "insegue": true,
+    "puo_tornare_a_casa": true,
+    "puo_parcheggiare": true,
+    "in_parcheggio": false
+  },
+  "ruota": {
+    "collegato": true,
+    "nome": "ZWO EFW",
+    "driver": "ASCOM ZWO EFW",
+    "filtri": [
+      {
+        "nome": "L",
+        "posizione": 0,
+        "offset_fuoco": 0,
+        "autofocus_posa_s": 5,
+        "autofocus_binning": "1x1",
+        "autofocus_gain": 100
+      },
+      {
+        "nome": "Ha 3nm",
+        "posizione": 1,
+        "offset_fuoco": 12,
+        "autofocus_posa_s": 30,
+        "autofocus_binning": "1x1",
+        "autofocus_gain": 100
+      },
+      {
+        "nome": "OIII 3nm",
+        "posizione": 2,
+        "offset_fuoco": 10,
+        "autofocus_posa_s": 30,
+        "autofocus_binning": "1x1",
+        "autofocus_gain": 100
+      }
+    ],
+    "filtro_attuale": {
+      "nome": "Ha 3nm",
+      "posizione": 1,
+      "offset_fuoco": 12,
+      "autofocus_posa_s": 30,
+      "autofocus_binning": "1x1",
+      "autofocus_gain": 100
+    }
+  },
+  "focheggiatore": {
+    "collegato": true,
+    "nome": "ZWO EAF",
+    "driver": "ASCOM ZWO EAF",
+    "posizione": 24310,
+    "temperatura_c": 7.4,
+    "passo_um": null
+  },
+  "rotatore": {
+    "collegato": false,
+    "nome": null,
+    "driver": null,
+    "posizione_gradi": null,
+    "meccanica_gradi": null,
+    "puo_invertire": null
+  },
+  "guida": {
+    "collegato": true,
+    "nome": "PHD2",
+    "driver": "PHD2 Guider",
+    "scala_arcsec_px": 4.72,
+    "rms": {
+      "ra": {
+        "px": 0.31,
+        "arcsec": 1.46
+      },
+      "dec": {
+        "px": 0.27,
+        "arcsec": 1.27
+      },
+      "totale": {
+        "px": 0.41,
+        "arcsec": 1.94
+      },
+      "picco_ra": {
+        "px": 0.94,
+        "arcsec": 4.44
+      },
+      "picco_dec": {
+        "px": 0.81,
+        "arcsec": 3.82
+      }
+    }
+  },
+  "meteo": {
+    "collegato": true,
+    "nome": "Unihedron SQM",
+    "driver": "ASCOM ObservingConditions",
+    "sqm": 20.74,
+    "fwhm_arcsec": 2.1,
+    "temperatura_c": 6.9,
+    "umidita_pct": 71,
+    "punto_rugiada_c": 1.8,
+    "nuvole_pct": 4,
+    "vento_ms": 1.2,
+    "pressione_hpa": 901
+  }
+}

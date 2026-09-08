@@ -1,0 +1,80 @@
+{
+  "versione": 1,
+  "letto": "2026-09-08T21:00:00.000Z",
+  "applicazione": {
+    "nome": "N.I.N.A.",
+    "versione": "3.2.0.9001",
+    "ponte": "0.1.0.0"
+  },
+  "profilo": {
+    "nome": "CEM70-ASI 2600-TS 115/800 EAF",
+    "id": "9c14374f-afeb-4cd4-b633-22ee103ece2b"
+  },
+  "sito": {
+    "lat": 45.95,
+    "lon": 10.201944444444443,
+    "elevazione_m": 1000
+  },
+  "ottica": {
+    "nome": "TS 115/800",
+    "focale_mm": 800,
+    "rapporto": 6.9
+  },
+  "camera": {
+    "collegato": false,
+    "nome": null,
+    "driver": null,
+    "pixel_um": null,
+    "pixel_um_profilo": 3.76,
+    "larghezza_px": null,
+    "altezza_px": null,
+    "sensore": null,
+    "monocromatico": null,
+    "matrice_profilo": "RGGB",
+    "bit": null,
+    "elettroni_per_adu": null,
+    "posa_min_s": null,
+    "posa_max_s": null,
+    "gain": {
+      "attuale": null,
+      "min": null,
+      "max": null,
+      "predefinito": null,
+      "valori": null,
+      "profilo": 100
+    },
+    "offset": {
+      "attuale": null,
+      "min": null,
+      "max": null,
+      "predefinito": null,
+      "valori": null,
+      "profilo": 50
+    },
+    "modi_lettura": null,
+    "modo_lettura": null,
+    "binning": null,
+    "raffreddamento": {
+      "disponibile": null,
+      "temperatura_c": null,
+      "setpoint_c": null,
+      "setpoint_profilo_c": -10,
+      "acceso": null,
+      "potenza_pct": null,
+      "minuti_freddo": 3,
+      "minuti_caldo": 3
+    }
+  },
+  "montatura": null,
+  "ruota": {
+    "collegato": false,
+    "nome": null,
+    "driver": null,
+    "filtri": [],
+    "filtro_attuale": null
+  },
+  "focheggiatore": null,
+  "rotatore": null,
+  "guida": null,
+  "meteo": null
+}

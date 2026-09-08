@@ -36,3 +36,26 @@ qui sopra e serializzando con `JSON.stringify(modello, null, 2)`.
 
 Quando il contratto cambia, questi file vanno rifatti **prima** di adeguare il C#: sono
 loro la fonte, il modello è la trascrizione.
+
+## `setup/` — le fixture dell'altro contratto
+
+Provenienza **diversa**, e va detto, perché qui non c'è un motore da far girare: la
+sorgente è N.I.N.A., e N.I.N.A. non si mette dentro un test.
+
+| file | da dove viene |
+|---|---|
+| `profilo-osc.json` | generata dal file `.profile` **vero** di N.I.N.A. su questa macchina: focale 800, f/6.9, pixel 3,76 µm, matrice RGGB, sito 45,95 / 10,2019 a 1000 m, guadagno 100, offset 50 |
+| `profilo-mono.json` | idem, dal profilo con focale 1295 e disegno di matrice `None` |
+| `collegato.json` | **costruita.** Il profilo e le specifiche della camera sono veri — vengono dal catalogo di Strategy, ASI 2600MC Pro, 6248 × 4176 a 3,76 µm — ma lo stato vivo (temperatura del sensore, RMS, SQM) è plausibile, non misurato |
+
+Nelle due generate dai profili la parte dei **dispositivi è nulla**, e non è una
+semplificazione: è la verità. Un profilo letto a telescopio spento non sa che cosa
+dichiari un driver, e il modello lo dice invece di riempire il vuoto.
+
+`collegato.json` va **rigenerata da una lettura vera** quando il pannello esisterà. Fino
+ad allora prova la forma del contratto, non i numeri.
+
+Una nota che vale per tutte e tre: i numeri interi si scrivono senza decimali (`2000`,
+non `2000.0`), perché è la forma che il serializzatore produce e il giro deve tornare
+identico carattere per carattere.
+

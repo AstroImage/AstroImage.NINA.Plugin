@@ -38,3 +38,20 @@ metadati del binario compilato, e una mutazione che le violi diventa rossa.
 
 Il contenitore si consegna con `AddAdvancedTarget`, cioè **come nuovo bersaglio**: non
 sostituisce niente di quello che c'è già in sequenza.
+
+## `LettoreSetup.cs`
+
+L'unico pezzo del ponte che tocca l'hardware, ed è di proposito il più stupido che
+esista: chiede ai mediatori di N.I.N.A., copia, e dove non trova niente lascia nullo.
+
+Tre regole. **Niente si inventa** — un driver che non espone una grandezza produce un
+`null`, mai uno zero. **Niente si deduce** — nessuna banda dai nomi, nessuna
+classificazione dal tipo di sensore. **Niente solleva** — i driver sono software di
+terzi e un ASCOM che esplode su una proprietà che dichiara di avere non è un caso di
+scuola: ogni lettura è protetta da sé, e se la camera fa i capricci si perde la camera,
+non il resto della lettura.
+
+Sta qui e non in `Models` perché ha bisogno di N.I.N.A. viva. Il contratto invece si
+prova nel banco che gira senza una sola DLL di N.I.N.A. accanto — che è tutto il punto
+della separazione.
+
