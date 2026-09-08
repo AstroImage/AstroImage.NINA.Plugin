@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -115,6 +116,32 @@ namespace AstroImage.NINA.Plugin.Views {
                 }
 
                 if (azione == "manda") { Manda(id, messaggio); return; }
+
+                /*  LA PAGINA CHIEDE LA MAPPA, IL PONTE NON LA INIETTA.
+                 *
+                 *  Sarebbe stato piu' corto aggiungere `filterNames` al corpo mentre
+                 *  passa. Ma il corriere non tocca cio' che trasporta — c'e' un test che
+                 *  verifica che il corpo parta come e' stato scritto — e quella
+                 *  proprieta' vale piu' di venti righe risparmiate: il giorno in cui il
+                 *  ponte comincia a «migliorare» le richieste, nessuno sa piu' che cosa
+                 *  ha chiesto davvero il client.
+                 *
+                 *  Quindi la pagina chiede, e compone lei la domanda. Il ponte risponde
+                 *  con due cose: la mappa scritta dall'utente e la ruota VERA letta dal
+                 *  profilo — la seconda serve a chi dovra' scrivere la prima. */
+                if (azione == "filtri") {
+                    var vmF = DataContext as PannelloStrategyVM;
+                    var mappa = new JsonObject();
+                    foreach (var (canale, vetro) in vmF?.Filtri ?? new Dictionary<string, string>())
+                        mappa[canale] = vetro;
+                    var ruota = new JsonArray();
+                    foreach (var n in vmF?.Costruttore?.NomiInRuota() ?? new List<string>())
+                        ruota.Add(n);
+                    Rispondi(id, true, null, null, null, 0, null, new JsonObject {
+                        ["mappa"] = mappa, ["ruota"] = ruota, ["nota"] = vmF?.NotaFiltri,
+                    });
+                    return;
+                }
 
                 if (azione != "prescrizione") {
                     Rispondi(id, false, null, "azione_sconosciuta", "Azione: " + azione); return;

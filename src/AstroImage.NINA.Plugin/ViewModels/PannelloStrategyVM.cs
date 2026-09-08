@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Net.Http;
@@ -98,6 +99,13 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         /// impedisce di consegnare una riga di una risposta precedente.</summary>
         public PrescrizioneCorrente InMano { get; } = new PrescrizioneCorrente();
 
+        /// <summary>Quale vetro fa quale banda, scritto accanto al DLL. Vuota se
+        /// nessuno l'ha detto: allora valgono i nomi di serie del motore.</summary>
+        public IReadOnlyDictionary<string, string> Filtri { get; }
+
+        /// <summary>Che cosa non andava nel file della mappa, se qualcosa non andava.</summary>
+        public string NotaFiltri { get; }
+
         /// <summary>Da dove vengono i pezzi del Sequenziatore.</summary>
         public IFonteDiPezzi Fonte { get; }
 
@@ -142,6 +150,12 @@ namespace AstroImage.NINA.Plugin.ViewModels {
             /*  Nessuna icona: N.I.N.A. accetta un pannello senza geometria e ne disegna
              *  il solo titolo. Meglio di un disegno provvisorio che resta per anni. */
             ImageGeometry = null;
+
+            var accanto = Path.GetDirectoryName(typeof(PannelloStrategyVM).Assembly.Location);
+            Filtri = MappaFiltri.Leggi(accanto, out var notaF);
+            NotaFiltri = notaF;
+            Logger.Info($"[AstroImage] mappa dei filtri: {Filtri.Count} voci" +
+                        (notaF is null ? "" : " — " + notaF));
 
             Radice = RadiceInUso(out var daDove);
             Logger.Info($"[AstroImage] motore su {Radice} (da {daDove})");

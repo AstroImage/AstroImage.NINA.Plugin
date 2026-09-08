@@ -64,12 +64,17 @@ namespace AstroImage.NINA.Plugin.Views {
   <span id="stato" class="stato">in attesa</span>
 </div>
 
+<div id="filtri"></div>
 <div id="uscita"></div>
 
 <script>
   const $ = i => document.getElementById(i);
   const attese = new Map();
   let contatore = 0;
+  /* Quale vetro fa quale banda. La chiede l'ospite al file filtri.json; se resta
+     vuota valgono i nomi di banda del motore, che su una ruota vera non
+     combaciano quasi mai. */
+  let mappaFiltri = {}, ruotaVera = [];
 
   /* L'unica via verso il mondo: un messaggio all'ospite. */
   function chiedi(azione, corpo, extra) {
@@ -100,7 +105,7 @@ namespace AstroImage.NINA.Plugin.Views {
       banco:     { tel: 'askar71f', red: 0.75, cam: 'asi2600mc', mnt: 'am5', bin: 1 },
       bersaglio: { id: $('oggetto').value.trim() },
       quando:    { data: $('data').value.trim(), notti: 3 },
-      opzioni:   { strategia: 'equilibrio', pannelli: 1 }
+      opzioni:   { strategia: 'equilibrio', pannelli: 1, filterNames: mappaFiltri }
     });
 
     $('vai').disabled = false;
@@ -205,6 +210,26 @@ namespace AstroImage.NINA.Plugin.Views {
 
   chiedi('salute').then(r => stato(r.ok ? 'servizio raggiungibile' : 'servizio non raggiungibile',
                                   r.ok ? 'ok' : 'no'));
+
+  /* LA RUOTA VERA SI MOSTRA, e non per cortesia: senza sapere che vetri hai in
+     ruota nessuno puo' scrivere la mappa che li lega alle bande. */
+  chiedi('filtri').then(r => {
+    if (!r.ok) return;
+    mappaFiltri = r.mappa || {};
+    ruotaVera = r.ruota || [];
+    const voci = Object.entries(mappaFiltri);
+    const righe = voci.length
+      ? voci.map(([c, v]) => esc(c) + ' &rarr; ' + esc(v)).join(' &nbsp;·&nbsp; ')
+      : '<b>nessuna</b> — il motore usera\' i suoi nomi di banda, che su una ruota vera ' +
+        'non combaciano quasi mai. Scrivi <code>filtri.json</code> accanto al DLL.';
+    $('filtri').innerHTML =
+      '<div class="box"><table>' +
+      '<tr><th>in ruota</th><td>' +
+        (ruotaVera.length ? ruotaVera.map(esc).join(' · ') : '<i>nessun filtro</i>') + '</td></tr>' +
+      '<tr><th>mappa</th><td>' + righe + '</td></tr>' +
+      (r.nota ? '<tr><th></th><td style="opacity:.7">' + esc(r.nota) + '</td></tr>' : '') +
+      '</table></div>';
+  });
 </script>
 """;
     }
