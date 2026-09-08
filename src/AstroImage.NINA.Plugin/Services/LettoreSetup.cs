@@ -276,7 +276,7 @@ namespace AstroImage.NINA.Plugin.Services {
                 Driver = Testo(Protetto(() => i.DriverInfo)),
                 Posizione = Protetto(() => (int?)i.Position),
                 TemperaturaC = Finito(Protetto(() => (double?)i.Temperature)),
-                PassoUm = Positivo(Protetto(() => (double?)i.StepSize)),
+                Passo = Positivo(Protetto(() => (double?)i.StepSize)),
             };
         }
 

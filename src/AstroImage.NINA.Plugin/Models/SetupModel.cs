@@ -332,7 +332,20 @@ namespace AstroImage.NINA.Plugin.Models.Setup {
         [JsonPropertyName("driver")] public string? Driver { get; set; }
         [JsonPropertyName("posizione")] public int? Posizione { get; set; }
         [JsonPropertyName("temperatura_c")] public double? TemperaturaC { get; set; }
-        [JsonPropertyName("passo_um")] public double? PassoUm { get; set; }
+        /// <summary>
+        /// Il passo del focheggiatore COME LO DICHIARA IL DRIVER, senza unita' di
+        /// misura dichiarata.
+        ///
+        /// <para>
+        /// ASCOM nominalmente lo definisce in micrometri, ma i driver non lo
+        /// rispettano: l'EAF sul banco in campo risponde 600000, che in micrometri
+        /// sarebbero sessanta centimetri di corsa per passo. Questo campo prima si
+        /// chiamava <c>passo_um</c>, e quel nome affermava un'unita' che il valore
+        /// vero smentisce. Si porta il numero e non si dice che cos'e': chi lo userà
+        /// dovrà sapere che driver ha davanti, e almeno lo saprà.
+        /// </para>
+        /// </summary>
+        [JsonPropertyName("passo")] public double? Passo { get; set; }
         [JsonExtensionData] public Dictionary<string, JsonElement>? Extra { get; set; }
     }
 
@@ -369,6 +382,16 @@ namespace AstroImage.NINA.Plugin.Models.Setup {
     /// servono — pixel della camera di guida e secondi d'arco sul cielo — e si portano
     /// tutte e due. Un adattatore che ne calcolasse una dall'altra sarebbe un
     /// adattatore che un giorno converte due volte.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>ZERO E' AMBIGUO, e va saputo.</b> Un guider collegato ma fermo riporta tutto
+    /// a zero: sul banco in campo PHD2 risultava connesso, con scala 0,476 arcsec/px e
+    /// RMS 0,00 su tutti e cinque i valori, semplicemente perche' non stava guidando.
+    /// Zero non vuol dire inseguimento perfetto — quello non esiste — ma quasi sempre
+    /// «non sta guidando». Il modello non lo interpreta perche' non ha come saperlo:
+    /// lo stato del guider non e' fra le proprieta' che GuiderInfo espone nella 3.2.
+    /// Chi consuma questi numeri deve trattare uno zero secco come «nessuna misura».
     /// </para>
     /// </summary>
     public sealed class Rms {
