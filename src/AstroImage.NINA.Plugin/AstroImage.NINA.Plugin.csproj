@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <!-- N.I.N.A. 3.x e' un eseguibile desktop Windows x64 self-contained: un plugin
-         non ha scelta sul framework ne' sulla piattaforma. Niente suffisso di versione
-         di Windows perche' non serve a nulla di quello che facciamo qui; il giorno in
-         cui volessimo ospitare una pagina in WebView2 andrebbe alzato a
-         net8.0-windows10.0.17763.0, che e' il minimo richiesto da quel controllo. -->
-    <TargetFramework>net8.0-windows</TargetFramework>
+         non ha scelta sul framework ne' sulla piattaforma.
+         Il suffisso di versione c'e' perche' il pannello ospita una pagina in WebView2,
+         e 10.0.17763 (Windows 10 RS5) e' il minimo che quel controllo richiede. Era
+         scritto qui come previsione fin dal primo giorno; adesso e' il presente. -->
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
     <OutputType>Library</OutputType>
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
@@ -26,7 +26,7 @@
 
     <!-- NU1701: dipendenze transitive di N.I.N.A. compilate per .NET Framework. Sono
          irrilevanti a runtime perche' e' N.I.N.A. a fornire le proprie DLL. -->
-    <NoWarn>NU1701</NoWarn>
+    <NoWarn>NU1701;CA1416</NoWarn>
 
   </PropertyGroup>
 
@@ -67,12 +67,25 @@
       di AdaptiveAgentForPHD2, che WebView2 lo usa davvero e ha dovuto fissarne la
       versione esatta.
 
-      Il giorno in cui questo ponte volesse ospitare una pagina, la riga da scrivere
-      non e' togliere questa esclusione: e' dichiarare WebView2 con la versione ESATTA
-      distribuita da N.I.N.A. e «ExcludeAssets: runtime».
+      QUEL GIORNO E' ARRIVATO, e la riga e' quella prevista: versione ESATTA e
+      «ExcludeAssets: runtime». Che cosa cambia rispetto a «all»: gli assembly servono
+      ora a compilare — il pannello ospita davvero una pagina — ma non devono seguire
+      il DLL nella cartella dei plugin.
+
+      LA VERSIONE E' LA PIU' BASSA DELLE DUE IN GIRO, di proposito. N.I.N.A. 3.2 stabile
+      distribuisce 1.0.3296.44 (verificato sull'installazione di questa macchina: i tre
+      assembly Core, WinForms e Wpf dichiarano tutti quella); le nightly 3.3 ne portano
+      una piu' recente. WebView2 usa versioning stretto, quindi compilare contro la piu'
+      alta romperebbe il collegamento sulla 3.2 — mentre il contrario funziona, ed e'
+      esattamente cio' che fa AdaptiveAgentForPHD2, che gira su tutte e due da mesi.
+
+      E i 1,8 MB di cui parla il paragrafo qui sopra? Restano in bin/, non nella cartella
+      dei plugin: il passo di installazione copia il solo DLL. La prova sta accanto —
+      la cartella distribuita di AdaptiveAgent, che WebView2 lo usa davvero, contiene un
+      file solo.
     -->
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3296.44">
-      <ExcludeAssets>all</ExcludeAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
   </ItemGroup>
 

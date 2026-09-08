@@ -24,7 +24,19 @@ namespace AstroImage.NINA.Plugin.Tests {
 
         /// <summary>
         /// Quanti tipi di questo assembly possono legittimamente NON caricarsi senza
-        /// N.I.N.A. Oggi uno: la classe del plugin, che eredita da PluginBase.
+        /// N.I.N.A. Oggi due, e sono i due che N.I.N.A. deve poter costruire:
+        ///
+        /// <list type="bullet">
+        ///   <item>la classe del plugin, che eredita da <c>PluginBase</c>;</item>
+        ///   <item><c>PannelloStrategyVM</c>, che eredita da <c>DockableVM</c> perche'
+        ///   e' cosi' che N.I.N.A. scopre un pannello agganciabile.</item>
+        /// </list>
+        ///
+        /// <para>
+        /// La vista che ospita WebView2 NON e' fra questi: eredita da UserControl, che
+        /// e' WPF e non N.I.N.A., e si carica benissimo qui. Nemmeno ClienteStrategy,
+        /// che di N.I.N.A. non sa niente ed e' il punto.
+        /// </para>
         ///
         /// <para>
         /// Il numero e' una guardia, non una costante di comodo. Un tipo che nomina
@@ -41,7 +53,7 @@ namespace AstroImage.NINA.Plugin.Tests {
         /// non le firme. LettoreSetup e SequenceBuilder infatti non contano.
         /// </para>
         /// </summary>
-        private const int NonCaricabiliAttesi = 1;
+        private const int NonCaricabiliAttesi = 2;
 
         internal static Type[] Caricati() {
             var asm = typeof(SequenceModel).Assembly;

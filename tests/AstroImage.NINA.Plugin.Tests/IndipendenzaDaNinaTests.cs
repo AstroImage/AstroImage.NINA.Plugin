@@ -53,12 +53,31 @@ namespace AstroImage.NINA.Plugin.Tests {
              *  tipo che sparisce sia di uno che compare senza che nessuno lo abbia
              *  raccontato qui. Aggiungerne uno lecito costa una riga da aggiornare,
              *  ed e' il prezzo giusto per una soglia che non si puo' aggirare. */
-            Assert.AreEqual(9, tipi.Length,
+            /*  I NOVE DEL CONTRATTO piu' i SEI DELLA BUSTA.
+             *
+             *  I primi nove sono la sequenza di una notte, cioe' la trascrizione di
+             *  cio' che il motore produce. I sei che seguono sono l'involucro con cui
+             *  il servizio la spedisce: busta, prodotto, bersaglio risolto, la notte
+             *  con il suo modello, il motivo di un rifiuto e il tempo di calcolo.
+             *
+             *  Sono qui, fra i tipi puri, per la stessa ragione degli altri: non
+             *  nominano N.I.N.A., non calcolano niente, e devono restare cosi'. E
+             *  restano SEI: valutazione, prescrizione, posa e piano — che nella
+             *  risposta ci sono e pesano il novanta per cento — non hanno un tipo di
+             *  proposito, e viaggiano in JsonExtensionData. Il giorno in cui qualcuno
+             *  gliene desse uno, questo numero salirebbe e bisognerebbe spiegare
+             *  perche' il ponte ha imparato a leggere cio' che deve solo portare. */
+            Assert.AreEqual(15, tipi.Length,
                 "il modello deve avere esattamente questi tipi: SequenceModel, Quando, Bersaglio, " +
-                "Offset, Ottica, Sito, Capacita, Blocco, Dither. Trovati: " +
+                "Offset, Ottica, Sito, Capacita, Blocco, Dither, e la busta del servizio " +
+                "RispostaPrescrizione, ProdottoPrescrizione, BersaglioRisolto, SequenzaDiNotte, " +
+                "ErroreServizio, MisuraServizio. Trovati: " +
                 string.Join(", ", tipi.Select(t => t.Name)));
             foreach (var atteso in new[] { "SequenceModel", "Quando", "Bersaglio", "Offset",
-                                           "Ottica", "Sito", "Capacita", "Blocco", "Dither" }) {
+                                           "Ottica", "Sito", "Capacita", "Blocco", "Dither",
+                                           "RispostaPrescrizione", "ProdottoPrescrizione",
+                                           "BersaglioRisolto", "SequenzaDiNotte",
+                                           "ErroreServizio", "MisuraServizio" }) {
                 Assert.IsTrue(tipi.Any(t => t.Name == atteso), $"{atteso} non si e' caricato");
             }
         }
