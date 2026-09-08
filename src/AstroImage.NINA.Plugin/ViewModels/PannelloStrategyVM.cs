@@ -1,8 +1,10 @@
 using System;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Net.Http;
 using AstroImage.NINA.Plugin.Services;
 using NINA.Equipment.Interfaces.ViewModel;
+using NINA.Core.Utility;
 using NINA.Profile.Interfaces;
 using NINA.Sequencer.Interfaces.Mediator;
 using NINA.WPF.Base.ViewModel;
@@ -32,8 +34,51 @@ namespace AstroImage.NINA.Plugin.ViewModels {
     [Export(typeof(IDockableVM))]
     public class PannelloStrategyVM : DockableVM {
 
-        /// <summary>Dove sta il motore. Per ora una prova sulla macchina locale.</summary>
+        /// <summary>Dove sta il motore quando nessuno dice altrimenti.</summary>
         public const string RadiceDiProva = "http://127.0.0.1:8791/";
+
+        /// <summary>Il file, accanto al DLL, in cui si puo' scrivere un altro indirizzo.</summary>
+        public const string FileIndirizzo = "strategy.url";
+
+        /*  L'INDIRIZZO SI PUO' SCRIVERE ACCANTO AL DLL, e questa e' la versione
+         *  provvisoria di un'impostazione vera.
+         *
+         *  Serve perche' il banco di prova con i filtri veri e' un ALTRO computer: il
+         *  mini PC in campo, dove il plugin gira e il motore no. Un indirizzo cablato
+         *  nel codice funziona solo sulla macchina di chi l'ha scritto — e' lo stesso
+         *  difetto per cui, in ASTROFOTO, due strumenti di misura leggevano da /tmp e
+         *  non avevano mai funzionato per nessun altro.
+         *
+         *  Un file di testo di una riga, non una variabile d'ambiente: su un PC da campo
+         *  si vede accanto al DLL, si legge e si corregge senza riavviare niente di
+         *  sistema. La casa definitiva sara' la pagina delle Opzioni; questo e' il
+         *  ponteggio, e si comporta come un ponteggio — se non c'e', si torna a casa. */
+        private static string RadiceInUso(out string da) {
+            da = "valore predefinito";
+            try {
+                var accanto = Path.GetDirectoryName(typeof(PannelloStrategyVM).Assembly.Location);
+                if (accanto is null) return RadiceDiProva;
+                var file = Path.Combine(accanto, FileIndirizzo);
+                if (!File.Exists(file)) return RadiceDiProva;
+
+                var scritto = File.ReadAllText(file).Trim();
+                if (scritto.Length == 0) return RadiceDiProva;
+                /*  Uno slash finale mancante cambierebbe il significato di Uri relativo:
+                 *  «…:8791» + «v1/salute» diventerebbe «…/v1/salute» al posto giusto solo
+                 *  per caso. Si aggiunge invece di sperare. */
+                if (!scritto.EndsWith("/")) scritto += "/";
+                if (!Uri.TryCreate(scritto, UriKind.Absolute, out var u)
+                        || (u.Scheme != Uri.UriSchemeHttp && u.Scheme != Uri.UriSchemeHttps)) {
+                    da = $"il file {FileIndirizzo} dice «{scritto}», che non e' un indirizzo http: ignorato";
+                    return RadiceDiProva;
+                }
+                da = FileIndirizzo;
+                return u.ToString();
+            } catch (Exception e) {
+                da = $"il file {FileIndirizzo} non si e' potuto leggere ({e.Message}): ignorato";
+                return RadiceDiProva;
+            }
+        }
 
         private static readonly HttpClient Trasporto = new HttpClient {
             /*  Un minuto e' generoso per un calcolo che ne impiega ottanta millesimi,
@@ -98,7 +143,8 @@ namespace AstroImage.NINA.Plugin.ViewModels {
              *  il solo titolo. Meglio di un disegno provvisorio che resta per anni. */
             ImageGeometry = null;
 
-            Radice = RadiceDiProva;
+            Radice = RadiceInUso(out var daDove);
+            Logger.Info($"[AstroImage] motore su {Radice} (da {daDove})");
             Cliente = new ClienteStrategy(Trasporto, new Uri(Radice));
 
             Mediatore = mediatore;
