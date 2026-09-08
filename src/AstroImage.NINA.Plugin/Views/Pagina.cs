@@ -46,7 +46,12 @@ namespace AstroImage.NINA.Plugin.Views {
   .box { background:#1a1e24; border:1px solid #262b32; border-radius:7px;
          padding:14px 16px; margin-bottom:14px; }
   .err { border-color:#6b2b2b; background:#241a1a; }
+  .fatto { border-color:#2c5c3c; background:#182219; }
   code { font:12px ui-monospace, Consolas, monospace; opacity:.8; }
+  button.manda { background:#2f855a; padding:4px 11px; font-size:12.5px; }
+  button.manda:hover { background:#38a169; }
+  ul { margin:8px 0 0 18px; padding:0; }
+  li { margin:2px 0; }
 </style>
 
 <h1>Prova del ponte</h1>
@@ -67,11 +72,12 @@ namespace AstroImage.NINA.Plugin.Views {
   let contatore = 0;
 
   /* L'unica via verso il mondo: un messaggio all'ospite. */
-  function chiedi(azione, corpo) {
+  function chiedi(azione, corpo, extra) {
     const id = 'r' + (++contatore);
     return new Promise(risolvi => {
       attese.set(id, risolvi);
-      window.chrome.webview.postMessage(JSON.stringify({ id, azione, corpo }));
+      window.chrome.webview.postMessage(JSON.stringify(
+        Object.assign({ id, azione, corpo }, extra || {})));
     });
   }
   window.chrome.webview.addEventListener('message', ev => {
@@ -113,17 +119,28 @@ namespace AstroImage.NINA.Plugin.Views {
     const d = JSON.parse(r.corpo);
     const p = d.prodotto;
 
+    /* L'IDENTIFICATIVO VIAGGIA CON LA RIGA, non in una variabile a parte.
+       Sembra un dettaglio ed e' la differenza fra una guardia che funziona e una che
+       non puo' scattare: se il tasto leggesse l'ultimo identificativo ricevuto, un
+       tasto rimasto in giro da una richiesta precedente manderebbe l'oggetto NUOVO
+       con l'aria di mandare il vecchio — e il ponte non avrebbe modo di accorgersene,
+       perche' l'identificativo che riceve sarebbe quello giusto. Provato: succedeva. */
     let righe = '';
     for (const s of p.sequenze) {
       const m = s.modello;
       const pose = m.blocchi.reduce((a, b) => a + (b.n || 0), 0);
       const ore = m.blocchi.reduce((a, b) => a + (b.sec || 0) * (b.n || 0), 0) / 3600;
+      const tasto = r.consegnabile
+        ? '<button class="manda" data-notte="' + s.notte +
+          '" data-prescrizione="' + esc(r.prescrizione || '') + '">Manda a N.I.N.A.</button>'
+        : '<span style="opacity:.5" title="' + esc(r.perche || '') + '">non disponibile</span>';
       righe += '<tr><td class="n">' + s.notte + '</td>' +
                '<td>' + esc((m.quando && m.quando.data) || '—') + '</td>' +
                '<td class="n">' + m.blocchi.length + '</td>' +
                '<td class="n">' + pose + '</td>' +
                '<td class="n">' + ore.toFixed(2) + ' h</td>' +
-               '<td>' + esc(m.blocchi.map(b => b.filtro || b.canale || '—').join(' · ')) + '</td></tr>';
+               '<td>' + esc(m.blocchi.map(b => b.filtro || b.canale || '—').join(' · ')) + '</td>' +
+               '<td>' + tasto + '</td></tr>';
     }
 
     $('uscita').innerHTML =
@@ -139,8 +156,46 @@ namespace AstroImage.NINA.Plugin.Views {
         (r.corpo.length / 1024).toFixed(0) + ' KB intatti</td></tr>' +
       '</table></div>' +
       '<div class="box"><table>' +
-      '<tr><th>notte</th><th>data</th><th>blocchi</th><th>pose</th><th>durata</th><th>filtri</th></tr>' +
-      righe + '</table></div>';
+      '<tr><th>notte</th><th>data</th><th>blocchi</th><th>pose</th><th>durata</th><th>filtri</th><th></th></tr>' +
+      righe + '</table></div>' +
+      '<div id="consegna"></div>';
+
+    for (const b of document.querySelectorAll('button.manda'))
+      b.addEventListener('click', () => manda(b));
+  }
+
+  /* CONSEGNARE. Alla richiesta va solo il numero della notte e l'identificativo:
+     la sequenza ce l'ha gia' il ponte, e non deve tornare indietro da qui. */
+  async function manda(tasto) {
+    const notte = Number(tasto.dataset.notte);
+    for (const b of document.querySelectorAll('button.manda')) b.disabled = true;
+    tasto.textContent = 'sto mandando…';
+
+    const r = await chiedi('manda', null,
+      { prescrizione: tasto.dataset.prescrizione || null, notte });
+
+    for (const b of document.querySelectorAll('button.manda')) b.disabled = false;
+    tasto.textContent = 'Manda a N.I.N.A.';
+
+    const u = $('consegna');
+    if (!r.ok) {
+      u.innerHTML = '<div class="box err"><b>' + esc(r.codice || 'errore') + '</b>' +
+        '<div style="margin-top:6px;opacity:.85">' + esc(r.messaggio || '') + '</div></div>';
+      return;
+    }
+
+    /* Le cose scartate si vedono. Un blocco che non si e' costruito, scoperto sotto
+       il cielo, e' una banda che manca e una notte persa. */
+    const elenco = (t, a) => (a && a.length)
+      ? '<div style="margin-top:10px;opacity:.85"><b>' + t + '</b><ul>' +
+        a.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>' : '';
+
+    u.innerHTML = '<div class="box fatto">' +
+      '<b>Notte ' + notte + ' aggiunta al Sequenziatore Avanzato.</b>' +
+      '<div style="margin-top:6px;opacity:.85">' + esc(r.bersaglio || '') + ' — ' +
+      r.blocchi + ' blocchi, ' + r.pose + ' pose. ' +
+      '<span style="opacity:.7">Non e\' stato avviato niente: a premere Riproduci sei tu.</span></div>' +
+      elenco('Scartato:', r.scartati) + elenco('Da sapere:', r.note) + '</div>';
   }
 
   $('vai').addEventListener('click', vai);
