@@ -4,6 +4,7 @@ using System.Linq;
 using AstroImage.NINA.Plugin.Models;
 using NINA.Astrometry;
 using NINA.Core.Model.Equipment;
+using NINA.Core.Utility;
 using NINA.Profile.Interfaces;
 using NINA.Sequencer;
 using NINA.Sequencer.Conditions;
@@ -165,6 +166,8 @@ namespace AstroImage.NINA.Plugin.Services {
             /*  Un contenitore senza riprese non e' un bersaglio dimezzato: e' un
              *  bersaglio che non fa niente, e consegnarlo sarebbe peggio che dire di no. */
             if (costruiti == 0) return null;
+            Logger.Info($"[AstroImage] contenitore: {costruiti} blocchi aggiunti, " +
+                        $"{dso.Items.Count} elementi in tutto");
 
             /*  QUI C'ERANO IL RISCALDAMENTO E IL RITORNO A CASA. Stessa ragione del
              *  raffreddamento: dentro un bersaglio si eseguirebbero dopo OGNI bersaglio.
@@ -207,7 +210,18 @@ namespace AstroImage.NINA.Plugin.Services {
             if (b.Gain is not null) posa.Gain = b.Gain.Value;
             if (b.Offset is not null) posa.Offset = b.Offset.Value;
 
+            /*  LE ITERAZIONI SI IMPOSTANO SULLO SMART EXPOSURE, non sulla condizione
+             *  sotto. Sono due proprieta' per la stessa cosa e non si sincronizzano da
+             *  sole: sul banco vero il Sequenziatore mostrava «# 20» accanto a un
+             *  «Progresso 0/29» — il numero della condizione era il nostro, quello che
+             *  N.I.N.A. fa vedere e usa era ancora quello del modello clonato.
+             *  Si impostano entrambe: quella di sopra perche' e' la vera, quella di
+             *  sotto perche' non resti indietro se un domani smettessero di parlarsi. */
+            se.Iterations = b.Pose;
             se.GetLoopCondition().Iterations = b.Pose;
+            Logger.Info($"[AstroImage] blocco «{b.Etichetta}»: chiesto {b.Pose} pose da {b.Secondi} s, " +
+                        $"filtro {b.Filtro ?? "(nessuno)"} — l'oggetto dice Iterations={se.Iterations}, " +
+                        $"condizione={se.GetLoopCondition()?.Iterations}, posa={se.GetTakeExposure()?.ExposureTime}");
 
             /*  IL DITHER SI IMPOSTA, NON SI EREDITA, e questa riga viene da un difetto
              *  visto in sequenza: il modello di serie di N.I.N.A. porta «ogni 3 pose»,
