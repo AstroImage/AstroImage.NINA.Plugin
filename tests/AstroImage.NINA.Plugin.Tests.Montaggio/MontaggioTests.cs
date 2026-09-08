@@ -30,6 +30,16 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
         private static SequenceModel Modello(string nome = "mono") =>
             SequenceModel.Leggi(Fixture(nome))!;
 
+        /*  UNA FIXTURE VERA, DEGRADATA — l'idioma di questo progetto, invece di
+         *  inventare un JSON. Togliere il filtro da ogni blocco serve a provare tutto
+         *  cio' che viene DOPO il controllo dei filtri: senza un profilo la ruota
+         *  risulta vuota, e un modello che chiede un vetro verrebbe rifiutato prima. */
+        private static SequenceModel ModelloSenzaFiltri(string nome = "osc") {
+            var j = System.Text.Json.Nodes.JsonNode.Parse(Fixture(nome))!.AsObject();
+            foreach (var b in j["blocchi"]!.AsArray()) b!.AsObject().Remove("filtro");
+            return SequenceModel.Leggi(j.ToJsonString())!;
+        }
+
         // ------------------------------------------------------- gli assembly ci sono
 
         [TestMethod]
@@ -70,7 +80,7 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
             var fonte = FonteFinta.Vuota("nessun modello di bersaglio da cui copiare");
             var b = new SequenceBuilder(fonte, null!);
 
-            var c = b.Costruisci(Modello(), out var ricetta);
+            var c = b.Costruisci(ModelloSenzaFiltri(), out var ricetta);
 
             Assert.IsNull(c, "senza pezzi non si consegna niente");
             Assert.AreEqual(1, ricetta.Scartati.Count, "e si dice una volta sola perche'");
@@ -85,7 +95,7 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
             var fonte = FonteFinta.Bugiarda();   // disponibile, ma non da' il contenitore
             var b = new SequenceBuilder(fonte, null!);
 
-            var c = b.Costruisci(Modello(), out var ricetta);
+            var c = b.Costruisci(ModelloSenzaFiltri(), out var ricetta);
 
             Assert.IsNull(c);
             Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("contenitore")),
@@ -143,9 +153,123 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
                     $"IFonteDiPezzi.{m.Name} offre {reso}: la vita della sessione non e' " +
                     "affare di un bersaglio, e cio' che non si puo' chiedere non si puo' aggiungere");
             }
-            Assert.AreEqual(5, pezzi.Length,
-                "cinque pezzi: contenitore, posa, autofocus, guida, dither. Se sono di piu', " +
-                "qualcuno ha allargato il magazzino e va detto qui");
+            Assert.AreEqual(4, pezzi.Length,
+                "quattro pezzi: contenitore, posa, autofocus, guida. Se sono di piu', qualcuno " +
+                "ha allargato il magazzino e va detto qui");
+            /*  IL DITHER NON E' PIU' UN PEZZO, e non e' una semplificazione: ogni
+             *  SmartExposure porta gia' il proprio, e un secondo innesco sul contenitore
+             *  ditherebbe DUE volte contando le stesse pose. Cio' che non si puo'
+             *  chiedere non si puo' aggiungere per sbaglio. */
+            Assert.IsFalse(pezzi.Any(m => m.Name.Contains("Dither")),
+                "il dither si imposta sul blocco, non si chiede al magazzino");
+        }
+
+        // ------------------------------------- fedelta': il filtro che non c'e'
+
+        /*  LA REGRESSIONE PIU' GRAVE DELLA PRIMA CONSEGNA VERA.
+         *
+         *  Il bersaglio e' comparso nel Sequenziatore con pose, tempi, guadagno, offset
+         *  e coordinate esatti, e con il filtro del primo blocco su «(Corrente)» perche'
+         *  la ruota non aveva l'HO richiesto. Ventinove pose da seicento secondi — quasi
+         *  cinque ore — con qualunque vetro fosse montato, e nessuna riga lo diceva.
+         *
+         *  Adesso il bersaglio non si consegna affatto. Fra saltare il blocco e
+         *  rifiutare tutto vale l'asimmetria del danno: un rifiuto si corregge in un
+         *  clic, cinque ore col vetro sbagliato non si recuperano. */
+        [TestMethod]
+        public void FiltroPrescrittoMaNonInRuota_IlBersaglioNonSiConsegna() {
+            var fonte = FonteFinta.Bugiarda();
+            /*  Senza profilo la ruota risulta vuota: e' il caso peggiore, e la fixture
+             *  mono chiede cinque vetri. */
+            var b = new SequenceBuilder(fonte, null!);
+
+            var c = b.Costruisci(Modello("mono"), out var ricetta);
+
+            Assert.IsNull(c, "un bersaglio che non rispetta la prescrizione non si consegna");
+            Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("NON e' stato consegnato")),
+                "e si dice a chiare lettere, non fra le righe");
+            foreach (var vetro in new[] { "O", "H", "R", "G", "B" })
+                Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("«" + vetro + "»")),
+                    $"il vetro {vetro} mancante va nominato");
+            Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("nessun filtro in ruota")),
+                "e si dice anche che cosa c'e' in ruota, o che non c'e' niente");
+        }
+
+        /*  E SI RIFIUTA PRIMA DI COSTRUIRE. Non e' solo eleganza: se il controllo
+         *  venisse dopo, il montaggio avrebbe gia' toccato N.I.N.A. per costruire
+         *  qualcosa da buttare — e questa regola non si potrebbe provare qui. */
+        [TestMethod]
+        public void IlControlloDeiFiltri_VienePrimaDiChiedereIPezzi() {
+            var fonte = FonteFinta.Bugiarda();
+            var b = new SequenceBuilder(fonte, null!);
+
+            b.Costruisci(Modello("mono"), out _);
+
+            Assert.AreEqual(0, fonte.Chieste.Count,
+                "al magazzino non si e' chiesto niente: si sapeva gia' che non si poteva consegnare");
+        }
+
+        [TestMethod]
+        public void SenzaFiltriPrescritti_IlControlloNonSiIntromette() {
+            var fonte = FonteFinta.Bugiarda();
+            var b = new SequenceBuilder(fonte, null!);
+
+            b.Costruisci(ModelloSenzaFiltri(), out var ricetta);
+
+            Assert.IsFalse(ricetta.Scartati.Any(s => s.Contains("filtro")),
+                "un modello che non chiede vetri non ha filtri mancanti");
+            CollectionAssert.Contains(fonte.Chieste, nameof(FonteFinta.Contenitore),
+                "e il montaggio prosegue fino a chiedere i pezzi");
+        }
+
+        // ------------------------------ la fonte chiede ogni volta, non si ricorda
+
+        /*  LA REGRESSIONE CHE CI E' COSTATA UN GIRO DENTRO N.I.N.A.
+         *
+         *  La prima versione di FonteDaModello chiedeva i modelli nel COSTRUTTORE. Ma
+         *  N.I.N.A. compone i pannelli all'avvio, quando il Sequenziatore non ha ancora
+         *  letto niente: la fonte nasceva vuota e restava vuota per tutta la sessione.
+         *  Il pannello diceva «non disponibile» con i modelli sotto il naso.
+         *
+         *  Il conteggio delle chiamate e' la prova diretta. Se restasse a uno, la fonte
+         *  si sarebbe fidata di una fotografia scattata nel momento sbagliato. */
+        [TestMethod]
+        public void LaFonte_ChiedeIModelliOgniVolta_NonSoloAllAvvio() {
+            var mediatore = new MediatoreFinto();
+            var fonte = new FonteDaModello(mediatore);
+
+            Assert.AreEqual(0, mediatore.Chiamate,
+                "costruire la fonte non deve chiedere niente: all'avvio non c'e' ancora niente da chiedere");
+
+            _ = fonte.Disponibile;
+            var dopoPrima = mediatore.Chiamate;
+            _ = fonte.Disponibile;
+            _ = fonte.PerCheNo;
+
+            Assert.IsTrue(dopoPrima >= 1, "la prima domanda vera deve interrogare il mediatore");
+            Assert.IsTrue(mediatore.Chiamate > dopoPrima,
+                "e ogni domanda successiva pure: i modelli sono dell'utente, che ne aggiunge " +
+                "e ne toglie mentre N.I.N.A. e' aperto");
+        }
+
+        [TestMethod]
+        public void LaFonte_SenzaModelli_SpiegaDoveAndarliAPrendere() {
+            var fonte = new FonteDaModello(new MediatoreFinto());   // elenco vuoto
+
+            Assert.IsFalse(fonte.Disponibile);
+            StringAssert.Contains(fonte.PerCheNo ?? "", "Modelli",
+                "un motivo deve dire anche che cosa fare, non solo che cosa manca");
+            Assert.IsNull(fonte.Contenitore(), "e non si inventa un contenitore");
+            Assert.IsNull(fonte.Posa());
+        }
+
+        [TestMethod]
+        public void LaFonte_SenzaMediatore_NonEsplode() {
+            var fonte = new FonteDaModello(null);
+
+            Assert.IsFalse(fonte.Disponibile);
+            StringAssert.Contains(fonte.PerCheNo ?? "", "mediatore");
+            Assert.IsNull(fonte.Contenitore());
         }
 
         [TestMethod]
@@ -161,10 +285,16 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
              *  pacchetto. Resta da vedere dentro N.I.N.A., ed e' dichiarato. */
             var fonte = FonteFinta.Bugiarda();
             var b = new SequenceBuilder(fonte, null!);
-            b.Costruisci(Modello(), out var ricetta);
+            b.Costruisci(ModelloSenzaFiltri(), out var ricetta);
+
+            /*  Le note NON sono tutte del costruttore: Traduzione ne aggiunge di sue,
+             *  e confondere le due origini era il difetto di questo test. Si confronta
+             *  quindi con la sola traduzione, che e' il termine di paragone giusto. */
+            var soloTradotta = Traduzione.Traduci(ModelloSenzaFiltri());
 
             Assert.IsTrue(ricetta.Raffredda, "la fixture chiede davvero di raffreddare");
-            Assert.AreEqual(0, ricetta.Note.Count, "ma non si consiglia niente su una sequenza mancata");
+            Assert.AreEqual(soloTradotta.Note.Count, ricetta.Note.Count,
+                "il costruttore non ha aggiunto consigli su una sequenza che non si e' costruita");
             Assert.IsTrue(ricetta.Scartati.Count > 0, "si dice invece che cosa e' andato storto");
         }
     }

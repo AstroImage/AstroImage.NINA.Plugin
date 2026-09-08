@@ -133,7 +133,7 @@ namespace AstroImage.NINA.Plugin.Views {
       const tasto = r.consegnabile
         ? '<button class="manda" data-notte="' + s.notte +
           '" data-prescrizione="' + esc(r.prescrizione || '') + '">Manda a N.I.N.A.</button>'
-        : '<span style="opacity:.5" title="' + esc(r.perche || '') + '">non disponibile</span>';
+        : '<span style="opacity:.45">—</span>';
       righe += '<tr><td class="n">' + s.notte + '</td>' +
                '<td>' + esc((m.quando && m.quando.data) || '—') + '</td>' +
                '<td class="n">' + m.blocchi.length + '</td>' +
@@ -158,6 +158,9 @@ namespace AstroImage.NINA.Plugin.Views {
       '<div class="box"><table>' +
       '<tr><th>notte</th><th>data</th><th>blocchi</th><th>pose</th><th>durata</th><th>filtri</th><th></th></tr>' +
       righe + '</table></div>' +
+      (r.consegnabile ? '' :
+        '<div class="box err"><b>Non si puo\x27 mandare a N.I.N.A.</b><div style="margin-top:6px;opacity:.85">' +
+        esc(r.perche || 'motivo non dichiarato') + '</div></div>') +
       '<div id="consegna"></div>';
 
     for (const b of document.querySelectorAll('button.manda'))

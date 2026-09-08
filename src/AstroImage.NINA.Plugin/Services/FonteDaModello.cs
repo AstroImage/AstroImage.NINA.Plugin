@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NINA.Core.Utility;
 using NINA.Sequencer.Conditions;
 using NINA.Sequencer.Container;
 using NINA.Sequencer.Interfaces.Mediator;
@@ -39,46 +40,64 @@ namespace AstroImage.NINA.Plugin.Services {
      */
     public sealed class FonteDaModello : IFonteDiPezzi {
 
-        private readonly IDeepSkyObjectContainer? modello;
+        private readonly ISequenceMediator? mediatore;
 
-        public bool Disponibile => modello is not null;
-        public string? PerCheNo { get; }
+        public FonteDaModello(ISequenceMediator? mediatore) => this.mediatore = mediatore;
 
-        /// <summary>Il nome del modello scelto, da mostrare: chi guarda deve sapere da
-        /// dove escono i pezzi che si trova in sequenza.</summary>
-        public string? NomeModello => modello?.Name;
-
-        public FonteDaModello(ISequenceMediator? mediatore) {
+        /*  SI CHIEDE OGNI VOLTA, e non si cattura una volta per tutte. Il primo tentativo
+         *  lo faceva nel costruttore, e non funzionava: N.I.N.A. compone i pannelli
+         *  all'avvio, quando il Sequenziatore i suoi modelli non li ha ancora letti, e
+         *  la fonte nasceva vuota per sempre. Il pannello diceva «non disponibile»
+         *  anche a mezzanotte, con i modelli sotto il naso.
+         *
+         *  Ma il difetto era piu' profondo del momento sbagliato: i modelli sono
+         *  dell'utente, e l'utente ne aggiunge e ne toglie mentre N.I.N.A. e' aperto.
+         *  Una fotografia scattata all'avvio sarebbe stata falsa comunque, prima o poi.
+         *  Costa una chiamata in piu' per consegna, che e' niente. */
+        private IDeepSkyObjectContainer? Modello(out string? perche) {
+            perche = null;
             if (mediatore is null) {
-                PerCheNo = "N.I.N.A. non ha fornito il mediatore delle sequenze.";
-                return;
+                perche = "N.I.N.A. non ha fornito il mediatore delle sequenze.";
+                return null;
             }
 
-            IList<IDeepSkyObjectContainer>? modelli = null;
+            IList<IDeepSkyObjectContainer>? modelli;
             try { modelli = mediatore.GetDeepSkyObjectContainerTemplates(); }
             catch (Exception e) {
-                PerCheNo = "N.I.N.A. non ha saputo elencare i modelli di bersaglio: " + e.Message;
-                return;
+                perche = "N.I.N.A. non ha saputo elencare i modelli di bersaglio: " + e.Message;
+                return null;
             }
 
             if (modelli is null || modelli.Count == 0) {
-                PerCheNo = "Non c'e' nessun modello di bersaglio. Di solito ce n'e' almeno uno " +
-                           "di serie: se manca anche quello, salvane uno nel Sequenziatore Avanzato.";
-                return;
+                perche = "Non c'e' nessun modello di bersaglio. Di solito ce n'e' almeno uno " +
+                         "di serie: se manca anche quello, apri il Sequenziatore Avanzato, " +
+                         "vai in Modelli e salvane uno.";
+                return null;
             }
 
-            modello = modelli.FirstOrDefault(m => Dentro<SmartExposure>(m) is not null);
-            if (modello is null) {
-                PerCheNo = $"Nessuno dei {modelli.Count} modelli di bersaglio contiene una ripresa " +
-                           "da cui copiare la posa. Aggiungi uno Smart Exposure a un modello.";
+            var scelto = modelli.FirstOrDefault(m => Dentro<SmartExposure>(m) is not null);
+            Logger.Debug("[AstroImage] modelli di bersaglio: " + modelli.Count +
+                         ", scelto: " + (scelto?.Name ?? "nessuno"));
+            if (scelto is null) {
+                perche = $"Nessuno dei {modelli.Count} modelli di bersaglio contiene una ripresa " +
+                         "da cui copiare la posa. Aggiungi uno Smart Exposure a un modello.";
             }
+            return scelto;
         }
+
+        public bool Disponibile => Modello(out _) is not null;
+
+        public string? PerCheNo { get { Modello(out var p); return p; } }
+
+        /// <summary>Il nome del modello scelto, da mostrare: chi guarda deve sapere da
+        /// dove escono i pezzi che si trova in sequenza.</summary>
+        public string? NomeModello => Modello(out _)?.Name;
 
         /*  Il contenitore si clona e si SVUOTA: del modello ci interessa la forma, non
          *  il contenuto: le sue riprese sono quelle di qualcun altro, e lasciarcele
          *  vorrebbe dire consegnare pose che nessuno ha chiesto. */
         public IDeepSkyObjectContainer? Contenitore() {
-            if (modello?.Clone() is not IDeepSkyObjectContainer c) return null;
+            if (Modello(out _)?.Clone() is not IDeepSkyObjectContainer c) return null;
             foreach (var i in c.Items.ToList()) c.Remove(i);
             /*  Trigger e condizioni non stanno su IDeepSkyObjectContainer: li espongono
              *  ITriggerable e IConditionable, che il contenitore concreto implementa. */
@@ -87,15 +106,10 @@ namespace AstroImage.NINA.Plugin.Services {
             return c;
         }
 
-        public SmartExposure? Posa() => Clona(Dentro<SmartExposure>(modello));
-        public RunAutofocus? Autofocus() => Clona(Dentro<RunAutofocus>(modello));
-        public StartGuiding? AvvioGuida() => Clona(Dentro<StartGuiding>(modello));
+        public SmartExposure? Posa() => Clona(Dentro<SmartExposure>(Modello(out _)));
+        public RunAutofocus? Autofocus() => Clona(Dentro<RunAutofocus>(Modello(out _)));
+        public StartGuiding? AvvioGuida() => Clona(Dentro<StartGuiding>(Modello(out _)));
 
-        /*  Il dither e' un innesco, non un'istruzione: si cerca fra i trigger. */
-        public DitherAfterExposures? Dither() {
-            var t = (modello as ITriggerable)?.Triggers?.OfType<DitherAfterExposures>().FirstOrDefault();
-            return Clona(t);
-        }
 
         private static T? Clona<T>(T? originale) where T : class =>
             originale is ICloneable c ? c.Clone() as T : null;

@@ -137,6 +137,29 @@ namespace AstroImage.NINA.Plugin.Tests {
         }
 
         [TestMethod]
+        public void IlPonteImpostaIlDither_NonLoEreditaDalModello() {
+            /*  LA REGRESSIONE DEL 3 AL POSTO DEL 2.
+             *
+             *  Il modello di serie di N.I.N.A. porta «dither ogni 3 pose». La
+             *  prescrizione ne chiedeva 2. Il clone teneva il 3, e in sequenza e'
+             *  finito un numero plausibile, al posto giusto, che nessuno guarda due
+             *  volte. Il valore di Strategy deve prevalere SEMPRE su quello ereditato.
+             *
+             *  QUESTA VERIFICA E' PIU' DEBOLE DI QUANTO VORREI, e va detto: guarda che
+             *  la chiamata ci sia, non che il numero finisca giusto. Il valore si
+             *  imposta su uno SmartExposure, e uno SmartExposure fuori da N.I.N.A. non
+             *  si costruisce — il costruttore solleva. Provato: togliendo l'assegnazione,
+             *  nessun test di comportamento diventa rosso. Questo si'. E' quanto si
+             *  puo' avere senza N.I.N.A. accesa, ed e' meglio di niente. */
+            var membri = MembriNominati();
+
+            Assert.IsTrue(membri.Contains("SmartExposure::GetDitherAfterExposures"),
+                "il ponte non chiede piu' l'innesco del blocco: il dither del modello resterebbe");
+            Assert.IsTrue(membri.Contains("DitherAfterExposures::set_AfterExposures"),
+                "il ponte non imposta piu' il valore del dither: erediterebbe quello del modello");
+        }
+
+        [TestMethod]
         public void LaProvaNonEVuota() {
             /*  Le due verifiche sopra passerebbero anche su un DLL che non nomina
              *  N.I.N.A. per niente. Questa controlla che stiano guardando un binario

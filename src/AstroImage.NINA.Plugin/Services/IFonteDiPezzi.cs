@@ -62,8 +62,6 @@ namespace AstroImage.NINA.Plugin.Services {
 
         StartGuiding? AvvioGuida();
 
-        /// <summary>L'innesco che sposta ogni N pose.</summary>
-        DitherAfterExposures? Dither();
     }
 
     /*  LA FONTE CHE USA LA FABBRICA, se un giorno arrivasse.
@@ -89,6 +87,5 @@ namespace AstroImage.NINA.Plugin.Services {
         public SmartExposure? Posa() => fabbrica.GetItem<SmartExposure>();
         public RunAutofocus? Autofocus() => fabbrica.GetItem<RunAutofocus>();
         public StartGuiding? AvvioGuida() => fabbrica.GetItem<StartGuiding>();
-        public DitherAfterExposures? Dither() => fabbrica.GetTrigger<DitherAfterExposures>();
     }
 }

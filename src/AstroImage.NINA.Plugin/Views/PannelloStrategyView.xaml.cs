@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using AstroImage.NINA.Plugin.Services;
 using AstroImage.NINA.Plugin.ViewModels;
 using Microsoft.Web.WebView2.Core;
+using NINA.Core.Utility;
 
 namespace AstroImage.NINA.Plugin.Views {
 
@@ -129,12 +130,19 @@ namespace AstroImage.NINA.Plugin.Views {
                  *  prescrizione precedente rimasta sullo schermo. */
                 var vm = DataContext as PannelloStrategyVM;
                 var idPrescrizione = vm?.InMano.Prendi(esito);
+                /*  IL DATO CHE MANCAVA. Alla prima integrazione il pannello disse «non
+                 *  disponibile» e per sapere PERCHE' bisognava passarci sopra il mouse.
+                 *  Adesso il motivo finisce nel log, e la domanda «e' stato chiamato
+                 *  AddAdvancedTarget?» ha una risposta scritta invece che dedotta. */
+                var perche = vm?.PerCheNonConsegna;
+                Logger.Info("[AstroImage] prescrizione: " + esito.Sequenze.Count + " notti, " +
+                            (perche is null ? "consegnabile" : "NON consegnabile — " + perche));
 
                 Rispondi(id, true, esito.Corpo, null, null, esito.Sequenze.Count, esito.MsDelMotore,
                          new JsonObject {
                              ["prescrizione"] = idPrescrizione,
-                             ["consegnabile"] = vm?.PerCheNonConsegna is null,
-                             ["perche"] = vm?.PerCheNonConsegna,
+                             ["consegnabile"] = perche is null,
+                             ["perche"] = perche,
                          });
             } catch (Exception ex) {
                 Rispondi(id, false, null, "ponte_in_errore", ex.Message);
@@ -154,29 +162,57 @@ namespace AstroImage.NINA.Plugin.Views {
          *  finire altrove.
          */
         private void Manda(string id, JsonObject messaggio) {
+            /*  OGNI PASSO SI SCRIVE NEL LOG DI N.I.N.A., e non e' zelo.
+             *
+             *  La prima volta che questo percorso non ha funzionato, la domanda giusta —
+             *  «AddAdvancedTarget e' stato chiamato o no?» — non aveva una risposta:
+             *  c'era una schermata e quattro ipotesi. Un percorso che tocca un
+             *  programma altrui e finisce in un'interfaccia che non e' la nostra deve
+             *  lasciare una traccia leggibile dove la si va a cercare, cioe' nel log di
+             *  N.I.N.A. insieme a tutto il resto della serata. */
+            const string IO = "[AstroImage] ";
             var vm = DataContext as PannelloStrategyVM;
             if (vm is null) {
+                Logger.Error(IO + "manda: il pannello non ha un ViewModel");
                 Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return;
-            }
-            if (vm.PerCheNonConsegna != null) {
-                Rispondi(id, false, null, "consegna_non_disponibile", vm.PerCheNonConsegna); return;
             }
 
             var idPrescrizione = messaggio["prescrizione"]?.GetValue<string>();
             var notte = messaggio["notte"]?.GetValue<int>() ?? 0;
+            Logger.Info(IO + $"manda: notte {notte}, prescrizione {idPrescrizione ?? "(nessuna)"}");
+
+            var perche = vm.PerCheNonConsegna;
+            if (perche != null) {
+                Logger.Warning(IO + "manda: non si puo' consegnare — " + perche);
+                Rispondi(id, false, null, "consegna_non_disponibile", perche); return;
+            }
 
             var scelta = vm.InMano.Notte(idPrescrizione, notte, out var codice, out var motivo);
-            if (scelta is null) { Rispondi(id, false, null, codice, motivo); return; }
+            if (scelta is null) {
+                Logger.Warning(IO + $"manda: notte non ottenuta — {codice}: {motivo}");
+                Rispondi(id, false, null, codice, motivo); return;
+            }
 
             var contenitore = vm.Costruttore.Costruisci(scelta.Modello, out var ricetta);
             if (contenitore is null) {
+                Logger.Warning(IO + "manda: niente da costruire — " +
+                    (ricetta.Scartati.Count > 0 ? string.Join("; ", ricetta.Scartati) : "nessun motivo dichiarato"));
                 Rispondi(id, false, null, "niente_da_costruire",
                     "Dal modello non e' uscito niente di riprendibile" +
                     (ricetta.Scartati.Count > 0 ? ": " + string.Join("; ", ricetta.Scartati) : "."));
                 return;
             }
 
-            SequenceBuilder.Consegna(vm.Mediatore, contenitore);
+            Logger.Info(IO + $"manda: costruito «{ricetta.NomeBersaglio}», {ricetta.Blocchi.Count} blocchi, " +
+                             $"{ricetta.Blocchi.Sum(b => b.Pose)} pose; scartati {ricetta.Scartati.Count}");
+            try {
+                SequenceBuilder.Consegna(vm.Mediatore, contenitore);
+                Logger.Info(IO + "manda: AddAdvancedTarget chiamato, nessuna eccezione");
+            } catch (Exception ex) {
+                Logger.Error(IO + "manda: AddAdvancedTarget ha sollevato", ex);
+                Rispondi(id, false, null, "consegna_fallita", ex.Message);
+                return;
+            }
 
             /*  Le cose scartate e le note NON si nascondono dietro un «fatto». Un
              *  blocco che non si e' costruito deve vedersi, o chi riprende scoprira'
