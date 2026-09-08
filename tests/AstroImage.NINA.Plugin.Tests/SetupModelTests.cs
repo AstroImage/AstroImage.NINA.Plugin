@@ -24,12 +24,13 @@ namespace AstroImage.NINA.Plugin.Tests {
      *                                profilo letto a telescopio spento non sa che cosa
      *                                dichiari un driver.
      *
-     *    collegato                   costruita. Il profilo e le specifiche della
-     *                                camera sono veri — vengono dal catalogo di
-     *                                Strategy, ASI 2600MC Pro, 6248x4176 a 3,76 µm —
-     *                                ma lo stato vivo (temperatura, RMS, SQM) e'
-     *                                plausibile, non misurato. Va rigenerata da una
-     *                                lettura vera quando il pannello esistera'.
+     *    collegato                   LETTA DAL MINI PC OPERATIVO IN CAMPO, N.I.N.A.
+     *                                3.3, attraverso l'Advanced API e in sola lettura.
+     *                                AM5 + ASI 2600MC + Askar 71F, con camera,
+     *                                montatura, ruota EFW, focheggiatore EAF e guida
+     *                                PHD2 collegati; rotatore e meteo no. Nessun
+     *                                numero e' scritto a mano — compreso l'RMS a zero,
+     *                                che e' quello che PHD2 riporta da fermo.
      *
      *  La distinzione conta: qui non c'e' un motore da far girare come per le
      *  sequenze. La sorgente e' N.I.N.A., e N.I.N.A. non si puo' mettere in un test.
@@ -140,8 +141,16 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.AreEqual(6248, m.Camera.LarghezzaPx);
             Assert.AreEqual(4176, m.Camera.AltezzaPx);
             Assert.AreEqual(16, m.Camera.Bit);
-            Assert.AreEqual(570, m.Camera.Gain!.Max);
             CollectionAssert.Contains(m.Camera.Binning, "2x2");
+
+            /*  IL GUADAGNO MINIMO E' -25, e non e' un errore di lettura: la 2600MC lo
+             *  dichiara cosi'. E' il numero che da solo giustifica di non aver messo un
+             *  filtro «solo valori positivi» sugli estremi: l'avrebbe cancellato. */
+            Assert.AreEqual(-25, m.Camera.Gain!.Min, "il driver dichiara un minimo negativo");
+            Assert.AreEqual(700, m.Camera.Gain.Max);
+            Assert.AreEqual(0, m.Camera.Gain.Attuale, "e lavora a zero, che e' un valore");
+            Assert.IsNull(m.Camera.Gain.Valori, "questa camera espone un intervallo, non un elenco");
+            Assert.AreEqual(240, m.Camera.Offset!.Max);
 
             /*  Il modello porta i due numeri e NON dice chi ha ragione. Confrontarli e'
              *  lavoro di chi riceve; qui si garantisce solo che siano tutti e due
@@ -154,6 +163,7 @@ namespace AstroImage.NINA.Plugin.Tests {
         public void MonoControMatrice_SiLeggeDalSensore_NonSiDeduce() {
             var osc = M("collegato");
             Assert.AreEqual("RGGB", osc.Camera!.Sensore, "il nome esatto, non «a colori»");
+            Assert.AreEqual("RGGB", osc.Camera.MatriceProfilo, "e qui profilo e driver vanno d'accordo");
             Assert.IsFalse(osc.Camera.Monocromatico);
 
             /*  Il banco in campo dichiara «None» come disegno di matrice: e' cosi'
@@ -181,9 +191,9 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsNull(senza.Ruota.FiltroAttuale, "a ruota scollegata nessuno slot e' montato");
 
             var con = M("collegato");
-            Assert.AreEqual(3, con.Ruota!.Filtri!.Count);
-            Assert.AreEqual("Ha 3nm", con.Ruota.FiltroAttuale!.Nome);
-            Assert.AreEqual(1, con.Ruota.FiltroAttuale.Posizione);
+            Assert.AreEqual(5, con.Ruota!.Filtri!.Count, "la EFW del banco in campo");
+            Assert.AreEqual("LPS_P2 IDAS", con.Ruota.FiltroAttuale!.Nome, "il vetro montato adesso");
+            Assert.AreEqual(0, con.Ruota.FiltroAttuale.Posizione);
 
             /*  E la ruota VERA del banco in campo: sette vetri, LRGB piu' SHO, con gli
              *  offset di fuoco misurati da chi ci riprende davvero. E' il caso che
@@ -224,10 +234,11 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "il filtro ha preso una proprieta' fisica che N.I.N.A. non conosce: " +
                 string.Join(", ", colpevoli));
 
-            var f = M("collegato").Ruota!.Filtri![1];
-            Assert.AreEqual("Ha 3nm", f.Nome, "il nome si porta com'e', compresi i «3nm» scritti dall'utente");
-            Assert.AreEqual(12, f.OffsetFuoco);
-            Assert.AreEqual(30d, f.AutofocusPosaS);
+            var f = M("collegato").Ruota!.Filtri![3];
+            Assert.AreEqual("HA 7NM", f.Nome,
+                "il nome si porta com'e', «7NM» compreso: sono lettere, non nanometri");
+            Assert.AreEqual(6d, f.AutofocusPosaS);
+            Assert.AreEqual("2x2", f.AutofocusBinning);
         }
 
         // ------------------------------------------------------------ sito e guida
@@ -235,10 +246,19 @@ namespace AstroImage.NINA.Plugin.Tests {
         [TestMethod]
         public void Sito_NeEsistonoDue_EIlModelloLiPortaEntrambi() {
             var m = M("collegato");
-            Assert.AreEqual(45.95d, m.Sito!.Lat!.Value, 1e-9, "dal profilo");
-            Assert.AreEqual(1000d, m.Sito.ElevazioneM);
+            Assert.AreEqual(45.514d, m.Sito!.Lat!.Value, 1e-9, "dal profilo, arrotondato");
             Assert.IsNotNull(m.Montatura!.Sito, "e la montatura ne dichiara uno suo");
-            Assert.AreEqual(45.95d, m.Montatura.Sito!.Lat!.Value, 1e-4);
+            Assert.AreEqual(45.513888888888886d, m.Montatura.Sito!.Lat!.Value, 1e-12,
+                "dalla montatura, con tutte le cifre che ha");
+
+            /*  I DUE NUMERI NON SONO UGUALI, e il modello non li appiana: differiscono
+             *  di un decimillesimo di grado perche' il profilo li salva arrotondati.
+             *  Sono undici metri, cioe' niente, ma un confronto scritto con l'uguale
+             *  griderebbe a una differenza che non c'e'. Il modello porta tutti e due i
+             *  numeri; la tolleranza se la sceglie chi confronta. */
+            Assert.AreNotEqual(m.Sito.Lat, m.Montatura.Sito.Lat, "arrotondati diversamente");
+            Assert.IsTrue(Math.Abs(m.Sito.Lat!.Value - m.Montatura.Sito.Lat!.Value) < 1e-3,
+                "ma dicono lo stesso posto");
 
             /*  Quando i due non coincidono qualcuno sta per riprendere con effemeridi
              *  sbagliate. Il modello non lo giudica: lo rende visibile. */
@@ -252,15 +272,37 @@ namespace AstroImage.NINA.Plugin.Tests {
             /*  N.I.N.A. espone ogni valore gia' in pixel E in secondi d'arco. Portarle
              *  tutte e due costa niente ed evita la conversione, che e' il posto dove
              *  un giorno si moltiplica due volte. */
+            /*  PHD2 sul banco in campo: collegato, con la sua scala vera. */
             var g = M("collegato").Guida!;
             Assert.IsTrue(g.Collegato);
-            Assert.AreEqual(4.72d, g.ScalaArcsecPx);
-            Assert.IsNotNull(g.Rms!.Totale!.Px);
-            Assert.IsNotNull(g.Rms.Totale.Arcsec);
-            Assert.IsTrue(g.Rms.Totale.Arcsec > g.Rms.Totale.Px,
-                "con una scala di 4,7 arcsec/px i secondi d'arco sono il numero piu' grande");
+            Assert.AreEqual("PHD2", g.Nome);
+            Assert.AreEqual(0.476289d, g.ScalaArcsecPx, "la scala della ASI120 dietro il 71F");
 
-            Assert.IsNull(M("profilo-osc").Guida, "senza guida collegata non c'e' nessun RMS");
+            /*  E QUI C'E' IL CASO CHE NON AVREI SAPUTO INVENTARE: l'RMS arriva a ZERO
+             *  su tutti e cinque i valori, perche' PHD2 era connesso ma fermo. Le due
+             *  unita' ci sono entrambe e sono entrambe zero.
+             *
+             *  Zero non e' inseguimento perfetto: quasi sempre vuol dire «non sta
+             *  guidando». Il modello non lo interpreta, perche' lo stato del guider non
+             *  e' fra le proprieta' che GuiderInfo espone; lo dichiara nel commento e lo
+             *  lascia a chi consuma. Una fixture costruita a tavolino avrebbe avuto
+             *  numeri belli e questa ambiguita' non l'avrebbe mai mostrata. */
+            Assert.IsNotNull(g.Rms, "l'oggetto c'e'");
+            Assert.AreEqual(0d, g.Rms!.Totale!.Px, "e vale zero, perche' non stava guidando");
+            Assert.AreEqual(0d, g.Rms.Totale.Arcsec);
+            Assert.IsNotNull(g.Rms.Ra); Assert.IsNotNull(g.Rms.Dec);
+            Assert.IsNotNull(g.Rms.PiccoRa); Assert.IsNotNull(g.Rms.PiccoDec);
+
+            /*  La prova che le due unita' NON sono la stessa cosa: la forma le tiene
+             *  separate anche quando i numeri coincidono. */
+            var j = JsonNode.Parse(Testo("collegato"))!.AsObject();
+            j["guida"]!["rms"]!["totale"] = new JsonObject { ["px"] = 0.41, ["arcsec"] = 0.195 };
+            var mosso = SetupModel.Leggi(j.ToJsonString())!.Guida!;
+            Assert.AreEqual(0.41d, mosso.Rms!.Totale!.Px);
+            Assert.AreEqual(0.195d, mosso.Rms.Totale.Arcsec,
+                "con una scala di 0,48 arcsec/px i secondi d'arco sono il numero piu' PICCOLO");
+
+            Assert.IsNull(M("profilo-osc").Guida, "a N.I.N.A. spenta non c'e' nemmeno il dispositivo");
         }
 
         // --------------------------------------------- capacita' e stato vivo
@@ -276,25 +318,45 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsNull(m.Rotatore.PosizioneGradi, "quindi non ha una posizione");
             Assert.IsNull(m.Rotatore.PuoInvertire, "e nemmeno capacita' note");
 
+            /*  Il meteo invece e' l'altro caso: dichiarato nel profilo, non collegato,
+             *  e quindi nessuna misura. */
+            Assert.IsFalse(m.Meteo!.Collegato);
+            Assert.IsNull(m.Meteo.Sqm);
+
             Assert.IsTrue(m.Montatura!.PuoTornareACasa);
             Assert.IsTrue(m.Montatura.PuoParcheggiare);
             Assert.IsFalse(m.Montatura.InParcheggio);
+            Assert.IsFalse(m.Montatura.Insegue, "ferma, come dev'essere di giorno");
             Assert.IsTrue(m.Camera!.Raffreddamento!.Disponibile);
-            Assert.AreEqual(-10d, m.Camera.Raffreddamento.SetpointC);
+
+            /*  Il focheggiatore dichiara un passo di 600000. ASCOM lo definirebbe in
+             *  micrometri, che sarebbero sessanta centimetri per passo: il campo si
+             *  chiama `passo` e non `passo_um` proprio per non affermare un'unita' che
+             *  il valore vero smentisce. */
+            Assert.AreEqual(600000d, m.Focheggiatore!.Passo);
+            Assert.AreEqual(10395, m.Focheggiatore.Posizione);
         }
 
         [TestMethod]
         public void StatoVivo_CEOppureNonCE_MaiUnNumeroDiComodo() {
+            /*  Lo stato vivo che il banco in campo aveva davvero: la camera a 28,2
+             *  gradi con il raffreddamento appena acceso. Non e' una bella temperatura
+             *  di lavoro, ed e' proprio per questo che vale come dato: e' quella vera
+             *  delle 13:17, non quella che avrei scritto io. */
             var con = M("collegato");
-            Assert.AreEqual(20.74d, con.Meteo!.Sqm, "fondo cielo MISURATO");
-            Assert.AreEqual(2.1d, con.Meteo.FwhmArcsec);
-            Assert.AreEqual(-9.8d, con.Camera!.Raffreddamento!.TemperaturaC);
+            Assert.AreEqual(25.5d, con.Camera!.Raffreddamento!.TemperaturaC!.Value, 0.01);
+            Assert.IsTrue(con.Camera.Raffreddamento.Acceso, "stava scendendo verso il setpoint");
+            Assert.AreEqual(37.21d, con.Focheggiatore!.TemperaturaC!.Value, 0.01);
 
-            /*  Quasi nessuno ha una stazione meteo, e va benissimo: nullo vuol dire
-             *  «non misurato». Una prescrizione fatta su un fondo cielo stimato e'
-             *  meglio di una fatta su un numero inventato qui. */
+            /*  La stazione meteo non c'era, quindi niente SQM e niente seeing. Nullo
+             *  vuol dire «non misurato», e va benissimo: una prescrizione fatta su un
+             *  fondo cielo stimato e' meglio di una fatta su un numero inventato qui. */
+            Assert.IsFalse(con.Meteo!.Collegato);
+            Assert.IsNull(con.Meteo.Sqm);
+            Assert.IsNull(con.Meteo.FwhmArcsec);
+
             var senza = M("profilo-osc");
-            Assert.IsNull(senza.Meteo);
+            Assert.IsNull(senza.Meteo, "e a N.I.N.A. spenta non c'e' nemmeno il dispositivo");
             Assert.IsNull(senza.Camera!.Raffreddamento!.TemperaturaC);
         }
 
