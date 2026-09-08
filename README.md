@@ -38,7 +38,7 @@ chilobyte di JSON che non nomina N.I.N.A. da nessuna parte.
                  "fine": "2026-09-02T01:55:00.000Z", "oreUtili": 5.317 },
   "bersaglio": { "nome": "IC 1318", "rot": 245, "ra_deg": 305.55, "dec_deg": 40.25 },
   "ottica":    { "camera": "…", "focale_mm": 367, "pixel_um": 3.76, "bin": 1, "matrice": false },
-  "sito":      { "lat": 45.95, "lon": 10.2019 },
+  "sito":      { "lat": 45.9, "lon": 10.2 },
   "cap":       { "raffredda": true, "ruota": true, "guida": true, "rotatore": false },
   "blocchi":   [ { "canali": ["OIII"], "filtro": "O", "sec": 600, "n": 22,
                    "gain": 100, "offset": 50 } ],
@@ -121,7 +121,7 @@ metteva il plugin in N.I.N.A. *prima* di sapere se i test passavano.
 
 ## Licenza
 
-MIT — vedi [LICENSE](LICENSE).
+MPL-2.0 — vedi [LICENSE](LICENSE). È la stessa licenza di N.I.N.A.: chi modifica il ponte condivide le modifiche, ma può combinarlo con codice proprietario.
 
 Il catalogo ufficiale dei plugin di N.I.N.A. non accetta plugin a sorgente chiuso, e fa
 bene. Che questo ponte sia aperto non è in contraddizione con un motore commerciale: il

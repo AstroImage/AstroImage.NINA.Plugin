@@ -44,9 +44,9 @@ sorgente è N.I.N.A., e N.I.N.A. non si mette dentro un test.
 
 | file | da dove viene |
 |---|---|
-| `profilo-osc.json` | generata dal file `.profile` **vero** di N.I.N.A.: focale 800, f/6.9, pixel 3,76 µm, matrice RGGB, sito 45,95 / 10,2019 a 1000 m, guadagno 100, offset 50, **ruota vuota** |
+| `profilo-osc.json` | generata dal file `.profile` **vero** di N.I.N.A.: focale 800, f/6.9, pixel 3,76 µm, matrice RGGB, sito 45,9 / 10,2 a 1000 m, guadagno 100, offset 50, **ruota vuota** |
 | `campo-mono.json` | letta dal **mini PC operativo in campo**, N.I.N.A. 3.3, attraverso l'Advanced API: CEM70 + ASI 2600MM + RC8, focale 1624 f/8, matrice `None`, guadagno 0 (modo LCG), e una **ruota con sette vetri** — L R G B S H O con gli offset di fuoco veri, negativi, e binning di autofocus diverso fra banda larga e stretta |
-| `collegato.json` | **letta dal mini PC in campo**, N.I.N.A. 3.3, Advanced API in sola lettura: AM5 + ASI 2600MC + Askar 71F a 490 mm f/6.9, ruota EFW con cinque vetri, focheggiatore EAF, guida PHD2, rotatore manuale. Solo il meteo non è collegato. **Nessun numero è scritto a mano** |
+| `collegato.json` | **letta dal mini PC in campo**, N.I.N.A. 3.3, Advanced API in sola lettura: AM5 + ASI 2600MC + Askar 71F a 490 mm f/6.9, ruota EFW con cinque vetri, focheggiatore EAF, guida PHD2, rotatore manuale. Solo il meteo non è collegato. **Nessun numero è scritto a mano**, tranne le coordinate: vedi in fondo |
 
 Nelle due generate dai profili la parte dei **dispositivi è nulla**, e non è una
 semplificazione: è la verità. Un profilo letto a telescopio spento non sa che cosa
@@ -85,4 +85,27 @@ rimasto la parte meno provata del contratto.
 Una nota che vale per tutte e tre: i numeri interi si scrivono senza decimali (`2000`,
 non `2000.0`), perché è la forma che il serializzatore produce e il giro deve tornare
 identico carattere per carattere.
+
+## L'unico campo che non è la lettura vera: le coordinate
+
+Va detto, perché altrove questo file promette che nessun numero è scritto a mano.
+
+`lat` e `lon` sono state **sfocate a un decimale** — circa undici chilometri — prima che
+questo repository diventasse pubblico. Le letture originali arrivavano al sesto decimale,
+cioè a una decina di centimetri, e dicevano da dove osserva una persona: un dato che non
+ha niente a che fare con quello che queste fixture verificano, ma che una volta pubblicato
+non si ritira più.
+
+Tutto il resto è intatto: focale, apertura, pixel, matrice, guadagni, offset di fuoco dei
+sette filtri, passo del focheggiatore, RMS, stato del rotatore. Sono quelli i numeri che
+hanno corretto il codice, ed è su quelli che i test lavorano.
+
+Una cosa è stata conservata di proposito, perché è un fenomeno e non un dettaglio: in
+`collegato.json` il sito del **profilo** e quello della **montatura** restano due numeri
+diversi. N.I.N.A. salva nel profilo un valore arrotondato a tre decimali mentre la
+montatura dichiara tutte le cifre che ha, e il modello porta entrambi invece di appianarli.
+Lo sfocamento è stato costruito perché quella relazione valga ancora: il valore del profilo
+è esattamente l'arrotondamento a tre decimali di quello della montatura, e i due
+differiscono di meno di un millesimo di grado. `Sito_NeEsistonoDue_EIlModelloLiPortaEntrambi`
+continua quindi a verificare la cosa vera, su un posto che non è più il posto di nessuno.
 
