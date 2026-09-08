@@ -76,6 +76,37 @@ namespace AstroImage.NINA.Plugin.Services {
             ricetta = Traduzione.Traduci(modello);
             if (!ricetta.Costruibile) return null;
 
+            /*  I FILTRI SI CONTROLLANO PRIMA DI TUTTO, e il target si rifiuta.
+             *
+             *  La prima consegna vera ha mostrato il difetto: la prescrizione chiedeva
+             *  HO, la ruota non ce l'aveva, il codice lasciava il filtro «corrente» e
+             *  non lo diceva a nessuno. In sequenza sono finite 29 pose da 600 secondi
+             *  — quasi cinque ore — con qualunque vetro fosse montato. Una sequenza che
+             *  SEMBRA la prescrizione e non lo e'.
+             *
+             *  Non sostituire il filtro resta giusto: mettere il vetro sbagliato sarebbe
+             *  peggio. Ma allora il bersaglio non si consegna affatto. Fra le due strade
+             *  — saltare il blocco o rifiutare tutto — vale l'asimmetria del danno: un
+             *  rifiuto si corregge in un clic, cinque ore riprese col vetro sbagliato
+             *  non si recuperano. E un bersaglio consegnato a meta' non si distingue,
+             *  guardandolo, da uno conforme.
+             *
+             *  Si controlla PRIMA di chiedere i pezzi: non si costruisce cio' che si
+             *  buttera' via, e cosi' la regola si puo' provare senza N.I.N.A. accesa. */
+            var inRuota = NomiInRuota();
+            var mancanti = ricetta.Blocchi
+                .Select(b => ScartoPerFiltro(b.Etichetta, b.Filtro, inRuota, b.Pose, b.Secondi))
+                .Where(x => x is not null).ToList();
+            if (mancanti.Count > 0) {
+                foreach (var m in mancanti) ricetta.Scartati.Add(m!);
+                ricetta.Scartati.Add(inRuota.Count > 0
+                    ? "In ruota ci sono: " + string.Join(", ", inRuota) + "."
+                    : "Nel profilo attivo non risulta nessun filtro in ruota.");
+                ricetta.Scartati.Add("Il bersaglio NON e' stato consegnato: una sequenza che non " +
+                    "rispetta la prescrizione, in sequenza, non si distingue da una che la rispetta.");
+                return null;
+            }
+
             if (!fonte.Disponibile) {
                 ricetta.Scartati.Add("Non c'e' da dove prendere i pezzi: " +
                                      (fonte.PerCheNo ?? "motivo non dichiarato") + ".");
@@ -126,7 +157,7 @@ namespace AstroImage.NINA.Plugin.Services {
              *  riordina niente. */
             var costruiti = 0;
             foreach (var b in ricetta.Blocchi) {
-                var r = Ripresa(b);
+                var r = Ripresa(b, ricetta.DitherOgniPose);
                 if (r is not null) { dso.Add(r); costruiti++; }
                 else ricetta.Scartati.Add(
                     $"{b.Etichetta}: nessun blocco di ripresa disponibile da cui copiare la posa.");
@@ -143,17 +174,16 @@ namespace AstroImage.NINA.Plugin.Services {
                                  "appartengono alla chiusura della sequenza, che resta tua.");
             }
 
-            /*  IL DITHERING e' un innesco del contenitore, non un'istruzione in fila:
-             *  scatta ogni N pose qualunque cosa stia succedendo. Esiste solo con la
-             *  guida, perche' senza guida non c'e' niente da spostare. */
-            if (ricetta.DitherOgniPose is not null) {
-                var dither = fonte.Dither();
-                if (dither is not null && dso is ITriggerable innescabile) {
-                    dither.AfterExposures = ricetta.DitherOgniPose.Value;
-                    innescabile.Add(dither);
-                } else ricetta.Scartati.Add(
-                    "Dithering: nessun innesco disponibile da cui copiarlo. Le pose non verranno spostate.");
-            }
+            /*  IL DITHER NON E' UN INNESCO DI CONTENITORE, e prima lo era.
+             *
+             *  Ogni SmartExposure porta gia' il proprio DitherAfterExposures — e' cosi'
+             *  che lo fa N.I.N.A. nei suoi modelli — e Ripresa lo imposta sul valore
+             *  prescritto. Aggiungerne un altro sul contenitore vorrebbe dire ditherare
+             *  DUE volte: due inneschi che contano le stesse pose.
+             *
+             *  Per questo la fonte dei pezzi non offre piu' un dither. Non e' una
+             *  semplificazione: e' la stessa regola di CoolCamera e compagnia — cio' che
+             *  non si puo' chiedere non si puo' aggiungere per sbaglio. */
 
             return dso;
         }
@@ -164,7 +194,7 @@ namespace AstroImage.NINA.Plugin.Services {
         /// che il programma sa gia' fare e' il modo piu' sicuro di sbagliare due
         /// programmi invece di uno.
         /// </summary>
-        private ISequenceItem? Ripresa(RicettaBlocco b) {
+        private ISequenceItem? Ripresa(RicettaBlocco b, int? ditherOgniPose) {
             var se = fonte.Posa();
             if (se is null) return null;
 
@@ -178,6 +208,19 @@ namespace AstroImage.NINA.Plugin.Services {
             if (b.Offset is not null) posa.Offset = b.Offset.Value;
 
             se.GetLoopCondition().Iterations = b.Pose;
+
+            /*  IL DITHER SI IMPOSTA, NON SI EREDITA, e questa riga viene da un difetto
+             *  visto in sequenza: il modello di serie di N.I.N.A. porta «ogni 3 pose»,
+             *  la prescrizione diceva «ogni 2», e il clone teneva il 3. Un numero
+             *  plausibile, al posto giusto, che nessuno guarda due volte.
+             *
+             *  Zero NON disattiva: `ProgressExposures` diventa sempre zero e il dither
+             *  scatterebbe a OGNI posa. Per non ditherare si toglie l'innesco. */
+            var innesco = se.GetDitherAfterExposures();
+            if (innesco is not null) {
+                if (ditherOgniPose is int ogni && ogni > 0) innesco.AfterExposures = ogni;
+                else se.Remove(innesco);
+            }
 
             /*  Il filtro si cambia solo se c'e' una ruota e se nella ruota quel nome
              *  esiste davvero. Un nome che non c'e' N.I.N.A. non lo segnala: mette il
@@ -199,8 +242,42 @@ namespace AstroImage.NINA.Plugin.Services {
         public FilterInfo? FiltroDaRuota(string nome) {
             var ruota = profilo?.ActiveProfile?.FilterWheelSettings?.FilterWheelFilters;
             if (ruota is null) return null;
-            return ruota.FirstOrDefault(f =>
-                string.Equals(f?.Name?.Trim(), nome?.Trim(), StringComparison.OrdinalIgnoreCase));
+            return ruota.FirstOrDefault(f => StessoVetro(f?.Name, nome));
+        }
+
+        /// <summary>I nomi dei vetri che il profilo attivo dichiara in ruota.</summary>
+        public IReadOnlyList<string> NomiInRuota() =>
+            profilo?.ActiveProfile?.FilterWheelSettings?.FilterWheelFilters
+                ?.Select(f => f?.Name).Where(n => !string.IsNullOrWhiteSpace(n)).Select(n => n!).ToList()
+            ?? new List<string>();
+
+        /*  LA REGOLA DEL CONFRONTO, in un posto solo: senza distinzione fra maiuscole e
+         *  senza spazi ai bordi. «Ha» e «ha » sono lo stesso vetro per chiunque tranne
+         *  che per un confronto di stringhe. */
+        private static bool StessoVetro(string? a, string? b) =>
+            string.Equals(a?.Trim(), b?.Trim(), StringComparison.OrdinalIgnoreCase);
+
+        /*  LA DECISIONE SUL FILTRO, SENZA N.I.N.A. INTORNO.
+         *
+         *  Sta qui, statica e su stringhe e numeri, per una ragione precisa: e' la
+         *  regola che ha sbagliato in campo, e una regola che ha sbagliato una volta
+         *  deve poter essere provata in laboratorio. Tutto cio' che sta piu' in basso
+         *  nel montaggio ha bisogno di N.I.N.A. accesa; questo no. */
+        /// <summary>
+        /// Null se il blocco va bene: nessun filtro prescritto, oppure prescritto e
+        /// presente in ruota. Altrimenti la frase che dice che cosa manca e quanto costa.
+        /// </summary>
+        public static string? ScartoPerFiltro(string? etichetta, string? richiesto,
+                                              IReadOnlyList<string>? inRuota, int pose, double secondi) {
+            if (string.IsNullOrWhiteSpace(richiesto)) return null;
+            var ruota = inRuota ?? new List<string>();
+            if (ruota.Any(n => StessoVetro(n, richiesto))) return null;
+
+            var ore = pose * secondi / 3600.0;
+            return $"{(string.IsNullOrWhiteSpace(etichetta) ? "un blocco" : etichetta)}: " +
+                   $"la prescrizione chiede il filtro «{richiesto!.Trim()}», che in ruota non c'e'. " +
+                   $"Sono {pose} pose da {secondi:0.#} s, cioe' {ore:0.00} h che verrebbero riprese " +
+                   "con il vetro montato adesso, qualunque sia.";
         }
 
         /// <summary>

@@ -62,8 +62,16 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         /// <summary>Chi accetta il bersaglio nel Sequenziatore, o null.</summary>
         public ISequenceMediator Mediatore { get; }
 
-        /// <summary>Perche' non si puo' consegnare, quando non si puo'. Null se si puo'.</summary>
-        public string PerCheNonConsegna { get; }
+        /*  SI CHIEDE AL MOMENTO, non all'avvio. Quando N.I.N.A. compone questo pannello
+         *  il Sequenziatore i suoi modelli non li ha ancora letti: una risposta calcolata
+         *  nel costruttore sarebbe stata «non disponibile» per tutta la sessione. E
+         *  comunque i modelli sono dell'utente, che ne aggiunge e ne toglie mentre il
+         *  programma e' aperto: qualunque fotografia scattata all'avvio invecchia. */
+        public string PerCheNonConsegna =>
+            Mediatore is null ? "N.I.N.A. non ha fornito il mediatore delle sequenze."
+            : Costruttore is null ? "Il montatore non e' stato costruito."
+            : !Fonte.Disponibile ? Fonte.PerCheNo
+            : null;
 
         /*  IL MEDIATORE SI CHIEDE CON AllowDefault, e la ragione e' il modo in cui si
          *  guasta MEF. Un parametro di [ImportingConstructor] che non si risolve non
@@ -96,15 +104,14 @@ namespace AstroImage.NINA.Plugin.ViewModels {
             Mediatore = mediatore;
             /*  I pezzi si prendono clonando un modello di bersaglio di N.I.N.A.: la
              *  fabbrica del Sequenziatore ai plugin non viene fornita, e questa e' la
-             *  strada che resta — che e' anche la piu' solida fra le versioni. */
-            var fonte = new FonteDaModello(mediatore);
-            Fonte = fonte;
-            Costruttore = fonte.Disponibile ? new SequenceBuilder(fonte, profileService) : null;
-
-            PerCheNonConsegna =
-                mediatore is null ? "N.I.N.A. non ha fornito il mediatore delle sequenze."
-                : !fonte.Disponibile ? fonte.PerCheNo
-                : null;
+             *  strada che resta — che e' anche la piu' solida fra le versioni.
+             *
+             *  Il montatore si costruisce SEMPRE, anche se adesso non c'e' un modello:
+             *  qui siamo all'avvio di N.I.N.A. e il Sequenziatore non ha ancora letto
+             *  niente. E' la fonte a dire di volta in volta se puo'; costruire un
+             *  montatore non impegna nessuno. */
+            Fonte = new FonteDaModello(mediatore);
+            Costruttore = new SequenceBuilder(Fonte, profileService);
         }
     }
 }
