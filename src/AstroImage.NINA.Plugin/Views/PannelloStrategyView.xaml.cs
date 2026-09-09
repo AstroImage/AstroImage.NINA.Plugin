@@ -327,12 +327,6 @@ namespace AstroImage.NINA.Plugin.Views {
 
             Logger.Info(IO + $"manda: costruito «{ricetta.NomeBersaglio}», {ricetta.Blocchi.Count} blocchi, " +
                              $"{ricetta.Blocchi.Sum(b => b.Pose)} pose; scartati {ricetta.Scartati.Count}");
-
-            /*  SI CONTA PRIMA DI AGGIUNGERE, non dopo: dopo il nostro ci sarebbe dentro
-             *  anche lui, e distinguere «ce n'era gia' uno» da «adesso ce ne sono due»
-             *  diventerebbe un'aritmetica da sbagliare. */
-            var omonimiPrima = SequenceBuilder.QuantiOmonimi(vm.Mediatore, ricetta.Nome);
-
             try {
                 SequenceBuilder.Consegna(vm.Mediatore, contenitore);
                 Logger.Info(IO + "manda: AddAdvancedTarget chiamato, nessuna eccezione");
@@ -352,14 +346,6 @@ namespace AstroImage.NINA.Plugin.Views {
                 ["pose"] = ricetta.Blocchi.Sum(b => b.Pose),
                 ["note"] = new JsonArray(ricetta.Note.Select(x => (JsonNode)x!).ToArray()),
                 ["scartati"] = new JsonArray(ricetta.Scartati.Select(x => (JsonNode)x!).ToArray()),
-                /*  Quanti bersagli con questo stesso nome c'erano PRIMA. Null quando non
-                 *  si e' potuto contare — e null non e' zero. Il ponte aggiunge e non
-                 *  sovrascrive mai, ma tacerlo e' costato: sul campo, dopo aver cambiato
-                 *  il cielo e richiesto, in sequenza c'erano due «NGC 6888 — notte 1» e
-                 *  bisognava cancellare il vecchio a mano per capire quale fosse il nuovo.
-                 *  E due bersagli identici, se si preme Riproduci, si riprendono
-                 *  entrambi: dieci ore invece di cinque. */
-                ["omonimiPrima"] = omonimiPrima,
             });
         }
 
