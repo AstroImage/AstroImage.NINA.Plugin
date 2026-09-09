@@ -166,8 +166,8 @@ namespace AstroImage.NINA.Plugin.Services {
             /*  Un contenitore senza riprese non e' un bersaglio dimezzato: e' un
              *  bersaglio che non fa niente, e consegnarlo sarebbe peggio che dire di no. */
             if (costruiti == 0) return null;
-            Logger.Info($"[AstroImage] contenitore: {costruiti} blocchi aggiunti, " +
-                        $"{dso.Items.Count} elementi in tutto");
+            Logger.Debug($"[AstroImage] contenitore: {costruiti} blocchi aggiunti, " +
+                         $"{dso.Items.Count} elementi in tutto");
 
             /*  QUI C'ERANO IL RISCALDAMENTO E IL RITORNO A CASA. Stessa ragione del
              *  raffreddamento: dentro un bersaglio si eseguirebbero dopo OGNI bersaglio.
@@ -219,9 +219,16 @@ namespace AstroImage.NINA.Plugin.Services {
              *  sotto perche' non resti indietro se un domani smettessero di parlarsi. */
             se.Iterations = b.Pose;
             se.GetLoopCondition().Iterations = b.Pose;
-            Logger.Info($"[AstroImage] blocco «{b.Etichetta}»: chiesto {b.Pose} pose da {b.Secondi} s, " +
-                        $"filtro {b.Filtro ?? "(nessuno)"} — l'oggetto dice Iterations={se.Iterations}, " +
-                        $"condizione={se.GetLoopCondition()?.Iterations}, posa={se.GetTakeExposure()?.ExposureTime}");
+            /*  A `Debug` E NON A `Info`, PERCHE' IL REGISTRO E' DI TUTTI. Questa riga
+             *  scatta una volta per blocco e dice quello che serve solo a chi sta
+             *  cercando un difetto — ed e' proprio cosi' che si e' trovato quello delle
+             *  iterazioni. Chi indaga alza il livello e la ritrova; chi non indaga non
+             *  se la merita in mezzo ai messaggi di N.I.N.A. e degli altri plugin.
+             *  A `Info` restano gli eventi della consegna: cosa e' stato chiesto, cosa
+             *  e' stato costruito, se il Sequenziatore l'ha preso. */
+            Logger.Debug($"[AstroImage] blocco «{b.Etichetta}»: chiesto {b.Pose} pose da {b.Secondi} s, " +
+                         $"filtro {b.Filtro ?? "(nessuno)"} — l'oggetto dice Iterations={se.Iterations}, " +
+                         $"condizione={se.GetLoopCondition()?.Iterations}, posa={se.GetTakeExposure()?.ExposureTime}");
 
             /*  IL DITHER SI IMPOSTA, NON SI EREDITA, e questa riga viene da un difetto
              *  visto in sequenza: il modello di serie di N.I.N.A. porta «ogni 3 pose»,
