@@ -13,10 +13,21 @@
                    Text="AstroImage Strategy Bridge" />
 
         <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
-                   Text="Porta dentro N.I.N.A. la prescrizione decisa da AstroImage-Strategy: quali canali riprendere, con quante pose, quale posa e quale modo di guadagno. Il ponte non decide niente — riceve una prescrizione già presa e la costruisce nel Sequenziatore Avanzato." />
+                   Text="Porta dentro N.I.N.A. la prescrizione decisa da AstroImage-Strategy: quali canali riprendere, con quante pose, quale posa e quale modo di guadagno. Il ponte non decide niente — riceve una prescrizione già presa e la costruisce nel Sequenziatore Avanzato. Non avvia mai niente: a premere Riproduci sei tu." />
+
+        <!--
+            QUI C'ERA SCRITTO «non fa ancora nulla», e per nove commit e' stato falso
+            mentre il ponte consegnava bersagli su una montatura vera. Un testo che
+            invecchia senza che nessuno lo rilegga e' una piccola bugia che si accumula.
+        -->
+        <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
+                   Text="Da solo questo plugin non fa niente: dall'altra parte deve esserci AstroImage-Strategy che risponde su una porta HTTP. Senza, il pannello si apre e dice che il motore non risponde." />
+
+        <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
+                   Text="Tutto si comanda dal pannello «AstroImage Strategy», sotto Imaging: lì si chiede la prescrizione, si dichiara quali vetri hai davvero in ruota — una volta per profilo — e si consegna il bersaglio. Questa pagina non ha ancora impostazioni proprie." />
 
         <TextBlock TextWrapping="Wrap" FontStyle="Italic"
-                   Text="Questa è una versione di impianto: fissa l'identità del plugin e i suoi punti di innesto, e non fa ancora nulla. Il collegamento con Strategy, la lettura del profilo e la costruzione della sequenza arrivano dopo." />
+                   Text="Autore e manutentore: Alessandro Curci — sue l'architettura, le decisioni di progetto e la verifica sul campo. La stesura del codice è stata fatta in larga parte da un assistente di intelligenza artificiale (Claude, di Anthropic), su sua direzione e sotto la sua revisione; ogni commit lo dichiara." />
 
     </StackPanel>
 </UserControl>

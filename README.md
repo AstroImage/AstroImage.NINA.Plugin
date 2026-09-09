@@ -3,10 +3,48 @@
 Un plugin per [N.I.N.A.](https://nighttime-imaging.eu/) che porta dentro il
 Sequenziatore Avanzato la prescrizione decisa da **AstroImage-Strategy**.
 
-> **Stato: sa costruire la sequenza, non sa ancora riceverla.** Dato un modello, il
-> ponte costruisce il contenitore del bersaglio nel Sequenziatore Avanzato e lo
-> consegna come nuovo target. Manca il pezzo che porta il modello da Strategy fin qui,
-> e manca l'interfaccia.
+> **Stato: il giro si chiude, e regge sul campo.** Il pannello chiede una prescrizione
+> al servizio di Strategy, la mostra, e su richiesta costruisce il bersaglio nel
+> Sequenziatore Avanzato. Provato su una montatura vera con filtri veri: nebulosa a
+> banda stretta, planetaria e ammasso globulare, su N.I.N.A. 3.3 con un plugin
+> compilato per la 3.2.
+>
+> Manca la pagina delle Opzioni vera — la configurazione dei filtri vive per ora nella
+> pagina di prova dentro il pannello — e manca la traduzione da equipaggiamento di
+> N.I.N.A. a banco del motore, che oggi si sceglie a mano.
+
+## Ti serve anche il motore
+
+Questo plugin **da solo non fa niente**: è un ponte, e dall'altra parte deve esserci
+AstroImage-Strategy che risponde su una porta HTTP. Senza, il pannello si apre e dice
+che il motore non risponde.
+
+È voluto, ed è la forma che il regolamento del catalogo di N.I.N.A. descrive: un plugin
+aperto che fa da mediatore verso un servizio esterno. Il ponte è il tubo; quello che ci
+passa dentro è un'altra cosa.
+
+## Chi l'ha fatto, e come
+
+**Autore e manutentore: Alessandro Curci.** Sono sue l'architettura, le decisioni di
+progetto e la verifica sul campo, ed è suo il motore che rende utile questo ponte.
+La stesura del codice è stata fatta **in larga parte da un assistente di intelligenza
+artificiale** (Claude, di Anthropic), su sua direzione e sotto la sua revisione. Ogni
+commit lo dichiara con un trailer `Co-Authored-By`.
+
+La divisione del lavoro è stata questa, ed è verificabile nella storia del repository:
+dove passa il confine col motore, che cosa fa rifiutare una consegna e che cosa no, se
+il dither sia una prescrizione o un'impostazione, come si dichiara un filtro — sono
+decisioni prese dal manutentore, in più di un caso **contro** la prima proposta
+dell'assistente. E i difetti che contavano — il filtro sostituito in silenzio, il dither
+ereditato dal modello, il numero di pose che N.I.N.A. 3.3 non lasciava scrivere — li ha
+trovati il suo banco con montatura e filtri veri, non il laboratorio.
+
+La dichiarazione non è una formalità: il catalogo dei plugin di N.I.N.A. chiede che
+l'uso sostanziale dell'IA sia dichiarato e che ogni plugin abbia un manutentore umano
+responsabile, capace di spiegare e mantenere il codice. È anche la ragione per cui i
+commenti qui dentro sono così fitti: ogni scelta non ovvia porta scritto accanto il
+perché, spesso con il difetto che l'ha causata — perché il codice va difeso da chi lo
+mantiene, non da chi l'ha battuto.
 
 ## Che cosa fa, e che cosa non fa
 
