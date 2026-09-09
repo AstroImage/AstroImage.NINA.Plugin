@@ -88,7 +88,7 @@
     <value>{0}: chiesto {1}, l'oggetto dice {2}. Il valore non ha attecchito e il blocco non si consegna: una sequenza che dice un numero diverso dalla prescrizione, guardandola, non si distingue da una conforme.</value>
   </data>
   <data name="Garanzia_ParolaNonAttecchita" xml:space="preserve">
-    <value>{0}: chiesto «{1}», l'oggetto dice «{2}». Il blocco non si consegna: riprendere col vetro sbagliato non si recupera.</value>
+    <value>{0}: chiesto «{1}», l'oggetto dice «{2}». Il blocco non si consegna: riprendere col filtro sbagliato non si recupera.</value>
   </data>
   <data name="Iter_NienteSuCuiScrivere" xml:space="preserve">
     <value>non c'e' niente su cui scrivere.</value>
@@ -103,13 +103,13 @@
     <value>un numero di pose non positivo non si scrive.</value>
   </data>
   <data name="Manda_FiltroNonRisolto" xml:space="preserve">
-    <value>{0}. Il bersaglio NON e' stato consegnato: dichiara quel vetro nella configurazione dei filtri, oppure chiedi di nuovo la prescrizione con la ruota che hai davvero.</value>
+    <value>{0}. Il bersaglio NON e' stato consegnato: dichiara quel filtro nella configurazione, oppure chiedi di nuovo la prescrizione con la ruota che hai davvero.</value>
   </data>
   <data name="Manda_NessunFiltroDaDichiarare" xml:space="preserve">
-    <value>per «{0}» il motore dice di non mettere NESSUN filtro davanti (il colore lo fa la matrice di Bayer). Se hai uno slot vuoto o un vetro trasparente, dichiaralo come «nessun filtro» nella configurazione</value>
+    <value>per «{0}» il motore dice di non mettere NESSUN filtro davanti (il colore lo fa la matrice di Bayer). Se hai uno slot vuoto o un filtro trasparente, dichiaralo come «nessun filtro» nella configurazione</value>
   </data>
   <data name="Manda_VetroNonDichiarato" xml:space="preserve">
-    <value>«{0}» e' stato calcolato sul vetro «{1}», che nella tua ruota non e' dichiarato</value>
+    <value>«{0}» e' stato calcolato sul filtro «{1}», che nella tua ruota non e' dichiarato</value>
   </data>
   <data name="Mappa_FileVuoto" xml:space="preserve">
     <value>{0} c'e' ma non dice niente.</value>
@@ -136,7 +136,7 @@
     <value>Riscaldamento e ritorno a casa non entrano nel bersaglio: appartengono alla chiusura della sequenza, che resta tua.</value>
   </data>
   <data name="Montaggio_FiltroNonInRuota" xml:space="preserve">
-    <value>{0}: la prescrizione chiede il filtro «{1}», che in ruota non c'e'. Sono {2} pose da {3:0.#} s, cioe' {4:0.00} h che verrebbero riprese con il vetro montato adesso, qualunque sia.</value>
+    <value>{0}: la prescrizione chiede il filtro «{1}», che in ruota non c'e'. Sono {2} pose da {3:0.#} s, cioe' {4:0.00} h che verrebbero riprese con il filtro montato adesso, qualunque sia.</value>
   </data>
   <data name="Montaggio_InRuotaCiSono" xml:space="preserve">
     <value>In ruota ci sono: {0}.</value>
@@ -238,7 +238,7 @@
     <value>La configurazione dei filtri e' vuota o malformata. Riparto da vuoto.</value>
   </data>
   <data name="Ruota_ElencoNonElenco" xml:space="preserve">
-    <value>L'elenco dei vetri non e' un elenco.</value>
+    <value>L'elenco dei filtri non e' un elenco.</value>
   </data>
   <data name="Ruota_ElencoNonRiuscito" xml:space="preserve">
     <value>N.I.N.A. non ha saputo elencare i filtri del profilo.</value>
@@ -253,7 +253,7 @@
     <value>Il profilo attivo non dichiara una ruota portafiltri.</value>
   </data>
   <data name="Ruota_SenzaElenco" xml:space="preserve">
-    <value>La richiesta non dichiara nessun elenco di vetri. Non la interpreto come «togli tutto»: la configurazione precedente resta dov'e'.</value>
+    <value>La richiesta non dichiara nessun elenco di filtri. Non la interpreto come «togli tutto»: la configurazione precedente resta dov'e'.</value>
   </data>
   <data name="Ruota_VersioneAvanti" xml:space="preserve">
     <value>La configurazione dei filtri e' in versione {0}, e questo ponte ne conosce fino alla {1}. Non la interpreto: aggiorna il plugin, oppure riconfigura i filtri qui.</value>
@@ -322,10 +322,10 @@
     <value>{0}: senza numero di pose</value>
   </data>
   <data name="Vetri_CanaliDiscordi" xml:space="preserve">
-    <value>I canali di questo blocco dichiarano vetri diversi ({0}): non c'e' un filtro solo che li copra, e sceglierne uno a caso vorrebbe dire riprendere col vetro sbagliato senza dirlo.</value>
+    <value>I canali di questo blocco dichiarano filtri diversi ({0}): non ce n'e' uno solo che li copra, e sceglierne uno a caso vorrebbe dire riprendere col filtro sbagliato senza dirlo.</value>
   </data>
   <data name="Vetri_NonDichiarato" xml:space="preserve">
-    <value>La risposta non dice quale vetro sia stato usato per {0}.</value>
+    <value>La risposta non dice quale filtro sia stato usato per {0}.</value>
   </data>
   <data name="Vm_SenzaMediatore" xml:space="preserve">
     <value>N.I.N.A. non ha fornito il mediatore delle sequenze.</value>
