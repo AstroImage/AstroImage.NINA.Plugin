@@ -1,3 +1,5 @@
+using AstroImage.NINA.Plugin.Services;
+using NINA.Core.Utility;
 using NINA.Plugin;
 using NINA.Plugin.Interfaces;
 using System.ComponentModel.Composition;
@@ -35,14 +37,35 @@ namespace AstroImage.NINA.Plugin.Plugin {
     [Export(typeof(IPluginManifest))]
     public class AstroImageBridgePlugin : PluginBase {
 
+        /*  LE IMPOSTAZIONI SONO IL DATACONTEXT DELLA PAGINA OPZIONI.
+         *
+         *  N.I.N.A. cerca un DataTemplate con chiave «<AssemblyTitle>_Options» e ci
+         *  mette dentro come DataContext QUESTA istanza del plugin; il template poi
+         *  scende su questa proprieta'. E' lo stesso aggancio di AdaptiveAgentForPHD2,
+         *  ed e' l'unico modo di avere una pagina opzioni che scrive davvero qualcosa.
+         */
+        public ImpostazioniPonte Impostazioni { get; }
+
         /// <summary>
-        /// Il costruttore e' marcato per MEF anche se non chiede niente: e' la firma
-        /// che N.I.N.A. usa per costruire il plugin, e i servizi che serviranno —
-        /// il profilo, il mediatore delle sequenze — si aggiungeranno qui come
-        /// parametri, senza toccare nient'altro.
+        /// Il costruttore e' marcato per MEF: e' la firma che N.I.N.A. usa per
+        /// costruire il plugin, e i servizi che serviranno — il profilo, il mediatore
+        /// delle sequenze — si aggiungeranno qui come parametri.
+        ///
+        /// <para>
+        /// Leggere le impostazioni e' l'unico lavoro che si fa qui, ed e' un file di
+        /// poche decine di byte: la lingua deve valere PRIMA che si apra qualunque
+        /// cosa, o il pannello nascerebbe nella lingua sbagliata e la cambierebbe
+        /// sotto gli occhi. Carica applica gia' la lingua a Loc.
+        /// </para>
         /// </summary>
         [ImportingConstructor]
         public AstroImageBridgePlugin() {
+            Impostazioni = ImpostazioniPonte.Carica();
+            /*  Il guasto si scrive qui e non dentro ImpostazioniPonte, che di N.I.N.A.
+             *  non sa niente apposta — e' la stessa regola di MemoriaRuota. */
+            if (Impostazioni.Nota is not null) {
+                Logger.Warning("[AstroImage] settings: " + Impostazioni.Nota);
+            }
         }
 
         public override Task Initialize() {

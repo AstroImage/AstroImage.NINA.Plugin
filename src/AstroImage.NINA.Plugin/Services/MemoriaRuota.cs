@@ -1,6 +1,7 @@
 using System;
 using NINA.Core.Utility;
 using NINA.Profile.Interfaces;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -58,7 +59,7 @@ namespace AstroImage.NINA.Plugin.Services {
                 var s = opzioni.GetValueString(chiave, string.Empty);
                 return string.IsNullOrWhiteSpace(s) ? null : s;
             } catch (Exception e) {
-                Logger.Warning("[AstroImage] la dichiarazione dei filtri non si e' potuta leggere: " + e.Message);
+                Logger.Warning("[AstroImage] could not read the filter declaration: " + e.Message);
                 return null;
             }
         }
@@ -66,16 +67,15 @@ namespace AstroImage.NINA.Plugin.Services {
         public bool Scrivi(string chiave, string documento, out string? perCheNo) {
             perCheNo = null;
             if (opzioni is null) {
-                perCheNo = "N.I.N.A. non ha fornito lo spazio dove salvare le impostazioni " +
-                           "del plugin: la configurazione non e' stata scritta.";
+                perCheNo = Loc.T("Memoria_SenzaSpazio");
                 return false;
             }
             try {
                 opzioni.SetValueString(chiave, documento ?? string.Empty);
                 return true;
             } catch (Exception e) {
-                perCheNo = "La configurazione non si e' potuta salvare: " + e.Message;
-                Logger.Error("[AstroImage] salvataggio della dichiarazione dei filtri fallito", e);
+                perCheNo = Loc.F("Memoria_SalvataggioFallito", e.Message);
+                Logger.Error("[AstroImage] saving the filter declaration failed", e);
                 return false;
             }
         }
@@ -87,7 +87,7 @@ namespace AstroImage.NINA.Plugin.Services {
     public sealed class MemoriaAssente : IMemoriaRuota {
         public string? Leggi(string chiave) => null;
         public bool Scrivi(string chiave, string documento, out string? perCheNo) {
-            perCheNo = "Non c'e' dove salvare: N.I.N.A. non ha fornito le impostazioni del plugin.";
+            perCheNo = Loc.T("Memoria_NienteDoveSalvare");
             return false;
         }
     }

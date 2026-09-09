@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -49,7 +50,7 @@ namespace AstroImage.NINA.Plugin.Services {
             try {
                 var letto = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(file));
                 if (letto is null || letto.Count == 0) {
-                    nota = $"{NomeFile} c'e' ma non dice niente.";
+                    nota = Loc.F("Mappa_FileVuoto", NomeFile);
                     return vuota;
                 }
                 /*  Le chiavi e i valori vuoti si buttano qui: una mappa che dice
@@ -59,10 +60,10 @@ namespace AstroImage.NINA.Plugin.Services {
                     if (!string.IsNullOrWhiteSpace(canale) && !string.IsNullOrWhiteSpace(vetro))
                         pulita[canale.Trim()] = vetro.Trim();
                 if (pulita.Count < letto.Count)
-                    nota = $"{NomeFile}: {letto.Count - pulita.Count} voci vuote ignorate.";
+                    nota = Loc.F("Mappa_VociVuote", NomeFile, letto.Count - pulita.Count);
                 return pulita;
             } catch (Exception e) {
-                nota = $"{NomeFile} non si e' potuto leggere: {e.Message}";
+                nota = Loc.F("Mappa_LetturaFallita", NomeFile, e.Message);
                 return vuota;
             }
         }

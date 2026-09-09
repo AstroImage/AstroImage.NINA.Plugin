@@ -17,6 +17,7 @@ using NINA.Sequencer.SequenceItem.FilterWheel;
 using NINA.Sequencer.SequenceItem.Guider;
 using NINA.Sequencer.SequenceItem.Imaging;
 using NINA.Sequencer.Trigger.Guider;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -101,22 +102,21 @@ namespace AstroImage.NINA.Plugin.Services {
             if (mancanti.Count > 0) {
                 foreach (var m in mancanti) ricetta.Scartati.Add(m!);
                 ricetta.Scartati.Add(inRuota.Count > 0
-                    ? "In ruota ci sono: " + string.Join(", ", inRuota) + "."
-                    : "Nel profilo attivo non risulta nessun filtro in ruota.");
-                ricetta.Scartati.Add("Il bersaglio NON e' stato consegnato: una sequenza che non " +
-                    "rispetta la prescrizione, in sequenza, non si distingue da una che la rispetta.");
+                    ? Loc.F("Montaggio_InRuotaCiSono", string.Join(", ", inRuota))
+                    : Loc.T("Montaggio_RuotaVuota"));
+                ricetta.Scartati.Add(Loc.T("Montaggio_NonConsegnato"));
                 return null;
             }
 
             if (!fonte.Disponibile) {
-                ricetta.Scartati.Add("Non c'e' da dove prendere i pezzi: " +
-                                     (fonte.PerCheNo ?? "motivo non dichiarato") + ".");
+                ricetta.Scartati.Add(Loc.F("Montaggio_SenzaFonte",
+                                     fonte.PerCheNo ?? Loc.T("Montaggio_MotivoNonDichiarato")));
                 return null;
             }
 
             var dso = fonte.Contenitore();
             if (dso is null) {
-                ricetta.Scartati.Add("Il contenitore del bersaglio non si e' potuto ottenere.");
+                ricetta.Scartati.Add(Loc.T("Montaggio_SenzaContenitore"));
                 return null;
             }
             dso.Name = ricetta.Nome;
@@ -138,18 +138,17 @@ namespace AstroImage.NINA.Plugin.Services {
              *  sessione. La vita della sessione non e' affare di un bersaglio, e la
              *  fonte dei pezzi non offre nemmeno piu' quel blocco: vedi IFonteDiPezzi. */
             if (ricetta.Raffredda) {
-                ricetta.Note.Add("Il raffreddamento non entra nel bersaglio: appartiene all'avvio " +
-                                 "della sequenza, che resta tuo. Mettilo nell'area di Start.");
+                ricetta.Note.Add(Loc.T("Montaggio_Raffreddamento"));
             }
             if (ricetta.Focheggia) {
                 var af = fonte.Autofocus();
                 if (af is not null) dso.Add(af);
-                else ricetta.Scartati.Add("Messa a fuoco automatica: nessun blocco disponibile da cui copiarla.");
+                else ricetta.Scartati.Add(Loc.T("Montaggio_SenzaAutofocus"));
             }
             if (ricetta.Guida) {
                 var g = fonte.AvvioGuida();
                 if (g is not null) dso.Add(g);
-                else ricetta.Scartati.Add("Avvio della guida: nessun blocco disponibile da cui copiarlo.");
+                else ricetta.Scartati.Add(Loc.T("Montaggio_SenzaGuida"));
             }
 
             /*  I BLOCCHI, nell'ordine in cui il motore li ha messi. L'ordine e' una
@@ -160,21 +159,20 @@ namespace AstroImage.NINA.Plugin.Services {
             foreach (var b in ricetta.Blocchi) {
                 var r = Ripresa(b, ricetta.DitherOgniPose, ricetta.Note, out var perCheNoBlocco);
                 if (r is not null) { dso.Add(r); costruiti++; }
-                else ricetta.Scartati.Add($"{b.Etichetta}: " +
-                    (perCheNoBlocco ?? "nessun blocco di ripresa disponibile da cui copiare la posa."));
+                else ricetta.Scartati.Add(Loc.F("Montaggio_BloccoScartato", b.Etichetta,
+                    perCheNoBlocco ?? Loc.T("Montaggio_SenzaRipresa")));
             }
             /*  Un contenitore senza riprese non e' un bersaglio dimezzato: e' un
              *  bersaglio che non fa niente, e consegnarlo sarebbe peggio che dire di no. */
             if (costruiti == 0) return null;
-            Logger.Debug($"[AstroImage] contenitore: {costruiti} blocchi aggiunti, " +
-                         $"{dso.Items.Count} elementi in tutto");
+            Logger.Debug($"[AstroImage] container: {costruiti} blocks added, " +
+                         $"{dso.Items.Count} items in total");
 
             /*  QUI C'ERANO IL RISCALDAMENTO E IL RITORNO A CASA. Stessa ragione del
              *  raffreddamento: dentro un bersaglio si eseguirebbero dopo OGNI bersaglio.
              *  Appartengono all'area di End, che e' di chi riprende. */
             if (ricetta.Raffredda || ricetta.TornaACasa) {
-                ricetta.Note.Add("Riscaldamento e ritorno a casa non entrano nel bersaglio: " +
-                                 "appartengono alla chiusura della sequenza, che resta tua.");
+                ricetta.Note.Add(Loc.T("Montaggio_Chiusura"));
             }
 
             /*  IL DITHER NON E' UN INNESCO DI CONTENITORE, e prima lo era.
@@ -207,7 +205,7 @@ namespace AstroImage.NINA.Plugin.Services {
             perCheNo = null;
             var se = fonte.Posa();
             if (se is null) {
-                perCheNo = "nessun blocco di ripresa disponibile da cui copiare la posa.";
+                perCheNo = Loc.T("Montaggio_SenzaRipresa");
                 return null;
             }
 
@@ -244,9 +242,9 @@ namespace AstroImage.NINA.Plugin.Services {
              *  se la merita in mezzo ai messaggi di N.I.N.A. e degli altri plugin.
              *  A `Info` restano gli eventi della consegna: cosa e' stato chiesto, cosa
              *  e' stato costruito, se il Sequenziatore l'ha preso. */
-            Logger.Debug($"[AstroImage] blocco «{b.Etichetta}»: chiesto {b.Pose} pose da {b.Secondi} s, " +
-                         $"filtro {b.Filtro ?? "(nessuno)"} — l'oggetto dice Iterations={se.Iterations}, " +
-                         $"condizione={se.GetLoopCondition()?.Iterations}, posa={se.GetTakeExposure()?.ExposureTime}");
+            Logger.Debug($"[AstroImage] block «{b.Etichetta}»: asked {b.Pose} exposures of {b.Secondi} s, " +
+                         $"filter {b.Filtro ?? "(none)"} — the object says Iterations={se.Iterations}, " +
+                         $"condition={se.GetLoopCondition()?.Iterations}, exposure={se.GetTakeExposure()?.ExposureTime}");
 
             /*  IL DITHER SI IMPOSTA, NON SI EREDITA, e questa riga viene da un difetto
              *  visto in sequenza: il modello di serie di N.I.N.A. porta «ogni 3 pose»,
@@ -323,10 +321,10 @@ namespace AstroImage.NINA.Plugin.Services {
              *  corretti. Pretendere la definizione uguale rifiuterebbe consegne giuste,
              *  e un rifiuto falso insegna a ignorare i rifiuti. */
             var posaLetta = se.GetTakeExposure();
-            if (!Garanzia.Numero(posaLetta, "ExposureTime", b.Secondi, "la posa", out perCheNo))
+            if (!Garanzia.Numero(posaLetta, "ExposureTime", b.Secondi, Loc.T("Cosa_Posa"), out perCheNo))
                 return null;
             if (b.Gain is not null &&
-                !Garanzia.Numero(posaLetta, "Gain", b.Gain.Value, "il guadagno", out perCheNo))
+                !Garanzia.Numero(posaLetta, "Gain", b.Gain.Value, Loc.T("Cosa_Guadagno"), out perCheNo))
                 return null;
             if (b.Offset is not null &&
                 !Garanzia.Numero(posaLetta, "Offset", b.Offset.Value, "l'offset", out perCheNo))
@@ -336,7 +334,7 @@ namespace AstroImage.NINA.Plugin.Services {
              *  sceglierlo in ruota. Solo se il ponte l'ha davvero impostato: se il
              *  vetro non era in ruota si e' gia' rifiutato tutto molto prima. */
             if (!string.IsNullOrWhiteSpace(b.Filtro) && FiltroDaRuota(b.Filtro!) is not null &&
-                !Garanzia.Parola(se.GetSwitchFilter()?.Filter?.Name, b.Filtro, "il filtro", out perCheNo))
+                !Garanzia.Parola(se.GetSwitchFilter()?.Filter?.Name, b.Filtro, Loc.T("Cosa_Filtro"), out perCheNo))
                 return null;
 
             return se;
@@ -382,10 +380,9 @@ namespace AstroImage.NINA.Plugin.Services {
             if (ruota.Any(n => StessoVetro(n, richiesto))) return null;
 
             var ore = pose * secondi / 3600.0;
-            return $"{(string.IsNullOrWhiteSpace(etichetta) ? "un blocco" : etichetta)}: " +
-                   $"la prescrizione chiede il filtro «{richiesto!.Trim()}», che in ruota non c'e'. " +
-                   $"Sono {pose} pose da {secondi:0.#} s, cioe' {ore:0.00} h che verrebbero riprese " +
-                   "con il vetro montato adesso, qualunque sia.";
+            return Loc.F("Montaggio_FiltroNonInRuota",
+                         string.IsNullOrWhiteSpace(etichetta) ? Loc.T("Montaggio_UnBlocco") : etichetta,
+                         richiesto!.Trim(), pose, secondi, ore);
         }
 
         /// <summary>

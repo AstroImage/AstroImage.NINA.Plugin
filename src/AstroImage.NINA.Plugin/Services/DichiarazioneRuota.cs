@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using AstroImage.NINA.Plugin.Models;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -38,13 +39,11 @@ namespace AstroImage.NINA.Plugin.Services {
             RuotaVirtuale? r;
             try { r = JsonSerializer.Deserialize<RuotaVirtuale>(json!, Opzioni); }
             catch (Exception e) {
-                nota = "La configurazione dei filtri non si e' potuta leggere (" + e.Message +
-                       "). Riparto da vuoto: nessun filtro e' stato inventato, e la " +
-                       "configurazione salvata non e' stata cancellata.";
+                nota = Loc.F("Ruota_ConfigNonLetta", e.Message);
                 return new RuotaVirtuale();
             }
             if (r is null) {
-                nota = "La configurazione dei filtri e' vuota o malformata. Riparto da vuoto.";
+                nota = Loc.T("Ruota_ConfigVuota");
                 return new RuotaVirtuale();
             }
 
@@ -52,9 +51,7 @@ namespace AstroImage.NINA.Plugin.Services {
              *  una mappa letta con la grammatica sbagliata: l'utente riconfigura in un
              *  minuto, una notte ripresa col vetro sbagliato non si recupera. */
             if (r.Versione > VersioneCorrente) {
-                nota = $"La configurazione dei filtri e' in versione {r.Versione}, e questo " +
-                       $"ponte ne conosce fino alla {VersioneCorrente}. Non la interpreto: " +
-                       "aggiorna il plugin, oppure riconfigura i filtri qui.";
+                nota = Loc.F("Ruota_VersioneAvanti", r.Versione, VersioneCorrente);
                 return new RuotaVirtuale();
             }
 
@@ -77,8 +74,7 @@ namespace AstroImage.NINA.Plugin.Services {
             }
 
             if (doppie.Count > 0)
-                nota = "Nella configurazione c'erano piu' voci per lo stesso filtro (" +
-                       string.Join(", ", doppie.Distinct()) + "). Ho tenuto la prima di ognuna.";
+                nota = Loc.F("Ruota_VociDoppie", string.Join(", ", doppie.Distinct()));
 
             return new RuotaVirtuale { Versione = VersioneCorrente, Vetri = pulite };
         }
@@ -112,12 +108,11 @@ namespace AstroImage.NINA.Plugin.Services {
             var vetri = carico?["vetri"];
 
             if (vetri is null) {
-                perCheNo = "La richiesta non dichiara nessun elenco di vetri. Non la interpreto " +
-                           "come «togli tutto»: la configurazione precedente resta dov'e'.";
+                perCheNo = Loc.T("Ruota_SenzaElenco");
                 return null;
             }
             if (vetri is not JsonArray elenco) {
-                perCheNo = "L'elenco dei vetri non e' un elenco.";
+                perCheNo = Loc.T("Ruota_ElencoNonElenco");
                 return null;
             }
 

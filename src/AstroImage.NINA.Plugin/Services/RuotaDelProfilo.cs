@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NINA.Profile.Interfaces;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -37,23 +38,22 @@ namespace AstroImage.NINA.Plugin.Services {
             try {
                 var cfg = profilo?.ActiveProfile?.FilterWheelSettings;
                 if (cfg is null) {
-                    perCheNo = "Il profilo attivo non dichiara una ruota portafiltri.";
+                    perCheNo = Loc.T("Ruota_ProfiloSenzaRuota");
                     return new List<(string, int?)>();
                 }
                 var filtri = cfg.FilterWheelFilters;
                 if (filtri is null) {
-                    perCheNo = "N.I.N.A. non ha saputo elencare i filtri del profilo.";
+                    perCheNo = Loc.T("Ruota_ElencoNonRiuscito");
                     return new List<(string, int?)>();
                 }
                 var fuori = filtri.Where(f => f is not null && !string.IsNullOrWhiteSpace(f.Name))
                                   .Select(f => (Nome: f.Name.Trim(), Slot: (int?)f.Position))
                                   .ToList();
                 if (fuori.Count == 0)
-                    perCheNo = "La ruota del profilo attivo non contiene filtri. " +
-                               "Aggiungili in N.I.N.A. sotto Opzioni → Equipaggiamento → Ruota portafiltri.";
+                    perCheNo = Loc.T("Ruota_ProfiloSenzaFiltri");
                 return fuori;
             } catch (Exception e) {
-                perCheNo = "La ruota del profilo non si e' potuta leggere: " + e.Message;
+                perCheNo = Loc.F("Ruota_LetturaFallita", e.Message);
                 return new List<(string, int?)>();
             }
         }

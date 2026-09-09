@@ -11,6 +11,7 @@ using NINA.Sequencer.SequenceItem.Guider;
 using NINA.Sequencer.SequenceItem.Imaging;
 using NINA.Sequencer.Trigger;
 using NINA.Sequencer.Trigger.Guider;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -57,30 +58,27 @@ namespace AstroImage.NINA.Plugin.Services {
         private IDeepSkyObjectContainer? Modello(out string? perche) {
             perche = null;
             if (mediatore is null) {
-                perche = "N.I.N.A. non ha fornito il mediatore delle sequenze.";
+                perche = Loc.T("Fonte_SenzaMediatore");
                 return null;
             }
 
             IList<IDeepSkyObjectContainer>? modelli;
             try { modelli = mediatore.GetDeepSkyObjectContainerTemplates(); }
             catch (Exception e) {
-                perche = "N.I.N.A. non ha saputo elencare i modelli di bersaglio: " + e.Message;
+                perche = Loc.F("Fonte_ElencoFallito", e.Message);
                 return null;
             }
 
             if (modelli is null || modelli.Count == 0) {
-                perche = "Non c'e' nessun modello di bersaglio. Di solito ce n'e' almeno uno " +
-                         "di serie: se manca anche quello, apri il Sequenziatore Avanzato, " +
-                         "vai in Modelli e salvane uno.";
+                perche = Loc.T("Fonte_NessunModello");
                 return null;
             }
 
             var scelto = modelli.FirstOrDefault(m => Dentro<SmartExposure>(m) is not null);
-            Logger.Debug("[AstroImage] modelli di bersaglio: " + modelli.Count +
-                         ", scelto: " + (scelto?.Name ?? "nessuno"));
+            Logger.Debug("[AstroImage] target templates: " + modelli.Count +
+                         ", chosen: " + (scelto?.Name ?? "none"));
             if (scelto is null) {
-                perche = $"Nessuno dei {modelli.Count} modelli di bersaglio contiene una ripresa " +
-                         "da cui copiare la posa. Aggiungi uno Smart Exposure a un modello.";
+                perche = Loc.F("Fonte_ModelliSenzaRipresa", modelli.Count);
             }
             return scelto;
         }
@@ -103,8 +101,8 @@ namespace AstroImage.NINA.Plugin.Services {
              *  ITriggerable e IConditionable, che il contenitore concreto implementa. */
             if (c is ITriggerable tr) foreach (var x in tr.Triggers.ToList()) c.Remove(x);
             if (c is IConditionable co) foreach (var x in co.Conditions.ToList()) c.Remove(x);
-            Logger.Debug($"[AstroImage] contenitore clonato da «{c.Name}»: " +
-                         $"restano {c.Items.Count} elementi dopo lo svuotamento");
+            Logger.Debug($"[AstroImage] container cloned from «{c.Name}»: " +
+                         $"{c.Items.Count} items left after emptying");
             return c;
         }
 

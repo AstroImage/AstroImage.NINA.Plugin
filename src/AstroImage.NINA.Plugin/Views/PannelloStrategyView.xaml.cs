@@ -12,6 +12,7 @@ using AstroImage.NINA.Plugin.Services;
 using AstroImage.NINA.Plugin.ViewModels;
 using Microsoft.Web.WebView2.Core;
 using NINA.Core.Utility;
+using AstroImage.NINA.Plugin.Localization;
 
 namespace AstroImage.NINA.Plugin.Views {
 
@@ -63,6 +64,66 @@ namespace AstroImage.NINA.Plugin.Views {
         public PannelloStrategyView() {
             InitializeComponent();
             Loaded += AlCaricamento;
+            Loaded += AlRitorno;
+            Unloaded += AlCongedo;
+        }
+
+        /*  CI SI RIATTACCA A OGNI RITORNO, e la prima versione non lo faceva.
+         *
+         *  Il difetto era questo, ed e' istruttivo: il selettore della lingua vive nelle
+         *  OPZIONI, e aprire le Opzioni scarica il pannello. Agganciarsi una volta sola
+         *  nel costruttore e staccarsi su Unloaded voleva dire non ascoltare proprio nel
+         *  momento in cui la lingua cambia — il meccanismo funzionava, il percorso che
+         *  una persona fa davvero no.
+         *
+         *  E non basta riattaccarsi: mentre eravamo via la lingua PUO' essere gia'
+         *  cambiata, e nessuno ce l'ha detto. Quindi tornando si ridisegna comunque.
+         *  Costa due letture e toglie l'unico caso in cui il pannello resterebbe scritto
+         *  nella lingua di prima.
+         */
+        private void AlRitorno(object mittente, RoutedEventArgs e) {
+            /*  Prima si toglie e poi si mette: Loaded puo' scattare piu' volte, e due
+             *  iscrizioni vorrebbero dire due ricariche per ogni cambio. */
+            Loc.Instance.PropertyChanged -= AlCambioLingua;
+            Loc.Instance.PropertyChanged += AlCambioLingua;
+            /*  Alla PRIMA apertura _pronto e' ancora falso — AlCaricamento sta aspettando
+             *  WebView2 — e la pagina nascera' gia' nella lingua giusta da se'. */
+            if (_pronto) { ChiediRidisegno(); }
+        }
+
+        /*  Loc e' un oggetto solo che vive quanto N.I.N.A.: un suo evento agganciato a
+         *  questa vista la terrebbe viva per sempre. Un pannello aperto e chiuso dieci
+         *  volte lascerebbe dieci viste, ognuna con dentro un WebView2. */
+        private void AlCongedo(object mittente, RoutedEventArgs e) =>
+            Loc.Instance.PropertyChanged -= AlCambioLingua;
+
+        /*  IL CAMBIO LINGUA ARRIVA DALLE OPZIONI, che sono un'altra pagina.
+         *
+         *  Chi gira l'interruttore si aspetta di vedere il pannello cambiare, non di
+         *  doverlo chiudere e riaprire. Qui non si traduce niente: si dice alla pagina
+         *  di richiedere quello che il C# le aveva scritto, e il C# lo riscrive nella
+         *  lingua nuova.
+         */
+        private void AlCambioLingua(object mittente, System.ComponentModel.PropertyChangedEventArgs e) {
+            if (e.PropertyName != "Item[]") { return; }
+            ChiediRidisegno();
+        }
+
+        /// <summary>
+        /// Dice alla pagina di richiedere cio' che il C# le aveva scritto. Non traduce
+        /// niente: le frasi rinascono di la', nella lingua che vale adesso.
+        /// </summary>
+        private void ChiediRidisegno() {
+            if (!_pronto) { return; }
+            /*  L'evento puo' arrivare da un thread qualunque; toccare WebView2 fuori dal
+             *  suo thread e' un guasto che compare a caso. */
+            Dispatcher.BeginInvoke(new Action(() => {
+                try { Vetro?.CoreWebView2?.PostWebMessageAsString("{\"evento\":\"lingua\"}"); }
+                catch (Exception) {
+                    /*  La pagina puo' non esserci ancora, o essere gia' andata via. Non
+                     *  si perde niente: alla prossima apertura nasce nella lingua giusta. */
+                }
+            }));
         }
 
         private async void AlCaricamento(object mittente, RoutedEventArgs e) {
@@ -92,13 +153,13 @@ namespace AstroImage.NINA.Plugin.Views {
                 nucleo.NavigateToString(Pagina.Prova);
                 _pronto = true;
             } catch (Exception ex) {
-                MostraRipiego("WebView2 non e' partito", ex.Message);
+                MostraRipiego(Loc.T("Pannello_WebViewNonPartito"), ex.Message);
             }
         }
 
         private void AlNavigazione(object mittente, CoreWebView2NavigationCompletedEventArgs e) {
             if (e.IsSuccess) { MostraVetro(); }
-            else { MostraRipiego("La pagina non si e' caricata", "WebErrorStatus: " + e.WebErrorStatus); }
+            else { MostraRipiego(Loc.T("Pannello_PaginaNonCaricata"), "WebErrorStatus: " + e.WebErrorStatus); }
         }
 
         private async void AlMessaggio(object mittente, CoreWebView2WebMessageReceivedEventArgs e) {
@@ -115,13 +176,12 @@ namespace AstroImage.NINA.Plugin.Views {
                 var azione = messaggio["azione"]?.GetValue<string>();
 
                 var cliente = (DataContext as PannelloStrategyVM)?.Cliente;
-                if (cliente is null) { Rispondi(id, false, null, "senza_cliente",
-                    "Il pannello non ha un corriere: manca il ViewModel."); return; }
+                if (cliente is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaCorriere")); return; }
 
                 if (azione == "salute") {
                     var su = await cliente.Raggiungibile();
                     Rispondi(id, su, null, su ? null : "servizio_irraggiungibile",
-                             su ? null : "Nessuno risponde a " + (DataContext as PannelloStrategyVM)?.Radice);
+                             su ? null : Loc.F("Pannello_NessunoRisponde", (DataContext as PannelloStrategyVM)?.Radice));
                     return;
                 }
 
@@ -148,7 +208,7 @@ namespace AstroImage.NINA.Plugin.Views {
                 if (azione == "salvaSito") { SalvaSito(id, messaggio); return; }
 
                 if (azione != "prescrizione") {
-                    Rispondi(id, false, null, "azione_sconosciuta", "Azione: " + azione); return;
+                    Rispondi(id, false, null, "azione_sconosciuta", Loc.F("Pannello_AzioneSconosciuta", azione)); return;
                 }
 
                 /*  LA RUOTA ENTRA NELLA RICHIESTA, e questa e' la correzione di un
@@ -195,10 +255,10 @@ namespace AstroImage.NINA.Plugin.Views {
                  *  Adesso il motivo finisce nel log, e la domanda «e' stato chiamato
                  *  AddAdvancedTarget?» ha una risposta scritta invece che dedotta. */
                 var perche = vm?.PerCheNonConsegna;
-                Logger.Info("[AstroImage] prescrizione: " + esito.Sequenze.Count + " notti, " +
-                            (perche is null ? "consegnabile" : "NON consegnabile — " + perche) +
-                            ", ruota dichiarata: " + (dichiarati.Count > 0
-                                ? string.Join("+", dichiarati) : "NESSUNA (il motore usa i suoi vetri di serie)"));
+                Logger.Info("[AstroImage] prescription: " + esito.Sequenze.Count + " nights, " +
+                            (perche is null ? "deliverable" : "NOT deliverable — " + perche) +
+                            ", declared wheel: " + (dichiarati.Count > 0
+                                ? string.Join("+", dichiarati) : "NONE (the engine uses its stock filters)"));
 
                 Rispondi(id, true, esito.Corpo, null, null, esito.Sequenze.Count, esito.MsDelMotore,
                          new JsonObject {
@@ -242,23 +302,23 @@ namespace AstroImage.NINA.Plugin.Views {
             const string IO = "[AstroImage] ";
             var vm = DataContext as PannelloStrategyVM;
             if (vm is null) {
-                Logger.Error(IO + "manda: il pannello non ha un ViewModel");
-                Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return;
+                Logger.Error(IO + "send: the panel has no ViewModel");
+                Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return;
             }
 
             var idPrescrizione = messaggio["prescrizione"]?.GetValue<string>();
             var notte = messaggio["notte"]?.GetValue<int>() ?? 0;
-            Logger.Info(IO + $"manda: notte {notte}, prescrizione {idPrescrizione ?? "(nessuna)"}");
+            Logger.Info(IO + $"send: night {notte}, prescription {idPrescrizione ?? "(none)"}");
 
             var perche = vm.PerCheNonConsegna;
             if (perche != null) {
-                Logger.Warning(IO + "manda: non si puo' consegnare — " + perche);
+                Logger.Warning(IO + "send: cannot deliver — " + perche);
                 Rispondi(id, false, null, "consegna_non_disponibile", perche); return;
             }
 
             var scelta = vm.InMano.Notte(idPrescrizione, notte, out var codice, out var motivo);
             if (scelta is null) {
-                Logger.Warning(IO + $"manda: notte non ottenuta — {codice}: {motivo}");
+                Logger.Warning(IO + $"send: night not obtained — {codice}: {motivo}");
                 Rispondi(id, false, null, codice, motivo); return;
             }
 
@@ -296,42 +356,37 @@ namespace AstroImage.NINA.Plugin.Views {
                          *  con cinque vetri in ruota qualcosa davanti c'e' per forza, e
                          *  riprendere con quello montato sarebbe la sostituzione
                          *  silenziosa di sempre. Quindi si chiede di dichiararlo. */
-                        ? $"per «{etichetta}» il motore dice di non mettere NESSUN filtro davanti "
-                          + "(il colore lo fa la matrice di Bayer). Se hai uno slot vuoto o un vetro "
-                          + "trasparente, dichiaralo come «nessun filtro» nella configurazione"
-                        : $"«{etichetta}» e' stato calcolato sul vetro «{idVetro}», "
-                          + "che nella tua ruota non e' dichiarato");
+                        ? Loc.F("Manda_NessunFiltroDaDichiarare", etichetta)
+                        : Loc.F("Manda_VetroNonDichiarato", etichetta, idVetro));
                     continue;
                 }
                 b.Filtro = nome;
             }
             if (discordi.Count > 0 || nonDichiarati.Count > 0) {
-                var motivoVetro = string.Join("; ", discordi.Concat(nonDichiarati)) +
-                    ". Il bersaglio NON e' stato consegnato: dichiara quel vetro nella " +
-                    "configurazione dei filtri, oppure chiedi di nuovo la prescrizione " +
-                    "con la ruota che hai davvero.";
-                Logger.Warning(IO + "manda: vetro non risolvibile — " + motivoVetro);
+                var motivoVetro = Loc.F("Manda_FiltroNonRisolto",
+                    string.Join("; ", discordi.Concat(nonDichiarati)));
+                Logger.Warning(IO + "send: filter could not be resolved — " + motivoVetro);
                 Rispondi(id, false, null, "vetro_non_dichiarato", motivoVetro);
                 return;
             }
 
             var contenitore = vm.Costruttore.Costruisci(scelta.Modello, out var ricetta);
             if (contenitore is null) {
-                Logger.Warning(IO + "manda: niente da costruire — " +
+                Logger.Warning(IO + "send: nothing to build — " +
                     (ricetta.Scartati.Count > 0 ? string.Join("; ", ricetta.Scartati) : "nessun motivo dichiarato"));
                 Rispondi(id, false, null, "niente_da_costruire",
-                    "Dal modello non e' uscito niente di riprendibile" +
+                    Loc.T("Pannello_NienteDaCostruire") +
                     (ricetta.Scartati.Count > 0 ? ": " + string.Join("; ", ricetta.Scartati) : "."));
                 return;
             }
 
-            Logger.Info(IO + $"manda: costruito «{ricetta.NomeBersaglio}», {ricetta.Blocchi.Count} blocchi, " +
-                             $"{ricetta.Blocchi.Sum(b => b.Pose)} pose; scartati {ricetta.Scartati.Count}");
+            Logger.Info(IO + $"send: built «{ricetta.NomeBersaglio}», {ricetta.Blocchi.Count} blocks, " +
+                             $"{ricetta.Blocchi.Sum(b => b.Pose)} exposures; dropped {ricetta.Scartati.Count}");
             try {
                 SequenceBuilder.Consegna(vm.Mediatore, contenitore);
-                Logger.Info(IO + "manda: AddAdvancedTarget chiamato, nessuna eccezione");
+                Logger.Info(IO + "send: AddAdvancedTarget called, no exception");
             } catch (Exception ex) {
-                Logger.Error(IO + "manda: AddAdvancedTarget ha sollevato", ex);
+                Logger.Error(IO + "send: AddAdvancedTarget threw", ex);
                 Rispondi(id, false, null, "consegna_fallita", ex.Message);
                 return;
             }
@@ -380,7 +435,7 @@ namespace AstroImage.NINA.Plugin.Views {
          *  una voce orfana, un vetro nuovo una riga vuota. */
         private async Task Filtri(string id) {
             var vm = DataContext as PannelloStrategyVM;
-            if (vm is null) { Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return; }
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
 
             /*  Il catalogo si chiede una volta e si tiene: cambia solo quando cambia il
              *  motore, e un giro di rete a ogni apertura della pagina sarebbe speso per
@@ -438,17 +493,17 @@ namespace AstroImage.NINA.Plugin.Views {
          *  vale? La pagina manda tutto quello che ha in tavola. */
         private void SalvaFiltri(string id, JsonObject messaggio) {
             var vm = DataContext as PannelloStrategyVM;
-            if (vm is null) { Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return; }
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
 
             var nuova = DichiarazioneRuota.DalMessaggio(messaggio, out var perCheMalformata);
             if (nuova is null) {
-                Logger.Warning("[AstroImage] salvataggio dei filtri rifiutato — " + perCheMalformata);
+                Logger.Warning("[AstroImage] filter save refused — " + perCheMalformata);
                 Rispondi(id, false, null, "richiesta_malformata", perCheMalformata);
                 return;
             }
 
             var ok = vm.SalvaDichiarazione(nuova, out var perCheNo);
-            Logger.Info("[AstroImage] ruota virtuale salvata: " + DichiarazioneRuota.IdDichiarati(nuova).Count +
+            Logger.Info("[AstroImage] virtual wheel saved: " + DichiarazioneRuota.IdDichiarati(nuova).Count +
                         " vetri dichiarati" + (ok ? "" : " — NON SCRITTA: " + perCheNo));
             Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo, 0, null,
                      new JsonObject { ["dichiarati"] = DichiarazioneRuota.IdDichiarati(nuova).Count });
@@ -462,7 +517,7 @@ namespace AstroImage.NINA.Plugin.Views {
          *  un SQM misurato e uno scritto a mano non devono somigliarsi. */
         private void Sito(string id) {
             var vm = DataContext as PannelloStrategyVM;
-            if (vm is null) { Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return; }
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
 
             var letto = vm.Sito.Leggi(out var perCheNo);
             var unito = DichiarazioneSito.Unisci(letto, vm.SitoScritto);
@@ -498,16 +553,16 @@ namespace AstroImage.NINA.Plugin.Views {
 
         private void SalvaSito(string id, JsonObject messaggio) {
             var vm = DataContext as PannelloStrategyVM;
-            if (vm is null) { Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return; }
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
 
             var nuovo = DichiarazioneSito.DalMessaggio(messaggio, out var perCheMalformata);
             if (nuovo is null) {
-                Logger.Warning("[AstroImage] salvataggio del sito rifiutato — " + perCheMalformata);
+                Logger.Warning("[AstroImage] site save refused — " + perCheMalformata);
                 Rispondi(id, false, null, "richiesta_malformata", perCheMalformata);
                 return;
             }
             var ok = vm.SalvaSito(nuovo, out var perCheNo);
-            Logger.Info("[AstroImage] sito dichiarato salvato" + (ok ? "" : " — NON SCRITTO: " + perCheNo));
+            Logger.Info("[AstroImage] declared site saved" + (ok ? "" : " — NOT WRITTEN: " + perCheNo));
             Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo);
         }
 

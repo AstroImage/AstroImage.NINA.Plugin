@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AstroImage.NINA.Plugin.Models;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -85,7 +86,7 @@ namespace AstroImage.NINA.Plugin.Services {
         /// </summary>
         public async Task<EsitoPrescrizione> Prescrizione(string richiestaJson, CancellationToken ct = default) {
             if (string.IsNullOrWhiteSpace(richiestaJson))
-                return EsitoPrescrizione.Fallito(0, "richiesta_vuota", "Nessun corpo da spedire.");
+                return EsitoPrescrizione.Fallito(0, "richiesta_vuota", Loc.T("Cliente_CorpoVuoto"));
 
             HttpResponseMessage risposta;
             string corpo;
@@ -114,7 +115,7 @@ namespace AstroImage.NINA.Plugin.Services {
 
             if (!risposta.IsSuccessStatusCode)
                 return EsitoPrescrizione.Fallito(stato, "risposta_non_riuscita",
-                    "Il servizio ha risposto " + stato + " senza dire perche'.", corpo);
+                    Loc.F("Cliente_RispostaSenzaMotivo", stato), corpo);
 
             /*  Le sequenze senza modello si scartano qui e si dice quante erano. Un
              *  elenco che si accorcia in silenzio e' il modo piu' rapido per far

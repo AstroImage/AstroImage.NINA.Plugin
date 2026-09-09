@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using AstroImage.NINA.Plugin.Models;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -49,14 +50,12 @@ namespace AstroImage.NINA.Plugin.Services {
             SitoDichiarato? d;
             try { d = JsonSerializer.Deserialize<SitoDichiarato>(json!, Opzioni); }
             catch (Exception e) {
-                nota = "I parametri del sito non si sono potuti leggere (" + e.Message +
-                       "). Riparto da vuoto: nessun valore e' stato inventato.";
+                nota = Loc.F("Sito_ParametriNonLetti", e.Message);
                 return new SitoDichiarato();
             }
-            if (d is null) { nota = "I parametri del sito sono vuoti o malformati."; return new SitoDichiarato(); }
+            if (d is null) { nota = Loc.T("Sito_ParametriVuoti"); return new SitoDichiarato(); }
             if (d.Versione > VersioneCorrente) {
-                nota = $"I parametri del sito sono in versione {d.Versione}, e questo ponte " +
-                       $"ne conosce fino alla {VersioneCorrente}. Non li interpreto.";
+                nota = Loc.F("Sito_VersioneAvanti", d.Versione, VersioneCorrente);
                 return new SitoDichiarato();
             }
             d.Versione = VersioneCorrente;
@@ -72,8 +71,7 @@ namespace AstroImage.NINA.Plugin.Services {
             perCheNo = null;
             var corpo = messaggio?["corpo"];
             if (corpo?["sito"] is not JsonObject s) {
-                perCheNo = "La richiesta non dichiara nessun sito. Non la interpreto come " +
-                           "«azzera tutto»: i parametri precedenti restano dove sono.";
+                perCheNo = Loc.T("Sito_SenzaSito");
                 return null;
             }
             return new SitoDichiarato {
@@ -137,11 +135,10 @@ namespace AstroImage.NINA.Plugin.Services {
         public static string? CheCosaManca(SitoDiRipresa? s) {
             var mancano = new List<string>();
             if (s?.Lat is null || s?.Lon is null)
-                mancano.Add("le coordinate del sito, che vengono dal profilo di N.I.N.A.");
+                mancano.Add(Loc.T("Sito_MancaCoordinate"));
             if (s?.Sqm is null)
-                mancano.Add("la qualita' del cielo (SQM): senza, il motore non sa quanto " +
-                            "fondo cielo stai raccogliendo e non puo' decidere la posa");
-            return mancano.Count == 0 ? null : "Manca " + string.Join("; ", mancano) + ".";
+                mancano.Add(Loc.T("Sito_MancaSqm"));
+            return mancano.Count == 0 ? null : Loc.F("Sito_Manca", string.Join("; ", mancano));
         }
 
         private static double? Scegli(double? misurato, double? dichiarato,

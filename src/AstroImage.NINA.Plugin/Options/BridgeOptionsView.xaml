@@ -1,11 +1,17 @@
 <UserControl
     x:Class="AstroImage.NINA.Plugin.Options.BridgeOptionsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:loc="clr-namespace:AstroImage.NINA.Plugin.Localization">
 
     <!--
         Niente stili, niente colori: si prendono quelli di N.I.N.A. Un pannello di
         plugin che si porta la propria tavolozza si vede subito, e si vede male.
+
+        Il DataContext qui e' ImpostazioniPonte, e ce lo mette il DataTemplate. I testi
+        invece non passano dal DataContext: vengono da Loc, che e' un singolo oggetto
+        raggiungibile con x:Static. Cosi' cambiando lingua la pagina si riscrive da
+        sola, senza chiudere e riaprire le Opzioni.
     -->
     <StackPanel Margin="0,10,0,0" MaxWidth="760" HorizontalAlignment="Left">
 
@@ -13,7 +19,7 @@
                    Text="AstroImage Strategy Bridge" />
 
         <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
-                   Text="Porta dentro N.I.N.A. la prescrizione decisa da AstroImage-Strategy: quali canali riprendere, con quante pose, quale posa e quale modo di guadagno. Il ponte non decide niente — riceve una prescrizione già presa e la costruisce nel Sequenziatore Avanzato. Non avvia mai niente: a premere Riproduci sei tu." />
+                   Text="{Binding [Opzioni_CheCosEe], Source={x:Static loc:Loc.Instance}}" />
 
         <!--
             QUI C'ERA SCRITTO «non fa ancora nulla», e per nove commit e' stato falso
@@ -21,13 +27,38 @@
             invecchia senza che nessuno lo rilegga e' una piccola bugia che si accumula.
         -->
         <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
-                   Text="Da solo questo plugin non fa niente: dall'altra parte deve esserci AstroImage-Strategy che risponde su una porta HTTP. Senza, il pannello si apre e dice che il motore non risponde." />
+                   Text="{Binding [Opzioni_ServeIlMotore], Source={x:Static loc:Loc.Instance}}" />
 
         <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
-                   Text="Tutto si comanda dal pannello «AstroImage Strategy», sotto Imaging: lì si chiede la prescrizione, si dichiara quali filtri hai davvero in ruota — una volta per profilo — e si consegna il bersaglio. Questa pagina non ha ancora impostazioni proprie." />
+                   Text="{Binding [Opzioni_DoveSiComanda], Source={x:Static loc:Loc.Instance}}" />
+
+        <!--
+            LA LINGUA, E NON E' PER FORZA QUELLA DI N.I.N.A.
+            Serve a chi sviluppa quanto a chi usa: tenere N.I.N.A. in inglese per
+            provare come si comporta il plugin per gli altri, e leggere intanto in
+            italiano le ragioni di quello che il motore ha deciso.
+        -->
+        <TextBlock FontWeight="SemiBold" Margin="0,6,0,2"
+                   Text="{Binding [Opzioni_Lingua], Source={x:Static loc:Loc.Instance}}" />
+
+        <TextBlock TextWrapping="Wrap" FontSize="10" Opacity="0.7" Margin="0,0,0,4"
+                   Text="{Binding [Opzioni_LinguaAiuto], Source={x:Static loc:Loc.Instance}}" />
+
+        <!--
+            I nomi delle due lingue NON si traducono: una lingua si scrive nella lingua
+            sua, o chi non capisce l'altra non la ritrova nell'elenco.
+        -->
+        <ComboBox Width="220" HorizontalAlignment="Left" Margin="0,0,0,12"
+                  SelectedValuePath="Tag"
+                  SelectedValue="{Binding Lingua}">
+            <ComboBoxItem Tag=""
+                          Content="{Binding [Opzioni_LinguaSegui], Source={x:Static loc:Loc.Instance}}" />
+            <ComboBoxItem Tag="en" Content="English" />
+            <ComboBoxItem Tag="it" Content="Italiano" />
+        </ComboBox>
 
         <TextBlock TextWrapping="Wrap" FontStyle="Italic"
-                   Text="Autore e manutentore: Alessandro Curci. La stesura del codice è stata fatta in larga parte da un assistente di intelligenza artificiale (Claude, di Anthropic), su sua direzione e sotto la sua revisione." />
+                   Text="{Binding [Opzioni_ChiLHaFatto], Source={x:Static loc:Loc.Instance}}" />
 
     </StackPanel>
 </UserControl>
