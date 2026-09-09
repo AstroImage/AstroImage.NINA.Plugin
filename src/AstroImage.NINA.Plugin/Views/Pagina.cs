@@ -144,7 +144,12 @@ namespace AstroImage.NINA.Plugin.Views {
                '<td class="n">' + m.blocchi.length + '</td>' +
                '<td class="n">' + pose + '</td>' +
                '<td class="n">' + ore.toFixed(2) + ' h</td>' +
-               '<td>' + esc(m.blocchi.map(b => b.filtro || b.canale || '—').join(' · ')) + '</td>' +
+               /*  IL NOME CHE VEDRAI IN SEQUENZA, non l'etichetta di banda del motore.
+                  «HO · L» erano i nomi dei CANALI, e leggerli accanto al tasto che
+                  consegna faceva credere che quelli sarebbero finiti nel Sequenziatore.
+                  Il vetro vero e' in `posa.<canale>.ex.spec.filter.id`, e la
+                  dichiarazione dice come si chiama sulla tua ruota. */
+               '<td>' + esc(m.blocchi.map(b => vetroDelBlocco(p, b)).join(' · ')) + '</td>' +
                '<td>' + tasto + '</td></tr>';
     }
 
@@ -156,6 +161,16 @@ namespace AstroImage.NINA.Plugin.Views {
         (p.notte.spostataDi ? ' <span style="opacity:.55">spostata di ' + p.notte.spostataDi + '</span>' : '') +
         '</td></tr>' +
       '<tr><th>ore utili</th><td>' + p.notte.oreDisponibili.toFixed(2) + ' h</td></tr>' +
+      /*  SU QUALI VETRI E' STATA CALCOLATA, e non e' un dettaglio da nascondere.
+         Senza questa riga «non e' cambiato niente perche' il motore avrebbe scelto
+         gli stessi vetri» e «non e' cambiato niente perche' la ruota non e' partita»
+         si somigliano troppo — e la prima volta ci ha fregati per mezz'ora. */
+      '<tr><th>calcolata su</th><td>' +
+        (r.ruotaAggiunta && r.ruotaAggiunta.length
+          ? '<b>la tua ruota</b> — ' + r.ruotaAggiunta.map(esc).join(' · ')
+          : '<b style="color:#e0a030">i filtri di serie del motore</b>, non i tuoi: ' +
+            'dichiara i vetri qui sopra e richiedi.') +
+        '</td></tr>' +
       '<tr><th>contratto</th><td><code>' + esc(d.contratto) + '</code> · motore ' +
         (d.misura ? d.misura.ms + ' ms' : '—') + ' · risposta ' +
         (r.corpo.length / 1024).toFixed(0) + ' KB intatti</td></tr>' +
@@ -215,6 +230,25 @@ namespace AstroImage.NINA.Plugin.Views {
      N.I.N.A. da' i nomi e gli slot; il motore da' l'elenco dei vetri che conosce;
      in mezzo ci sei tu, che dichiari quale e' quale. Nessuna regola puo' indovinarlo:
      «HA» puo' stare davanti a un L-Ultimate, e solo chi l'ha comprato lo sa. */
+  /* Quale vetro finira' davvero in sequenza per questo blocco: lo dice il motore in
+     `posa.<canale>.ex.spec.filter.id`, e la dichiarazione lo traduce nel nome che hai
+     scritto tu sulla ruota. Se non e' dichiarato lo si dice qui, invece di lasciare
+     credere che andra' bene: e' lo stesso rifiuto che poi farebbe la consegna. */
+  function vetroDelBlocco(p, b) {
+    const canali = b.canali || [];
+    let id = null;
+    for (const c of canali) {
+      const s = p.posa && p.posa[c] && p.posa[c].ex && p.posa[c].ex.spec && p.posa[c].ex.spec.filter;
+      if (!s || !s.id) continue;
+      if (id && id !== s.id) return '?? vetri discordi';
+      id = s.id;
+    }
+    if (!id) return b.filtro || canali.join('+') || '—';
+    if (id === '__none') return 'nessun filtro (Bayer)';
+    const v = righeRuota.find(x => x.id === id);
+    return v ? v.nina : id + ' — non dichiarato';
+  }
+
   function disegnaRuota(r) {
     righeRuota = r.righe || [];
     catalogo = r.catalogo || [];
@@ -230,7 +264,13 @@ namespace AstroImage.NINA.Plugin.Views {
       'il motore calcola sui suoi filtri di serie (' + diSerie.map(esc).join(', ') +
       '), non sui tuoi: la prescrizione che leggi non e\' fatta sul tuo equipaggiamento.');
 
+    /* «nessun filtro» e' una scelta legittima, non un'assenza: su una camera a
+       matrice il motore puo' dire che davanti non ci va niente. Chi ha uno slot
+       vuoto o un vetro trasparente lo dichiara qui, e la consegna sa che slot
+       chiedere invece di rifiutare. */
     const opzioni = (scelto) => '<option value="">(non dichiarato)</option>' +
+      '<option value="__none"' + (scelto === '__none' ? ' selected' : '') +
+        '>nessun filtro / vetro trasparente</option>' +
       catalogo.map(v => '<option value="' + esc(v.id) + '"' +
         (v.id === scelto ? ' selected' : '') + '>' + esc(v.nome) +
         (v.fwhm_nm ? ' — ' + v.fwhm_nm + ' nm' : '') +

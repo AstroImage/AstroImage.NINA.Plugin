@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using AstroImage.NINA.Plugin.Models;
 
@@ -84,6 +85,65 @@ namespace AstroImage.NINA.Plugin.Services {
 
         public static string Scrivi(RuotaVirtuale? r) =>
             JsonSerializer.Serialize(r ?? new RuotaVirtuale(), Opzioni);
+
+        /*  LA DICHIARAZIONE COM'E' ARRIVATA DALLA PAGINA, e la guardia che impedisce a
+         *  una chiave mancante di cancellare il lavoro di qualcuno.
+         *
+         *  Questo metodo esiste per un difetto vero, trovato al primo uso sul campo. La
+         *  pagina spedisce con `chiedi(azione, corpo)`, che impacchetta il carico sotto
+         *  `corpo`; chi leggeva cercava `vetri` alla radice, non lo trovava, e costruiva
+         *  una dichiarazione VUOTA. Poi la salvava, e il salvataggio RIUSCIVA: il
+         *  pannello rispondeva «fatto» e ridisegnava fedelmente il nulla che aveva
+         *  appena scritto. Quattro vetri appena dichiarati, spariti, con un esito verde.
+         *
+         *  Da qui due regole, non una:
+         *
+         *  1. Il percorso si legge dove la pagina scrive davvero. Sta scritto qui, in un
+         *     posto solo, e si prova.
+         *
+         *  2. `vetri` ASSENTE non e' «dichiara niente»: e' una richiesta malformata, e
+         *     si rifiuta. Un elenco vuoto invece e' una richiesta legittima — «togli
+         *     tutto» — e si esegue. Sono due cose diverse, e confonderle e' precisamente
+         *     il modo in cui si cancella la configurazione di qualcuno senza dirglielo.
+         */
+        public static RuotaVirtuale? DalMessaggio(JsonNode? messaggio, out string? perCheNo) {
+            perCheNo = null;
+            var carico = messaggio?["corpo"];
+            var vetri = carico?["vetri"];
+
+            if (vetri is null) {
+                perCheNo = "La richiesta non dichiara nessun elenco di vetri. Non la interpreto " +
+                           "come «togli tutto»: la configurazione precedente resta dov'e'.";
+                return null;
+            }
+            if (vetri is not JsonArray elenco) {
+                perCheNo = "L'elenco dei vetri non e' un elenco.";
+                return null;
+            }
+
+            var r = new RuotaVirtuale { Versione = VersioneCorrente };
+            foreach (var v in elenco) {
+                var nina = Testo(v?["nina"]);
+                if (string.IsNullOrWhiteSpace(nina)) continue;
+                r.Vetri.Add(new VoceRuota {
+                    Nina = nina!.Trim(),
+                    Motore = Testo(v?["id"]),
+                    Nota = Testo(v?["nota"]),
+                });
+            }
+            return r;
+        }
+
+        /*  Un valore JSON puo' essere assente, nullo, o di un tipo che non ci
+         *  aspettiamo. Tutti e tre vogliono dire la stessa cosa qui — «non dichiarato» —
+         *  e nessuno dei tre deve sollevare mentre qualcuno sta salvando. */
+        private static string? Testo(JsonNode? n) {
+            if (n is null) return null;
+            try {
+                var s = n.GetValue<string>();
+                return string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+            } catch (Exception) { return null; }
+        }
 
         /// <summary>Che identificativo del motore e' stato dichiarato per questo nome di
         /// N.I.N.A. Null se non e' stato dichiarato — e null non e' un invito a indovinare.</summary>

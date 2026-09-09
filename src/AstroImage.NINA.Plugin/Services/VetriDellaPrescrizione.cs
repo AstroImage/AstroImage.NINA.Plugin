@@ -35,6 +35,23 @@ namespace AstroImage.NINA.Plugin.Services {
      */
     public static class VetriDellaPrescrizione {
 
+        /*  «NESSUN FILTRO» NON E' UN FILTRO MANCANTE, ed e' una distinzione che il campo
+         *  ci ha fatto pagare subito.
+         *
+         *  Il motore usa il sentinella `__none` per dire «davanti non ci va niente: il
+         *  colore lo fa gia' la matrice di Bayer» — sta scritto nella sua stessa
+         *  sorgente, «`__none` non e' un'assenza». Il ponte lo trattava come un
+         *  identificativo di catalogo non dichiarato e rifiutava la consegna dicendo
+         *  «il vetro __none non e' dichiarato nella tua ruota», che e' una frase senza
+         *  senso: quel vetro non esiste, ed e' proprio il punto.
+         *
+         *  Resta comunque una cosa da NON indovinare. Se il motore dice «niente davanti»
+         *  e la tua ruota ha cinque vetri, riprendere con quello che c'e' montato sarebbe
+         *  la sostituzione silenziosa che questo progetto rifiuta da sempre. Quindi si
+         *  dichiara: chi ha uno slot vuoto o un vetro trasparente lo mappa su questo
+         *  identificativo, e allora la consegna sa quale slot chiedere. */
+        public const string NessunFiltro = "__none";
+
         /// <summary>
         /// Canale → identificativo del vetro che il motore ha usato. Vuota se la
         /// risposta non lo dice: assente non e' un errore, e non autorizza a indovinare.
