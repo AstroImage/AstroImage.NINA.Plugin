@@ -64,6 +64,7 @@ namespace AstroImage.NINA.Plugin.Views {
   <span id="stato" class="stato">in attesa</span>
 </div>
 
+<div id="sito"></div>
 <div id="filtri"></div>
 <div id="uscita"></div>
 
@@ -75,6 +76,10 @@ namespace AstroImage.NINA.Plugin.Views {
      vuota valgono i nomi di banda del motore, che su una ruota vera non
      combaciano quasi mai. */
   let righeRuota = [], catalogo = [], catalogoOk = false, diSerie = [];
+  /* Dove sei. La geometria viene dal profilo di N.I.N.A.; il resto da uno strumento
+     se c'e', dalla dichiarazione se no. Qui dentro non c'e' nessun numero di serie:
+     fino a ieri ce ne erano sette, ed erano Borno. */
+  let sito = null, sitoScritto = {}, sitoProv = {}, sitoManca = null;
 
   /* L'unica via verso il mondo: un messaggio all'ospite. */
   function chiedi(azione, corpo, extra) {
@@ -100,8 +105,16 @@ namespace AstroImage.NINA.Plugin.Views {
     $('uscita').innerHTML = '';
 
     const r = await chiedi('prescrizione', {
-      sito:      { lat: 45.9, lon: 10.2, sqm: 20.8, seeing: 1.6, rms: 0.6,
-                   horizonMin: 20, clearFrac: 0.35 },
+      /* IL SITO E' QUELLO DEL PROFILO, non piu' sette numeri scritti qui dentro.
+         Se manca qualcosa manca davvero: nessun ripiego, nessun valore di serie. */
+      sito:      sito || {},
+      /* IL BANCO NON VIENE ANCORA DAL PROFILO, ed e' scritto qui apposta finche' non
+         verra'. N.I.N.A. sa focale, rapporto focale e passo del pixel, ma il motore ha
+         bisogno di apertura, ostruzione, trasmissione, QE, rumore di lettura e pozzo:
+         cose che N.I.N.A. non possiede affatto. Dedurre «askar71f» dal nome di un
+         dispositivo sarebbe indovinare l'identita' fisica da un'etichetta — lo stesso
+         difetto dei filtri, ripetuto sull'ottica. Serve una dichiarazione, come per la
+         ruota, e finche' non c'e' la pagina lo dice invece di far finta. */
       banco:     { tel: 'askar71f', red: 0.75, cam: 'asi2600mc', mnt: 'am5', bin: 1 },
       bersaglio: { id: $('oggetto').value.trim() },
       quando:    { data: $('data').value.trim(), notti: 3 },
@@ -249,6 +262,84 @@ namespace AstroImage.NINA.Plugin.Views {
     return v ? v.nina : id + ' — non dichiarato';
   }
 
+  const num = v => (v === null || v === undefined) ? '—' : v;
+
+  function disegnaSito(r) {
+    sito = r.sito || null;
+    sitoScritto = r.dichiarato || {};
+    sitoProv = r.provenienza || {};
+    sitoManca = r.manca || null;
+
+    /* La provenienza si vede accanto al numero: un SQM misurato e uno scritto a mano
+       valgono lo stesso per il motore, ma non per chi guarda. */
+    const riga = (etichetta, campo, unita, scrivibile) => {
+      const v = sito ? sito[campo] : null;
+      const p = sitoProv[campo] || 'non disponibile';
+      const colore = p.indexOf('non disponibile') === 0 ? 'color:#e0a030'
+                   : p.indexOf('dichiarato') === 0 ? 'opacity:.75' : 'opacity:.6';
+      return '<tr><th>' + etichetta + '</th><td>' +
+        (scrivibile
+          ? '<input data-sito="' + campo + '" value="' + (sitoScritto[campo] === null ||
+              sitoScritto[campo] === undefined ? '' : sitoScritto[campo]) +
+            '" style="width:70px" spellcheck="false"> ' +
+            (v === null || v === undefined ? '' : '<b>' + num(v) + '</b> ' + unita)
+          : '<b>' + num(v) + '</b> ' + unita) +
+        ' <span style="font-size:12px;' + colore + '">' + esc(p) + '</span></td></tr>';
+    };
+
+    $('sito').innerHTML =
+      '<div class="box">' +
+      '<b>Dove stai riprendendo</b>' +
+      (r.nome ? ' — ' + esc(r.nome) : '') +
+      (r.perCheNo ? '<div style="margin:.6em 0;opacity:.85">&#9888; ' + esc(r.perCheNo) + '</div>' : '') +
+      (r.nota ? '<div style="margin:.6em 0;opacity:.85">&#9888; ' + esc(r.nota) + '</div>' : '') +
+      (sitoManca ? '<div style="margin:.6em 0;color:#e0a030">&#9888; ' + esc(sitoManca) +
+        ' Scrivilo qui sotto: senza, il motore calcola le ore ma non la posa.</div>' : '') +
+      '<table style="width:100%">' +
+      riga('latitudine', 'lat', '&deg;', false) +
+      riga('longitudine', 'lon', '&deg;', false) +
+      riga('cielo (SQM)', 'sqm', 'mag/arcsec&sup2;', true) +
+      riga('seeing', 'seeing', '&Prime;', true) +
+      riga('guida (RMS)', 'rms', '&Prime;', true) +
+      riga('altezza minima', 'horizonMin', '&deg;', true) +
+      riga('notti serene', 'clearFrac', '', true) +
+      '</table>' +
+      '<div style="margin-top:.7em">' +
+        '<button id="salvaSito">Salva i dati del sito</button> ' +
+        '<span id="esitoSito" style="margin-left:.6em;opacity:.8"></span>' +
+      '</div>' +
+      '<div style="margin-top:.7em;opacity:.7;font-size:12.5px">' +
+        'Latitudine e longitudine vengono dal profilo di N.I.N.A. e non si scrivono qui. ' +
+        'L&rsquo;altezza minima resta dichiarata: N.I.N.A. ha un orizzonte per azimut, ' +
+        'il motore un numero solo, e ridurre l&rsquo;uno all&rsquo;altro sceglierebbe di ' +
+        'nascosto quale met&agrave; del cielo buttare via.' +
+      '</div>' +
+      '<div style="margin-top:.5em;opacity:.7;font-size:12.5px">' +
+        '&#9888; La <b>strumentazione</b> &egrave; ancora una configurazione Strategy ' +
+        'scritta nel ponte, <b>non</b> letta dal profilo di N.I.N.A.: Askar 71F 0.75&times; ' +
+        'con ASI2600MC. N.I.N.A. non possiede apertura, ostruzione, trasmissione, QE n&eacute; ' +
+        'rumore di lettura, quindi il collegamento richieder&agrave; una dichiarazione come ' +
+        'quella dei filtri.' +
+      '</div></div>';
+
+    Array.prototype.forEach.call(document.querySelectorAll('#sito input'), i => {
+      i.addEventListener('input', () => { $('esitoSito').textContent = 'non salvato'; });
+    });
+    const b = $('salvaSito');
+    if (b) b.addEventListener('click', () => {
+      const s = {};
+      Array.prototype.forEach.call(document.querySelectorAll('#sito input'), i => {
+        const v = i.value.trim().replace(',', '.');
+        s[i.getAttribute('data-sito')] = v === '' ? null : Number(v);
+      });
+      $('esitoSito').textContent = 'salvo…';
+      chiedi('salvaSito', { sito: s }).then(r2 => {
+        $('esitoSito').textContent = r2.ok ? 'salvato' : 'NON salvato: ' + (r2.messaggio || r2.codice || '');
+        if (r2.ok) chiedi('sito').then(disegnaSito);
+      });
+    });
+  }
+
   function disegnaRuota(r) {
     righeRuota = r.righe || [];
     catalogo = r.catalogo || [];
@@ -334,6 +425,7 @@ namespace AstroImage.NINA.Plugin.Views {
     });
   }
 
+  chiedi('sito').then(r => { if (r.ok) disegnaSito(r); });
   chiedi('filtri').then(r => { if (r.ok) disegnaRuota(r); });
 </script>
 """;
