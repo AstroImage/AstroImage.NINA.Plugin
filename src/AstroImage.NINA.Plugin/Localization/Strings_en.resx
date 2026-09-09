@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Le parole del ponte in inglese, la lingua di serie. Generato una volta e mantenuto a mano: le due lingue devono avere
+       le stesse chiavi e gli stessi segnaposto, e c'e' un test che lo verifica. -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Cliente_CorpoVuoto" xml:space="preserve">
+    <value>Nothing to send: the request body is empty.</value>
+  </data>
+  <data name="Cliente_RispostaSenzaMotivo" xml:space="preserve">
+    <value>The service answered {0} without saying why.</value>
+  </data>
+  <data name="Cosa_Filtro" xml:space="preserve">
+    <value>the filter</value>
+  </data>
+  <data name="Cosa_Guadagno" xml:space="preserve">
+    <value>the gain</value>
+  </data>
+  <data name="Cosa_Posa" xml:space="preserve">
+    <value>the exposure time</value>
+  </data>
+  <data name="Fonte_ElencoFallito" xml:space="preserve">
+    <value>N.I.N.A. could not list the target templates: {0}</value>
+  </data>
+  <data name="Fonte_ModelliSenzaRipresa" xml:space="preserve">
+    <value>None of the {0} target templates holds an exposure to copy the sub from. Add a Smart Exposure to a template.</value>
+  </data>
+  <data name="Fonte_NessunModello" xml:space="preserve">
+    <value>There is no target template. There is normally at least a stock one: if even that is gone, open the Advanced Sequencer, go to Templates and save one.</value>
+  </data>
+  <data name="Fonte_SenzaMediatore" xml:space="preserve">
+    <value>N.I.N.A. did not provide the sequence mediator.</value>
+  </data>
+  <data name="Garanzia_Niente" xml:space="preserve">
+    <value>(nothing)</value>
+  </data>
+  <data name="Garanzia_NonNumero" xml:space="preserve">
+    <value>{0}: “{1}” is not a number ({2}).</value>
+  </data>
+  <data name="Garanzia_NonRiletto" xml:space="preserve">
+    <value>{0}: “{1}” could not be read back after writing it, so there is no guarantee the value arrived.</value>
+  </data>
+  <data name="Garanzia_NumeroNonAttecchito" xml:space="preserve">
+    <value>{0}: asked for {1}, the object says {2}. The value did not stick and the block is not delivered: a sequence showing a number different from the prescription looks exactly like one that follows it.</value>
+  </data>
+  <data name="Garanzia_ParolaNonAttecchita" xml:space="preserve">
+    <value>{0}: asked for “{1}”, the object says “{2}”. The block is not delivered: imaging through the wrong filter cannot be undone.</value>
+  </data>
+  <data name="Iter_NienteSuCuiScrivere" xml:space="preserve">
+    <value>there is nothing to write on.</value>
+  </data>
+  <data name="Iter_NonAttecchito" xml:space="preserve">
+    <value>the number of exposures did not stick: {0} asked for, the object says {1}. On N.I.N.A. 3.3 the value that rules is the SmartExposure's `{2}`, and this version of the bridge could not write it.</value>
+  </data>
+  <data name="Iter_NonRiletto" xml:space="preserve">
+    <value>the number of exposures could not be read back after writing it.</value>
+  </data>
+  <data name="Iter_PoseNonPositive" xml:space="preserve">
+    <value>a non-positive number of exposures is not written.</value>
+  </data>
+  <data name="Manda_FiltroNonRisolto" xml:space="preserve">
+    <value>{0}. The target was NOT delivered: declare that filter in the filter configuration, or ask for the prescription again with the wheel you actually have.</value>
+  </data>
+  <data name="Manda_NessunFiltroDaDichiarare" xml:space="preserve">
+    <value>for “{0}” the engine says to put NO filter in front (the Bayer matrix does the colour). If you have an empty slot or a clear filter, declare it as “no filter” in the configuration</value>
+  </data>
+  <data name="Manda_VetroNonDichiarato" xml:space="preserve">
+    <value>“{0}” was computed for filter “{1}”, which is not declared in your wheel</value>
+  </data>
+  <data name="Mappa_FileVuoto" xml:space="preserve">
+    <value>{0} exists but says nothing.</value>
+  </data>
+  <data name="Mappa_LetturaFallita" xml:space="preserve">
+    <value>{0} could not be read: {1}</value>
+  </data>
+  <data name="Mappa_VociVuote" xml:space="preserve">
+    <value>{0}: {1} empty entries ignored.</value>
+  </data>
+  <data name="Memoria_NienteDoveSalvare" xml:space="preserve">
+    <value>Nowhere to save: N.I.N.A. did not provide the plugin settings.</value>
+  </data>
+  <data name="Memoria_SalvataggioFallito" xml:space="preserve">
+    <value>The configuration could not be saved: {0}</value>
+  </data>
+  <data name="Memoria_SenzaSpazio" xml:space="preserve">
+    <value>N.I.N.A. did not provide the plugin settings store: nothing was written.</value>
+  </data>
+  <data name="Montaggio_BloccoScartato" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Montaggio_Chiusura" xml:space="preserve">
+    <value>Warm-up and park do not go into the target: they belong to the end of the sequence, which stays yours.</value>
+  </data>
+  <data name="Montaggio_FiltroNonInRuota" xml:space="preserve">
+    <value>{0}: the prescription asks for filter “{1}”, which is not in the wheel. That is {2} exposures of {3:0.#} s, i.e. {4:0.00} h that would be shot through whatever filter happens to be in place.</value>
+  </data>
+  <data name="Montaggio_InRuotaCiSono" xml:space="preserve">
+    <value>The wheel holds: {0}.</value>
+  </data>
+  <data name="Montaggio_MotivoNonDichiarato" xml:space="preserve">
+    <value>no reason given</value>
+  </data>
+  <data name="Montaggio_NonConsegnato" xml:space="preserve">
+    <value>The target was NOT delivered: in the sequencer, one that does not follow the prescription looks exactly like one that does.</value>
+  </data>
+  <data name="Montaggio_Raffreddamento" xml:space="preserve">
+    <value>Cooling does not go into the target: it belongs to the start of the sequence, which stays yours. Put it in the Start area.</value>
+  </data>
+  <data name="Montaggio_RuotaVuota" xml:space="preserve">
+    <value>The active profile shows no filter in the wheel.</value>
+  </data>
+  <data name="Montaggio_SenzaAutofocus" xml:space="preserve">
+    <value>Autofocus: no block available to copy it from.</value>
+  </data>
+  <data name="Montaggio_SenzaContenitore" xml:space="preserve">
+    <value>The target container could not be obtained.</value>
+  </data>
+  <data name="Montaggio_SenzaFonte" xml:space="preserve">
+    <value>There is nowhere to take the parts from: {0}.</value>
+  </data>
+  <data name="Montaggio_SenzaGuida" xml:space="preserve">
+    <value>Start guiding: no block available to copy it from.</value>
+  </data>
+  <data name="Montaggio_SenzaRipresa" xml:space="preserve">
+    <value>no imaging block available to copy the exposure from.</value>
+  </data>
+  <data name="Montaggio_UnBlocco" xml:space="preserve">
+    <value>a block</value>
+  </data>
+  <data name="Opzioni_CheCosEe" xml:space="preserve">
+    <value>Brings into N.I.N.A. the prescription decided by AstroImage-Strategy: which channels to shoot, how many exposures, what sub length and which gain mode. This bridge decides nothing — it takes a prescription already worked out and builds it in the Advanced Sequencer. It never starts anything: pressing Play is your job.</value>
+  </data>
+  <data name="Opzioni_ChiLHaFatto" xml:space="preserve">
+    <value>Author and maintainer: Alessandro Curci. The code was largely written by an artificial intelligence assistant (Claude, by Anthropic), under his direction and his review.</value>
+  </data>
+  <data name="Opzioni_DoveSiComanda" xml:space="preserve">
+    <value>Everything is driven from the “AstroImage Strategy” panel, under Imaging: that is where you ask for a prescription, declare which filters you really have in the wheel — once per profile — and deliver the target. This page only holds the language, which instead applies to every profile.</value>
+  </data>
+  <data name="Opzioni_Lingua" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Opzioni_LinguaAiuto" xml:space="preserve">
+    <value>Applies to the panel and to the bridge's own messages, not to N.I.N.A. It is not kept in the profile: it is the same for every site, because the person reading is the same. Out of the box the bridge speaks English.</value>
+  </data>
+  <data name="Opzioni_LinguaSegui" xml:space="preserve">
+    <value>Follow N.I.N.A.</value>
+  </data>
+  <data name="Opzioni_ServeIlMotore" xml:space="preserve">
+    <value>On its own this plugin does nothing: on the other side there must be AstroImage-Strategy answering on an HTTP port. Without it, the panel opens and tells you the engine is not answering.</value>
+  </data>
+  <data name="Pannello_AzioneSconosciuta" xml:space="preserve">
+    <value>Action: {0}</value>
+  </data>
+  <data name="Pannello_InAvvio" xml:space="preserve">
+    <value>Starting the panel…</value>
+  </data>
+  <data name="Pannello_NessunoRisponde" xml:space="preserve">
+    <value>Nobody answers at {0}</value>
+  </data>
+  <data name="Pannello_NienteDaCostruire" xml:space="preserve">
+    <value>The model produced nothing that can be imaged</value>
+  </data>
+  <data name="Pannello_PaginaNonCaricata" xml:space="preserve">
+    <value>The page did not load</value>
+  </data>
+  <data name="Pannello_Riprova" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="Pannello_SenzaCorriere" xml:space="preserve">
+    <value>The panel has no courier: the ViewModel is missing.</value>
+  </data>
+  <data name="Pannello_SenzaViewModel" xml:space="preserve">
+    <value>The panel has no ViewModel.</value>
+  </data>
+  <data name="Pannello_WebViewNonPartito" xml:space="preserve">
+    <value>WebView2 did not start</value>
+  </data>
+  <data name="Presc_Nessuna" xml:space="preserve">
+    <value>There is no prescription to send: ask for one first.</value>
+  </data>
+  <data name="Presc_NotteAssente" xml:space="preserve">
+    <value>The prescription has no night {0}: it has {1}.</value>
+  </data>
+  <data name="Presc_NotteSenzaModello" xml:space="preserve">
+    <value>Night {0} arrived without a model: there is nothing to build.</value>
+  </data>
+  <data name="Presc_Scaduta" xml:space="preserve">
+    <value>That row comes from an earlier prescription. The bridge will not send the wrong target under the right name: ask again and retry.</value>
+  </data>
+  <data name="Ruota_ConfigNonLetta" xml:space="preserve">
+    <value>The filter configuration could not be read ({0}). Starting empty: no filter was invented, and the saved configuration was not deleted.</value>
+  </data>
+  <data name="Ruota_ConfigVuota" xml:space="preserve">
+    <value>The filter configuration is empty or malformed. Starting empty.</value>
+  </data>
+  <data name="Ruota_ElencoNonElenco" xml:space="preserve">
+    <value>The filter list is not a list.</value>
+  </data>
+  <data name="Ruota_ElencoNonRiuscito" xml:space="preserve">
+    <value>N.I.N.A. could not list the filters in the profile.</value>
+  </data>
+  <data name="Ruota_LetturaFallita" xml:space="preserve">
+    <value>The profile's filter wheel could not be read: {0}</value>
+  </data>
+  <data name="Ruota_ProfiloSenzaFiltri" xml:space="preserve">
+    <value>The active profile's filter wheel holds no filters. Add them in N.I.N.A. under Options → Equipment → Filter Wheel.</value>
+  </data>
+  <data name="Ruota_ProfiloSenzaRuota" xml:space="preserve">
+    <value>The active profile does not declare a filter wheel.</value>
+  </data>
+  <data name="Ruota_SenzaElenco" xml:space="preserve">
+    <value>The request declares no filter list. That is not read as “clear everything”: the previous configuration stays where it is.</value>
+  </data>
+  <data name="Ruota_VersioneAvanti" xml:space="preserve">
+    <value>The filter configuration is version {0}, and this bridge only knows up to {1}. It will not be interpreted: update the plugin, or set the filters up again here.</value>
+  </data>
+  <data name="Ruota_VociDoppie" xml:space="preserve">
+    <value>The configuration held more than one entry for the same filter ({0}). The first of each was kept.</value>
+  </data>
+  <data name="Sito_Manca" xml:space="preserve">
+    <value>Missing {0}.</value>
+  </data>
+  <data name="Sito_MancaCoordinate" xml:space="preserve">
+    <value>the site coordinates, which come from the N.I.N.A. profile</value>
+  </data>
+  <data name="Sito_MancaSqm" xml:space="preserve">
+    <value>the sky quality (SQM): without it the engine cannot tell how much sky background you are collecting, and cannot work out the sub length</value>
+  </data>
+  <data name="Sito_ParametriNonLetti" xml:space="preserve">
+    <value>The site parameters could not be read ({0}). Starting empty: no value was invented.</value>
+  </data>
+  <data name="Sito_ParametriVuoti" xml:space="preserve">
+    <value>The site parameters are empty or malformed.</value>
+  </data>
+  <data name="Sito_ProfiloSenzaPosizione" xml:space="preserve">
+    <value>The active N.I.N.A. profile declares no location. Set it under Options → General → Location.</value>
+  </data>
+  <data name="Sito_SenzaSito" xml:space="preserve">
+    <value>The request declares no site. That is not read as “reset everything”: the previous parameters stay where they are.</value>
+  </data>
+  <data name="Sito_VersioneAvanti" xml:space="preserve">
+    <value>The site parameters are version {0}, and this bridge only knows up to {1}. They will not be interpreted.</value>
+  </data>
+  <data name="Sito_ZeroZero" xml:space="preserve">
+    <value>The N.I.N.A. profile reads latitude 0, longitude 0 — that is what a profile that was never set up looks like, not a location. Set it under Options → General, or the night will be worked out for the Gulf of Guinea.</value>
+  </data>
+  <data name="Trad_BancoNonDichiarato" xml:space="preserve">
+    <value>rig capabilities not declared: only the exposures are built</value>
+  </data>
+  <data name="Trad_BinningNonDichiarato" xml:space="preserve">
+    <value>binning not declared: imaging 1x1</value>
+  </data>
+  <data name="Trad_DitherArrotondato" xml:space="preserve">
+    <value>dithering every {0} exposures rounded to {1}</value>
+  </data>
+  <data name="Trad_DitherNonNumero" xml:space="preserve">
+    <value>dithering every {0} exposures: that is not a number of exposures, it is not applied</value>
+  </data>
+  <data name="Trad_NessunModello" xml:space="preserve">
+    <value>no model to translate</value>
+  </data>
+  <data name="Trad_SenzaBersaglio" xml:space="preserve">
+    <value>the model has no target</value>
+  </data>
+  <data name="Trad_SenzaBlocchi" xml:space="preserve">
+    <value>the model carries no imaging blocks</value>
+  </data>
+  <data name="Trad_SenzaDurata" xml:space="preserve">
+    <value>{0}: no exposure length</value>
+  </data>
+  <data name="Trad_SenzaFiltro" xml:space="preserve">
+    <value>{0}: no filter given, imaging with the one already in place</value>
+  </data>
+  <data name="Trad_SenzaNome" xml:space="preserve">
+    <value>unnamed</value>
+  </data>
+  <data name="Trad_SenzaNumero" xml:space="preserve">
+    <value>{0}: no number of exposures</value>
+  </data>
+  <data name="Vetri_CanaliDiscordi" xml:space="preserve">
+    <value>The channels in this block declare different filters ({0}): no single filter covers them all, and picking one at random would mean imaging through the wrong filter without saying so.</value>
+  </data>
+  <data name="Vetri_NonDichiarato" xml:space="preserve">
+    <value>The answer does not say which filter was used for {0}.</value>
+  </data>
+  <data name="Vm_SenzaMediatore" xml:space="preserve">
+    <value>N.I.N.A. did not provide the sequence mediator.</value>
+  </data>
+  <data name="Vm_SenzaMontatore" xml:space="preserve">
+    <value>The builder was not constructed.</value>
+  </data>
+</root>

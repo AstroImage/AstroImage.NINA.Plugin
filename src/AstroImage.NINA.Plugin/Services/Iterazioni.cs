@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Reflection;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -66,8 +67,8 @@ namespace AstroImage.NINA.Plugin.Services {
         /// <param name="condizione">Il LoopCondition sotto di lui. C'e' in entrambe.</param>
         public static bool Imposta(object? posa, object? condizione, int pose, out string? perCheNo) {
             perCheNo = null;
-            if (pose <= 0) { perCheNo = "un numero di pose non positivo non si scrive."; return false; }
-            if (posa is null && condizione is null) { perCheNo = "non c'e' niente su cui scrivere."; return false; }
+            if (pose <= 0) { perCheNo = Loc.T("Iter_PoseNonPositive"); return false; }
+            if (posa is null && condizione is null) { perCheNo = Loc.T("Iter_NienteSuCuiScrivere"); return false; }
 
             var testo = pose.ToString(CultureInfo.InvariantCulture);
 
@@ -83,14 +84,11 @@ namespace AstroImage.NINA.Plugin.Services {
             /*  LA RILETTURA. Un valore scritto e non ricontrollato e' una speranza. */
             var effettivo = Effettivo(posa, condizione);
             if (effettivo is null) {
-                perCheNo = "non si e' potuto rileggere il numero di pose dopo averlo scritto.";
+                perCheNo = Loc.T("Iter_NonRiletto");
                 return false;
             }
             if (effettivo != pose) {
-                perCheNo = $"il numero di pose non ha attecchito: chieste {pose}, l'oggetto " +
-                           $"dice {effettivo}. Su N.I.N.A. 3.3 il valore che comanda e' " +
-                           $"`{Definizione}` dello SmartExposure, e questa versione del ponte " +
-                           "non e' riuscita a scriverlo.";
+                perCheNo = Loc.F("Iter_NonAttecchito", pose, effettivo, Definizione);
                 return false;
             }
             return true;

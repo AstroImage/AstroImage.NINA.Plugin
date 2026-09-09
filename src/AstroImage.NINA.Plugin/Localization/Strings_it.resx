@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Le parole del ponte in italiano. Generato una volta e mantenuto a mano: le due lingue devono avere
+       le stesse chiavi e gli stessi segnaposto, e c'e' un test che lo verifica. -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Cliente_CorpoVuoto" xml:space="preserve">
+    <value>Nessun corpo da spedire.</value>
+  </data>
+  <data name="Cliente_RispostaSenzaMotivo" xml:space="preserve">
+    <value>Il servizio ha risposto {0} senza dire perche'.</value>
+  </data>
+  <data name="Cosa_Filtro" xml:space="preserve">
+    <value>il filtro</value>
+  </data>
+  <data name="Cosa_Guadagno" xml:space="preserve">
+    <value>il guadagno</value>
+  </data>
+  <data name="Cosa_Posa" xml:space="preserve">
+    <value>la posa</value>
+  </data>
+  <data name="Fonte_ElencoFallito" xml:space="preserve">
+    <value>N.I.N.A. non ha saputo elencare i modelli di bersaglio: {0}</value>
+  </data>
+  <data name="Fonte_ModelliSenzaRipresa" xml:space="preserve">
+    <value>Nessuno dei {0} modelli di bersaglio contiene una ripresa da cui copiare la posa. Aggiungi uno Smart Exposure a un modello.</value>
+  </data>
+  <data name="Fonte_NessunModello" xml:space="preserve">
+    <value>Non c'e' nessun modello di bersaglio. Di solito ce n'e' almeno uno di serie: se manca anche quello, apri il Sequenziatore Avanzato, vai in Modelli e salvane uno.</value>
+  </data>
+  <data name="Fonte_SenzaMediatore" xml:space="preserve">
+    <value>N.I.N.A. non ha fornito il mediatore delle sequenze.</value>
+  </data>
+  <data name="Garanzia_Niente" xml:space="preserve">
+    <value>(niente)</value>
+  </data>
+  <data name="Garanzia_NonNumero" xml:space="preserve">
+    <value>{0}: «{1}» non e' un numero ({2}).</value>
+  </data>
+  <data name="Garanzia_NonRiletto" xml:space="preserve">
+    <value>{0}: non si e' potuto rileggere «{1}» dopo averlo scritto, quindi non si puo' garantire che il valore sia arrivato.</value>
+  </data>
+  <data name="Garanzia_NumeroNonAttecchito" xml:space="preserve">
+    <value>{0}: chiesto {1}, l'oggetto dice {2}. Il valore non ha attecchito e il blocco non si consegna: una sequenza che dice un numero diverso dalla prescrizione, guardandola, non si distingue da una conforme.</value>
+  </data>
+  <data name="Garanzia_ParolaNonAttecchita" xml:space="preserve">
+    <value>{0}: chiesto «{1}», l'oggetto dice «{2}». Il blocco non si consegna: riprendere col vetro sbagliato non si recupera.</value>
+  </data>
+  <data name="Iter_NienteSuCuiScrivere" xml:space="preserve">
+    <value>non c'e' niente su cui scrivere.</value>
+  </data>
+  <data name="Iter_NonAttecchito" xml:space="preserve">
+    <value>il numero di pose non ha attecchito: chieste {0}, l'oggetto dice {1}. Su N.I.N.A. 3.3 il valore che comanda e' `{2}` dello SmartExposure, e questa versione del ponte non e' riuscita a scriverlo.</value>
+  </data>
+  <data name="Iter_NonRiletto" xml:space="preserve">
+    <value>non si e' potuto rileggere il numero di pose dopo averlo scritto.</value>
+  </data>
+  <data name="Iter_PoseNonPositive" xml:space="preserve">
+    <value>un numero di pose non positivo non si scrive.</value>
+  </data>
+  <data name="Manda_FiltroNonRisolto" xml:space="preserve">
+    <value>{0}. Il bersaglio NON e' stato consegnato: dichiara quel vetro nella configurazione dei filtri, oppure chiedi di nuovo la prescrizione con la ruota che hai davvero.</value>
+  </data>
+  <data name="Manda_NessunFiltroDaDichiarare" xml:space="preserve">
+    <value>per «{0}» il motore dice di non mettere NESSUN filtro davanti (il colore lo fa la matrice di Bayer). Se hai uno slot vuoto o un vetro trasparente, dichiaralo come «nessun filtro» nella configurazione</value>
+  </data>
+  <data name="Manda_VetroNonDichiarato" xml:space="preserve">
+    <value>«{0}» e' stato calcolato sul vetro «{1}», che nella tua ruota non e' dichiarato</value>
+  </data>
+  <data name="Mappa_FileVuoto" xml:space="preserve">
+    <value>{0} c'e' ma non dice niente.</value>
+  </data>
+  <data name="Mappa_LetturaFallita" xml:space="preserve">
+    <value>{0} non si e' potuto leggere: {1}</value>
+  </data>
+  <data name="Mappa_VociVuote" xml:space="preserve">
+    <value>{0}: {1} voci vuote ignorate.</value>
+  </data>
+  <data name="Memoria_NienteDoveSalvare" xml:space="preserve">
+    <value>Non c'e' dove salvare: N.I.N.A. non ha fornito le impostazioni del plugin.</value>
+  </data>
+  <data name="Memoria_SalvataggioFallito" xml:space="preserve">
+    <value>La configurazione non si e' potuta salvare: {0}</value>
+  </data>
+  <data name="Memoria_SenzaSpazio" xml:space="preserve">
+    <value>N.I.N.A. non ha fornito lo spazio dove salvare le impostazioni del plugin: la configurazione non e' stata scritta.</value>
+  </data>
+  <data name="Montaggio_BloccoScartato" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Montaggio_Chiusura" xml:space="preserve">
+    <value>Riscaldamento e ritorno a casa non entrano nel bersaglio: appartengono alla chiusura della sequenza, che resta tua.</value>
+  </data>
+  <data name="Montaggio_FiltroNonInRuota" xml:space="preserve">
+    <value>{0}: la prescrizione chiede il filtro «{1}», che in ruota non c'e'. Sono {2} pose da {3:0.#} s, cioe' {4:0.00} h che verrebbero riprese con il vetro montato adesso, qualunque sia.</value>
+  </data>
+  <data name="Montaggio_InRuotaCiSono" xml:space="preserve">
+    <value>In ruota ci sono: {0}.</value>
+  </data>
+  <data name="Montaggio_MotivoNonDichiarato" xml:space="preserve">
+    <value>motivo non dichiarato</value>
+  </data>
+  <data name="Montaggio_NonConsegnato" xml:space="preserve">
+    <value>Il bersaglio NON e' stato consegnato: una sequenza che non rispetta la prescrizione, in sequenza, non si distingue da una che la rispetta.</value>
+  </data>
+  <data name="Montaggio_Raffreddamento" xml:space="preserve">
+    <value>Il raffreddamento non entra nel bersaglio: appartiene all'avvio della sequenza, che resta tuo. Mettilo nell'area di Start.</value>
+  </data>
+  <data name="Montaggio_RuotaVuota" xml:space="preserve">
+    <value>Nel profilo attivo non risulta nessun filtro in ruota.</value>
+  </data>
+  <data name="Montaggio_SenzaAutofocus" xml:space="preserve">
+    <value>Messa a fuoco automatica: nessun blocco disponibile da cui copiarla.</value>
+  </data>
+  <data name="Montaggio_SenzaContenitore" xml:space="preserve">
+    <value>Il contenitore del bersaglio non si e' potuto ottenere.</value>
+  </data>
+  <data name="Montaggio_SenzaFonte" xml:space="preserve">
+    <value>Non c'e' da dove prendere i pezzi: {0}.</value>
+  </data>
+  <data name="Montaggio_SenzaGuida" xml:space="preserve">
+    <value>Avvio della guida: nessun blocco disponibile da cui copiarlo.</value>
+  </data>
+  <data name="Montaggio_SenzaRipresa" xml:space="preserve">
+    <value>nessun blocco di ripresa disponibile da cui copiare la posa.</value>
+  </data>
+  <data name="Montaggio_UnBlocco" xml:space="preserve">
+    <value>un blocco</value>
+  </data>
+  <data name="Opzioni_CheCosEe" xml:space="preserve">
+    <value>Porta dentro N.I.N.A. la prescrizione decisa da AstroImage-Strategy: quali canali riprendere, con quante pose, quale posa e quale modo di guadagno. Il ponte non decide niente — riceve una prescrizione già presa e la costruisce nel Sequenziatore Avanzato. Non avvia mai niente: a premere Riproduci sei tu.</value>
+  </data>
+  <data name="Opzioni_ChiLHaFatto" xml:space="preserve">
+    <value>Autore e manutentore: Alessandro Curci. La stesura del codice è stata fatta in larga parte da un assistente di intelligenza artificiale (Claude, di Anthropic), su sua direzione e sotto la sua revisione.</value>
+  </data>
+  <data name="Opzioni_DoveSiComanda" xml:space="preserve">
+    <value>Tutto si comanda dal pannello «AstroImage Strategy», sotto Imaging: lì si chiede la prescrizione, si dichiara quali filtri hai davvero in ruota — una volta per profilo — e si consegna il bersaglio. Qui c'è solo la lingua, che invece vale per tutti i profili.</value>
+  </data>
+  <data name="Opzioni_Lingua" xml:space="preserve">
+    <value>Lingua</value>
+  </data>
+  <data name="Opzioni_LinguaAiuto" xml:space="preserve">
+    <value>Vale per il pannello e per i messaggi del ponte, e non per N.I.N.A. Non sta nel profilo: è la stessa per Borno e per Milano, perché a leggere sei sempre tu. Di serie il ponte parla inglese.</value>
+  </data>
+  <data name="Opzioni_LinguaSegui" xml:space="preserve">
+    <value>Segui N.I.N.A.</value>
+  </data>
+  <data name="Opzioni_ServeIlMotore" xml:space="preserve">
+    <value>Da solo questo plugin non fa niente: dall'altra parte deve esserci AstroImage-Strategy che risponde su una porta HTTP. Senza, il pannello si apre e dice che il motore non risponde.</value>
+  </data>
+  <data name="Pannello_AzioneSconosciuta" xml:space="preserve">
+    <value>Azione: {0}</value>
+  </data>
+  <data name="Pannello_InAvvio" xml:space="preserve">
+    <value>Avvio del pannello…</value>
+  </data>
+  <data name="Pannello_NessunoRisponde" xml:space="preserve">
+    <value>Nessuno risponde a {0}</value>
+  </data>
+  <data name="Pannello_NienteDaCostruire" xml:space="preserve">
+    <value>Dal modello non e' uscito niente di riprendibile</value>
+  </data>
+  <data name="Pannello_PaginaNonCaricata" xml:space="preserve">
+    <value>La pagina non si e' caricata</value>
+  </data>
+  <data name="Pannello_Riprova" xml:space="preserve">
+    <value>Riprova</value>
+  </data>
+  <data name="Pannello_SenzaCorriere" xml:space="preserve">
+    <value>Il pannello non ha un corriere: manca il ViewModel.</value>
+  </data>
+  <data name="Pannello_SenzaViewModel" xml:space="preserve">
+    <value>Il pannello non ha un ViewModel.</value>
+  </data>
+  <data name="Pannello_WebViewNonPartito" xml:space="preserve">
+    <value>WebView2 non e' partito</value>
+  </data>
+  <data name="Presc_Nessuna" xml:space="preserve">
+    <value>Non c'e' nessuna prescrizione da mandare: chiedine una prima.</value>
+  </data>
+  <data name="Presc_NotteAssente" xml:space="preserve">
+    <value>La prescrizione non ha una notte {0}: ne ha {1}.</value>
+  </data>
+  <data name="Presc_NotteSenzaModello" xml:space="preserve">
+    <value>La notte {0} e' arrivata senza modello: non c'e' niente da costruire.</value>
+  </data>
+  <data name="Presc_Scaduta" xml:space="preserve">
+    <value>Quella riga viene da una prescrizione precedente. Il ponte non manda l'oggetto sbagliato con il nome giusto: chiedi di nuovo e riprova.</value>
+  </data>
+  <data name="Ruota_ConfigNonLetta" xml:space="preserve">
+    <value>La configurazione dei filtri non si e' potuta leggere ({0}). Riparto da vuoto: nessun filtro e' stato inventato, e la configurazione salvata non e' stata cancellata.</value>
+  </data>
+  <data name="Ruota_ConfigVuota" xml:space="preserve">
+    <value>La configurazione dei filtri e' vuota o malformata. Riparto da vuoto.</value>
+  </data>
+  <data name="Ruota_ElencoNonElenco" xml:space="preserve">
+    <value>L'elenco dei vetri non e' un elenco.</value>
+  </data>
+  <data name="Ruota_ElencoNonRiuscito" xml:space="preserve">
+    <value>N.I.N.A. non ha saputo elencare i filtri del profilo.</value>
+  </data>
+  <data name="Ruota_LetturaFallita" xml:space="preserve">
+    <value>La ruota del profilo non si e' potuta leggere: {0}</value>
+  </data>
+  <data name="Ruota_ProfiloSenzaFiltri" xml:space="preserve">
+    <value>La ruota del profilo attivo non contiene filtri. Aggiungili in N.I.N.A. sotto Opzioni → Equipaggiamento → Ruota portafiltri.</value>
+  </data>
+  <data name="Ruota_ProfiloSenzaRuota" xml:space="preserve">
+    <value>Il profilo attivo non dichiara una ruota portafiltri.</value>
+  </data>
+  <data name="Ruota_SenzaElenco" xml:space="preserve">
+    <value>La richiesta non dichiara nessun elenco di vetri. Non la interpreto come «togli tutto»: la configurazione precedente resta dov'e'.</value>
+  </data>
+  <data name="Ruota_VersioneAvanti" xml:space="preserve">
+    <value>La configurazione dei filtri e' in versione {0}, e questo ponte ne conosce fino alla {1}. Non la interpreto: aggiorna il plugin, oppure riconfigura i filtri qui.</value>
+  </data>
+  <data name="Ruota_VociDoppie" xml:space="preserve">
+    <value>Nella configurazione c'erano piu' voci per lo stesso filtro ({0}). Ho tenuto la prima di ognuna.</value>
+  </data>
+  <data name="Sito_Manca" xml:space="preserve">
+    <value>Manca {0}.</value>
+  </data>
+  <data name="Sito_MancaCoordinate" xml:space="preserve">
+    <value>le coordinate del sito, che vengono dal profilo di N.I.N.A.</value>
+  </data>
+  <data name="Sito_MancaSqm" xml:space="preserve">
+    <value>la qualita' del cielo (SQM): senza, il motore non sa quanto fondo cielo stai raccogliendo e non puo' decidere la posa</value>
+  </data>
+  <data name="Sito_ParametriNonLetti" xml:space="preserve">
+    <value>I parametri del sito non si sono potuti leggere ({0}). Riparto da vuoto: nessun valore e' stato inventato.</value>
+  </data>
+  <data name="Sito_ParametriVuoti" xml:space="preserve">
+    <value>I parametri del sito sono vuoti o malformati.</value>
+  </data>
+  <data name="Sito_ProfiloSenzaPosizione" xml:space="preserve">
+    <value>Il profilo attivo di N.I.N.A. non dichiara una posizione. Impostala in Opzioni → Generale → Posizione.</value>
+  </data>
+  <data name="Sito_SenzaSito" xml:space="preserve">
+    <value>La richiesta non dichiara nessun sito. Non la interpreto come «azzera tutto»: i parametri precedenti restano dove sono.</value>
+  </data>
+  <data name="Sito_VersioneAvanti" xml:space="preserve">
+    <value>I parametri del sito sono in versione {0}, e questo ponte ne conosce fino alla {1}. Non li interpreto.</value>
+  </data>
+  <data name="Sito_ZeroZero" xml:space="preserve">
+    <value>Il profilo di N.I.N.A. dice latitudine 0 e longitudine 0, che e' il valore di un profilo mai configurato — non una posizione. Impostala in Opzioni → Generale, altrimenti la notte verrebbe calcolata per il Golfo di Guinea.</value>
+  </data>
+  <data name="Trad_BancoNonDichiarato" xml:space="preserve">
+    <value>capacita' del banco non dichiarate: si costruiscono le sole riprese</value>
+  </data>
+  <data name="Trad_BinningNonDichiarato" xml:space="preserve">
+    <value>binning non dichiarato: si riprende 1x1</value>
+  </data>
+  <data name="Trad_DitherArrotondato" xml:space="preserve">
+    <value>dithering ogni {0} pose arrotondato a {1}</value>
+  </data>
+  <data name="Trad_DitherNonNumero" xml:space="preserve">
+    <value>dithering ogni {0} pose: non e' un numero di pose, non si applica</value>
+  </data>
+  <data name="Trad_NessunModello" xml:space="preserve">
+    <value>nessun modello da tradurre</value>
+  </data>
+  <data name="Trad_SenzaBersaglio" xml:space="preserve">
+    <value>il modello non ha un bersaglio</value>
+  </data>
+  <data name="Trad_SenzaBlocchi" xml:space="preserve">
+    <value>il modello non porta blocchi di ripresa</value>
+  </data>
+  <data name="Trad_SenzaDurata" xml:space="preserve">
+    <value>{0}: senza durata della posa</value>
+  </data>
+  <data name="Trad_SenzaFiltro" xml:space="preserve">
+    <value>{0}: nessun filtro indicato, si riprende con quello montato</value>
+  </data>
+  <data name="Trad_SenzaNome" xml:space="preserve">
+    <value>senza nome</value>
+  </data>
+  <data name="Trad_SenzaNumero" xml:space="preserve">
+    <value>{0}: senza numero di pose</value>
+  </data>
+  <data name="Vetri_CanaliDiscordi" xml:space="preserve">
+    <value>I canali di questo blocco dichiarano vetri diversi ({0}): non c'e' un filtro solo che li copra, e sceglierne uno a caso vorrebbe dire riprendere col vetro sbagliato senza dirlo.</value>
+  </data>
+  <data name="Vetri_NonDichiarato" xml:space="preserve">
+    <value>La risposta non dice quale vetro sia stato usato per {0}.</value>
+  </data>
+  <data name="Vm_SenzaMediatore" xml:space="preserve">
+    <value>N.I.N.A. non ha fornito il mediatore delle sequenze.</value>
+  </data>
+  <data name="Vm_SenzaMontatore" xml:space="preserve">
+    <value>Il montatore non e' stato costruito.</value>
+  </data>
+</root>

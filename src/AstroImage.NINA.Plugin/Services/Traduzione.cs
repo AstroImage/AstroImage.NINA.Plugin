@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using AstroImage.NINA.Plugin.Models;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -42,7 +43,7 @@ namespace AstroImage.NINA.Plugin.Services {
         /// </summary>
         public static Ricetta Traduci(SequenceModel? m) {
             var r = new Ricetta();
-            if (m is null) { r.Scartati.Add("nessun modello da tradurre"); return r; }
+            if (m is null) { r.Scartati.Add(Loc.T("Trad_NessunModello")); return r; }
 
             r.Nome = NomeSequenza(m);
 
@@ -52,9 +53,9 @@ namespace AstroImage.NINA.Plugin.Services {
              *  le proprie coordinate dai gradi e una conversione in meno e' un errore
              *  in meno. */
             var b = m.Bersaglio;
-            if (b is null) r.Scartati.Add("il modello non ha un bersaglio");
+            if (b is null) r.Scartati.Add(Loc.T("Trad_SenzaBersaglio"));
             else {
-                r.NomeBersaglio = b.Nome ?? m.Nome ?? "senza nome";
+                r.NomeBersaglio = b.Nome ?? m.Nome ?? Loc.T("Trad_SenzaNome");
                 r.RaGradi = b.RaDeg;
                 r.DecGradi = b.DecDeg;
                 r.AngoloDiPosa = b.Rot;
@@ -65,14 +66,14 @@ namespace AstroImage.NINA.Plugin.Services {
              *  senza binning: 1x1 e' l'unica lettura sensata di «non dichiarato», ed e'
              *  una scelta di traduzione, non un valore inventato dal nulla. */
             r.Binning = m.Ottica?.Bin ?? 1;
-            if (m.Ottica?.Bin is null) r.Note.Add("binning non dichiarato: si riprende 1x1");
+            if (m.Ottica?.Bin is null) r.Note.Add(Loc.T("Trad_BinningNonDichiarato"));
 
             /*  LE CAPACITA'. Se `cap` manca non si suppone niente: si costruiscono le
              *  sole riprese. Sei dichiarazioni assenti non sono sei dichiarazioni false,
              *  ma il risultato operativo e' lo stesso e almeno non si comanda un
              *  focheggiatore che non c'e'. */
             var c = m.Cap;
-            if (c is null) r.Note.Add("capacita' del banco non dichiarate: si costruiscono le sole riprese");
+            if (c is null) r.Note.Add(Loc.T("Trad_BancoNonDichiarato"));
             r.Raffredda = c?.Raffredda ?? false;
             r.CambiaFiltro = c?.Ruota ?? false;
             r.Focheggia = c?.Focheggiatore ?? false;
@@ -92,9 +93,9 @@ namespace AstroImage.NINA.Plugin.Services {
                 if (double.IsFinite(ogni) && ogni >= 0.5) {
                     r.DitherOgniPose = Math.Max(1, (int)Math.Round(ogni, MidpointRounding.AwayFromZero));
                     if (Math.Abs(r.DitherOgniPose.Value - ogni) > 1e-9)
-                        r.Note.Add($"dithering ogni {Testo(ogni)} pose arrotondato a {r.DitherOgniPose}");
+                        r.Note.Add(Loc.F("Trad_DitherArrotondato", Testo(ogni), r.DitherOgniPose));
                 } else {
-                    r.Scartati.Add($"dithering ogni {Testo(ogni)} pose: non e' un numero di pose, non si applica");
+                    r.Scartati.Add(Loc.F("Trad_DitherNonNumero", Testo(ogni)));
                 }
             }
 
@@ -106,11 +107,11 @@ namespace AstroImage.NINA.Plugin.Services {
                     /*  Una posa che manca non diventa zero secondi. Sarebbe l'errore piu'
                      *  silenzioso possibile: la sequenza parte, scatta, e non c'e' niente
                      *  nei file. */
-                    r.Scartati.Add($"{eti}: senza durata della posa");
+                    r.Scartati.Add(Loc.F("Trad_SenzaDurata", eti));
                     continue;
                 }
                 if (blocco.N is null || blocco.N.Value <= 0) {
-                    r.Scartati.Add($"{eti}: senza numero di pose");
+                    r.Scartati.Add(Loc.F("Trad_SenzaNumero", eti));
                     continue;
                 }
 
@@ -134,11 +135,11 @@ namespace AstroImage.NINA.Plugin.Services {
                 });
 
                 if (r.CambiaFiltro && string.IsNullOrWhiteSpace(blocco.Filtro))
-                    r.Note.Add($"{eti}: nessun filtro indicato, si riprende con quello montato");
+                    r.Note.Add(Loc.F("Trad_SenzaFiltro", eti));
             }
 
             if (r.Blocchi.Count == 0 && r.Scartati.Count == 0)
-                r.Scartati.Add("il modello non porta blocchi di ripresa");
+                r.Scartati.Add(Loc.T("Trad_SenzaBlocchi"));
 
             /*  Le anomalie che il motore aveva gia' dichiarato viaggiano fin qui: non
              *  sono un problema del ponte, ma chi guarda la sequenza deve poterle
@@ -156,7 +157,7 @@ namespace AstroImage.NINA.Plugin.Services {
         /// </summary>
         public static string NomeSequenza(SequenceModel m) {
             if (!string.IsNullOrWhiteSpace(m.Nome)) return m.Nome!;
-            var nome = m.Bersaglio?.Nome ?? "senza nome";
+            var nome = m.Bersaglio?.Nome ?? Loc.T("Trad_SenzaNome");
             var quando = m.Quando?.Data;
             var notte = m.Notte;
             var pezzi = new List<string> { nome };

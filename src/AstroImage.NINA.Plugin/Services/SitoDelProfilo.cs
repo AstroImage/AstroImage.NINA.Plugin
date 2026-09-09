@@ -2,6 +2,7 @@ using System;
 using AstroImage.NINA.Plugin.Models;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Profile.Interfaces;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -43,8 +44,7 @@ namespace AstroImage.NINA.Plugin.Services {
 
             var a = Protetto(() => profilo?.ActiveProfile?.AstrometrySettings);
             if (a is null) {
-                perCheNo = "Il profilo attivo di N.I.N.A. non dichiara una posizione. " +
-                           "Impostala in Opzioni → Generale → Posizione.";
+                perCheNo = Loc.T("Sito_ProfiloSenzaPosizione");
                 return s;
             }
 
@@ -64,10 +64,7 @@ namespace AstroImage.NINA.Plugin.Services {
              *  un decimale, e chi non l'ha ha comunque una longitudine. */
             if (lat is null || lon is null ||
                 (Math.Abs(lat.Value) < 1e-9 && Math.Abs(lon.Value) < 1e-9)) {
-                perCheNo = "Il profilo di N.I.N.A. dice latitudine 0 e longitudine 0, che e' " +
-                           "il valore di un profilo mai configurato — non una posizione. " +
-                           "Impostala in Opzioni → Generale, altrimenti la notte verrebbe " +
-                           "calcolata per il Golfo di Guinea.";
+                perCheNo = Loc.T("Sito_ZeroZero");
                 return s;
             }
             s.Lat = lat;

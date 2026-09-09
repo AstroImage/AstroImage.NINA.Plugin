@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Reflection;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -60,21 +61,17 @@ namespace AstroImage.NINA.Plugin.Services {
             perCheNo = null;
             var v = Leggi(o, proprieta);
             if (v is null) {
-                perCheNo = $"{cosa}: non si e' potuto rileggere «{proprieta}» dopo averlo scritto, " +
-                           "quindi non si puo' garantire che il valore sia arrivato.";
+                perCheNo = Loc.F("Garanzia_NonRiletto", cosa, proprieta);
                 return false;
             }
             double letto;
             try { letto = Convert.ToDouble(v, CultureInfo.InvariantCulture); }
             catch (Exception) {
-                perCheNo = $"{cosa}: «{proprieta}» non e' un numero ({v}).";
+                perCheNo = Loc.F("Garanzia_NonNumero", cosa, proprieta, v);
                 return false;
             }
             if (Math.Abs(letto - atteso) > tolleranza) {
-                perCheNo = $"{cosa}: chiesto {Testo(atteso)}, l'oggetto dice {Testo(letto)}. " +
-                           "Il valore non ha attecchito e il blocco non si consegna: una sequenza " +
-                           "che dice un numero diverso dalla prescrizione, guardandola, non si " +
-                           "distingue da una conforme.";
+                perCheNo = Loc.F("Garanzia_NumeroNonAttecchito", cosa, Testo(atteso), Testo(letto));
                 return false;
             }
             return true;
@@ -88,9 +85,8 @@ namespace AstroImage.NINA.Plugin.Services {
         public static bool Parola(string? letto, string? atteso, string cosa, out string? perCheNo) {
             perCheNo = null;
             if (string.Equals(letto?.Trim(), atteso?.Trim(), StringComparison.OrdinalIgnoreCase)) return true;
-            perCheNo = $"{cosa}: chiesto «{atteso ?? "(niente)"}», l'oggetto dice " +
-                       $"«{letto ?? "(niente)"}». Il blocco non si consegna: riprendere col vetro " +
-                       "sbagliato non si recupera.";
+            perCheNo = Loc.F("Garanzia_ParolaNonAttecchita", cosa,
+                             atteso ?? Loc.T("Garanzia_Niente"), letto ?? Loc.T("Garanzia_Niente"));
             return false;
         }
 

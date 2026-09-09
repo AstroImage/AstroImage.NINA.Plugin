@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -116,15 +117,11 @@ namespace AstroImage.NINA.Plugin.Services {
             }
 
             if (discordi.Count > 0) {
-                perche = "I canali di questo blocco dichiarano vetri diversi (" +
-                         string.Join(", ", discordi) + "): non c'e' un filtro solo che li " +
-                         "copra, e sceglierne uno a caso vorrebbe dire riprendere col vetro " +
-                         "sbagliato senza dirlo.";
+                perche = Loc.F("Vetri_CanaliDiscordi", string.Join(", ", discordi));
                 return null;
             }
             if (scelto is null && senza.Count > 0)
-                perche = "La risposta non dice quale vetro sia stato usato per " +
-                         string.Join(", ", senza) + ".";
+                perche = Loc.F("Vetri_NonDichiarato", string.Join(", ", senza));
             return scelto;
         }
     }

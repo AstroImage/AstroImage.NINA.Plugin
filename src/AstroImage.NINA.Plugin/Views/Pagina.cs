@@ -92,9 +92,27 @@ namespace AstroImage.NINA.Plugin.Views {
   }
   window.chrome.webview.addEventListener('message', ev => {
     let r; try { r = JSON.parse(ev.data); } catch (e) { return; }
+    /* L'OSPITE PUO' PARLARE PER PRIMO, e finora non lo faceva mai: ogni messaggio era
+       la risposta a una domanda. Il cambio lingua e' l'unica cosa che succede senza che
+       la pagina l'abbia chiesta, e senza questo ramo resterebbe scritta nella lingua di
+       prima finche' non la si chiude e riapre — che a chi gira l'interruttore sembra un
+       plugin rotto, non un limite. */
+    if (r && r.evento === 'lingua') { ridisegna(); return; }
     const f = attese.get(r.id); if (!f) return;
     attese.delete(r.id); f(r);
   });
+
+  /* SI RICHIEDE, NON SI TRADUCE QUI. Le frasi che cambiano lingua nascono nel C#, e
+     l'unico modo di riaverle nella lingua nuova e' chiederle di nuovo. Sito e filtri
+     si possono richiedere quanto si vuole: sono letture.
+     La prescrizione NO, e non e' una dimenticanza. Chiederla di nuovo vorrebbe dire
+     una chiamata al motore e forse numeri diversi, per aver girato un interruttore
+     della lingua. Cio' che e' gia' sullo schermo e' il resoconto di una cosa
+     avvenuta: resta nella lingua in cui e' avvenuta, e la prossima esce nell'altra. */
+  function ridisegna() {
+    chiedi('sito').then(r => { if (r.ok) disegnaSito(r); });
+    chiedi('filtri').then(r => { if (r.ok) disegnaRuota(r); });
+  }
 
   const stato = (t, c) => { const s = $('stato'); s.textContent = t; s.className = 'stato ' + (c || ''); };
   const esc = s => String(s).replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c]));
@@ -425,8 +443,7 @@ namespace AstroImage.NINA.Plugin.Views {
     });
   }
 
-  chiedi('sito').then(r => { if (r.ok) disegnaSito(r); });
-  chiedi('filtri').then(r => { if (r.ok) disegnaRuota(r); });
+  ridisegna();
 </script>
 """;
     }

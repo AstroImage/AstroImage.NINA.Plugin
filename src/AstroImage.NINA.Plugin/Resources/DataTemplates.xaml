@@ -17,10 +17,13 @@
         Per questo il nome del plugin e' scritto in ASCII puro: un trattino lungo o una
         lettera accentata scritti diversamente nei due posti costano una serata.
 
-        Il DataContext che N.I.N.A. mette qui e' l'istanza del plugin stessa.
+        Il DataContext che N.I.N.A. mette qui e' l'istanza del plugin stessa, e da li'
+        si scende sulle sue Impostazioni: e' quello che la pagina deve poter scrivere.
+        Senza questo passaggio la tendina della lingua si vedrebbe e non salverebbe
+        niente, senza dare nessun errore.
     -->
     <DataTemplate x:Key="AstroImage Strategy Bridge_Options">
-        <options:BridgeOptionsView />
+        <options:BridgeOptionsView DataContext="{Binding Impostazioni}" />
     </DataTemplate>
 
     <!--

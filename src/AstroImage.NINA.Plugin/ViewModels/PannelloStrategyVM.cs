@@ -12,6 +12,7 @@ using NINA.Profile;
 using NINA.Profile.Interfaces;
 using NINA.Sequencer.Interfaces.Mediator;
 using NINA.WPF.Base.ViewModel;
+using AstroImage.NINA.Plugin.Localization;
 
 namespace AstroImage.NINA.Plugin.ViewModels {
 
@@ -58,7 +59,7 @@ namespace AstroImage.NINA.Plugin.ViewModels {
          *  sistema. La casa definitiva sara' la pagina delle Opzioni; questo e' il
          *  ponteggio, e si comporta come un ponteggio — se non c'e', si torna a casa. */
         private static string RadiceInUso(out string da) {
-            da = "valore predefinito";
+            da = "built-in default";
             try {
                 var accanto = Path.GetDirectoryName(typeof(PannelloStrategyVM).Assembly.Location);
                 if (accanto is null) return RadiceDiProva;
@@ -73,13 +74,13 @@ namespace AstroImage.NINA.Plugin.ViewModels {
                 if (!scritto.EndsWith("/")) scritto += "/";
                 if (!Uri.TryCreate(scritto, UriKind.Absolute, out var u)
                         || (u.Scheme != Uri.UriSchemeHttp && u.Scheme != Uri.UriSchemeHttps)) {
-                    da = $"il file {FileIndirizzo} dice «{scritto}», che non e' un indirizzo http: ignorato";
+                    da = $"file {FileIndirizzo} says «{scritto}», which is not an http address: ignored";
                     return RadiceDiProva;
                 }
                 da = FileIndirizzo;
                 return u.ToString();
             } catch (Exception e) {
-                da = $"il file {FileIndirizzo} non si e' potuto leggere ({e.Message}): ignorato";
+                da = $"file {FileIndirizzo} could not be read ({e.Message}): ignored";
                 return RadiceDiProva;
             }
         }
@@ -133,8 +134,8 @@ namespace AstroImage.NINA.Plugin.ViewModels {
          *  comunque i modelli sono dell'utente, che ne aggiunge e ne toglie mentre il
          *  programma e' aperto: qualunque fotografia scattata all'avvio invecchia. */
         public string PerCheNonConsegna =>
-            Mediatore is null ? "N.I.N.A. non ha fornito il mediatore delle sequenze."
-            : Costruttore is null ? "Il montatore non e' stato costruito."
+            Mediatore is null ? Loc.T("Vm_SenzaMediatore")
+            : Costruttore is null ? Loc.T("Vm_SenzaMontatore")
             : !Fonte.Disponibile ? Fonte.PerCheNo
             : null;
 
@@ -168,11 +169,11 @@ namespace AstroImage.NINA.Plugin.ViewModels {
             var accanto = Path.GetDirectoryName(typeof(PannelloStrategyVM).Assembly.Location);
             Filtri = MappaFiltri.Leggi(accanto, out var notaF);
             NotaFiltri = notaF;
-            Logger.Info($"[AstroImage] mappa dei filtri: {Filtri.Count} voci" +
+            Logger.Info($"[AstroImage] filter map: {Filtri.Count} entries" +
                         (notaF is null ? "" : " — " + notaF));
 
             Radice = RadiceInUso(out var daDove);
-            Logger.Info($"[AstroImage] motore su {Radice} (da {daDove})");
+            Logger.Info($"[AstroImage] engine at {Radice} (from {daDove})");
             Cliente = new ClienteStrategy(Trasporto, new Uri(Radice));
 
             Mediatore = mediatore;
@@ -206,13 +207,13 @@ namespace AstroImage.NINA.Plugin.ViewModels {
                 memoria = new MemoriaNelProfilo(
                     new PluginOptionsAccessor(profileService, Guid.Parse(IdentitaPlugin)));
             } catch (Exception e) {
-                Logger.Warning("[AstroImage] impostazioni del plugin non disponibili: " + e.Message);
+                Logger.Warning("[AstroImage] plugin settings not available: " + e.Message);
                 memoria = new MemoriaAssente();
             }
             Memoria = memoria;
             Dichiarazione = DichiarazioneRuota.Leggi(Memoria.Leggi(MemoriaNelProfilo.ChiaveRuota), out var notaR);
             NotaDichiarazione = notaR;
-            Logger.Info($"[AstroImage] ruota virtuale: {DichiarazioneRuota.IdDichiarati(Dichiarazione).Count} filtri dichiarati" +
+            Logger.Info($"[AstroImage] virtual wheel: {DichiarazioneRuota.IdDichiarati(Dichiarazione).Count} filters declared" +
                         (notaR is null ? "" : " — " + notaR));
 
             /*  IL SITO. La geometria viene dal profilo — latitudine e longitudine, che
@@ -227,8 +228,8 @@ namespace AstroImage.NINA.Plugin.ViewModels {
             SitoScritto = DichiarazioneSito.Leggi(Memoria.Leggi(MemoriaNelProfilo.ChiaveSito), out var notaS);
             NotaSito = notaS;
             var letto = Sito.Leggi(out var perCheSito);
-            Logger.Info("[AstroImage] sito: " + (perCheSito ?? $"lat {letto.Lat}, lon {letto.Lon}" +
-                        (letto.Sqm is null ? ", SQM non misurato" : $", SQM {letto.Sqm} misurato")) +
+            Logger.Info("[AstroImage] site: " + (perCheSito ?? $"lat {letto.Lat}, lon {letto.Lon}" +
+                        (letto.Sqm is null ? ", SQM not measured" : $", SQM {letto.Sqm} measured")) +
                         (notaS is null ? "" : " — " + notaS));
         }
 

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using AstroImage.NINA.Plugin.Models;
+using AstroImage.NINA.Plugin.Localization;
 
 #nullable enable
 
@@ -74,20 +75,19 @@ namespace AstroImage.NINA.Plugin.Services {
 
             if (_esito is null || _id is null) {
                 codice = "nessuna_prescrizione";
-                motivo = "Non c'e' nessuna prescrizione da mandare: chiedine una prima.";
+                motivo = Loc.T("Presc_Nessuna");
                 return null;
             }
             if (string.IsNullOrEmpty(id) || !string.Equals(id, _id, StringComparison.Ordinal)) {
                 codice = "prescrizione_scaduta";
-                motivo = "Quella riga viene da una prescrizione precedente. Il ponte non manda " +
-                         "l'oggetto sbagliato con il nome giusto: chiedi di nuovo e riprova.";
+                motivo = Loc.T("Presc_Scaduta");
                 return null;
             }
 
             var s = _esito.Sequenze.FirstOrDefault(x => x.Notte == notte);
             if (s is null) {
                 codice = "notte_assente";
-                motivo = $"La prescrizione non ha una notte {notte}: ne ha {_esito.Sequenze.Count}.";
+                motivo = Loc.F("Presc_NotteAssente", notte, _esito.Sequenze.Count);
                 return null;
             }
             if (s.Modello is null) {
@@ -95,7 +95,7 @@ namespace AstroImage.NINA.Plugin.Services {
                  *  dovrebbe arrivare mai. Resta perche' «non si dovrebbe arrivare mai»
                  *  e' esattamente la frase che precede un riferimento nullo. */
                 codice = "notte_senza_modello";
-                motivo = $"La notte {notte} e' arrivata senza modello: non c'e' niente da costruire.";
+                motivo = Loc.F("Presc_NotteSenzaModello", notte);
                 return null;
             }
             return s;

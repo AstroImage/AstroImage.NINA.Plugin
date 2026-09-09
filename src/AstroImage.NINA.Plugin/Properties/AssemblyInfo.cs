@@ -17,7 +17,11 @@ using System.Runtime.InteropServices;
 // combaciare con AssemblyTitle CARATTERE PER CARATTERE. Un trattino lungo scritto in un
 // posto e corto nell'altro produce una pagina opzioni vuota, senza nessun errore.
 [assembly: AssemblyTitle("AstroImage Strategy Bridge")]
-[assembly: AssemblyDescription("Ponte fra AstroImage-Strategy e il Sequenziatore Avanzato di N.I.N.A.")]
+// La descrizione breve e' quella che il catalogo mostra sotto il nome, ed e' in
+// inglese come tutto cio' che il registro pubblica: il catalogo lo apre gente in
+// mezzo mondo. Le parole dell'interfaccia stanno invece in Localization/, in due
+// lingue.
+[assembly: AssemblyDescription("Brings a prescription computed by AstroImage-Strategy into the N.I.N.A. Advanced Sequencer.")]
 [assembly: AssemblyCompany("Alessandro Curci")]
 [assembly: AssemblyProduct("AstroImage Strategy Bridge")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 Alessandro Curci")]
@@ -49,31 +53,32 @@ using System.Runtime.InteropServices;
  *  montatura vera. Un testo falso lasciato li' diventa un testo che nessuno rilegge:
  *  va corretto quando cambia il fatto, non alla vigilia della candidatura. */
 [assembly: AssemblyMetadata("LongDescription",
-    "Porta dentro N.I.N.A. la prescrizione prodotta da AstroImage-Strategy.\n\n" +
-    "Strategy decide che cosa riprendere — quali canali, quante ore, quale posa, quale " +
-    "modo di guadagno — a partire dalla fisica del soggetto, dal sensore, dai filtri " +
-    "montati e dal cielo. Questo ponte non decide niente: riceve la prescrizione gia' " +
-    "presa e la costruisce nel Sequenziatore Avanzato. Non avvia mai niente: a premere " +
-    "Riproduci sei tu.\n\n" +
-    "TI SERVE ANCHE IL MOTORE. Da solo questo plugin non fa niente: dall'altra parte " +
-    "deve esserci AstroImage-Strategy che risponde su una porta HTTP. Senza, il " +
-    "pannello si apre e dice che il motore non risponde.\n\n" +
-    "CHE COSA SA FARE. Chiede una prescrizione e la mostra; fa dichiarare quali filtri " +
-    "hai davvero in ruota, una volta per profilo di N.I.N.A.; costruisce il bersaglio " +
-    "nel Sequenziatore Avanzato con posa, numero di pose, guadagno e filtro presi dalla " +
-    "prescrizione. Se un valore non arriva dove doveva, il bersaglio non si consegna e " +
-    "il motivo si legge: una sequenza che non rispetta la prescrizione, guardandola, non " +
-    "si distingue da una che la rispetta.\n\n" +
-    "L'IDEA. Pianificare una sessione non e' consultare una tabella di consigli: e' " +
-    "ricavare una conseguenza dalla fisica del soggetto, dal sensore utilizzato, dal " +
-    "filtro impiegato e dal cielo di quella notte. Da qui tre regole: ogni numero si " +
-    "porta dietro da dove viene, e dove la misura non esiste si dice che non esiste; " +
-    "non si deduce ma si dichiara, perche' dal nome di un filtro non escono nanometri; " +
-    "non si corregge mai in silenzio, perche' una sequenza che non rispetta la " +
-    "prescrizione, a guardarla, e' identica a una che la rispetta.\n\n" +
-    "CHI L'HA FATTO. Autore e manutentore: Alessandro Curci — sue l'idea, " +
-    "l'architettura, le decisioni e la verifica sul campo, e suo il motore scientifico " +
-    "a cui questo ponte si collega. La stesura del codice e' stata fatta in larga parte " +
-    "da un assistente di intelligenza artificiale (Claude, di Anthropic), su sua " +
-    "direzione e sotto la sua revisione: e' uno strumento con cui il codice e' stato " +
-    "scritto, non un autore del progetto.")]
+    "Brings into N.I.N.A. the prescription computed by AstroImage-Strategy.\n\n" +
+    "Strategy decides what to shoot \u2014 which channels, how many hours, what sub length, " +
+    "which gain mode \u2014 starting from the physics of the object, the sensor, the filters " +
+    "you actually have in the wheel and the sky above you. This bridge decides nothing: it " +
+    "takes a prescription that has already been worked out and builds it in the Advanced " +
+    "Sequencer. It never starts anything: pressing Play is your job.\n\n" +
+    "YOU ALSO NEED THE ENGINE. On its own this plugin does nothing: on the other side " +
+    "there must be AstroImage-Strategy answering on an HTTP port. Without it the panel " +
+    "opens and tells you the engine is not answering.\n\n" +
+    "WHAT IT DOES. It asks for a prescription and shows it; it lets you declare which " +
+    "filters are really in your wheel, once per N.I.N.A. profile; it builds the target in " +
+    "the Advanced Sequencer with the exposure time, the number of exposures, the gain and " +
+    "the filter taken from the prescription. If a value does not land where it should, the " +
+    "target is not delivered and you are told why: a sequence that does not follow the " +
+    "prescription looks, at a glance, exactly like one that does.\n\n" +
+    "THE IDEA. Planning a session is not reading a table of tips: it is working out a " +
+    "consequence from the physics of the object, the sensor in use, the filter in front of " +
+    "it and the sky of that particular night. Three rules follow from that. Every number " +
+    "carries where it came from, and where a measurement does not exist the plugin says so " +
+    "instead of inventing one. Nothing is inferred and everything is declared, because a " +
+    "filter name does not yield nanometres. And nothing is ever corrected in silence, " +
+    "because a sequence that departs from the prescription is indistinguishable, on " +
+    "screen, from one that follows it.\n\n" +
+    "WHO MADE IT. Author and maintainer: Alessandro Curci \u2014 his are the idea, the " +
+    "architecture, the decisions and the testing under real skies, and his is the " +
+    "scientific engine this bridge connects to. The code was largely written by an " +
+    "artificial intelligence assistant (Claude, by Anthropic) under his direction and his " +
+    "review: a tool the code was written with, not an author of the project.\n\n" +
+    "LANGUAGE. The panel speaks English, and Italian when N.I.N.A. is set to Italian.")]
