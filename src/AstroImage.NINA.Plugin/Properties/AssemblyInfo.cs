@@ -44,11 +44,28 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyMetadata("FeaturedImageURL", "")]
 [assembly: AssemblyMetadata("ScreenshotURL", "")]
 [assembly: AssemblyMetadata("AltScreenshotURL", "")]
+/*  LA DESCRIZIONE E' LA PRIMA COSA CHE UN REVISORE LEGGE, e per nove commit ha detto
+ *  «questa versione non fa ancora nulla» mentre il ponte consegnava bersagli su una
+ *  montatura vera. Un testo falso lasciato li' diventa un testo che nessuno rilegge:
+ *  va corretto quando cambia il fatto, non alla vigilia della candidatura. */
 [assembly: AssemblyMetadata("LongDescription",
     "Porta dentro N.I.N.A. la prescrizione prodotta da AstroImage-Strategy.\n\n" +
     "Strategy decide che cosa riprendere — quali canali, quante ore, quale posa, quale " +
     "modo di guadagno — a partire dalla fisica del soggetto, dal sensore, dai filtri " +
     "montati e dal cielo. Questo ponte non decide niente: riceve la prescrizione gia' " +
-    "presa e la costruisce nel Sequenziatore Avanzato.\n\n" +
-    "SCHELETRO. Questa versione non fa ancora nulla: esiste per fissare l'identita' del " +
-    "plugin, i suoi punti di innesto e il confine con il motore, che resta fuori.")]
+    "presa e la costruisce nel Sequenziatore Avanzato. Non avvia mai niente: a premere " +
+    "Riproduci sei tu.\n\n" +
+    "TI SERVE ANCHE IL MOTORE. Da solo questo plugin non fa niente: dall'altra parte " +
+    "deve esserci AstroImage-Strategy che risponde su una porta HTTP. Senza, il " +
+    "pannello si apre e dice che il motore non risponde.\n\n" +
+    "CHE COSA SA FARE. Chiede una prescrizione e la mostra; fa dichiarare quali vetri " +
+    "hai davvero in ruota, una volta per profilo di N.I.N.A.; costruisce il bersaglio " +
+    "nel Sequenziatore Avanzato con posa, numero di pose, guadagno e filtro presi dalla " +
+    "prescrizione. Se un valore non arriva dove doveva, il bersaglio non si consegna e " +
+    "il motivo si legge: una sequenza che non rispetta la prescrizione, guardandola, non " +
+    "si distingue da una che la rispetta.\n\n" +
+    "CHI L'HA FATTO. Autore e manutentore: Alessandro Curci — sue l'architettura, le " +
+    "decisioni di progetto e la verifica sul campo, e suo il motore che rende utile " +
+    "questo ponte. La stesura del codice e' stata fatta in larga parte da un assistente " +
+    "di intelligenza artificiale (Claude, di Anthropic), su sua direzione e sotto la sua " +
+    "revisione; ogni commit lo dichiara con un trailer Co-Authored-By.")]
