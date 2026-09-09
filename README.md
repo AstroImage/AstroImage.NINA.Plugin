@@ -25,61 +25,116 @@ passa dentro è un'altra cosa.
 
 ## L'idea
 
-Il progetto nasce da una convinzione precisa: **la pianificazione di una ripresa non è
-una tabella di consigli, è una conseguenza.** Conseguenza della fisica del soggetto, del
-sensore che hai, del vetro che hai davanti e del cielo di quella notte in quel posto. Se
-si parte da lì, la domanda «quante ore di Ha su questo oggetto» ha una risposta che si
-può derivare e discutere — non una regola del pollice da ripetere.
+Il progetto nasce da una convinzione precisa: **pianificare una sessione non è
+consultare una tabella di consigli, è ricavare una conseguenza.** Conseguenza della
+fisica del soggetto, del sensore utilizzato, del filtro impiegato e del cielo di quella
+notte in quel luogo. Partendo da lì, «quante ore di Ha su questo oggetto» smette di
+essere una regola empirica e diventa un numero che si può ricavare, mostrare e
+contestare.
 
-Da questa premessa discendono tre regole che si ritrovano in ogni file di entrambi i
+Da questa premessa discendono tre regole che si ritrovano in ogni file dei due
 repository, e che non sono scelte di programmazione:
 
-**Ogni numero porta la sua provenienza.** Nel motore un valore misurato non si confonde
-con uno derivato né con una stima: `fonte`, `confidenza`, `derivazione` e dominio di
-validità viaggiano accanto al dato. Dove la misura non c'è, si dichiara che non c'è —
-non si inventa un coefficiente plausibile.
+**Ogni numero si porta dietro da dove viene.** Un valore misurato non si confonde con
+uno ricavato né con una stima: la fonte, quanto è attendibile, come è stato ottenuto ed
+entro quali limiti vale viaggiano insieme al dato. Dove la misura non esiste, si dice
+che non esiste — non le si sostituisce un coefficiente verosimile.
 
-**Non si deduce, si dichiara.** Dal nome di un filtro non escono nanometri: «HA» può
-stare davanti a un L-Ultimate, e solo chi l'ha comprato sa che cos'è. Per questo il
-ponte fa dichiarare i vetri invece di indovinarli, e non fa mai analisi dei nomi.
+**Non si deduce, si dichiara.** Dal nome di un filtro non escono nanometri: uno slot
+scritto «HA» può avere montato un L-Ultimate, e lo sa solo chi l'ha comprato. Per questo
+il ponte fa dichiarare i filtri invece di indovinarli, e non prova mai a interpretarne
+il nome.
 
-**Si rifiuta, non si sostituisce in silenzio.** È la regola che decide di più:
-*una sequenza che non rispetta la prescrizione, guardandola, non si distingue da una che
-la rispetta.* Fra saltare un blocco e rifiutare tutto vince l'asimmetria del danno — un
-rifiuto si corregge in un clic, cinque ore riprese col vetro sbagliato non si
-recuperano. Da qui vengono tutti i rifiuti di questo codice, e anche la scelta di quali
-NON meritano un rifiuto.
+**Si rifiuta, non si corregge in silenzio.** È la regola che pesa di più: *una sequenza
+che non rispetta la prescrizione, a guardarla, è identica a una che la rispetta.* Fra
+saltare un blocco e rifiutare tutto decide l'asimmetria del danno — un rifiuto lo
+correggi in un clic, cinque ore riprese con il filtro sbagliato non le recuperi. Da qui
+viene ogni rifiuto di questo codice, e anche la scelta di quali errori **non** ne
+meritino uno.
 
 ## Chi l'ha fatto, e come
 
-**Autore e manutentore: Alessandro Curci.** Sono sue l'idea sopra e le regole che ne
+**Autore e manutentore: Alessandro Curci.** Sono sue l'idea qui sopra e le regole che ne
 discendono, l'architettura, le decisioni di progetto e la verifica sul campo; ed è suo
-il motore — il modello fisico, il catalogo curato, la disciplina della provenienza —
-cioè tutto ciò che rende utile questo ponte.
+il motore — il modello fisico, il catalogo curato e la disciplina della provenienza —
+che costituisce la parte scientifica e decisionale alla quale questo ponte si collega, e
+che **non è contenuta in questo repository**.
 
 La stesura del codice è stata fatta **in larga parte da un assistente di intelligenza
-artificiale** (Claude, di Anthropic), su sua direzione e sotto la sua revisione. Ogni
-commit lo dichiara con un trailer `Co-Authored-By`.
+artificiale** (Claude, di Anthropic), su sua direzione e sotto la sua revisione.
+L'assistente è uno strumento con cui il codice è stato scritto, **non un autore del
+progetto**: l'idea, la linea scientifica, l'architettura, le decisioni e la
+responsabilità sono del manutentore.
 
-La divisione del lavoro è stata questa, ed è verificabile nella storia del repository:
-dove passa il confine col motore, che cosa fa rifiutare una consegna e che cosa no, se
-il dither sia una prescrizione o un'impostazione, come si dichiara un filtro — sono
-decisioni prese dal manutentore, in più di un caso **contro** la prima proposta
-dell'assistente. E i difetti che contavano — il filtro sostituito in silenzio, il dither
-ereditato dal modello, il numero di pose che N.I.N.A. 3.3 non lasciava scrivere — li ha
-trovati il suo banco con montatura e filtri veri, non il laboratorio.
+Ogni commit riporta un trailer `Co-Authored-By`. È la convenzione con cui git registra
+chi ha contribuito alla stesura di quel commit, e serve alla tracciabilità che il
+catalogo dei plugin richiede: non attribuisce la paternità del progetto.
 
-La dichiarazione non è una formalità: il catalogo dei plugin di N.I.N.A. chiede che
-l'uso sostanziale dell'IA sia dichiarato e che ogni plugin abbia un manutentore umano
-responsabile, capace di spiegare e mantenere il codice. È anche la ragione per cui i
-commenti qui dentro sono così fitti: ogni scelta non ovvia porta scritto accanto il
-perché, spesso con il difetto che l'ha causata — perché il codice va difeso da chi lo
-mantiene, non da chi l'ha battuto.
+Come si sono divise le parti è verificabile nella storia del repository. Dove passa il
+confine con il motore, che cosa fa rifiutare una consegna e che cosa no, se il dither
+sia una prescrizione o un'impostazione, come si dichiara un filtro: sono decisioni del
+manutentore, in più di un caso prese **contro** la prima proposta dell'assistente. E i
+difetti che contavano — il filtro sostituito in silenzio, il dither ereditato dal
+template, il numero di pose che N.I.N.A. 3.3 non lasciava scrivere — li ha trovati il
+suo setup con montatura e filtri veri, non il banco di prova.
+
+## The idea
+
+The project starts from one conviction: **planning a session isn't looking up a table of
+recommendations — it's deriving a consequence.** A consequence of the target's physics,
+of the camera and sensor in use, of the filter in front of it, and of the sky over that
+site on that night. Start there, and "how many hours of Ha on this object" stops being a
+rule of thumb: it becomes a number you can derive, show, and argue with.
+
+Three rules follow from that premise. They show up in every file of both repositories,
+and none of them is a programming decision:
+
+**Every number carries where it came from.** A measured value is never conflated with a
+derived one or an estimate: source, confidence, how it was obtained and where it stops
+being valid all travel with the data. Where no measurement exists, the code says so — it
+does not substitute a plausible coefficient.
+
+**Nothing is inferred; everything is declared.** Nanometres don't come out of a filter's
+name: a slot labelled "HA" may well hold an L-Ultimate, and only the person who bought
+it knows. That's why the bridge makes you declare your filters instead of guessing them,
+and never tries to read meaning into their names.
+
+**It refuses rather than silently correcting.** This is the rule that decides the most:
+*a sequence that doesn't match the prescription looks exactly like one that does.*
+Between skipping a block and refusing the whole target, the asymmetry of harm decides —
+a refusal costs one click to fix; five hours shot through the wrong filter cannot be
+recovered. Every refusal in this code comes from there — and so does the decision about
+which mistakes **don't** deserve one.
+
+## Who made it, and how
+
+**Author and maintainer: Alessandro Curci.** The idea above and the rules that follow
+from it are his, as are the architecture, the design decisions and the field
+verification. So is the engine — the physical model, the curated catalogue, the
+provenance discipline — which is the scientific and decision-making component this
+bridge connects to, and which **is not contained in this repository**.
+
+The code itself was written **largely by an AI assistant** (Claude, by Anthropic), under
+his direction and review. The assistant is a tool the code was written with, **not an
+author of the project**: the idea, the scientific approach, the architecture, the
+decisions and the responsibility are the maintainer's.
+
+Every commit carries a `Co-Authored-By` trailer. That is git's convention for recording
+who contributed to writing a given commit, and it serves the traceability the plugin
+registry asks for; it does not assign authorship of the project.
+
+How the work divided is verifiable in the repository history. Where the boundary with
+the engine runs, what makes a delivery fail and what doesn't, whether dithering is a
+prescription or a preference, how a filter gets declared: those are the maintainer's
+calls, in more than one case made **against** the assistant's first proposal. And the
+defects that mattered — the silently substituted filter, the dither inherited from the
+template, the frame count N.I.N.A. 3.3 wouldn't let us write — were found by his rig,
+with a real mount and real filters, not by the test bench.
 
 ## Che cosa fa, e che cosa non fa
 
 AstroImage-Strategy decide **che cosa riprendere**: quali canali hanno senso su quel
-soggetto con quel sensore e quel vetro, quante ore a ciascuno, quale posa, quale modo di
+soggetto con quel sensore e quel filtro, quante ore a ciascuno, quale posa, quale modo di
 guadagno. Lo decide dalla fisica — brillanza del soggetto, fondo cielo, rumore di
 lettura, pozzetto, saturazione, campionamento.
 

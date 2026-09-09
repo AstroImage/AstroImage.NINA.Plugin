@@ -58,23 +58,22 @@ using System.Runtime.InteropServices;
     "TI SERVE ANCHE IL MOTORE. Da solo questo plugin non fa niente: dall'altra parte " +
     "deve esserci AstroImage-Strategy che risponde su una porta HTTP. Senza, il " +
     "pannello si apre e dice che il motore non risponde.\n\n" +
-    "CHE COSA SA FARE. Chiede una prescrizione e la mostra; fa dichiarare quali vetri " +
+    "CHE COSA SA FARE. Chiede una prescrizione e la mostra; fa dichiarare quali filtri " +
     "hai davvero in ruota, una volta per profilo di N.I.N.A.; costruisce il bersaglio " +
     "nel Sequenziatore Avanzato con posa, numero di pose, guadagno e filtro presi dalla " +
     "prescrizione. Se un valore non arriva dove doveva, il bersaglio non si consegna e " +
     "il motivo si legge: una sequenza che non rispetta la prescrizione, guardandola, non " +
     "si distingue da una che la rispetta.\n\n" +
-    "L'IDEA. Pianificare una ripresa non e' consultare una tabella di consigli: e' " +
-    "derivare una conseguenza dalla fisica del soggetto, dal sensore che hai, dal vetro " +
-    "che hai davanti e dal cielo di quella notte. Da qui tre regole che si ritrovano in " +
-    "ogni file: ogni numero porta la sua provenienza e dove la misura non c'e' si " +
-    "dichiara che non c'e'; non si deduce ma si dichiara, perche' dal nome di un filtro " +
-    "non escono nanometri; e non si sostituisce mai in silenzio, perche' una sequenza " +
-    "che non rispetta la prescrizione, guardandola, non si distingue da una che la " +
-    "rispetta.\n\n" +
-    "CHI L'HA FATTO. Autore e manutentore: Alessandro Curci — sue l'idea e le regole " +
-    "che ne discendono, l'architettura, le decisioni di progetto e la verifica sul " +
-    "campo, e suo il motore che rende utile questo ponte. La stesura del codice e' " +
-    "stata fatta in larga parte da un assistente di intelligenza artificiale (Claude, " +
-    "di Anthropic), su sua direzione e sotto la sua revisione; ogni commit lo dichiara " +
-    "con un trailer Co-Authored-By.")]
+    "L'IDEA. Pianificare una sessione non e' consultare una tabella di consigli: e' " +
+    "ricavare una conseguenza dalla fisica del soggetto, dal sensore utilizzato, dal " +
+    "filtro impiegato e dal cielo di quella notte. Da qui tre regole: ogni numero si " +
+    "porta dietro da dove viene, e dove la misura non esiste si dice che non esiste; " +
+    "non si deduce ma si dichiara, perche' dal nome di un filtro non escono nanometri; " +
+    "non si corregge mai in silenzio, perche' una sequenza che non rispetta la " +
+    "prescrizione, a guardarla, e' identica a una che la rispetta.\n\n" +
+    "CHI L'HA FATTO. Autore e manutentore: Alessandro Curci — sue l'idea, " +
+    "l'architettura, le decisioni e la verifica sul campo, e suo il motore scientifico " +
+    "a cui questo ponte si collega. La stesura del codice e' stata fatta in larga parte " +
+    "da un assistente di intelligenza artificiale (Claude, di Anthropic), su sua " +
+    "direzione e sotto la sua revisione: e' uno strumento con cui il codice e' stato " +
+    "scritto, non un autore del progetto.")]
