@@ -158,7 +158,7 @@ namespace AstroImage.NINA.Plugin.Services {
              *  riordina niente. */
             var costruiti = 0;
             foreach (var b in ricetta.Blocchi) {
-                var r = Ripresa(b, ricetta.DitherOgniPose, out var perCheNoBlocco);
+                var r = Ripresa(b, ricetta.DitherOgniPose, ricetta.Note, out var perCheNoBlocco);
                 if (r is not null) { dso.Add(r); costruiti++; }
                 else ricetta.Scartati.Add($"{b.Etichetta}: " +
                     (perCheNoBlocco ?? "nessun blocco di ripresa disponibile da cui copiare la posa."));
@@ -198,11 +198,12 @@ namespace AstroImage.NINA.Plugin.Services {
         /// programmi invece di uno.
         /// </summary>
         /// <param name="perCheNo">
-        /// Perche' il blocco non si e' potuto costruire. Un motivo generico —
+        /// Perche il blocco non si e potuto costruire. Un motivo generico —
         /// «nessun blocco disponibile» — nasconderebbe il caso piu' insidioso, che e'
         /// il numero di pose che non attecchisce: vedi <see cref="Iterazioni"/>.
         /// </param>
-        private ISequenceItem? Ripresa(RicettaBlocco b, int? ditherOgniPose, out string? perCheNo) {
+        private ISequenceItem? Ripresa(RicettaBlocco b, int? ditherOgniPose,
+                                       List<string>? note, out string? perCheNo) {
             perCheNo = null;
             var se = fonte.Posa();
             if (se is null) {
@@ -304,13 +305,29 @@ namespace AstroImage.NINA.Plugin.Services {
                 !Garanzia.Parola(se.GetSwitchFilter()?.Filter?.Name, b.Filtro, "il filtro", out perCheNo))
                 return null;
 
-            /*  Il dither si verifica solo se doveva esserci. Quando non si dithera
-             *  l'innesco si toglie, e l'assenza e' l'esito giusto: verificarne il valore
-             *  su un oggetto rimosso non vorrebbe dire niente. */
+            /*  IL DITHER SI SEGNALA, NON FA RIFIUTARE, e la differenza sta in quanto
+             *  danno fa sbagliarlo.
+             *
+             *  Non e' una prescrizione: nel motore `ditherEvery` sta fra i valori
+             *  operativi dell'utente con un default di 2, e il motore lo LEGGE, non lo
+             *  calcola. Ma non e' nemmeno decorativo, perche' entra nel ciclo utile —
+             *  `duty = sqrt(t / (t + scarico + dither))` — cioe' nelle ore che la
+             *  prescrizione promette. Ditherare piu' spesso del previsto mangia
+             *  assestamento che il piano non aveva messo in conto.
+             *
+             *  Quindi si scrive, si verifica, e se non ha attecchito lo si DICE. Ma il
+             *  bersaglio si consegna lo stesso, perche' il danno non e' paragonabile:
+             *  un vetro sbagliato o una posa sbagliata rendono inservibili delle ore, un
+             *  dither ogni 3 invece che ogni 2 costa qualche punto percentuale di
+             *  ciclo utile e non compromette niente. Rifiutare cinque ore di ripresa per
+             *  quello sarebbe una sproporzione — e i rifiuti sproporzionati insegnano a
+             *  ignorare i rifiuti. */
             if (ditherOgniPose is int atteso && atteso > 0 &&
                 !Garanzia.Numero(se.GetDitherAfterExposures(), "AfterExposures", atteso,
-                                 "il dither", out perCheNo))
-                return null;
+                                 "il dither", out var perCheDither))
+                note?.Add($"Blocco «{b.Etichetta}»: {perCheDither} " +
+                          "Il bersaglio e' stato consegnato lo stesso — il dither non " +
+                          "compromette le riprese, ma le ore promesse lo davano per buono.");
 
             return se;
         }
