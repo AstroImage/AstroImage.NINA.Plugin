@@ -198,6 +198,216 @@
   <data name="Opzioni_ServeIlMotore" xml:space="preserve">
     <value>On its own this plugin does nothing: on the other side there must be AstroImage-Strategy answering on an HTTP port. Without it, the panel opens and tells you the engine is not answering.</value>
   </data>
+  <data name="Pag_AltezzaMinima" xml:space="preserve">
+    <value>minimum altitude</value>
+  </data>
+  <data name="Pag_BlocchiPose" xml:space="preserve">
+    <value>{0} blocks, {1} exposures.</value>
+  </data>
+  <data name="Pag_CalcolataDiSerie" xml:space="preserve">
+    <value>*the engine's stock filters*, not yours: declare your filters above and ask again.</value>
+  </data>
+  <data name="Pag_CalcolataTuaRuota" xml:space="preserve">
+    <value>*your wheel* — {0}</value>
+  </data>
+  <data name="Pag_ChiediPrescrizione" xml:space="preserve">
+    <value>Ask for a prescription</value>
+  </data>
+  <data name="Pag_ColBlocchi" xml:space="preserve">
+    <value>blocks</value>
+  </data>
+  <data name="Pag_ColData" xml:space="preserve">
+    <value>date</value>
+  </data>
+  <data name="Pag_ColDurata" xml:space="preserve">
+    <value>length</value>
+  </data>
+  <data name="Pag_ColEQuestoFiltro" xml:space="preserve">
+    <value>is this filter</value>
+  </data>
+  <data name="Pag_ColFiltri" xml:space="preserve">
+    <value>filters</value>
+  </data>
+  <data name="Pag_ColNomeNina" xml:space="preserve">
+    <value>name in N.I.N.A.</value>
+  </data>
+  <data name="Pag_ColNotte" xml:space="preserve">
+    <value>night</value>
+  </data>
+  <data name="Pag_ColOggetto" xml:space="preserve">
+    <value>object</value>
+  </data>
+  <data name="Pag_ColPose" xml:space="preserve">
+    <value>exposures</value>
+  </data>
+  <data name="Pag_ColSlot" xml:space="preserve">
+    <value>slot</value>
+  </data>
+  <data name="Pag_ConfigFiltri" xml:space="preserve">
+    <value>Filter configuration</value>
+  </data>
+  <data name="Pag_ConfigFiltriNota" xml:space="preserve">
+    <value>what the filters in your wheel physically are. Declared once per profile.</value>
+  </data>
+  <data name="Pag_Contratto" xml:space="preserve">
+    <value>{0} · engine {1} · answer {2} KB intact</value>
+  </data>
+  <data name="Pag_DaSapere" xml:space="preserve">
+    <value>Worth knowing:</value>
+  </data>
+  <data name="Pag_DoveRiprendi" xml:space="preserve">
+    <value>Where you are imaging</value>
+  </data>
+  <data name="Pag_Errore" xml:space="preserve">
+    <value>error</value>
+  </data>
+  <data name="Pag_FiltriDichiarati" xml:space="preserve">
+    <value>{0} filters declared</value>
+  </data>
+  <data name="Pag_FiltriDiscordi" xml:space="preserve">
+    <value>?? filters disagree</value>
+  </data>
+  <data name="Pag_FiltroNonDichiarato" xml:space="preserve">
+    <value>{0} — not declared</value>
+  </data>
+  <data name="Pag_InAttesa" xml:space="preserve">
+    <value>waiting</value>
+  </data>
+  <data name="Pag_Intestazione" xml:space="preserve">
+    <value>Bridge test</value>
+  </data>
+  <data name="Pag_LatLonNota" xml:space="preserve">
+    <value>Latitude and longitude come from the N.I.N.A. profile and are not written here. The minimum altitude stays declared: N.I.N.A. has a horizon per azimuth, the engine a single number, and reducing one to the other would silently choose which half of the sky to throw away.</value>
+  </data>
+  <data name="Pag_Latitudine" xml:space="preserve">
+    <value>latitude</value>
+  </data>
+  <data name="Pag_Longitudine" xml:space="preserve">
+    <value>longitude</value>
+  </data>
+  <data name="Pag_MandaANina" xml:space="preserve">
+    <value>Send to N.I.N.A.</value>
+  </data>
+  <data name="Pag_MotivoNonDichiarato" xml:space="preserve">
+    <value>no reason given</value>
+  </data>
+  <data name="Pag_MotoreZitto" xml:space="preserve">
+    <value>The engine did not answer: without its list nothing can be declared. Start the service and reload.</value>
+  </data>
+  <data name="Pag_NessunFiltroBayer" xml:space="preserve">
+    <value>no filter (Bayer)</value>
+  </data>
+  <data name="Pag_NessunFiltroDichiarato" xml:space="preserve">
+    <value>*No filter declared.* While that is so, the engine works on its own stock filters ({0}), not yours: the prescription you are reading was not made for your equipment.</value>
+  </data>
+  <data name="Pag_NienteAvviato" xml:space="preserve">
+    <value>Nothing was started: pressing Play is your job.</value>
+  </data>
+  <data name="Pag_NonRiuscita" xml:space="preserve">
+    <value>failed</value>
+  </data>
+  <data name="Pag_NonSalvato" xml:space="preserve">
+    <value>not saved</value>
+  </data>
+  <data name="Pag_NonSalvatoPerche" xml:space="preserve">
+    <value>NOT saved: {0}</value>
+  </data>
+  <data name="Pag_NonSiPuoMandare" xml:space="preserve">
+    <value>This cannot be sent to N.I.N.A.</value>
+  </data>
+  <data name="Pag_NotteAggiunta" xml:space="preserve">
+    <value>Night {0} added to the Advanced Sequencer.</value>
+  </data>
+  <data name="Pag_NotteChiestaUsata" xml:space="preserve">
+    <value>asked {0}, used {1}</value>
+  </data>
+  <data name="Pag_NotteSpostata" xml:space="preserve">
+    <value>moved by {0}</value>
+  </data>
+  <data name="Pag_NottiSerene" xml:space="preserve">
+    <value>clear nights</value>
+  </data>
+  <data name="Pag_OpzNessunFiltro" xml:space="preserve">
+    <value>no filter / clear filter</value>
+  </data>
+  <data name="Pag_OpzNonDichiarato" xml:space="preserve">
+    <value>(not declared)</value>
+  </data>
+  <data name="Pag_RigaCalcolataSu" xml:space="preserve">
+    <value>computed on</value>
+  </data>
+  <data name="Pag_RigaContratto" xml:space="preserve">
+    <value>contract</value>
+  </data>
+  <data name="Pag_RigaOreUtili" xml:space="preserve">
+    <value>usable hours</value>
+  </data>
+  <data name="Pag_RispostaRicevuta" xml:space="preserve">
+    <value>answer received</value>
+  </data>
+  <data name="Pag_Rms" xml:space="preserve">
+    <value>guiding (RMS)</value>
+  </data>
+  <data name="Pag_SalvaConfigurazione" xml:space="preserve">
+    <value>Save configuration</value>
+  </data>
+  <data name="Pag_SalvaSito" xml:space="preserve">
+    <value>Save the site data</value>
+  </data>
+  <data name="Pag_Salvato" xml:space="preserve">
+    <value>saved</value>
+  </data>
+  <data name="Pag_Salvo" xml:space="preserve">
+    <value>saving…</value>
+  </data>
+  <data name="Pag_Scartato" xml:space="preserve">
+    <value>Dropped:</value>
+  </data>
+  <data name="Pag_ScriviloQuiSotto" xml:space="preserve">
+    <value>Write it below: without it the engine works out the hours but not the sub length.</value>
+  </data>
+  <data name="Pag_Seeing" xml:space="preserve">
+    <value>seeing</value>
+  </data>
+  <data name="Pag_ServizioGiu" xml:space="preserve">
+    <value>service not reachable</value>
+  </data>
+  <data name="Pag_ServizioSu" xml:space="preserve">
+    <value>service reachable</value>
+  </data>
+  <data name="Pag_Sottotitolo" xml:space="preserve">
+    <value>The page asks its host, the host asks Strategy. There is no address in here.</value>
+  </data>
+  <data name="Pag_Sqm" xml:space="preserve">
+    <value>sky (SQM)</value>
+  </data>
+  <data name="Pag_StatoDaDichiarare" xml:space="preserve">
+    <value>to declare</value>
+  </data>
+  <data name="Pag_StatoDichiarato" xml:space="preserve">
+    <value>declared</value>
+  </data>
+  <data name="Pag_StatoIgnoto" xml:space="preserve">
+    <value>declared, but the engine does not know this identifier</value>
+  </data>
+  <data name="Pag_StatoOrfano" xml:space="preserve">
+    <value>no longer in the wheel: renamed or removed. Point it again, or leave it.</value>
+  </data>
+  <data name="Pag_StoChiedendo" xml:space="preserve">
+    <value>asking…</value>
+  </data>
+  <data name="Pag_StoMandando" xml:space="preserve">
+    <value>sending…</value>
+  </data>
+  <data name="Pag_StrumentazioneNota" xml:space="preserve">
+    <value>The *equipment* is still a Strategy configuration written into the bridge, *not* read from the N.I.N.A. profile: Askar 71F 0.75× with ASI2600MC. N.I.N.A. does not hold aperture, obstruction, throughput, QE or read noise, so wiring it up will need a declaration like the one for filters.</value>
+  </data>
+  <data name="Pag_TipAmbiguo" xml:space="preserve">
+    <value>two slots share this name: N.I.N.A. resolves by name and takes the first</value>
+  </data>
+  <data name="Pag_TipNonAdatto" xml:space="preserve">
+    <value>the catalogue does not declare this filter for this profile's camera — not a ban, a doubt</value>
+  </data>
   <data name="Pannello_AzioneSconosciuta" xml:space="preserve">
     <value>Action: {0}</value>
   </data>

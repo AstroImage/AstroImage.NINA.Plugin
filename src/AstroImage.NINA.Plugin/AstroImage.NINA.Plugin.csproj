@@ -32,6 +32,24 @@
 
   <ItemGroup>
     <!--
+      LA PAGINA DEL PANNELLO, INCORPORATA NELLA DLL.
+
+      Tre file veri invece di una stringa dentro un .cs: l'editor li vede, il browser li
+      apre, e un errore di sintassi si nota mentre lo si scrive invece che a pannello
+      aperto. Viaggiano pero' DENTRO il binario, come i due file delle lingue e per la
+      stessa ragione: il ponte si distribuisce copiando file, e una sottocartella
+      dimenticata nella copia non darebbe un errore — darebbe un pannello bianco.
+
+      Il nome logico e' <RootNamespace>.Views.Pagina.<file>, ed e' quello che Pagina.cs
+      va a cercare. Se un giorno la cartella si sposta, va spostato anche li'.
+    -->
+    <EmbeddedResource Include="Views\Pagina\prova.html" />
+    <EmbeddedResource Include="Views\Pagina\prova.css" />
+    <EmbeddedResource Include="Views\Pagina\prova.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
       L'SDK di N.I.N.A., e SOLO per compilare.
 
       `ExcludeAssets: runtime` non e' un dettaglio: N.I.N.A. distribuisce nella propria

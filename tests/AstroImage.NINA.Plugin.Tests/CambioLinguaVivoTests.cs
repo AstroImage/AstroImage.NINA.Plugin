@@ -26,12 +26,17 @@ namespace AstroImage.NINA.Plugin.Tests {
     [TestClass]
     public class CambioLinguaVivoTests {
 
+        /*  La pagina non e' piu' una costante: e' tre risorse dentro la DLL che Pagina
+         *  ricompone. Leggerla di qui vuol dire anche PROVARE che la ricomposizione
+         *  funziona — se un file non fosse incorporato, o se prova.html avesse perso il
+         *  collegamento al foglio o allo script, questo solleverebbe subito invece di
+         *  lasciarlo scoprire a pannello aperto. */
         private static string Pagina() {
             var t = typeof(SequenceModel).Assembly.GetType("AstroImage.NINA.Plugin.Views.Pagina");
             Assert.IsNotNull(t, "la pagina di prova non si trova piu': e' stata rinominata?");
-            var f = t!.GetField("Prova", BindingFlags.NonPublic | BindingFlags.Static);
-            Assert.IsNotNull(f, "la costante della pagina non si trova piu'");
-            return (string)f!.GetRawConstantValue()!;
+            var p = t!.GetProperty("Prova", BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.IsNotNull(p, "la pagina non si trova piu'");
+            return (string)p!.GetValue(null)!;
         }
 
         [TestMethod]

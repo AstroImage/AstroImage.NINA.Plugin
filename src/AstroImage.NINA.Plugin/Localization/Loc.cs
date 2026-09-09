@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Resources;
@@ -85,6 +86,36 @@ namespace AstroImage.NINA.Plugin.Localization {
 
         /// <summary>Una frase intera: <c>Loc.T("Sito_SenzaPosizione")</c>.</summary>
         public static string T(string chiave) => Instance[chiave];
+
+        /*  TUTTE LE VOCI DI UNA FAMIGLIA, PER CHI NON PUO' CHIEDERLE UNA PER UNA.
+         *
+         *  La pagina del pannello vive dentro WebView2 e non ha modo di chiamare questo
+         *  codice: parla per messaggi. Chiederle una alla volta vorrebbe dire sessanta
+         *  andate e ritorni prima di poter disegnare qualcosa, e nel frattempo il
+         *  pannello resterebbe con le etichette vuote.
+         *
+         *  Quindi le riceve tutte insieme. Il prefisso non e' un dettaglio di comodo:
+         *  alla pagina vanno le SUE parole e nient'altro — i messaggi del montaggio, le
+         *  ragioni dei rifiuti, i testi delle Opzioni restano nel C#, dove nascono. Chi
+         *  apre gli strumenti di sviluppo sulla pagina non deve trovarsi in mano tutto
+         *  il vocabolario del plugin.
+         */
+        public static IReadOnlyDictionary<string, string> Famiglia(string prefisso) {
+            var fuori = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (string.IsNullOrEmpty(prefisso)) { return fuori; }
+
+            /*  Si scorre l'INGLESE, non la lingua in uso: e' quello che ha sempre tutte
+             *  le chiavi, ed e' il motivo per cui e' anche il ripiego. Il valore invece
+             *  passa dall'indicizzatore, che sceglie la lingua e ripiega da solo. */
+            var set = En.GetResourceSet(CultureInfo.InvariantCulture, true, true);
+            if (set is null) { return fuori; }
+            foreach (System.Collections.DictionaryEntry v in set) {
+                var chiave = v.Key as string;
+                if (chiave != null && chiave.StartsWith(prefisso, StringComparison.Ordinal))
+                    fuori[chiave] = Instance[chiave];
+            }
+            return fuori;
+        }
 
         /// <summary>
         /// Una frase con dei valori dentro: <c>Loc.F("Blocco_PoseDaSecondi", pose, sec)</c>.
