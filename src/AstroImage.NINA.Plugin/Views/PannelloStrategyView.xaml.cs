@@ -357,7 +357,7 @@ namespace AstroImage.NINA.Plugin.Views {
                          *  riprendere con quello montato sarebbe la sostituzione
                          *  silenziosa di sempre. Quindi si chiede di dichiararlo. */
                         ? Loc.F("Manda_NessunFiltroDaDichiarare", etichetta)
-                        : Loc.F("Manda_VetroNonDichiarato", etichetta, idVetro));
+                        : Loc.F("Manda_FiltroNonDichiarato", etichetta, idVetro));
                     continue;
                 }
                 b.Filtro = nome;
