@@ -118,7 +118,17 @@ namespace AstroImage.NINA.Plugin.Views {
             /*  L'evento puo' arrivare da un thread qualunque; toccare WebView2 fuori dal
              *  suo thread e' un guasto che compare a caso. */
             Dispatcher.BeginInvoke(new Action(() => {
-                try { Vetro?.CoreWebView2?.PostWebMessageAsString("{\"evento\":\"lingua\"}"); }
+                try {
+                    /*  Le parole viaggiano CON l'avviso, non dietro una richiesta a parte.
+                     *  L'ospite sa gia' che la lingua e' cambiata e sa gia' quali sono le
+                     *  parole nuove: farsele chiedere sarebbe un giro in piu' e una
+                     *  finestra in cui la pagina resta scritta a meta'. */
+                    var messaggio = new JsonObject {
+                        ["evento"] = "lingua",
+                        ["voci"] = JsonSerializer.SerializeToNode(Loc.Famiglia(Pagina.Prefisso)),
+                    };
+                    Vetro?.CoreWebView2?.PostWebMessageAsString(messaggio.ToJsonString());
+                }
                 catch (Exception) {
                     /*  La pagina puo' non esserci ancora, o essere gia' andata via. Non
                      *  si perde niente: alla prossima apertura nasce nella lingua giusta. */

@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>AstroImage Strategy</title>
+<link rel="stylesheet" href="prova.css">
+
+<!--
+  QUI DENTRO NON C'E' UNA PAROLA, e non e' una svista.
+
+  Ogni testo che si legge sullo schermo sta nei due file delle lingue, e qui c'e' solo
+  il nome della chiave: data-loc dice quale. Aprendo questo file in un browser si
+  vedono i nomi delle chiavi al posto delle frasi, ed e' giusto cosi' — vuol dire che
+  non ne e' rimasta nessuna scritta a mano.
+
+  La regola vale anche per il futuro: nessuna stringa nuova deve mescolare prosa e
+  markup. Il testo sta nel dizionario, la struttura qui.
+-->
+
+<h1 data-loc="Pag_Intestazione"></h1>
+<div class="sotto" data-loc="Pag_Sottotitolo"></div>
+
+<div class="riga">
+  <input id="oggetto" value="ngc6888" spellcheck="false">
+  <input id="data" value="2026-09-15" spellcheck="false" style="width:110px">
+  <button id="vai" data-loc="Pag_ChiediPrescrizione"></button>
+  <span id="stato" class="stato" data-loc="Pag_InAttesa"></span>
+</div>
+
+<div id="sito"></div>
+<div id="filtri"></div>
+<div id="uscita"></div>
+
+<!-- Le parole entrano qui: le mette l'ospite, nella lingua che vale adesso. -->
+<!--voci-->
+<script src="prova.js"></script>

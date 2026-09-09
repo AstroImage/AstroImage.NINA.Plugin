@@ -168,14 +168,19 @@ namespace AstroImage.NINA.Plugin.Tests {
             var radice = RadiceDeiSorgenti();
             if (radice is null) { Assert.Inconclusive("sorgenti non trovati accanto ai test"); return; }
 
-            var testo = string.Join("\n", System.IO.Directory
-                .EnumerateFiles(radice, "*.cs", System.IO.SearchOption.AllDirectories)
-                .Concat(System.IO.Directory.EnumerateFiles(radice, "*.xaml", System.IO.SearchOption.AllDirectories))
+            /*  Anche .js e .html: da quando la pagina e' tre file veri, meta' delle
+                chiavi vive li' dentro. Cercarle solo nel C# le direbbe tutte orfane. */
+            var testo = string.Join("\n", new[] { "*.cs", "*.xaml", "*.js", "*.html" }
+                .SelectMany(p => System.IO.Directory.EnumerateFiles(radice, p, System.IO.SearchOption.AllDirectories))
                 .Where(f => !f.Contains(System.IO.Path.DirectorySeparatorChar + "obj" + System.IO.Path.DirectorySeparatorChar)
                          && !f.Contains(System.IO.Path.DirectorySeparatorChar + "bin" + System.IO.Path.DirectorySeparatorChar))
                 .Select(System.IO.File.ReadAllText));
 
+            /*  Tre modi di scrivere una chiave, e servono tutti e tre: "cosi'" nel C#,
+                'cosi'' nel JavaScript, [cosi'] nel legame di WPF. Cercarne uno solo
+                dichiarerebbe orfane sessanta voci che sono usate eccome — successo. */
             var orfane = Tutte("it").Keys.Where(kk => !testo.Contains("\"" + kk + "\"")
+                                                   && !testo.Contains("'" + kk + "'")
                                                    && !testo.Contains("[" + kk + "]"))
                                          .OrderBy(x => x).ToList();
             Assert.AreEqual(0, orfane.Count,

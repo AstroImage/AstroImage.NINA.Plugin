@@ -198,6 +198,216 @@
   <data name="Opzioni_ServeIlMotore" xml:space="preserve">
     <value>Da solo questo plugin non fa niente: dall'altra parte deve esserci AstroImage-Strategy che risponde su una porta HTTP. Senza, il pannello si apre e dice che il motore non risponde.</value>
   </data>
+  <data name="Pag_AltezzaMinima" xml:space="preserve">
+    <value>altezza minima</value>
+  </data>
+  <data name="Pag_BlocchiPose" xml:space="preserve">
+    <value>{0} blocchi, {1} pose.</value>
+  </data>
+  <data name="Pag_CalcolataDiSerie" xml:space="preserve">
+    <value>*i filtri di serie del motore*, non i tuoi: dichiara i filtri qui sopra e richiedi.</value>
+  </data>
+  <data name="Pag_CalcolataTuaRuota" xml:space="preserve">
+    <value>*la tua ruota* — {0}</value>
+  </data>
+  <data name="Pag_ChiediPrescrizione" xml:space="preserve">
+    <value>Chiedi una prescrizione</value>
+  </data>
+  <data name="Pag_ColBlocchi" xml:space="preserve">
+    <value>blocchi</value>
+  </data>
+  <data name="Pag_ColData" xml:space="preserve">
+    <value>data</value>
+  </data>
+  <data name="Pag_ColDurata" xml:space="preserve">
+    <value>durata</value>
+  </data>
+  <data name="Pag_ColEQuestoFiltro" xml:space="preserve">
+    <value>e' questo filtro</value>
+  </data>
+  <data name="Pag_ColFiltri" xml:space="preserve">
+    <value>filtri</value>
+  </data>
+  <data name="Pag_ColNomeNina" xml:space="preserve">
+    <value>nome in N.I.N.A.</value>
+  </data>
+  <data name="Pag_ColNotte" xml:space="preserve">
+    <value>notte</value>
+  </data>
+  <data name="Pag_ColOggetto" xml:space="preserve">
+    <value>oggetto</value>
+  </data>
+  <data name="Pag_ColPose" xml:space="preserve">
+    <value>pose</value>
+  </data>
+  <data name="Pag_ColSlot" xml:space="preserve">
+    <value>slot</value>
+  </data>
+  <data name="Pag_ConfigFiltri" xml:space="preserve">
+    <value>Configurazione dei filtri</value>
+  </data>
+  <data name="Pag_ConfigFiltriNota" xml:space="preserve">
+    <value>che cosa sono, fisicamente, i filtri della tua ruota. Si dichiara una volta per profilo.</value>
+  </data>
+  <data name="Pag_Contratto" xml:space="preserve">
+    <value>{0} · motore {1} · risposta {2} KB intatti</value>
+  </data>
+  <data name="Pag_DaSapere" xml:space="preserve">
+    <value>Da sapere:</value>
+  </data>
+  <data name="Pag_DoveRiprendi" xml:space="preserve">
+    <value>Dove stai riprendendo</value>
+  </data>
+  <data name="Pag_Errore" xml:space="preserve">
+    <value>errore</value>
+  </data>
+  <data name="Pag_FiltriDichiarati" xml:space="preserve">
+    <value>{0} filtri dichiarati</value>
+  </data>
+  <data name="Pag_FiltriDiscordi" xml:space="preserve">
+    <value>?? filtri discordi</value>
+  </data>
+  <data name="Pag_FiltroNonDichiarato" xml:space="preserve">
+    <value>{0} — non dichiarato</value>
+  </data>
+  <data name="Pag_InAttesa" xml:space="preserve">
+    <value>in attesa</value>
+  </data>
+  <data name="Pag_Intestazione" xml:space="preserve">
+    <value>Prova del ponte</value>
+  </data>
+  <data name="Pag_LatLonNota" xml:space="preserve">
+    <value>Latitudine e longitudine vengono dal profilo di N.I.N.A. e non si scrivono qui. L'altezza minima resta dichiarata: N.I.N.A. ha un orizzonte per azimut, il motore un numero solo, e ridurre l'uno all'altro sceglierebbe di nascosto quale meta' del cielo buttare via.</value>
+  </data>
+  <data name="Pag_Latitudine" xml:space="preserve">
+    <value>latitudine</value>
+  </data>
+  <data name="Pag_Longitudine" xml:space="preserve">
+    <value>longitudine</value>
+  </data>
+  <data name="Pag_MandaANina" xml:space="preserve">
+    <value>Manda a N.I.N.A.</value>
+  </data>
+  <data name="Pag_MotivoNonDichiarato" xml:space="preserve">
+    <value>motivo non dichiarato</value>
+  </data>
+  <data name="Pag_MotoreZitto" xml:space="preserve">
+    <value>Il motore non ha risposto: senza il suo elenco non si puo' dichiarare niente. Accendi il servizio e ricarica.</value>
+  </data>
+  <data name="Pag_NessunFiltroBayer" xml:space="preserve">
+    <value>nessun filtro (Bayer)</value>
+  </data>
+  <data name="Pag_NessunFiltroDichiarato" xml:space="preserve">
+    <value>*Nessun filtro dichiarato.* Finche' e' cosi', il motore calcola sui suoi filtri di serie ({0}), non sui tuoi: la prescrizione che leggi non e' fatta sul tuo equipaggiamento.</value>
+  </data>
+  <data name="Pag_NienteAvviato" xml:space="preserve">
+    <value>Non e' stato avviato niente: a premere Riproduci sei tu.</value>
+  </data>
+  <data name="Pag_NonRiuscita" xml:space="preserve">
+    <value>non riuscita</value>
+  </data>
+  <data name="Pag_NonSalvato" xml:space="preserve">
+    <value>non salvato</value>
+  </data>
+  <data name="Pag_NonSalvatoPerche" xml:space="preserve">
+    <value>NON salvato: {0}</value>
+  </data>
+  <data name="Pag_NonSiPuoMandare" xml:space="preserve">
+    <value>Non si puo' mandare a N.I.N.A.</value>
+  </data>
+  <data name="Pag_NotteAggiunta" xml:space="preserve">
+    <value>Notte {0} aggiunta al Sequenziatore Avanzato.</value>
+  </data>
+  <data name="Pag_NotteChiestaUsata" xml:space="preserve">
+    <value>chiesta {0}, usata {1}</value>
+  </data>
+  <data name="Pag_NotteSpostata" xml:space="preserve">
+    <value>spostata di {0}</value>
+  </data>
+  <data name="Pag_NottiSerene" xml:space="preserve">
+    <value>notti serene</value>
+  </data>
+  <data name="Pag_OpzNessunFiltro" xml:space="preserve">
+    <value>nessun filtro / filtro trasparente</value>
+  </data>
+  <data name="Pag_OpzNonDichiarato" xml:space="preserve">
+    <value>(non dichiarato)</value>
+  </data>
+  <data name="Pag_RigaCalcolataSu" xml:space="preserve">
+    <value>calcolata su</value>
+  </data>
+  <data name="Pag_RigaContratto" xml:space="preserve">
+    <value>contratto</value>
+  </data>
+  <data name="Pag_RigaOreUtili" xml:space="preserve">
+    <value>ore utili</value>
+  </data>
+  <data name="Pag_RispostaRicevuta" xml:space="preserve">
+    <value>risposta ricevuta</value>
+  </data>
+  <data name="Pag_Rms" xml:space="preserve">
+    <value>guida (RMS)</value>
+  </data>
+  <data name="Pag_SalvaConfigurazione" xml:space="preserve">
+    <value>Salva configurazione</value>
+  </data>
+  <data name="Pag_SalvaSito" xml:space="preserve">
+    <value>Salva i dati del sito</value>
+  </data>
+  <data name="Pag_Salvato" xml:space="preserve">
+    <value>salvato</value>
+  </data>
+  <data name="Pag_Salvo" xml:space="preserve">
+    <value>salvo…</value>
+  </data>
+  <data name="Pag_Scartato" xml:space="preserve">
+    <value>Scartato:</value>
+  </data>
+  <data name="Pag_ScriviloQuiSotto" xml:space="preserve">
+    <value>Scrivilo qui sotto: senza, il motore calcola le ore ma non la posa.</value>
+  </data>
+  <data name="Pag_Seeing" xml:space="preserve">
+    <value>seeing</value>
+  </data>
+  <data name="Pag_ServizioGiu" xml:space="preserve">
+    <value>servizio non raggiungibile</value>
+  </data>
+  <data name="Pag_ServizioSu" xml:space="preserve">
+    <value>servizio raggiungibile</value>
+  </data>
+  <data name="Pag_Sottotitolo" xml:space="preserve">
+    <value>La pagina chiede all'ospite, l'ospite chiede a Strategy. Qui dentro non c'e' nessun indirizzo.</value>
+  </data>
+  <data name="Pag_Sqm" xml:space="preserve">
+    <value>cielo (SQM)</value>
+  </data>
+  <data name="Pag_StatoDaDichiarare" xml:space="preserve">
+    <value>da dichiarare</value>
+  </data>
+  <data name="Pag_StatoDichiarato" xml:space="preserve">
+    <value>dichiarato</value>
+  </data>
+  <data name="Pag_StatoIgnoto" xml:space="preserve">
+    <value>dichiarato, ma il motore non conosce questo identificativo</value>
+  </data>
+  <data name="Pag_StatoOrfano" xml:space="preserve">
+    <value>non e' piu' in ruota: rinominato o tolto. Ripuntalo o lascialo perdere.</value>
+  </data>
+  <data name="Pag_StoChiedendo" xml:space="preserve">
+    <value>sto chiedendo…</value>
+  </data>
+  <data name="Pag_StoMandando" xml:space="preserve">
+    <value>sto mandando…</value>
+  </data>
+  <data name="Pag_StrumentazioneNota" xml:space="preserve">
+    <value>La *strumentazione* e' ancora una configurazione Strategy scritta nel ponte, *non* letta dal profilo di N.I.N.A.: Askar 71F 0.75× con ASI2600MC. N.I.N.A. non possiede apertura, ostruzione, trasmissione, QE ne' rumore di lettura, quindi il collegamento richiedera' una dichiarazione come quella dei filtri.</value>
+  </data>
+  <data name="Pag_TipAmbiguo" xml:space="preserve">
+    <value>due slot hanno questo stesso nome: N.I.N.A. risolve per nome e prende il primo</value>
+  </data>
+  <data name="Pag_TipNonAdatto" xml:space="preserve">
+    <value>il catalogo non dichiara questo filtro per la camera di questo profilo — non e' un divieto, e' un dubbio</value>
+  </data>
   <data name="Pannello_AzioneSconosciuta" xml:space="preserve">
     <value>Azione: {0}</value>
   </data>

@@ -1,0 +1,29 @@
+  :root { color-scheme: dark; }
+  body { margin:0; padding:20px; background:#15181d; color:#dfe4ea;
+         font:14px/1.55 "Segoe UI", system-ui, sans-serif; }
+  h1 { font-size:15px; font-weight:600; margin:0 0 2px; letter-spacing:.02em; }
+  .sotto { opacity:.6; font-size:12.5px; margin-bottom:18px; }
+  .riga { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+  button { background:#2b6cb0; color:#fff; border:0; border-radius:5px;
+           padding:7px 15px; font-size:13px; cursor:pointer; }
+  button:hover { background:#3182ce; }
+  button:disabled { background:#3a4048; color:#8d949c; cursor:default; }
+  input { background:#1d2127; color:#dfe4ea; border:1px solid #333a43; border-radius:5px;
+          padding:6px 9px; font-size:13px; width:150px; }
+  .stato { font-size:12.5px; padding:3px 9px; border-radius:99px; background:#3a4048; }
+  .stato.ok { background:#1f5132; color:#c9f2d8; }
+  .stato.no { background:#5b2020; color:#f6cfcf; }
+  table { border-collapse:collapse; width:100%; margin-top:6px; font-size:13px; }
+  th, td { text-align:left; padding:6px 10px; border-bottom:1px solid #262b32; }
+  th { font-weight:600; opacity:.65; font-size:11.5px; text-transform:uppercase;
+       letter-spacing:.06em; }
+  td.n { text-align:right; font-variant-numeric:tabular-nums; }
+  .box { background:#1a1e24; border:1px solid #262b32; border-radius:7px;
+         padding:14px 16px; margin-bottom:14px; }
+  .err { border-color:#6b2b2b; background:#241a1a; }
+  .fatto { border-color:#2c5c3c; background:#182219; }
+  code { font:12px ui-monospace, Consolas, monospace; opacity:.8; }
+  button.manda { background:#2f855a; padding:4px 11px; font-size:12.5px; }
+  button.manda:hover { background:#38a169; }
+  ul { margin:8px 0 0 18px; padding:0; }
+  li { margin:2px 0; }
