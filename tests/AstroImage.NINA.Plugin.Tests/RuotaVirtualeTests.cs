@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using AstroImage.NINA.Plugin.Models;
 using AstroImage.NINA.Plugin.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -140,6 +141,58 @@ namespace AstroImage.NINA.Plugin.Tests {
         public void LoStessoIdentificativoDueVolte_NonSiRipete() {
             var r = Dichiarata(("HO A", "lult"), ("HO B", "lult"));
             Assert.AreEqual(1, DichiarazioneRuota.IdDichiarati(r).Count);
+        }
+
+        // ──────────── il salvataggio, nella forma ESATTA in cui la pagina spedisce
+
+        /*  Questi tre esistono per un difetto trovato al primo uso sul campo, e la
+         *  lezione non e' «leggere meglio»: e' che un salvataggio puo' RIUSCIRE facendo
+         *  la cosa sbagliata. La pagina spedisce con `chiedi(azione, corpo)`, che mette
+         *  il carico sotto `corpo`; chi leggeva cercava `vetri` alla radice, trovava
+         *  null, costruiva una dichiarazione vuota e la salvava con esito verde. Quattro
+         *  vetri appena dichiarati, spariti, e il pannello che diceva «fatto». */
+
+        private static JsonNode Messaggio(string vetriJson) =>
+            JsonNode.Parse("{\"id\":\"r7\",\"azione\":\"salvaFiltri\",\"corpo\":" + vetriJson + "}")!;
+
+        [TestMethod]
+        public void IlSalvataggio_LeggeDOVE_LaPaginaScriveDavvero() {
+            var m = Messaggio("{\"vetri\":[" +
+                "{\"nina\":\"ULTIMATE\",\"id\":\"lult\",\"nota\":null}," +
+                "{\"nina\":\"V4 IDAS\",\"id\":null,\"nota\":null}]}");
+
+            var r = DichiarazioneRuota.DalMessaggio(m, out var perCheNo);
+
+            Assert.IsNotNull(r, perCheNo);
+            Assert.AreEqual(2, r!.Vetri.Count, "il carico sta sotto `corpo`, non alla radice");
+            Assert.AreEqual("lult", DichiarazioneRuota.IdPerNome(r, "ULTIMATE"));
+            Assert.IsNull(DichiarazioneRuota.IdPerNome(r, "V4 IDAS"), "e il non dichiarato resta tale");
+        }
+
+        [TestMethod]
+        public void UnaRichiestaSenzaElenco_NonCANCELLA_Niente() {
+            /*  `vetri` assente non e' «togli tutto»: e' una richiesta malformata. La
+                differenza fra le due e' precisamente il modo in cui si cancella la
+                configurazione di qualcuno senza dirglielo. */
+            foreach (var m in new[] {
+                    Messaggio("{}"),
+                    JsonNode.Parse("{\"id\":\"r7\",\"vetri\":[{\"nina\":\"X\",\"id\":\"lult\"}]}")!,
+                    JsonNode.Parse("{\"id\":\"r7\",\"corpo\":{\"vetri\":\"pippo\"}}")! }) {
+                var r = DichiarazioneRuota.DalMessaggio(m, out var perCheNo);
+                Assert.IsNull(r, "una richiesta cosi' va rifiutata, non eseguita");
+                Assert.IsFalse(string.IsNullOrWhiteSpace(perCheNo), "e va detto perche'");
+            }
+        }
+
+        [TestMethod]
+        public void UnElencoVUOTO_INVECE_ESeguito() {
+            /*  «Togli tutto» e' una richiesta legittima, e va distinta da «non me l'hai
+                detto». Sono due cose diverse e devono comportarsi diversamente. */
+            var r = DichiarazioneRuota.DalMessaggio(Messaggio("{\"vetri\":[]}"), out var perCheNo);
+
+            Assert.IsNotNull(r, perCheNo);
+            Assert.AreEqual(0, r!.Vetri.Count);
+            Assert.IsNull(perCheNo);
         }
 
         // ────────────────────────────────────────── 7 · configurazione malandata

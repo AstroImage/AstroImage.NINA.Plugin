@@ -285,8 +285,18 @@ namespace AstroImage.NINA.Plugin.Views {
                 if (idVetro is null) continue;   // il motore non l'ha detto: resta il nome di prima
                 var nome = DichiarazioneRuota.NomePerId(vm.Dichiarazione, idVetro);
                 if (string.IsNullOrWhiteSpace(nome)) {
-                    nonDichiarati.Add($"«{string.Join("+", b.Canali ?? new List<string>())}» "
-                        + $"e' stato calcolato sul vetro «{idVetro}», che nella tua ruota non e' dichiarato");
+                    var etichetta = string.Join("+", b.Canali ?? new List<string>());
+                    nonDichiarati.Add(idVetro == VetriDellaPrescrizione.NessunFiltro
+                        /*  «__none» non e' un vetro che ti manca: e' il motore che dice
+                         *  «davanti non ci va niente, il colore lo fa la matrice». Ma
+                         *  con cinque vetri in ruota qualcosa davanti c'e' per forza, e
+                         *  riprendere con quello montato sarebbe la sostituzione
+                         *  silenziosa di sempre. Quindi si chiede di dichiararlo. */
+                        ? $"per «{etichetta}» il motore dice di non mettere NESSUN filtro davanti "
+                          + "(il colore lo fa la matrice di Bayer). Se hai uno slot vuoto o un vetro "
+                          + "trasparente, dichiaralo come «nessun filtro» nella configurazione"
+                        : $"«{etichetta}» e' stato calcolato sul vetro «{idVetro}», "
+                          + "che nella tua ruota non e' dichiarato");
                     continue;
                 }
                 b.Filtro = nome;
@@ -426,16 +436,11 @@ namespace AstroImage.NINA.Plugin.Views {
             var vm = DataContext as PannelloStrategyVM;
             if (vm is null) { Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return; }
 
-            var nuova = new RuotaVirtuale();
-            foreach (var v in messaggio["vetri"]?.AsArray() ?? new JsonArray()) {
-                var nina = v?["nina"]?.GetValue<string>();
-                if (string.IsNullOrWhiteSpace(nina)) continue;
-                var motore = v?["id"]?.GetValue<string>();
-                nuova.Vetri.Add(new VoceRuota {
-                    Nina = nina!.Trim(),
-                    Motore = string.IsNullOrWhiteSpace(motore) ? null : motore!.Trim(),
-                    Nota = v?["nota"]?.GetValue<string>(),
-                });
+            var nuova = DichiarazioneRuota.DalMessaggio(messaggio, out var perCheMalformata);
+            if (nuova is null) {
+                Logger.Warning("[AstroImage] salvataggio dei filtri rifiutato — " + perCheMalformata);
+                Rispondi(id, false, null, "richiesta_malformata", perCheMalformata);
+                return;
             }
 
             var ok = vm.SalvaDichiarazione(nuova, out var perCheNo);

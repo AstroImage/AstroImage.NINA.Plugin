@@ -158,10 +158,10 @@ namespace AstroImage.NINA.Plugin.Services {
              *  riordina niente. */
             var costruiti = 0;
             foreach (var b in ricetta.Blocchi) {
-                var r = Ripresa(b, ricetta.DitherOgniPose);
+                var r = Ripresa(b, ricetta.DitherOgniPose, out var perCheNoBlocco);
                 if (r is not null) { dso.Add(r); costruiti++; }
-                else ricetta.Scartati.Add(
-                    $"{b.Etichetta}: nessun blocco di ripresa disponibile da cui copiare la posa.");
+                else ricetta.Scartati.Add($"{b.Etichetta}: " +
+                    (perCheNoBlocco ?? "nessun blocco di ripresa disponibile da cui copiare la posa."));
             }
             /*  Un contenitore senza riprese non e' un bersaglio dimezzato: e' un
              *  bersaglio che non fa niente, e consegnarlo sarebbe peggio che dire di no. */
@@ -197,9 +197,18 @@ namespace AstroImage.NINA.Plugin.Services {
         /// che il programma sa gia' fare e' il modo piu' sicuro di sbagliare due
         /// programmi invece di uno.
         /// </summary>
-        private ISequenceItem? Ripresa(RicettaBlocco b, int? ditherOgniPose) {
+        /// <param name="perCheNo">
+        /// Perche' il blocco non si e' potuto costruire. Un motivo generico —
+        /// «nessun blocco disponibile» — nasconderebbe il caso piu' insidioso, che e'
+        /// il numero di pose che non attecchisce: vedi <see cref="Iterazioni"/>.
+        /// </param>
+        private ISequenceItem? Ripresa(RicettaBlocco b, int? ditherOgniPose, out string? perCheNo) {
+            perCheNo = null;
             var se = fonte.Posa();
-            if (se is null) return null;
+            if (se is null) {
+                perCheNo = "nessun blocco di ripresa disponibile da cui copiare la posa.";
+                return null;
+            }
 
             var posa = se.GetTakeExposure();
             posa.ExposureTime = b.Secondi;
@@ -210,15 +219,23 @@ namespace AstroImage.NINA.Plugin.Services {
             if (b.Gain is not null) posa.Gain = b.Gain.Value;
             if (b.Offset is not null) posa.Offset = b.Offset.Value;
 
-            /*  LE ITERAZIONI SI IMPOSTANO SULLO SMART EXPOSURE, non sulla condizione
-             *  sotto. Sono due proprieta' per la stessa cosa e non si sincronizzano da
-             *  sole: sul banco vero il Sequenziatore mostrava «# 20» accanto a un
-             *  «Progresso 0/29» — il numero della condizione era il nostro, quello che
-             *  N.I.N.A. fa vedere e usa era ancora quello del modello clonato.
-             *  Si impostano entrambe: quella di sopra perche' e' la vera, quella di
-             *  sotto perche' non resti indietro se un domani smettessero di parlarsi. */
-            se.Iterations = b.Pose;
-            se.GetLoopCondition().Iterations = b.Pose;
+            /*  QUANTE POSE — e la storia di questa riga sta in Services/Iterazioni.cs.
+             *
+             *  Qui c'era `se.Iterations = b.Pose`, con un commento che diceva «quella di
+             *  sopra perche' e' la vera». Era sbagliato: su 3.2 quella proprieta' e' il
+             *  contatore del CONTENITORE, ereditato da SequenceContainer, e su 3.3
+             *  SmartExposure ne ha una tutta sua con dietro una definizione testuale che
+             *  la riscrive. Il banco vero mostrava «# 20 · Progresso 0/151».
+             *
+             *  Adesso lo scrive un pezzo che conosce entrambe le versioni e che RILEGGE
+             *  quello che ha scritto. Se non ha attecchito NON si consegna: una sequenza
+             *  che dice 20 dove la prescrizione diceva 151 e' quaranta minuti al posto di
+             *  cinque ore, ed e' esattamente il genere di cosa che somiglia alla
+             *  prescrizione senza esserlo. */
+            if (!Iterazioni.Imposta(se, se.GetLoopCondition(), b.Pose, out var perCheIter)) {
+                perCheNo = perCheIter;
+                return null;
+            }
             /*  A `Debug` E NON A `Info`, PERCHE' IL REGISTRO E' DI TUTTI. Questa riga
              *  scatta una volta per blocco e dice quello che serve solo a chi sta
              *  cercando un difetto — ed e' proprio cosi' che si e' trovato quello delle
