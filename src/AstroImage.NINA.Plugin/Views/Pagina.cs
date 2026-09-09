@@ -226,11 +226,31 @@ namespace AstroImage.NINA.Plugin.Views {
       ? '<div style="margin-top:10px;opacity:.85"><b>' + t + '</b><ul>' +
         a.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>' : '';
 
+    /*  L'AVVISO SUI DOPPIONI, e conta solo gli OMONIMI.
+       Mettere due bersagli DIVERSI nella stessa notte e' normale e non riguarda
+       questo avviso: il nome che il ponte genera porta dentro oggetto, notte e data
+       — «NGC 6888 — notte 1 — 2026-09-15» — quindi due target diversi hanno nomi
+       diversi, e lo stesso oggetto su notte 1 e notte 2 pure. Scatta solo quando in
+       sequenza c'e' gia' ESATTAMENTE la stessa cosa, che e' il caso di chi richiede
+       la prescrizione dopo aver cambiato qualcosa e riconsegna.
+       Il ponte non sovrascrive e non deve: quella sequenza e' di chi riprende. Ma
+       tacere che adesso ce ne sono due e' costato, perche' due bersagli identici,
+       se si preme Riproduci, si riprendono ENTRAMBI. */
+    const doppioni = (r.omonimiPrima > 0)
+      ? '<div style="margin-top:8px;color:#e0a030">&#9888; Nel Sequenziatore c\'era gi&agrave; ' +
+        (r.omonimiPrima === 1 ? 'un bersaglio' : r.omonimiPrima + ' bersagli') +
+        ' con questo <b>stesso nome</b>: adesso ce ne ' +
+        (r.omonimiPrima === 1 ? 'sono due' : 'sono ' + (r.omonimiPrima + 1)) +
+        '. Il ponte aggiunge e non cancella mai quello che c\'&egrave;: se lasci i ' +
+        'vecchi, N.I.N.A. li riprender&agrave; tutti.</div>'
+      : '';
+
     u.innerHTML = '<div class="box fatto">' +
       '<b>Notte ' + notte + ' aggiunta al Sequenziatore Avanzato.</b>' +
       '<div style="margin-top:6px;opacity:.85">' + esc(r.bersaglio || '') + ' — ' +
       r.blocchi + ' blocchi, ' + r.pose + ' pose. ' +
       '<span style="opacity:.7">Non e\' stato avviato niente: a premere Riproduci sei tu.</span></div>' +
+      doppioni +
       elenco('Scartato:', r.scartati) + elenco('Da sapere:', r.note) + '</div>';
   }
 
