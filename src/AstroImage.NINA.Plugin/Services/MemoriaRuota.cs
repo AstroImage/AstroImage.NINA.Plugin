@@ -27,26 +27,35 @@ namespace AstroImage.NINA.Plugin.Services {
      *  N.I.N.A.
      */
     public interface IMemoriaRuota {
-        /// <summary>Il documento salvato, o null se non e' mai stato scritto.</summary>
-        string? Leggi();
+        /*  LA CHIAVE E' UN PARAMETRO perche' i documenti da ricordare per profilo
+         *  sono piu' di uno: la ruota dichiarata, e i parametri del sito che N.I.N.A.
+         *  non conosce. Tenerli separati invece di infilarli in un unico documento e'
+         *  la differenza fra due cose che si versionano da sole e una che si rompe
+         *  tutta insieme. */
+        /// <summary>Il documento salvato sotto questa chiave, o null se non e' mai stato scritto.</summary>
+        string? Leggi(string chiave);
         /// <summary>Lo sostituisce. Non solleva: chi configura non deve perdere il pannello.</summary>
-        bool Scrivi(string documento, out string? perCheNo);
+        bool Scrivi(string chiave, string documento, out string? perCheNo);
     }
 
     /// <summary>La dichiarazione dentro il profilo attivo di N.I.N.A.</summary>
     public sealed class MemoriaNelProfilo : IMemoriaRuota {
 
-        /// <summary>La chiave dentro lo spazio del nostro plugin.</summary>
-        public const string Chiave = "ruotaVirtuale";
+        /// <summary>La chiave della ruota dichiarata, dentro lo spazio del nostro plugin.</summary>
+        public const string ChiaveRuota = "ruotaVirtuale";
+
+        /// <summary>I parametri del sito che N.I.N.A. non sa: SQM dichiarato, seeing,
+        /// RMS, notti serene, altezza minima.</summary>
+        public const string ChiaveSito = "sitoDichiarato";
 
         private readonly IPluginOptionsAccessor? opzioni;
 
         public MemoriaNelProfilo(IPluginOptionsAccessor? opzioni) => this.opzioni = opzioni;
 
-        public string? Leggi() {
+        public string? Leggi(string chiave) {
             if (opzioni is null) return null;
             try {
-                var s = opzioni.GetValueString(Chiave, string.Empty);
+                var s = opzioni.GetValueString(chiave, string.Empty);
                 return string.IsNullOrWhiteSpace(s) ? null : s;
             } catch (Exception e) {
                 Logger.Warning("[AstroImage] la dichiarazione dei filtri non si e' potuta leggere: " + e.Message);
@@ -54,7 +63,7 @@ namespace AstroImage.NINA.Plugin.Services {
             }
         }
 
-        public bool Scrivi(string documento, out string? perCheNo) {
+        public bool Scrivi(string chiave, string documento, out string? perCheNo) {
             perCheNo = null;
             if (opzioni is null) {
                 perCheNo = "N.I.N.A. non ha fornito lo spazio dove salvare le impostazioni " +
@@ -62,7 +71,7 @@ namespace AstroImage.NINA.Plugin.Services {
                 return false;
             }
             try {
-                opzioni.SetValueString(Chiave, documento ?? string.Empty);
+                opzioni.SetValueString(chiave, documento ?? string.Empty);
                 return true;
             } catch (Exception e) {
                 perCheNo = "La configurazione non si e' potuta salvare: " + e.Message;
@@ -76,8 +85,8 @@ namespace AstroImage.NINA.Plugin.Services {
     /// lo spazio: il pannello resta usabile, e chi guarda scopre che non si salva
     /// provando a salvare, non dopo un riavvio.</summary>
     public sealed class MemoriaAssente : IMemoriaRuota {
-        public string? Leggi() => null;
-        public bool Scrivi(string documento, out string? perCheNo) {
+        public string? Leggi(string chiave) => null;
+        public bool Scrivi(string chiave, string documento, out string? perCheNo) {
             perCheNo = "Non c'e' dove salvare: N.I.N.A. non ha fornito le impostazioni del plugin.";
             return false;
         }

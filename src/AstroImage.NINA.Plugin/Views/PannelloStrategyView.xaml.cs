@@ -143,6 +143,10 @@ namespace AstroImage.NINA.Plugin.Views {
 
                 if (azione == "salvaFiltri") { SalvaFiltri(id, messaggio); return; }
 
+                if (azione == "sito") { Sito(id); return; }
+
+                if (azione == "salvaSito") { SalvaSito(id, messaggio); return; }
+
                 if (azione != "prescrizione") {
                     Rispondi(id, false, null, "azione_sconosciuta", "Azione: " + azione); return;
                 }
@@ -448,6 +452,63 @@ namespace AstroImage.NINA.Plugin.Views {
                         " vetri dichiarati" + (ok ? "" : " — NON SCRITTA: " + perCheNo));
             Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo, 0, null,
                      new JsonObject { ["dichiarati"] = DichiarazioneRuota.IdDichiarati(nuova).Count });
+        }
+
+        /*  DOVE SEI, e da dove lo sappiamo.
+         *
+         *  Fino a ieri la pagina spediva sette numeri scritti dentro: Borno. Adesso la
+         *  geometria arriva dal profilo di N.I.N.A. e il resto da uno strumento se c'e',
+         *  dalla dichiarazione se no — con la provenienza accanto a ogni valore, perche'
+         *  un SQM misurato e uno scritto a mano non devono somigliarsi. */
+        private void Sito(string id) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return; }
+
+            var letto = vm.Sito.Leggi(out var perCheNo);
+            var unito = DichiarazioneSito.Unisci(letto, vm.SitoScritto);
+
+            var prov = new JsonObject();
+            foreach (var kv in unito.Provenienza ?? new Dictionary<string, string>())
+                prov[kv.Key] = kv.Value;
+
+            Rispondi(id, true, null, null, null, 0, null, new JsonObject {
+                ["sito"] = new JsonObject {
+                    ["lat"] = unito.Lat, ["lon"] = unito.Lon, ["sqm"] = unito.Sqm,
+                    ["seeing"] = unito.Seeing, ["rms"] = unito.Rms,
+                    ["horizonMin"] = unito.HorizonMin, ["clearFrac"] = unito.ClearFrac,
+                },
+                /*  Solo i campi che l'utente puo' scrivere: la geometria non si dichiara,
+                 *  viene dal profilo e un doppione qui divergerebbe da quello. */
+                ["dichiarato"] = new JsonObject {
+                    ["sqm"] = vm.SitoScritto?.Sqm, ["seeing"] = vm.SitoScritto?.Seeing,
+                    ["rms"] = vm.SitoScritto?.Rms, ["horizonMin"] = vm.SitoScritto?.HorizonMin,
+                    ["clearFrac"] = vm.SitoScritto?.ClearFrac,
+                },
+                ["provenienza"] = prov,
+                ["nome"] = unito.Nome,
+                ["perCheNo"] = perCheNo,
+                ["nota"] = vm.NotaSito,
+                /*  Che cosa manca perche' il motore possa produrre una prescrizione
+                 *  COMPLETA. Si dice PRIMA di chiedere: il servizio con un sito
+                 *  incompleto risponde con le ore e nessuna sequenza, e senza questa
+                 *  riga chi guarda vedrebbe un risultato vuoto senza sapere perche'. */
+                ["manca"] = DichiarazioneSito.CheCosaManca(unito),
+            });
+        }
+
+        private void SalvaSito(string id, JsonObject messaggio) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return; }
+
+            var nuovo = DichiarazioneSito.DalMessaggio(messaggio, out var perCheMalformata);
+            if (nuovo is null) {
+                Logger.Warning("[AstroImage] salvataggio del sito rifiutato — " + perCheMalformata);
+                Rispondi(id, false, null, "richiesta_malformata", perCheMalformata);
+                return;
+            }
+            var ok = vm.SalvaSito(nuovo, out var perCheNo);
+            Logger.Info("[AstroImage] sito dichiarato salvato" + (ok ? "" : " — NON SCRITTO: " + perCheNo));
+            Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo);
         }
 
         private void AlRiprova(object mittente, RoutedEventArgs e) {

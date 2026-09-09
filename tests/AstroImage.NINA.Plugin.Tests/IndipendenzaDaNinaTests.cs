@@ -78,13 +78,22 @@ namespace AstroImage.NINA.Plugin.Tests {
              *  riga: come si chiama in N.I.N.A. e che vetro e'.
              *
              *  Nessuno dei quattro sa fare niente — leggere, scrivere e cercare stanno
-             *  in Services/DichiarazioneRuota — ed e' per questo che possono stare qui. */
-            Assert.AreEqual(19, tipi.Length,
+             *  in Services/DichiarazioneRuota — ed e' per questo che possono stare qui.
+             *
+             *  E I DUE DEL SITO. `SitoDiRipresa` e' dove stai riprendendo con la
+             *  provenienza di ogni numero accanto; `SitoDichiarato` e' quel poco che
+             *  N.I.N.A. non sa e che scrivi tu. Sono due tipi e non uno perche' sono
+             *  due cose diverse: il primo e' quello che si spedisce al motore, il
+             *  secondo quello che si salva nel profilo. Confonderli avrebbe portato a
+             *  salvare anche la latitudine — un doppione destinato a divergere dal
+             *  profilo di N.I.N.A., che e' l'unico posto dove quel dato ha una casa. */
+            Assert.AreEqual(21, tipi.Length,
                 "il modello deve avere esattamente questi tipi: SequenceModel, Quando, Bersaglio, " +
                 "Offset, Ottica, Sito, Capacita, Blocco, Dither, la busta del servizio " +
                 "RispostaPrescrizione, ProdottoPrescrizione, BersaglioRisolto, SequenzaDiNotte, " +
-                "ErroreServizio, MisuraServizio, e la ruota virtuale CatalogoDelMotore, " +
-                "VetroDelMotore, RuotaVirtuale, VoceRuota. Trovati: " +
+                "ErroreServizio, MisuraServizio, la ruota virtuale CatalogoDelMotore, " +
+                "VetroDelMotore, RuotaVirtuale, VoceRuota, e il sito SitoDiRipresa, " +
+                "SitoDichiarato. Trovati: " +
                 string.Join(", ", tipi.Select(t => t.Name)));
             foreach (var atteso in new[] { "SequenceModel", "Quando", "Bersaglio", "Offset",
                                            "Ottica", "Sito", "Capacita", "Blocco", "Dither",

@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.Http;
 using AstroImage.NINA.Plugin.Models;
 using AstroImage.NINA.Plugin.Services;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Core.Utility;
 using NINA.Profile;
@@ -155,7 +156,9 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         [ImportingConstructor]
         public PannelloStrategyVM(
                 IProfileService profileService,
-                [Import(AllowDefault = true)] ISequenceMediator mediatore) : base(profileService) {
+                [Import(AllowDefault = true)] ISequenceMediator mediatore,
+                [Import(AllowDefault = true)] IWeatherDataMediator meteo,
+                [Import(AllowDefault = true)] IGuiderMediator guida) : base(profileService) {
             Title = "AstroImage Strategy";
             CanClose = true;
             /*  Nessuna icona: N.I.N.A. accetta un pannello senza geometria e ne disegna
@@ -207,10 +210,26 @@ namespace AstroImage.NINA.Plugin.ViewModels {
                 memoria = new MemoriaAssente();
             }
             Memoria = memoria;
-            Dichiarazione = DichiarazioneRuota.Leggi(Memoria.Leggi(), out var notaR);
+            Dichiarazione = DichiarazioneRuota.Leggi(Memoria.Leggi(MemoriaNelProfilo.ChiaveRuota), out var notaR);
             NotaDichiarazione = notaR;
-            Logger.Info($"[AstroImage] ruota virtuale: {DichiarazioneRuota.IdDichiarati(Dichiarazione).Count} vetri dichiarati" +
+            Logger.Info($"[AstroImage] ruota virtuale: {DichiarazioneRuota.IdDichiarati(Dichiarazione).Count} filtri dichiarati" +
                         (notaR is null ? "" : " — " + notaR));
+
+            /*  IL SITO. La geometria viene dal profilo — latitudine e longitudine, che
+             *  ogni utente ha inserito per forza — e il resto da uno strumento se c'e',
+             *  dalla dichiarazione se no. Fino a ieri erano sette numeri scritti a mano
+             *  in una pagina: Borno, per tutti, ovunque nel mondo.
+             *
+             *  I due mediatori si chiedono con AllowDefault come tutti gli altri: senza
+             *  stazione meteo e senza guider il pannello deve aprirsi lo stesso e dire
+             *  che quei valori mancano, non sparire dall'elenco dei plugin. */
+            Sito = new SitoDelProfilo(profileService, meteo, guida);
+            SitoScritto = DichiarazioneSito.Leggi(Memoria.Leggi(MemoriaNelProfilo.ChiaveSito), out var notaS);
+            NotaSito = notaS;
+            var letto = Sito.Leggi(out var perCheSito);
+            Logger.Info("[AstroImage] sito: " + (perCheSito ?? $"lat {letto.Lat}, lon {letto.Lon}" +
+                        (letto.Sqm is null ? ", SQM non misurato" : $", SQM {letto.Sqm} misurato")) +
+                        (notaS is null ? "" : " — " + notaS));
         }
 
         /// <summary>Il GUID dell'assembly: e' lo spazio che N.I.N.A. ci ritaglia dentro
@@ -242,7 +261,26 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         public bool SalvaDichiarazione(RuotaVirtuale nuova, out string perCheNo) {
             Dichiarazione = nuova ?? new RuotaVirtuale();
             NotaDichiarazione = null;
-            return Memoria.Scrivi(DichiarazioneRuota.Scrivi(Dichiarazione), out perCheNo);
+            return Memoria.Scrivi(MemoriaNelProfilo.ChiaveRuota,
+                                  DichiarazioneRuota.Scrivi(Dichiarazione), out perCheNo);
+        }
+
+        /// <summary>Dove sei, secondo N.I.N.A. Si chiede ogni volta: i profili si
+        /// cambiano, e con loro la postazione.</summary>
+        public SitoDelProfilo Sito { get; }
+
+        /// <summary>I parametri del sito che N.I.N.A. non sa e che hai dichiarato tu.</summary>
+        public SitoDichiarato SitoScritto { get; private set; }
+
+        /// <summary>Che cosa non andava nei parametri salvati, se qualcosa non andava.</summary>
+        public string NotaSito { get; private set; }
+
+        /// <summary>Sostituisce i parametri dichiarati del sito e li salva nel profilo.</summary>
+        public bool SalvaSito(SitoDichiarato nuovo, out string perCheNo) {
+            SitoScritto = nuovo ?? new SitoDichiarato();
+            NotaSito = null;
+            return Memoria.Scrivi(MemoriaNelProfilo.ChiaveSito,
+                                  DichiarazioneSito.Scrivi(SitoScritto), out perCheNo);
         }
     }
 }
