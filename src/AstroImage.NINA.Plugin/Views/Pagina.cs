@@ -74,7 +74,7 @@ namespace AstroImage.NINA.Plugin.Views {
   /* Quale vetro fa quale banda. La chiede l'ospite al file filtri.json; se resta
      vuota valgono i nomi di banda del motore, che su una ruota vera non
      combaciano quasi mai. */
-  let mappaFiltri = {}, ruotaVera = [];
+  let righeRuota = [], catalogo = [], catalogoOk = false, diSerie = [];
 
   /* L'unica via verso il mondo: un messaggio all'ospite. */
   function chiedi(azione, corpo, extra) {
@@ -105,7 +105,7 @@ namespace AstroImage.NINA.Plugin.Views {
       banco:     { tel: 'askar71f', red: 0.75, cam: 'asi2600mc', mnt: 'am5', bin: 1 },
       bersaglio: { id: $('oggetto').value.trim() },
       quando:    { data: $('data').value.trim(), notti: 3 },
-      opzioni:   { strategia: 'equilibrio', pannelli: 1, filterNames: mappaFiltri }
+      opzioni:   { strategia: 'equilibrio', pannelli: 1 }
     });
 
     $('vai').disabled = false;
@@ -211,25 +211,90 @@ namespace AstroImage.NINA.Plugin.Views {
   chiedi('salute').then(r => stato(r.ok ? 'servizio raggiungibile' : 'servizio non raggiungibile',
                                   r.ok ? 'ok' : 'no'));
 
-  /* LA RUOTA VERA SI MOSTRA, e non per cortesia: senza sapere che vetri hai in
-     ruota nessuno puo' scrivere la mappa che li lega alle bande. */
-  chiedi('filtri').then(r => {
-    if (!r.ok) return;
-    mappaFiltri = r.mappa || {};
-    ruotaVera = r.ruota || [];
-    const voci = Object.entries(mappaFiltri);
-    const righe = voci.length
-      ? voci.map(([c, v]) => esc(c) + ' &rarr; ' + esc(v)).join(' &nbsp;·&nbsp; ')
-      : '<b>nessuna</b> — il motore usera\' i suoi nomi di banda, che su una ruota vera ' +
-        'non combaciano quasi mai. Scrivi <code>filtri.json</code> accanto al DLL.';
+  /* LA RUOTA VIRTUALE: che cosa sono, fisicamente, i vetri che hai in ruota.
+     N.I.N.A. da' i nomi e gli slot; il motore da' l'elenco dei vetri che conosce;
+     in mezzo ci sei tu, che dichiari quale e' quale. Nessuna regola puo' indovinarlo:
+     «HA» puo' stare davanti a un L-Ultimate, e solo chi l'ha comprato lo sa. */
+  function disegnaRuota(r) {
+    righeRuota = r.righe || [];
+    catalogo = r.catalogo || [];
+    catalogoOk = !!r.catalogoDisponibile;
+    diSerie = r.diSerie || [];
+
+    const avvisi = [];
+    if (r.ruotaVuota) avvisi.push(esc(r.ruotaVuota));
+    if (r.nota) avvisi.push(esc(r.nota));
+    if (!catalogoOk) avvisi.push('Il motore non ha risposto: senza il suo elenco non si ' +
+      'puo\' dichiarare niente. Accendi il servizio e ricarica.');
+    if (!r.dichiarati) avvisi.push('<b>Nessun vetro dichiarato.</b> Finche\' e\' cosi\', ' +
+      'il motore calcola sui suoi filtri di serie (' + diSerie.map(esc).join(', ') +
+      '), non sui tuoi: la prescrizione che leggi non e\' fatta sul tuo equipaggiamento.');
+
+    const opzioni = (scelto) => '<option value="">(non dichiarato)</option>' +
+      catalogo.map(v => '<option value="' + esc(v.id) + '"' +
+        (v.id === scelto ? ' selected' : '') + '>' + esc(v.nome) +
+        (v.fwhm_nm ? ' — ' + v.fwhm_nm + ' nm' : '') +
+        (v.bande && v.bande.length > 1 ? ' [' + v.bande.map(esc).join('+') + ']' : '') +
+        '</option>').join('');
+
+    const stati = { mappato: '&#10003;', nonmappato: '&mdash;', ignoto: '?', orfano: '!' };
+    const spiega = {
+      mappato: 'dichiarato', nonmappato: 'da dichiarare',
+      ignoto: 'dichiarato, ma il motore non conosce questo identificativo',
+      orfano: 'non e\' piu\' in ruota: rinominato o tolto. Ripuntalo o lascialo perdere.'
+    };
+
     $('filtri').innerHTML =
-      '<div class="box"><table>' +
-      '<tr><th>in ruota</th><td>' +
-        (ruotaVera.length ? ruotaVera.map(esc).join(' · ') : '<i>nessun filtro</i>') + '</td></tr>' +
-      '<tr><th>mappa</th><td>' + righe + '</td></tr>' +
-      (r.nota ? '<tr><th></th><td style="opacity:.7">' + esc(r.nota) + '</td></tr>' : '') +
-      '</table></div>';
-  });
+      '<div class="box">' +
+      '<b>Configurazione dei filtri</b> — che cosa sono, fisicamente, i vetri della tua ruota. ' +
+      'Si dichiara una volta per profilo.' +
+      (avvisi.length ? '<div style="margin:.6em 0;opacity:.85">' +
+        avvisi.map(a => '<div>&#9888; ' + a + '</div>').join('') + '</div>' : '') +
+      '<table style="width:100%"><tr>' +
+        '<th>slot</th><th>nome in N.I.N.A.</th><th>e\' questo vetro</th><th></th></tr>' +
+      righeRuota.map((x, i) =>
+        '<tr' + (x.stato === 'orfano' ? ' style="opacity:.6"' : '') + '>' +
+        '<td>' + (x.slot === null || x.slot === undefined ? '&mdash;' : x.slot) + '</td>' +
+        '<td>' + esc(x.nina) +
+          (x.ambiguo ? ' <span title="due slot hanno questo stesso nome: N.I.N.A. ' +
+            'risolve per nome e prende il primo">&#9888;</span>' : '') + '</td>' +
+        '<td><select data-riga="' + i + '"' + (catalogoOk ? '' : ' disabled') + '>' +
+          opzioni(x.id) + '</select>' +
+          (x.adatto === null || x.adatto === undefined
+            ? '' : '') +
+          (x.stato === 'mappato' && x.adatto !== true && r.cameraAMatrice !== null &&
+           r.cameraAMatrice !== undefined
+            ? ' <span style="opacity:.7" title="il catalogo non dichiara questo vetro ' +
+              'per la camera di questo profilo — non e\' un divieto, e\' un dubbio">&#9888;</span>' : '') +
+        '</td>' +
+        '<td title="' + esc(spiega[x.stato] || '') + '">' + (stati[x.stato] || '') + '</td>' +
+        '</tr>').join('') +
+      '</table>' +
+      '<div style="margin-top:.7em">' +
+        '<button id="salvaFiltri"' + (catalogoOk ? '' : ' disabled') + '>Salva configurazione</button> ' +
+        '<span id="esitoFiltri" style="margin-left:.6em;opacity:.8"></span>' +
+      '</div></div>';
+
+    Array.prototype.forEach.call(document.querySelectorAll('#filtri select'), s => {
+      s.addEventListener('change', () => {
+        righeRuota[+s.getAttribute('data-riga')].id = s.value || null;
+        $('esitoFiltri').textContent = 'non salvato';
+      });
+    });
+    const b = $('salvaFiltri');
+    if (b) b.addEventListener('click', () => {
+      $('esitoFiltri').textContent = 'salvo…';
+      chiedi('salvaFiltri', { vetri: righeRuota.map(x => ({ nina: x.nina, id: x.id, nota: x.nota })) })
+        .then(r2 => {
+          $('esitoFiltri').textContent = r2.ok
+            ? (r2.dichiarati || 0) + ' vetri dichiarati'
+            : 'NON salvato: ' + (r2.messaggio || r2.codice || '');
+          if (r2.ok) chiedi('filtri').then(disegnaRuota);
+        });
+    });
+  }
+
+  chiedi('filtri').then(r => { if (r.ok) disegnaRuota(r); });
 </script>
 """;
     }

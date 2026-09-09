@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Net.Http;
+using AstroImage.NINA.Plugin.Models;
 using AstroImage.NINA.Plugin.Services;
 using NINA.Equipment.Interfaces.ViewModel;
 using NINA.Core.Utility;
+using NINA.Profile;
 using NINA.Profile.Interfaces;
 using NINA.Sequencer.Interfaces.Mediator;
 using NINA.WPF.Base.ViewModel;
@@ -99,8 +101,17 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         /// impedisce di consegnare una riga di una risposta precedente.</summary>
         public PrescrizioneCorrente InMano { get; } = new PrescrizioneCorrente();
 
-        /// <summary>Quale vetro fa quale banda, scritto accanto al DLL. Vuota se
-        /// nessuno l'ha detto: allora valgono i nomi di serie del motore.</summary>
+        /// <summary>
+        /// Quale vetro fa quale banda, scritto accanto al DLL.
+        /// <para/>
+        /// <b>SUPERATO DALLA RUOTA VIRTUALE, e non raggiunge piu' il motore.</b> Faceva
+        /// una cosa sola — rietichettare i canali in uscita — e non diceva al motore che
+        /// vetri si possiedono: proprio per questo le prescrizioni venivano calcolate
+        /// sui filtri di serie. Adesso l'inventario parte come `ruota` e il vetro usato
+        /// torna per identificativo. Si continua a leggere il file per non togliere di
+        /// sotto una configurazione gia' scritta sui PC da campo, ma non entra piu' in
+        /// nessuna richiesta: va tolto quando la ruota virtuale avra' fatto una stagione.
+        /// </summary>
         public IReadOnlyDictionary<string, string> Filtri { get; }
 
         /// <summary>Che cosa non andava nel file della mappa, se qualcosa non andava.</summary>
@@ -172,6 +183,66 @@ namespace AstroImage.NINA.Plugin.ViewModels {
              *  montatore non impegna nessuno. */
             Fonte = new FonteDaModello(mediatore);
             Costruttore = new SequenceBuilder(Fonte, profileService);
+
+            /*  LA RUOTA VERA E LA SUA DICHIARAZIONE.
+             *
+             *  `RuotaDelProfilo` legge i vetri dal PROFILO — non dal dispositivo —
+             *  quindi funziona di pomeriggio, a telescopio spento, che e' quando uno
+             *  configura. La dichiarazione vive dentro il profilo di N.I.N.A., cosi'
+             *  ogni profilo ha la sua: quello con l'RC8 e la monocromatica e quello con
+             *  l'Askar e la 2600MC hanno ruote diverse, e una configurazione sola per
+             *  tutti sarebbe sbagliata per almeno uno dei due.
+             *
+             *  L'accessore si costruisce qui e non si chiede a MEF: e' una classe
+             *  concreta di N.I.N.A., e il resto del ponte vede solo `IMemoriaRuota`.
+             *  Se non si riesce a costruirlo il pannello resta usabile e lo dice
+             *  provando a salvare — meglio che sparire dall'elenco dei plugin. */
+            Ruota = new RuotaDelProfilo(profileService);
+            IMemoriaRuota memoria;
+            try {
+                memoria = new MemoriaNelProfilo(
+                    new PluginOptionsAccessor(profileService, Guid.Parse(IdentitaPlugin)));
+            } catch (Exception e) {
+                Logger.Warning("[AstroImage] impostazioni del plugin non disponibili: " + e.Message);
+                memoria = new MemoriaAssente();
+            }
+            Memoria = memoria;
+            Dichiarazione = DichiarazioneRuota.Leggi(Memoria.Leggi(), out var notaR);
+            NotaDichiarazione = notaR;
+            Logger.Info($"[AstroImage] ruota virtuale: {DichiarazioneRuota.IdDichiarati(Dichiarazione).Count} vetri dichiarati" +
+                        (notaR is null ? "" : " — " + notaR));
+        }
+
+        /// <summary>Il GUID dell'assembly: e' lo spazio che N.I.N.A. ci ritaglia dentro
+        /// le impostazioni del profilo. Sta scritto in AssemblyInfo.cs.</summary>
+        public const string IdentitaPlugin = "3AC982AD-64D9-45F0-99EA-56063E94E206";
+
+        /// <summary>La ruota com'e' adesso nel profilo attivo. Si chiede ogni volta.</summary>
+        public RuotaDelProfilo Ruota { get; }
+
+        /// <summary>Dove vive la dichiarazione dei vetri.</summary>
+        public IMemoriaRuota Memoria { get; }
+
+        /// <summary>Che cosa sono, fisicamente, i vetri che hai in ruota.</summary>
+        public RuotaVirtuale Dichiarazione { get; private set; }
+
+        /// <summary>Perche' la dichiarazione non e' quella che ti aspettavi, se e' il caso.</summary>
+        public string NotaDichiarazione { get; private set; }
+
+        /// <summary>
+        /// Il catalogo del motore, chiesto una volta e tenuto: cambia solo quando cambia
+        /// il motore, e chiederlo a ogni apertura della pagina sarebbe un giro di rete
+        /// per niente. Null finche' non si e' potuto avere — e null non e' un elenco vuoto.
+        /// </summary>
+        public CatalogoDelMotore Catalogo { get; set; }
+
+        /// <summary>Sostituisce la dichiarazione e la salva. Torna false con un motivo
+        /// se non si e' potuta scrivere: chi configura deve sapere subito se il suo
+        /// lavoro e' andato a terra, non scoprirlo dopo un riavvio.</summary>
+        public bool SalvaDichiarazione(RuotaVirtuale nuova, out string perCheNo) {
+            Dichiarazione = nuova ?? new RuotaVirtuale();
+            NotaDichiarazione = null;
+            return Memoria.Scrivi(DichiarazioneRuota.Scrivi(Dichiarazione), out perCheNo);
         }
     }
 }
