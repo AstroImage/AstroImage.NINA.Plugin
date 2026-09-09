@@ -23,10 +23,40 @@ che il motore non risponde.
 aperto che fa da mediatore verso un servizio esterno. Il ponte è il tubo; quello che ci
 passa dentro è un'altra cosa.
 
+## L'idea
+
+Il progetto nasce da una convinzione precisa: **la pianificazione di una ripresa non è
+una tabella di consigli, è una conseguenza.** Conseguenza della fisica del soggetto, del
+sensore che hai, del vetro che hai davanti e del cielo di quella notte in quel posto. Se
+si parte da lì, la domanda «quante ore di Ha su questo oggetto» ha una risposta che si
+può derivare e discutere — non una regola del pollice da ripetere.
+
+Da questa premessa discendono tre regole che si ritrovano in ogni file di entrambi i
+repository, e che non sono scelte di programmazione:
+
+**Ogni numero porta la sua provenienza.** Nel motore un valore misurato non si confonde
+con uno derivato né con una stima: `fonte`, `confidenza`, `derivazione` e dominio di
+validità viaggiano accanto al dato. Dove la misura non c'è, si dichiara che non c'è —
+non si inventa un coefficiente plausibile.
+
+**Non si deduce, si dichiara.** Dal nome di un filtro non escono nanometri: «HA» può
+stare davanti a un L-Ultimate, e solo chi l'ha comprato sa che cos'è. Per questo il
+ponte fa dichiarare i vetri invece di indovinarli, e non fa mai analisi dei nomi.
+
+**Si rifiuta, non si sostituisce in silenzio.** È la regola che decide di più:
+*una sequenza che non rispetta la prescrizione, guardandola, non si distingue da una che
+la rispetta.* Fra saltare un blocco e rifiutare tutto vince l'asimmetria del danno — un
+rifiuto si corregge in un clic, cinque ore riprese col vetro sbagliato non si
+recuperano. Da qui vengono tutti i rifiuti di questo codice, e anche la scelta di quali
+NON meritano un rifiuto.
+
 ## Chi l'ha fatto, e come
 
-**Autore e manutentore: Alessandro Curci.** Sono sue l'architettura, le decisioni di
-progetto e la verifica sul campo, ed è suo il motore che rende utile questo ponte.
+**Autore e manutentore: Alessandro Curci.** Sono sue l'idea sopra e le regole che ne
+discendono, l'architettura, le decisioni di progetto e la verifica sul campo; ed è suo
+il motore — il modello fisico, il catalogo curato, la disciplina della provenienza —
+cioè tutto ciò che rende utile questo ponte.
+
 La stesura del codice è stata fatta **in larga parte da un assistente di intelligenza
 artificiale** (Claude, di Anthropic), su sua direzione e sotto la sua revisione. Ogni
 commit lo dichiara con un trailer `Co-Authored-By`.
