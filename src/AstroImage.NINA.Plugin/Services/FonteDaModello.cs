@@ -103,8 +103,8 @@ namespace AstroImage.NINA.Plugin.Services {
              *  ITriggerable e IConditionable, che il contenitore concreto implementa. */
             if (c is ITriggerable tr) foreach (var x in tr.Triggers.ToList()) c.Remove(x);
             if (c is IConditionable co) foreach (var x in co.Conditions.ToList()) c.Remove(x);
-            Logger.Info($"[AstroImage] contenitore clonato da «{c.Name}»: " +
-                        $"restano {c.Items.Count} elementi dopo lo svuotamento");
+            Logger.Debug($"[AstroImage] contenitore clonato da «{c.Name}»: " +
+                         $"restano {c.Items.Count} elementi dopo lo svuotamento");
             return c;
         }
 
