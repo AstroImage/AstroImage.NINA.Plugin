@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using AstroImage.NINA.Plugin.Models;
@@ -53,6 +54,15 @@ namespace AstroImage.NINA.Plugin.Services {
 
         /// <summary>Dimentica quello che ha in mano.</summary>
         public void Lascia() { _id = null; _esito = null; }
+
+        /// <summary>
+        /// Quale vetro il motore ha dichiarato di aver usato, canale per canale. Si
+        /// legge dal corpo grezzo della risposta in mano — l'unico posto dove il dato
+        /// esiste — e vuota quando la risposta non lo dice. Vuota non autorizza a
+        /// indovinare: chi la usa deve saper rifiutare.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> VetriPerCanale() =>
+            VetriDellaPrescrizione.PerCanale(_esito?.Corpo);
 
         /// <summary>
         /// Cerca la notte chiesta dentro la risposta identificata da

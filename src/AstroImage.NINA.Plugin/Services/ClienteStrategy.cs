@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using AstroImage.NINA.Plugin.Models;
@@ -43,6 +44,7 @@ namespace AstroImage.NINA.Plugin.Services {
         private readonly HttpClient _http;
         private readonly Uri _prescrizione;
         private readonly Uri _salute;
+        private readonly Uri _filtri;
 
         /// <param name="http">Il cliente HTTP. Lo costruisce chi sa quanto deve durare
         /// una connessione e quante ne servono: non e' una decisione di questo file.</param>
@@ -53,6 +55,28 @@ namespace AstroImage.NINA.Plugin.Services {
             if (baseUri is null) throw new ArgumentNullException(nameof(baseUri));
             _prescrizione = new Uri(baseUri, "v1/prescrizione");
             _salute = new Uri(baseUri, "v1/salute");
+            _filtri = new Uri(baseUri, "v1/filtri");
+        }
+
+        /*  IL CATALOGO DEI VETRI, per far dichiarare all'utente che cosa ha in ruota.
+         *
+         *  Torna null quando non si e' potuto avere, e null non e' un elenco vuoto: un
+         *  elenco vuoto direbbe «il motore non conosce nessun vetro», che sarebbe falso.
+         *  Chi chiama deve poter distinguere «non l'ho chiesto bene» da «non c'e' niente»,
+         *  perche' nel primo caso la pagina dice di accendere il servizio e nel secondo
+         *  direbbe una bugia. */
+        public async Task<CatalogoDelMotore?> Filtri(CancellationToken ct = default) {
+            try {
+                using var r = await _http.GetAsync(_filtri, ct).ConfigureAwait(false);
+                if (!r.IsSuccessStatusCode) return null;
+                var corpo = await r.Content.ReadAsStringAsync().ConfigureAwait(false);
+                return JsonSerializer.Deserialize<CatalogoDelMotore>(corpo, SequenceModel.OpzioniJson);
+            } catch (Exception) {
+                /*  Servizio spento, indirizzo sbagliato, risposta storta: da qui in poi
+                 *  sono tutti lo stesso fatto — non c'e' catalogo — e chi chiama lo
+                 *  dice a chi guarda. Un'eccezione qui chiuderebbe il pannello. */
+                return null;
+            }
         }
 
         /// <summary>

@@ -66,12 +66,25 @@ namespace AstroImage.NINA.Plugin.Tests {
              *  risposta ci sono e pesano il novanta per cento — non hanno un tipo di
              *  proposito, e viaggiano in JsonExtensionData. Il giorno in cui qualcuno
              *  gliene desse uno, questo numero salirebbe e bisognerebbe spiegare
-             *  perche' il ponte ha imparato a leggere cio' che deve solo portare. */
-            Assert.AreEqual(15, tipi.Length,
+             *  perche' il ponte ha imparato a leggere cio' che deve solo portare.
+             *
+             *  E I QUATTRO DELLA RUOTA VIRTUALE, che sono l'aggiunta piu' recente.
+             *
+             *  `CatalogoDelMotore` e `VetroDelMotore` sono il poco che serve a SCEGLIERE
+             *  un vetro in un elenco — identificativo, nome, banda, larghezza — e non la
+             *  fisica con cui il motore calcola: quella non esce nemmeno dalla porta
+             *  `/v1/filtri`, e un gate dall'altra parte lo verifica. `RuotaVirtuale` e
+             *  `VoceRuota` sono la dichiarazione dell'utente, cioe' due stringhe per
+             *  riga: come si chiama in N.I.N.A. e che vetro e'.
+             *
+             *  Nessuno dei quattro sa fare niente — leggere, scrivere e cercare stanno
+             *  in Services/DichiarazioneRuota — ed e' per questo che possono stare qui. */
+            Assert.AreEqual(19, tipi.Length,
                 "il modello deve avere esattamente questi tipi: SequenceModel, Quando, Bersaglio, " +
-                "Offset, Ottica, Sito, Capacita, Blocco, Dither, e la busta del servizio " +
+                "Offset, Ottica, Sito, Capacita, Blocco, Dither, la busta del servizio " +
                 "RispostaPrescrizione, ProdottoPrescrizione, BersaglioRisolto, SequenzaDiNotte, " +
-                "ErroreServizio, MisuraServizio. Trovati: " +
+                "ErroreServizio, MisuraServizio, e la ruota virtuale CatalogoDelMotore, " +
+                "VetroDelMotore, RuotaVirtuale, VoceRuota. Trovati: " +
                 string.Join(", ", tipi.Select(t => t.Name)));
             foreach (var atteso in new[] { "SequenceModel", "Quando", "Bersaglio", "Offset",
                                            "Ottica", "Sito", "Capacita", "Blocco", "Dither",

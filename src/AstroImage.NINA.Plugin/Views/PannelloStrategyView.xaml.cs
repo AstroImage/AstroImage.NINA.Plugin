@@ -6,6 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Controls;
+using System.Threading.Tasks;
+using AstroImage.NINA.Plugin.Models;
 using AstroImage.NINA.Plugin.Services;
 using AstroImage.NINA.Plugin.ViewModels;
 using Microsoft.Web.WebView2.Core;
@@ -21,14 +23,22 @@ namespace AstroImage.NINA.Plugin.Views {
      *  segreto vive nel C#, dove chi apre gli strumenti di sviluppo sulla pagina non
      *  lo trova.
      *
-     *  IL PROTOCOLLO, tre azioni e nessuna cerimonia:
+     *  IL PROTOCOLLO, cinque azioni e nessuna cerimonia:
      *
      *      salute        { id, azione: "salute" }
      *                 -> { id, ok }
      *
+     *      filtri        { id, azione: "filtri" }
+     *                 -> { id, ok, righe[], catalogo[], catalogoDisponibile, diSerie[],
+     *                      cameraAMatrice, ruotaVuota, nota, dichiarati }
+     *
+     *      salvaFiltri   { id, azione: "salvaFiltri", vetri: [{ nina, id, nota }] }
+     *                 -> { id, ok, dichiarati }
+     *
      *      prescrizione  { id, azione: "prescrizione", corpo: { … } }
      *                 -> { id, ok, corpo: "<il JSON del servizio>", notti, ms,
-     *                      prescrizione: "<identificativo>", consegnabile, perche }
+     *                      prescrizione: "<identificativo>", consegnabile, perche,
+     *                      ruotaAggiunta }
      *
      *      manda         { id, azione: "manda", prescrizione: "<identificativo>", notte: n }
      *                 -> { id, ok, nome, bersaglio, blocchi, pose, note[], scartati[] }
@@ -117,37 +127,56 @@ namespace AstroImage.NINA.Plugin.Views {
 
                 if (azione == "manda") { Manda(id, messaggio); return; }
 
-                /*  LA PAGINA CHIEDE LA MAPPA, IL PONTE NON LA INIETTA.
+                /*  LA PAGINA CHIEDE LA CONFIGURAZIONE, e la compone lei.
                  *
-                 *  Sarebbe stato piu' corto aggiungere `filterNames` al corpo mentre
-                 *  passa. Ma il corriere non tocca cio' che trasporta — c'e' un test che
-                 *  verifica che il corpo parta come e' stato scritto — e quella
-                 *  proprieta' vale piu' di venti righe risparmiate: il giorno in cui il
-                 *  ponte comincia a «migliorare» le richieste, nessuno sa piu' che cosa
-                 *  ha chiesto davvero il client.
+                 *  Il corriere non tocca cio' che trasporta: c'e' un test che verifica
+                 *  che il corpo parta come e' stato scritto, e quella proprieta' vale
+                 *  piu' di venti righe risparmiate — il giorno in cui il ponte comincia
+                 *  a «migliorare» le richieste, nessuno sa piu' che cosa abbia chiesto
+                 *  davvero il client.
                  *
-                 *  Quindi la pagina chiede, e compone lei la domanda. Il ponte risponde
-                 *  con due cose: la mappa scritta dall'utente e la ruota VERA letta dal
-                 *  profilo — la seconda serve a chi dovra' scrivere la prima. */
-                if (azione == "filtri") {
-                    var vmF = DataContext as PannelloStrategyVM;
-                    var mappa = new JsonObject();
-                    foreach (var (canale, vetro) in vmF?.Filtri ?? new Dictionary<string, string>())
-                        mappa[canale] = vetro;
-                    var ruota = new JsonArray();
-                    foreach (var n in vmF?.Costruttore?.NomiInRuota() ?? new List<string>())
-                        ruota.Add(n);
-                    Rispondi(id, true, null, null, null, 0, null, new JsonObject {
-                        ["mappa"] = mappa, ["ruota"] = ruota, ["nota"] = vmF?.NotaFiltri,
-                    });
-                    return;
-                }
+                 *  L'UNICA ECCEZIONE E' `ruota`, ed e' dichiarata: la pagina non puo'
+                 *  conoscerla, perche' vive nel profilo di N.I.N.A. e nelle impostazioni
+                 *  del plugin. Si aggiunge solo se manca, e si dice sempre nella risposta
+                 *  che cosa e' partito. Vedi il commento sull'azione `prescrizione`. */
+                if (azione == "filtri") { await Filtri(id); return; }
+
+                if (azione == "salvaFiltri") { SalvaFiltri(id, messaggio); return; }
 
                 if (azione != "prescrizione") {
                     Rispondi(id, false, null, "azione_sconosciuta", "Azione: " + azione); return;
                 }
 
-                var corpo = messaggio["corpo"]?.ToJsonString() ?? "{}";
+                /*  LA RUOTA ENTRA NELLA RICHIESTA, e questa e' la correzione di un
+                 *  difetto vero, non una comodita'.
+                 *
+                 *  Fino a ieri il ponte mandava solo `opzioni.filterNames`, che
+                 *  RIETICHETTA i canali in uscita. Non mandava `ruota`, e il servizio in
+                 *  quel caso fa `M.ruota(DB.default_filters)`: il motore calcolava sui
+                 *  suoi dieci vetri di serie e poi rinominava il risultato con i nomi
+                 *  della tua ruota. Una prescrizione che SEMBRAVA fatta sul tuo
+                 *  equipaggiamento, e non lo era. E `OWNED` non e' cosmetico: decide
+                 *  perfino se una banda sia ottenibile.
+                 *
+                 *  QUI IL PONTE TOCCA LA RICHIESTA, e altrove ha scritto che non lo fa.
+                 *  Lo scostamento e' voluto e limitato: la ruota la pagina non puo'
+                 *  conoscerla — vive nel profilo di N.I.N.A. e nelle impostazioni del
+                 *  plugin — e la correttezza di una prescrizione non puo' dipendere dal
+                 *  fatto che un client si ricordi di dichiararla. Quindi si aggiunge
+                 *  SOLO SE MANCA: un client che la dichiara resta padrone della propria
+                 *  domanda. E si dice sempre nella risposta che cosa e' partito, perche'
+                 *  un'aggiunta silenziosa sarebbe esattamente il difetto che stiamo
+                 *  togliendo, girato dall'altra parte. */
+                var vmR = DataContext as PannelloStrategyVM;
+                var corpoJson = messaggio["corpo"]?.AsObject() ?? new JsonObject();
+                var dichiarati = DichiarazioneRuota.IdDichiarati(vmR?.Dichiarazione) ?? new List<string>();
+                JsonArray ruotaInviata = null;
+                if (corpoJson["ruota"] is null && dichiarati.Count > 0) {
+                    ruotaInviata = new JsonArray();
+                    foreach (var v in dichiarati) ruotaInviata.Add(v);
+                    corpoJson["ruota"] = ruotaInviata.DeepClone();
+                }
+                var corpo = corpoJson.ToJsonString();
                 var esito = await cliente.Prescrizione(corpo);
                 if (!esito.Riuscito) { Rispondi(id, false, null, esito.Codice, esito.Messaggio); return; }
 
@@ -163,13 +192,22 @@ namespace AstroImage.NINA.Plugin.Views {
                  *  AddAdvancedTarget?» ha una risposta scritta invece che dedotta. */
                 var perche = vm?.PerCheNonConsegna;
                 Logger.Info("[AstroImage] prescrizione: " + esito.Sequenze.Count + " notti, " +
-                            (perche is null ? "consegnabile" : "NON consegnabile — " + perche));
+                            (perche is null ? "consegnabile" : "NON consegnabile — " + perche) +
+                            ", ruota dichiarata: " + (dichiarati.Count > 0
+                                ? string.Join("+", dichiarati) : "NESSUNA (il motore usa i suoi vetri di serie)"));
 
                 Rispondi(id, true, esito.Corpo, null, null, esito.Sequenze.Count, esito.MsDelMotore,
                          new JsonObject {
                              ["prescrizione"] = idPrescrizione,
                              ["consegnabile"] = perche is null,
                              ["perche"] = perche,
+                             /*  Che cosa e' partito davvero. Null quando il ponte non ha
+                                aggiunto niente — o perche' il client aveva gia' dichiarato
+                                la sua ruota, o perche' non ce n'e' una configurata: e in
+                                quel secondo caso la pagina deve dirlo forte, perche' la
+                                prescrizione che si sta guardando e' stata calcolata sui
+                                vetri di serie del motore e non sui propri. */
+                             ["ruotaAggiunta"] = ruotaInviata?.DeepClone(),
                          });
             } catch (Exception ex) {
                 Rispondi(id, false, null, "ponte_in_errore", ex.Message);
@@ -218,6 +256,49 @@ namespace AstroImage.NINA.Plugin.Views {
             if (scelta is null) {
                 Logger.Warning(IO + $"manda: notte non ottenuta — {codice}: {motivo}");
                 Rispondi(id, false, null, codice, motivo); return;
+            }
+
+            /*  IL VETRO LO DICE IL MOTORE, NON LA NOSTRA MAPPA.
+             *
+             *  `blocco.filtro` arriva dal motore per RIETICHETTATURA del canale: e' il
+             *  nome che gli abbiamo passato noi accanto a quel canale, e ci torna
+             *  indietro identico. Circolare, e per ora innocuo — ma il giorno in cui il
+             *  motore sceglie fra un L-eNhance e un L-Ultimate in base al cielo, quel
+             *  nome direbbe l'uno mentre le ore sono state calcolate sull'altro.
+             *
+             *  La risposta vera e' in `posa.<canale>.ex.spec.filter.id`, dove il motore
+             *  dichiara il vetro su cui ha fatto il conto. Si risolve quello nella
+             *  dichiarazione dell'utente e si ottiene il nome operativo giusto.
+             *
+             *  E se un identificativo non e' dichiarato NON si ripiega sul nome vecchio:
+             *  il motore ha calcolato ore su un vetro che, per quanto ne sappiamo, in
+             *  ruota non c'e'. Consegnare comunque vorrebbe dire riprendere col vetro
+             *  sbagliato — l'asimmetria di sempre: un rifiuto si corregge in un clic,
+             *  cinque ore no. */
+            var perCanale = vm.InMano.VetriPerCanale();
+            var nonDichiarati = new List<string>();
+            var discordi = new List<string>();
+            foreach (var b in scelta.Modello?.Blocchi ?? new List<Blocco>()) {
+                var idVetro = VetriDellaPrescrizione.DelBlocco(b.Canali, perCanale, out var perCheNoVetro);
+                if (perCheNoVetro != null && idVetro is null && b.Canali != null && b.Canali.Count > 0
+                        && perCanale.Count > 0) { discordi.Add(perCheNoVetro); continue; }
+                if (idVetro is null) continue;   // il motore non l'ha detto: resta il nome di prima
+                var nome = DichiarazioneRuota.NomePerId(vm.Dichiarazione, idVetro);
+                if (string.IsNullOrWhiteSpace(nome)) {
+                    nonDichiarati.Add($"«{string.Join("+", b.Canali ?? new List<string>())}» "
+                        + $"e' stato calcolato sul vetro «{idVetro}», che nella tua ruota non e' dichiarato");
+                    continue;
+                }
+                b.Filtro = nome;
+            }
+            if (discordi.Count > 0 || nonDichiarati.Count > 0) {
+                var motivoVetro = string.Join("; ", discordi.Concat(nonDichiarati)) +
+                    ". Il bersaglio NON e' stato consegnato: dichiara quel vetro nella " +
+                    "configurazione dei filtri, oppure chiedi di nuovo la prescrizione " +
+                    "con la ruota che hai davvero.";
+                Logger.Warning(IO + "manda: vetro non risolvibile — " + motivoVetro);
+                Rispondi(id, false, null, "vetro_non_dichiarato", motivoVetro);
+                return;
             }
 
             var contenitore = vm.Costruttore.Costruisci(scelta.Modello, out var ricetta);
@@ -276,6 +357,92 @@ namespace AstroImage.NINA.Plugin.Views {
                 }
             }
             nucleo.PostWebMessageAsString(o.ToJsonString(new JsonSerializerOptions()));
+        }
+
+        /*  LA CONFIGURAZIONE DEI VETRI, messa insieme dalle tre cose che la compongono:
+         *  la ruota com'e' adesso nel profilo, la dichiarazione che l'utente ha gia'
+         *  fatto, e il catalogo del motore. Nessuna delle tre e' padrona delle altre, e
+         *  i modi in cui non combaciano sono informazioni — un nome rinominato lascia
+         *  una voce orfana, un vetro nuovo una riga vuota. */
+        private async Task Filtri(string id) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return; }
+
+            /*  Il catalogo si chiede una volta e si tiene: cambia solo quando cambia il
+             *  motore, e un giro di rete a ogni apertura della pagina sarebbe speso per
+             *  niente. Se il servizio e' spento resta null — e null non e' un elenco
+             *  vuoto: la pagina deve poter dire «accendi il motore», non «non conosce
+             *  nessun vetro». */
+            if (vm.Catalogo is null) vm.Catalogo = await vm.Cliente.Filtri();
+
+            var vetri = vm.Ruota.Vetri(out var perCheNo);
+            var righe = RiconciliaRuota.Righe(vetri, vm.Dichiarazione, vm.Catalogo, vm.Ruota.CameraAMatrice());
+
+            var elenco = new JsonArray();
+            foreach (var r in righe) {
+                elenco.Add(new JsonObject {
+                    ["nina"] = r.Nina,
+                    ["slot"] = r.Slot,
+                    ["id"] = r.IdMotore,
+                    ["vetro"] = DichiarazioneRuota.Etichetta(r.Vetro),
+                    ["banda"] = r.Vetro?.Banda,
+                    ["stato"] = r.Stato.ToString().ToLowerInvariant(),
+                    ["adatto"] = r.AdattoAllaCamera,
+                    ["ambiguo"] = r.NomeAmbiguo,
+                    ["nota"] = r.Nota,
+                });
+            }
+
+            var catalogo = new JsonArray();
+            foreach (var v in vm.Catalogo?.Filtri ?? new List<VetroDelMotore>()) {
+                if (string.IsNullOrWhiteSpace(v.Id)) continue;
+                catalogo.Add(new JsonObject {
+                    ["id"] = v.Id, ["nome"] = DichiarazioneRuota.Etichetta(v), ["banda"] = v.Banda,
+                    ["fwhm_nm"] = v.FwhmNm, ["dual"] = v.Dual,
+                    ["bande"] = v.Bande is null ? null : new JsonArray(v.Bande.Select(x => (JsonNode)x).ToArray()),
+                    ["per_mono"] = v.PerMono, ["per_cfa"] = v.PerCfa,
+                });
+            }
+
+            var diSerie = new JsonArray();
+            foreach (var s in vm.Catalogo?.DiSerie ?? new List<string>()) diSerie.Add(s);
+
+            Rispondi(id, true, null, null, null, 0, null, new JsonObject {
+                ["righe"] = elenco,
+                ["catalogo"] = catalogo,
+                ["catalogoDisponibile"] = vm.Catalogo != null,
+                ["diSerie"] = diSerie,
+                ["cameraAMatrice"] = vm.Ruota.CameraAMatrice(),
+                ["ruotaVuota"] = perCheNo,
+                ["nota"] = vm.NotaDichiarazione,
+                ["dichiarati"] = DichiarazioneRuota.IdDichiarati(vm.Dichiarazione).Count,
+            });
+        }
+
+        /*  SALVA LA DICHIARAZIONE. Arriva intera e sostituisce quella di prima: un
+         *  salvataggio parziale lascerebbe due verita' in giro, e a quel punto quale
+         *  vale? La pagina manda tutto quello che ha in tavola. */
+        private void SalvaFiltri(string id, JsonObject messaggio) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", "Il pannello non ha un ViewModel."); return; }
+
+            var nuova = new RuotaVirtuale();
+            foreach (var v in messaggio["vetri"]?.AsArray() ?? new JsonArray()) {
+                var nina = v?["nina"]?.GetValue<string>();
+                if (string.IsNullOrWhiteSpace(nina)) continue;
+                var motore = v?["id"]?.GetValue<string>();
+                nuova.Vetri.Add(new VoceRuota {
+                    Nina = nina!.Trim(),
+                    Motore = string.IsNullOrWhiteSpace(motore) ? null : motore!.Trim(),
+                    Nota = v?["nota"]?.GetValue<string>(),
+                });
+            }
+
+            var ok = vm.SalvaDichiarazione(nuova, out var perCheNo);
+            Logger.Info("[AstroImage] ruota virtuale salvata: " + DichiarazioneRuota.IdDichiarati(nuova).Count +
+                        " vetri dichiarati" + (ok ? "" : " — NON SCRITTA: " + perCheNo));
+            Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo, 0, null,
+                     new JsonObject { ["dichiarati"] = DichiarazioneRuota.IdDichiarati(nuova).Count });
         }
 
         private void AlRiprova(object mittente, RoutedEventArgs e) {
