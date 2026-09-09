@@ -269,6 +269,49 @@ namespace AstroImage.NINA.Plugin.Services {
                 if (trovato is not null) se.GetSwitchFilter().Filter = trovato;
             }
 
+            /*  LA GARANZIA. Si rilegge tutto quello che si e' appena scritto e lo si
+             *  confronta con la prescrizione. Se un solo valore non combacia, il blocco
+             *  non si consegna.
+             *
+             *  NON E' PARANOIA, E' L'UNICA COSA CHE SCALA. N.I.N.A. 3.3 ha aggiunto a
+             *  trentaquattro proprieta' del Sequenziatore una coppia
+             *  `<Nome>Definition`/`<Nome>Expression` che in un caso — le iterazioni —
+             *  vinceva sull'assegnazione. Le altre tre che tocchiamo oggi si comportano
+             *  bene: misurato sul Sequenziatore vero, `ExposureTime`, il filtro e il
+             *  dither riportano il valore prescritto. Ma «oggi si comporta bene» non e'
+             *  una garanzia per la prossima nightly, e ricordarsi di ricontrollare a
+             *  ogni versione non e' un piano. Rileggere e confrontare costa quattro
+             *  chiamate e vale per tutte le versioni che verranno.
+             *
+             *  Si confronta il VALORE, non la definizione: sullo stesso blocco il
+             *  guadagno propaga nella sua definizione e l'offset no, ed entrambi sono
+             *  corretti. Pretendere la definizione uguale rifiuterebbe consegne giuste,
+             *  e un rifiuto falso insegna a ignorare i rifiuti. */
+            var posaLetta = se.GetTakeExposure();
+            if (!Garanzia.Numero(posaLetta, "ExposureTime", b.Secondi, "la posa", out perCheNo))
+                return null;
+            if (b.Gain is not null &&
+                !Garanzia.Numero(posaLetta, "Gain", b.Gain.Value, "il guadagno", out perCheNo))
+                return null;
+            if (b.Offset is not null &&
+                !Garanzia.Numero(posaLetta, "Offset", b.Offset.Value, "l'offset", out perCheNo))
+                return null;
+
+            /*  Il filtro si verifica per NOME, che e' cio' che N.I.N.A. usa per
+             *  sceglierlo in ruota. Solo se il ponte l'ha davvero impostato: se il
+             *  vetro non era in ruota si e' gia' rifiutato tutto molto prima. */
+            if (!string.IsNullOrWhiteSpace(b.Filtro) && FiltroDaRuota(b.Filtro!) is not null &&
+                !Garanzia.Parola(se.GetSwitchFilter()?.Filter?.Name, b.Filtro, "il filtro", out perCheNo))
+                return null;
+
+            /*  Il dither si verifica solo se doveva esserci. Quando non si dithera
+             *  l'innesco si toglie, e l'assenza e' l'esito giusto: verificarne il valore
+             *  su un oggetto rimosso non vorrebbe dire niente. */
+            if (ditherOgniPose is int atteso && atteso > 0 &&
+                !Garanzia.Numero(se.GetDitherAfterExposures(), "AfterExposures", atteso,
+                                 "il dither", out perCheNo))
+                return null;
+
             return se;
         }
 
