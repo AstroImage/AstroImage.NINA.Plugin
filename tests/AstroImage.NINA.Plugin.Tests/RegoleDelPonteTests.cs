@@ -137,26 +137,43 @@ namespace AstroImage.NINA.Plugin.Tests {
         }
 
         [TestMethod]
-        public void IlPonteImpostaIlDither_NonLoEreditaDalModello() {
-            /*  LA REGRESSIONE DEL 3 AL POSTO DEL 2.
+        public void IlPonteNONImponeIlDither_MaSaToglierloSenzaGuida() {
+            /*  QUESTA REGOLA E' STATA ROVESCIATA, E VALE LA PENA DIRE PERCHE'.
              *
-             *  Il modello di serie di N.I.N.A. porta «dither ogni 3 pose». La
-             *  prescrizione ne chiedeva 2. Il clone teneva il 3, e in sequenza e'
-             *  finito un numero plausibile, al posto giusto, che nessuno guarda due
-             *  volte. Il valore di Strategy deve prevalere SEMPRE su quello ereditato.
+             *  Prima diceva l'opposto: «il valore di Strategy deve prevalere SEMPRE su
+             *  quello ereditato dal modello». Nasceva da un difetto vero — il modello
+             *  portava «ogni 3», la prescrizione diceva «ogni 2», e in sequenza finiva
+             *  il 3 — e la correzione era giusta finche' credevamo che quel numero fosse
+             *  una prescrizione.
              *
-             *  QUESTA VERIFICA E' PIU' DEBOLE DI QUANTO VORREI, e va detto: guarda che
-             *  la chiamata ci sia, non che il numero finisca giusto. Il valore si
-             *  imposta su uno SmartExposure, e uno SmartExposure fuori da N.I.N.A. non
-             *  si costruisce — il costruttore solleva. Provato: togliendo l'assegnazione,
-             *  nessun test di comportamento diventa rosso. Questo si'. E' quanto si
-             *  puo' avere senza N.I.N.A. accesa, ed e' meglio di niente. */
+             *  NON LO E'. Nel motore `ditherEvery` sta in `OPDEF` fra i valori OPERATIVI
+             *  dell'utente, con un default di 2: il motore lo legge, non lo calcola.
+             *  Imporlo voleva dire far vincere l'impostazione di una pagina web sul
+             *  modello di sequenza che l'utente ha scritto dentro N.I.N.A. — che e' il
+             *  posto dove quella scelta gli appartiene davvero.
+             *
+             *  E lo scarto sta dentro il margine: il piano toglie gia' 0,6 h a ogni
+             *  notte utile per fuoco, plate solve e calibrazione. Il dither muove il
+             *  solo ciclo utile, di qualche punto percentuale.
+             *
+             *  RESTA PERO' UNA COSA CHE IL PONTE DEVE FARE: togliere l'innesco quando
+             *  non c'e' guida. Senza niente da spostare il dither non e' un'opinione,
+             *  e' impossibile — e lasciarlo vorrebbe dire una sequenza che tenta un
+             *  gesto che non puo' riuscire. Per questo `GetDitherAfterExposures` deve
+             *  restare nominato: serve a trovarlo per rimuoverlo.
+             *
+             *  La verifica e' piu' debole di quanto vorrei, e va detto: guarda i membri
+             *  nominati nel binario, non il comportamento. Uno SmartExposure fuori da
+             *  N.I.N.A. non si costruisce — il costruttore solleva. */
             var membri = MembriNominati();
 
             Assert.IsTrue(membri.Contains("SmartExposure::GetDitherAfterExposures"),
-                "il ponte non chiede piu' l'innesco del blocco: il dither del modello resterebbe");
-            Assert.IsTrue(membri.Contains("DitherAfterExposures::set_AfterExposures"),
-                "il ponte non imposta piu' il valore del dither: erediterebbe quello del modello");
+                "il ponte non cerca piu' l'innesco: senza guida resterebbe in sequenza un " +
+                "dither che non puo' funzionare");
+            Assert.IsFalse(membri.Contains("DitherAfterExposures::set_AfterExposures"),
+                "il ponte impone di nuovo il proprio numero di dither sopra quello del " +
+                "modello dell'utente: quel numero e' un'impostazione operativa sua, non " +
+                "una prescrizione");
         }
 
         [TestMethod]

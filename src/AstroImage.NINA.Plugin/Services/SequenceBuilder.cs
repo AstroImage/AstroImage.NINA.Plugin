@@ -257,8 +257,38 @@ namespace AstroImage.NINA.Plugin.Services {
              *  scatterebbe a OGNI posa. Per non ditherare si toglie l'innesco. */
             var innesco = se.GetDitherAfterExposures();
             if (innesco is not null) {
-                if (ditherOgniPose is int ogni && ogni > 0) innesco.AfterExposures = ogni;
-                else se.Remove(innesco);
+                if (ditherOgniPose is int ogni && ogni > 0) {
+                    /*  IL DITHER RESTA QUELLO DEL TUO MODELLO, e il ponte non lo tocca.
+                     *
+                     *  Qui c'era `innesco.AfterExposures = ogni`, e veniva da un difetto
+                     *  vero: il modello portava «ogni 3», la prescrizione diceva «ogni
+                     *  2», e il clone teneva il 3. La correzione era giusta finche'
+                     *  credevamo che quel numero fosse una prescrizione. Non lo e': nel
+                     *  motore `ditherEvery` sta fra i valori OPERATIVI dell'utente con
+                     *  un default di 2, e il motore lo legge — non lo calcola.
+                     *
+                     *  Imporlo voleva dire far vincere l'impostazione di una pagina web
+                     *  sul modello di sequenza che l'utente ha scritto dentro N.I.N.A.,
+                     *  che e' il posto dove quella scelta gli appartiene davvero.
+                     *
+                     *  E il costo dello scarto e' dentro il margine: il piano toglie gia'
+                     *  0,6 h a ogni notte utile per fuoco, plate solve e calibrazione
+                     *  (`overhead` nel motore). Qualche punto di ciclo utile ci sta
+                     *  comodo — e il ciclo utile e' l'unica cosa che il dither muove.
+                     *
+                     *  Si dice soltanto, quando differisce, perche' le ore promesse
+                     *  erano state calcolate sull'altro numero. */
+                    if (innesco.AfterExposures != ogni)
+                        note?.Add($"Blocco «{b.Etichetta}»: il dither resta quello del tuo modello " +
+                                  $"— ogni {innesco.AfterExposures} pose, non ogni {ogni} come " +
+                                  "nelle impostazioni del motore. Non compromette le riprese: " +
+                                  "sposta di poco il tempo di assestamento, che sta dentro " +
+                                  "l'overhead gia' tolto a ogni notte.");
+                } else {
+                    /*  Nessuna guida dichiarata: senza niente da spostare il dither non
+                     *  e' un'opinione, e' impossibile. L'innesco si toglie. */
+                    se.Remove(innesco);
+                }
             }
 
             /*  Il filtro si cambia solo se c'e' una ruota e se nella ruota quel nome
@@ -304,30 +334,6 @@ namespace AstroImage.NINA.Plugin.Services {
             if (!string.IsNullOrWhiteSpace(b.Filtro) && FiltroDaRuota(b.Filtro!) is not null &&
                 !Garanzia.Parola(se.GetSwitchFilter()?.Filter?.Name, b.Filtro, "il filtro", out perCheNo))
                 return null;
-
-            /*  IL DITHER SI SEGNALA, NON FA RIFIUTARE, e la differenza sta in quanto
-             *  danno fa sbagliarlo.
-             *
-             *  Non e' una prescrizione: nel motore `ditherEvery` sta fra i valori
-             *  operativi dell'utente con un default di 2, e il motore lo LEGGE, non lo
-             *  calcola. Ma non e' nemmeno decorativo, perche' entra nel ciclo utile —
-             *  `duty = sqrt(t / (t + scarico + dither))` — cioe' nelle ore che la
-             *  prescrizione promette. Ditherare piu' spesso del previsto mangia
-             *  assestamento che il piano non aveva messo in conto.
-             *
-             *  Quindi si scrive, si verifica, e se non ha attecchito lo si DICE. Ma il
-             *  bersaglio si consegna lo stesso, perche' il danno non e' paragonabile:
-             *  un vetro sbagliato o una posa sbagliata rendono inservibili delle ore, un
-             *  dither ogni 3 invece che ogni 2 costa qualche punto percentuale di
-             *  ciclo utile e non compromette niente. Rifiutare cinque ore di ripresa per
-             *  quello sarebbe una sproporzione — e i rifiuti sproporzionati insegnano a
-             *  ignorare i rifiuti. */
-            if (ditherOgniPose is int atteso && atteso > 0 &&
-                !Garanzia.Numero(se.GetDitherAfterExposures(), "AfterExposures", atteso,
-                                 "il dither", out var perCheDither))
-                note?.Add($"Blocco «{b.Etichetta}»: {perCheDither} " +
-                          "Il bersaglio e' stato consegnato lo stesso — il dither non " +
-                          "compromette le riprese, ma le ore promesse lo davano per buono.");
 
             return se;
         }
