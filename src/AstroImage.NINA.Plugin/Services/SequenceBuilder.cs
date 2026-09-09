@@ -258,32 +258,36 @@ namespace AstroImage.NINA.Plugin.Services {
             var innesco = se.GetDitherAfterExposures();
             if (innesco is not null) {
                 if (ditherOgniPose is int ogni && ogni > 0) {
-                    /*  IL DITHER RESTA QUELLO DEL TUO MODELLO, e il ponte non lo tocca.
+                    /*  IL DITHER SI CONSEGNA, MA NON FA RIFIUTARE NIENTE.
                      *
-                     *  Qui c'era `innesco.AfterExposures = ogni`, e veniva da un difetto
-                     *  vero: il modello portava «ogni 3», la prescrizione diceva «ogni
-                     *  2», e il clone teneva il 3. La correzione era giusta finche'
-                     *  credevamo che quel numero fosse una prescrizione. Non lo e': nel
-                     *  motore `ditherEvery` sta fra i valori OPERATIVI dell'utente con
-                     *  un default di 2, e il motore lo legge — non lo calcola.
+                     *  Questa decisione e' stata girata due volte e la storia serve.
                      *
-                     *  Imporlo voleva dire far vincere l'impostazione di una pagina web
-                     *  sul modello di sequenza che l'utente ha scritto dentro N.I.N.A.,
-                     *  che e' il posto dove quella scelta gli appartiene davvero.
+                     *  Prima si impostava e il valore era trattato come una prescrizione,
+                     *  con tanto di rifiuto se non attecchiva — sproporzionato: un vetro
+                     *  sbagliato rende inservibili delle ore, un dither ogni 3 invece di
+                     *  ogni 2 sposta qualche punto di ciclo utile.
                      *
-                     *  E il costo dello scarto e' dentro il margine: il piano toglie gia'
-                     *  0,6 h a ogni notte utile per fuoco, plate solve e calibrazione
-                     *  (`overhead` nel motore). Qualche punto di ciclo utile ci sta
-                     *  comodo — e il ciclo utile e' l'unica cosa che il dither muove.
+                     *  Poi si e' provato a NON impostarlo, lasciando quello del modello,
+                     *  con l'argomento che `ditherEvery` e' un valore operativo
+                     *  dell'utente e il modello e' «il posto dove quella scelta gli
+                     *  appartiene». L'argomento era sbagliato per due motivi. Il primo:
+                     *  quel numero l'utente lo scrive nella pagina Opzioni del motore, e
+                     *  quindi e' suo esattamente quanto il modello — solo scritto
+                     *  altrove; il 3 del modello di serie e' invece il valore di fabbrica
+                     *  di N.I.N.A., che quasi nessuno ha mai toccato. Il secondo: di quel
+                     *  modello si sovrascrive gia' TUTTO — posa, filtro, numero di pose,
+                     *  guadagno — e lasciare il solo dither sarebbe arbitrario.
                      *
-                     *  Si dice soltanto, quando differisce, perche' le ore promesse
-                     *  erano state calcolate sull'altro numero. */
-                    if (innesco.AfterExposures != ogni)
-                        note?.Add($"Blocco «{b.Etichetta}»: il dither resta quello del tuo modello " +
-                                  $"— ogni {innesco.AfterExposures} pose, non ogni {ogni} come " +
-                                  "nelle impostazioni del motore. Non compromette le riprese: " +
-                                  "sposta di poco il tempo di assestamento, che sta dentro " +
-                                  "l'overhead gia' tolto a ogni notte.");
+                     *  E c'e' la coerenza col piano: le ore promesse sono calcolate con
+                     *  questo numero, perche' entra nel ciclo utile
+                     *  (`duty = sqrt(t / (t + scarico + dither))`). Consegnarne un altro
+                     *  vorrebbe dire promettere ore calcolate su un'ipotesi diversa.
+                     *
+                     *  Quindi si scrive. Non si verifica e non si rifiuta: se N.I.N.A.
+                     *  un domani non lo lasciasse scrivere, il danno e' dentro l'overhead
+                     *  che il piano toglie gia' a ogni notte — 0,6 h — e non vale una
+                     *  consegna mancata. */
+                    innesco.AfterExposures = ogni;
                 } else {
                     /*  Nessuna guida dichiarata: senza niente da spostare il dither non
                      *  e' un'opinione, e' impossibile. L'innesco si toglie. */
