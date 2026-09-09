@@ -64,8 +64,17 @@ using System.Runtime.InteropServices;
     "prescrizione. Se un valore non arriva dove doveva, il bersaglio non si consegna e " +
     "il motivo si legge: una sequenza che non rispetta la prescrizione, guardandola, non " +
     "si distingue da una che la rispetta.\n\n" +
-    "CHI L'HA FATTO. Autore e manutentore: Alessandro Curci — sue l'architettura, le " +
-    "decisioni di progetto e la verifica sul campo, e suo il motore che rende utile " +
-    "questo ponte. La stesura del codice e' stata fatta in larga parte da un assistente " +
-    "di intelligenza artificiale (Claude, di Anthropic), su sua direzione e sotto la sua " +
-    "revisione; ogni commit lo dichiara con un trailer Co-Authored-By.")]
+    "L'IDEA. Pianificare una ripresa non e' consultare una tabella di consigli: e' " +
+    "derivare una conseguenza dalla fisica del soggetto, dal sensore che hai, dal vetro " +
+    "che hai davanti e dal cielo di quella notte. Da qui tre regole che si ritrovano in " +
+    "ogni file: ogni numero porta la sua provenienza e dove la misura non c'e' si " +
+    "dichiara che non c'e'; non si deduce ma si dichiara, perche' dal nome di un filtro " +
+    "non escono nanometri; e non si sostituisce mai in silenzio, perche' una sequenza " +
+    "che non rispetta la prescrizione, guardandola, non si distingue da una che la " +
+    "rispetta.\n\n" +
+    "CHI L'HA FATTO. Autore e manutentore: Alessandro Curci — sue l'idea e le regole " +
+    "che ne discendono, l'architettura, le decisioni di progetto e la verifica sul " +
+    "campo, e suo il motore che rende utile questo ponte. La stesura del codice e' " +
+    "stata fatta in larga parte da un assistente di intelligenza artificiale (Claude, " +
+    "di Anthropic), su sua direzione e sotto la sua revisione; ogni commit lo dichiara " +
+    "con un trailer Co-Authored-By.")]
