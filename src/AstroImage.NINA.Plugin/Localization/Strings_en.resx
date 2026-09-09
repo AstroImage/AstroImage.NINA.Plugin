@@ -63,6 +63,12 @@
   <data name="Cosa_Posa" xml:space="preserve">
     <value>the exposure time</value>
   </data>
+  <data name="Filtri_CanaliDiscordi" xml:space="preserve">
+    <value>The channels in this block declare different filters ({0}): no single filter covers them all, and picking one at random would mean imaging through the wrong filter without saying so.</value>
+  </data>
+  <data name="Filtri_NonDichiarato" xml:space="preserve">
+    <value>The answer does not say which filter was used for {0}.</value>
+  </data>
   <data name="Fonte_ElencoFallito" xml:space="preserve">
     <value>N.I.N.A. could not list the target templates: {0}</value>
   </data>
@@ -102,14 +108,14 @@
   <data name="Iter_PoseNonPositive" xml:space="preserve">
     <value>a non-positive number of exposures is not written.</value>
   </data>
+  <data name="Manda_FiltroNonDichiarato" xml:space="preserve">
+    <value>“{0}” was computed for filter “{1}”, which is not declared in your wheel</value>
+  </data>
   <data name="Manda_FiltroNonRisolto" xml:space="preserve">
     <value>{0}. The target was NOT delivered: declare that filter in the filter configuration, or ask for the prescription again with the wheel you actually have.</value>
   </data>
   <data name="Manda_NessunFiltroDaDichiarare" xml:space="preserve">
     <value>for “{0}” the engine says to put NO filter in front (the Bayer matrix does the colour). If you have an empty slot or a clear filter, declare it as “no filter” in the configuration</value>
-  </data>
-  <data name="Manda_VetroNonDichiarato" xml:space="preserve">
-    <value>“{0}” was computed for filter “{1}”, which is not declared in your wheel</value>
   </data>
   <data name="Mappa_FileVuoto" xml:space="preserve">
     <value>{0} exists but says nothing.</value>
@@ -320,12 +326,6 @@
   </data>
   <data name="Trad_SenzaNumero" xml:space="preserve">
     <value>{0}: no number of exposures</value>
-  </data>
-  <data name="Vetri_CanaliDiscordi" xml:space="preserve">
-    <value>The channels in this block declare different filters ({0}): no single filter covers them all, and picking one at random would mean imaging through the wrong filter without saying so.</value>
-  </data>
-  <data name="Vetri_NonDichiarato" xml:space="preserve">
-    <value>The answer does not say which filter was used for {0}.</value>
   </data>
   <data name="Vm_SenzaMediatore" xml:space="preserve">
     <value>N.I.N.A. did not provide the sequence mediator.</value>

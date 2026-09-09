@@ -117,11 +117,11 @@ namespace AstroImage.NINA.Plugin.Services {
             }
 
             if (discordi.Count > 0) {
-                perche = Loc.F("Vetri_CanaliDiscordi", string.Join(", ", discordi));
+                perche = Loc.F("Filtri_CanaliDiscordi", string.Join(", ", discordi));
                 return null;
             }
             if (scelto is null && senza.Count > 0)
-                perche = Loc.F("Vetri_NonDichiarato", string.Join(", ", senza));
+                perche = Loc.F("Filtri_NonDichiarato", string.Join(", ", senza));
             return scelto;
         }
     }
