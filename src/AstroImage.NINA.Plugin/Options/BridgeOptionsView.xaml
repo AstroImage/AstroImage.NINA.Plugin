@@ -24,10 +24,10 @@
                    Text="Da solo questo plugin non fa niente: dall'altra parte deve esserci AstroImage-Strategy che risponde su una porta HTTP. Senza, il pannello si apre e dice che il motore non risponde." />
 
         <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
-                   Text="Tutto si comanda dal pannello «AstroImage Strategy», sotto Imaging: lì si chiede la prescrizione, si dichiara quali vetri hai davvero in ruota — una volta per profilo — e si consegna il bersaglio. Questa pagina non ha ancora impostazioni proprie." />
+                   Text="Tutto si comanda dal pannello «AstroImage Strategy», sotto Imaging: lì si chiede la prescrizione, si dichiara quali filtri hai davvero in ruota — una volta per profilo — e si consegna il bersaglio. Questa pagina non ha ancora impostazioni proprie." />
 
         <TextBlock TextWrapping="Wrap" FontStyle="Italic"
-                   Text="Autore e manutentore: Alessandro Curci — sue l'architettura, le decisioni di progetto e la verifica sul campo. La stesura del codice è stata fatta in larga parte da un assistente di intelligenza artificiale (Claude, di Anthropic), su sua direzione e sotto la sua revisione; ogni commit lo dichiara." />
+                   Text="Autore e manutentore: Alessandro Curci. La stesura del codice è stata fatta in larga parte da un assistente di intelligenza artificiale (Claude, di Anthropic), su sua direzione e sotto la sua revisione." />
 
     </StackPanel>
 </UserControl>
