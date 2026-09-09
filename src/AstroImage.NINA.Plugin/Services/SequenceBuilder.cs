@@ -398,47 +398,5 @@ namespace AstroImage.NINA.Plugin.Services {
             if (contenitore is null) throw new ArgumentNullException(nameof(contenitore));
             mediatore.AddAdvancedTarget(contenitore);
         }
-
-        /*  QUANTI CE NE SONO GIA' CON QUESTO NOME.
-         *
-         *  `AddAdvancedTarget` AGGIUNGE, e deve continuare a farlo: sovrascrivere
-         *  vorrebbe dire cancellare un bersaglio che chi riprende puo' aver modificato
-         *  a mano, o che e' di un'altra serata. La sequenza e' sua, come l'area di
-         *  Start e come il tasto Riproduci.
-         *
-         *  Ma il messaggio «Notte 1 aggiunta al Sequenziatore» era incompleto, e sul
-         *  campo e' costato: dopo aver cambiato il cielo e richiesto, in sequenza c'erano
-         *  DUE bersagli con lo stesso nome, e per capire quale fosse il nuovo bisognava
-         *  cancellare il vecchio a mano. Peggio: due bersagli identici lasciati li' si
-         *  riprendono tutti e due — dieci ore invece di cinque.
-         *
-         *  Quindi non si cambia il comportamento, si dice che cosa e' successo.
-         *
-         *  TORNA NULL SE NON SI E' POTUTO CONTARE, e null non e' zero: a Sequenziatore
-         *  mai aperto la lettura puo' fallire, e «non lo so» detto come «nessuno»
-         *  sarebbe una bugia piccola nella stessa famiglia di quelle grandi.
-         */
-        public static int? QuantiOmonimi(ISequenceMediator? mediatore, string? nome) {
-            if (mediatore is null) return null;
-            try {
-                var presenti = mediatore.GetAllTargetsInAdvancedSequence();
-                if (presenti is null) return null;
-                return ContaOmonimi(presenti.Select(x => x?.Name), nome);
-            } catch (Exception) {
-                /*  Il Sequenziatore puo' non essere ancora stato aperto: leggere fallisce
-                 *  e non e' un guasto. Si torna «non lo so» invece di far cadere una
-                 *  consegna che sarebbe riuscita. */
-                return null;
-            }
-        }
-
-        /*  Il conteggio e' separato dalla lettura per una ragione pratica: cosi' si prova
-         *  senza N.I.N.A. Un contenitore finto costerebbe mezza interfaccia del
-         *  Sequenziatore da scrivere, e quello che c'e' da provare qui e' solo il
-         *  confronto fra nomi. */
-        public static int? ContaOmonimi(IEnumerable<string?>? nomi, string? nome) {
-            if (nomi is null || string.IsNullOrWhiteSpace(nome)) return null;
-            return nomi.Count(n => StessoVetro(n, nome));
-        }
     }
 }
