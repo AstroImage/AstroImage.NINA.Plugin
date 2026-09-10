@@ -201,6 +201,9 @@
   <data name="Pag_AltezzaMinima" xml:space="preserve">
     <value>minimum altitude</value>
   </data>
+  <data name="Pag_Banda" xml:space="preserve">
+    <value>band</value>
+  </data>
   <data name="Pag_BlocchiPose" xml:space="preserve">
     <value>{0} blocks, {1} exposures.</value>
   </data>
@@ -228,9 +231,6 @@
   <data name="Pag_ColFiltri" xml:space="preserve">
     <value>filters</value>
   </data>
-  <data name="Pag_ColNomeNina" xml:space="preserve">
-    <value>name in N.I.N.A.</value>
-  </data>
   <data name="Pag_ColNotte" xml:space="preserve">
     <value>night</value>
   </data>
@@ -239,9 +239,6 @@
   </data>
   <data name="Pag_ColPose" xml:space="preserve">
     <value>exposures</value>
-  </data>
-  <data name="Pag_ColSlot" xml:space="preserve">
-    <value>slot</value>
   </data>
   <data name="Pag_ConfigFiltri" xml:space="preserve">
     <value>Filter configuration</value>
@@ -269,6 +266,9 @@
   </data>
   <data name="Pag_FiltroNonDichiarato" xml:space="preserve">
     <value>{0} — not declared</value>
+  </data>
+  <data name="Pag_Fwhm" xml:space="preserve">
+    <value>FWHM</value>
   </data>
   <data name="Pag_InAttesa" xml:space="preserve">
     <value>waiting</value>
@@ -302,6 +302,9 @@
   </data>
   <data name="Pag_NienteAvviato" xml:space="preserve">
     <value>Nothing was started: pressing Play is your job.</value>
+  </data>
+  <data name="Pag_NonDisponibile" xml:space="preserve">
+    <value>not available</value>
   </data>
   <data name="Pag_NonRiuscita" xml:space="preserve">
     <value>failed</value>
@@ -369,17 +372,26 @@
   <data name="Pag_Seeing" xml:space="preserve">
     <value>seeing</value>
   </data>
+  <data name="Pag_SenzaBanda" xml:space="preserve">
+    <value>—</value>
+  </data>
   <data name="Pag_ServizioGiu" xml:space="preserve">
     <value>service not reachable</value>
   </data>
   <data name="Pag_ServizioSu" xml:space="preserve">
     <value>service reachable</value>
   </data>
+  <data name="Pag_SlotNumero" xml:space="preserve">
+    <value>slot {0}</value>
+  </data>
   <data name="Pag_Sottotitolo" xml:space="preserve">
     <value>The page asks its host, the host asks Strategy. There is no address in here.</value>
   </data>
   <data name="Pag_Sqm" xml:space="preserve">
     <value>sky (SQM)</value>
+  </data>
+  <data name="Pag_Stato" xml:space="preserve">
+    <value>state</value>
   </data>
   <data name="Pag_StatoDaDichiarare" xml:space="preserve">
     <value>to declare</value>
@@ -407,6 +419,9 @@
   </data>
   <data name="Pag_TipNonAdatto" xml:space="preserve">
     <value>the catalogue does not declare this filter for this profile's camera — not a ban, a doubt</value>
+  </data>
+  <data name="Pag_UnFiltroDueRighe" xml:space="preserve">
+    <value>one filter, two lines</value>
   </data>
   <data name="Pannello_AzioneSconosciuta" xml:space="preserve">
     <value>Action: {0}</value>
