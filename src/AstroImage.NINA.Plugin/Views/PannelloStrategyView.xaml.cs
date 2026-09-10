@@ -252,7 +252,15 @@ namespace AstroImage.NINA.Plugin.Views {
                 }
                 var corpo = corpoJson.ToJsonString();
                 var esito = await cliente.Prescrizione(corpo);
-                if (!esito.Riuscito) { Rispondi(id, false, null, esito.Codice, esito.Messaggio); return; }
+                /*  LA FRASE SI SCRIVE QUI, non dove l'errore e' nato.
+                 *
+                 *  Strategy parla italiano e basta: e' un calcolatore dietro una
+                 *  porta e non ha un utente. Qui l'utente c'e' e ha scelto una
+                 *  lingua, quindi la frase si compone adesso dal codice e dai valori
+                 *  che il motore ha mandato accanto. Per un codice che non
+                 *  conoscessimo ancora torna la frase italiana del motore: si
+                 *  degrada in italiano, non nel vuoto. */
+                if (!esito.Riuscito) { Rispondi(id, false, null, esito.Codice, esito.MessaggioTradotto); return; }
 
                 /*  La risposta resta in mano al ponte e riceve un identificativo, che
                  *  torna alla pagina. Quando la pagina chiedera' di consegnare, dovra'
@@ -553,10 +561,11 @@ namespace AstroImage.NINA.Plugin.Views {
                 ["nome"] = unito.Nome,
                 ["perCheNo"] = perCheNo,
                 ["nota"] = vm.NotaSito,
-                /*  Che cosa manca perche' il motore possa produrre una prescrizione
-                 *  COMPLETA. Si dice PRIMA di chiedere: il servizio con un sito
-                 *  incompleto risponde con le ore e nessuna sequenza, e senza questa
-                 *  riga chi guarda vedrebbe un risultato vuoto senza sapere perche'. */
+                /*  Che cosa manca perche' il motore possa produrre una prescrizione.
+                 *  Si dice PRIMA di chiedere, e nella lingua scelta: il servizio con un
+                 *  sito incompleto rifiuta con un 422, ma il suo messaggio e' in
+                 *  italiano — e' la lingua del motore, non per forza quella di chi
+                 *  guarda. Questa riga e' l'unica che parla all'utente. */
                 ["manca"] = DichiarazioneSito.CheCosaManca(unito),
             });
         }

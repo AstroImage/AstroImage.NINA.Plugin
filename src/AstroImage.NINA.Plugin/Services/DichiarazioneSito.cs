@@ -127,10 +127,16 @@ namespace AstroImage.NINA.Plugin.Services {
         }
 
         /// <summary>
-        /// Che cosa manca perche' il motore possa produrre una prescrizione completa, o
-        /// null se non manca niente. Serve a dirlo PRIMA di chiedere: il servizio, con
-        /// un sito incompleto, risponde con le ore e nessuna sequenza — e senza questa
-        /// riga chi guarda vedrebbe un risultato vuoto senza sapere perche'.
+        /// Che cosa manca perche' il motore possa produrre una prescrizione. Serve a
+        /// dirlo PRIMA di chiedere, e nella lingua scelta: il servizio con un sito
+        /// incompleto risponde 422 e un messaggio in italiano, che e' la lingua del
+        /// motore e non per forza quella di chi guarda.
+        ///
+        /// <para>Fino a settembre 2026 diceva un'altra cosa — «il servizio risponde con
+        /// le ore e nessuna sequenza» — e non era vero nemmeno allora: senza SQM il
+        /// motore non calcolava le ore, ne calcolava quarantun milioni, e con quelle il
+        /// piano non trovava nessuna notte. La tabella restava vuota e questa riga era
+        /// l'unica cosa che diceva perche'. Adesso il motore rifiuta e lo dichiara.</para>
         /// </summary>
         public static string? CheCosaManca(SitoDiRipresa? s) {
             var mancano = new List<string>();

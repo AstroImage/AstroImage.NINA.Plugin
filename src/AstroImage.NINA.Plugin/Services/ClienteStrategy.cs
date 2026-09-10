@@ -111,7 +111,13 @@ namespace AstroImage.NINA.Plugin.Services {
             }
 
             if (busta?.Errore != null)
-                return EsitoPrescrizione.Fallito(stato, busta.Errore.Codice, busta.Errore.Messaggio, corpo);
+                /*  I dati vengono appiattiti QUI, una volta sola, e viaggiano gia'
+                 *  come testo. La frase pero' NON si scrive qui: si scrive al momento
+                 *  di mostrarla, perche' la lingua si puo' cambiare mentre il
+                 *  pannello e' aperto e un messaggio congelato al momento della
+                 *  richiesta resterebbe nella lingua di prima. */
+                return EsitoPrescrizione.Fallito(stato, busta.Errore.Codice, busta.Errore.Messaggio,
+                    corpo, MessaggioDelMotore.Appiattisci(busta.Errore.Dati));
 
             if (!risposta.IsSuccessStatusCode)
                 return EsitoPrescrizione.Fallito(stato, "risposta_non_riuscita",
@@ -154,7 +160,20 @@ namespace AstroImage.NINA.Plugin.Services {
         public int Stato { get; private set; }
         public string Corpo { get; private set; } = string.Empty;
         public string? Codice { get; private set; }
+
+        /// <summary>La frase italiana del motore: il ripiego, non il testo da
+        /// mostrare. Vedi <see cref="MessaggioDelMotore"/>.</summary>
         public string? Messaggio { get; private set; }
+
+        /// <summary>I valori nudi dell'errore, gia' resi testo. Vuoto quando il
+        /// motore non li manda — allora si mostra <see cref="Messaggio"/>.</summary>
+        public IReadOnlyDictionary<string, string> Dati { get; private set; }
+            = new Dictionary<string, string>();
+
+        /// <summary>La frase da mettere davanti a chi guarda, nella lingua scelta
+        /// ADESSO: si compone alla lettura, non alla richiesta, perche' la lingua
+        /// puo' cambiare mentre il pannello e' aperto.</summary>
+        public string? MessaggioTradotto => MessaggioDelMotore.Rendi(Codice, Dati, Messaggio);
         public string? Contratto { get; private set; }
         public double? MsDelMotore { get; private set; }
         public BersaglioRisolto? Bersaglio { get; private set; }
@@ -167,8 +186,10 @@ namespace AstroImage.NINA.Plugin.Services {
             new EsitoPrescrizione { Riuscito = true, Stato = stato, Corpo = corpo, Sequenze = seq,
                 Scartate = scartate, Contratto = contratto, MsDelMotore = ms, Bersaglio = bersaglio };
 
-        internal static EsitoPrescrizione Fallito(int stato, string? codice, string? messaggio, string corpo = "") =>
+        internal static EsitoPrescrizione Fallito(int stato, string? codice, string? messaggio,
+                string corpo = "", IReadOnlyDictionary<string, string>? dati = null) =>
             new EsitoPrescrizione { Riuscito = false, Stato = stato, Codice = codice,
-                Messaggio = messaggio, Corpo = corpo };
+                Messaggio = messaggio, Corpo = corpo,
+                Dati = dati ?? new Dictionary<string, string>() };
     }
 }

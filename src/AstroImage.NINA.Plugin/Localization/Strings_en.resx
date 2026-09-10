@@ -177,6 +177,42 @@
   <data name="Montaggio_UnBlocco" xml:space="preserve">
     <value>a block</value>
   </data>
+  <data name="Motore_BancoSconosciuto" xml:space="preserve">
+    <value>The declared equipment does not match anything the engine knows. The engine says: {0}</value>
+  </data>
+  <data name="Motore_BersaglioSconosciuto" xml:space="preserve">
+    <value>No object is called *{0}*. Use the exact catalogue id or name: NGC 6888, M 31, IC 434.</value>
+  </data>
+  <data name="Motore_CieloAssente" xml:space="preserve">
+    <value>The sky quality (SQM) is missing. Without it the engine cannot tell how much sky background you are collecting, and computes nothing at all, neither the hours nor the sub length: sky background is half of the signal-to-noise ratio. Declare it above, between *{0}* and *{1}* mag/arcsec².</value>
+  </data>
+  <data name="Motore_CieloImplausibile" xml:space="preserve">
+    <value>SQM *{0}* is not the brightness of an imaging site: values between *{1}* and *{2}* mag/arcsec² are expected. {2} is the natural sky with no artificial light, {1} is beyond the centre of a large city.</value>
+  </data>
+  <data name="Motore_CieloNonValido" xml:space="preserve">
+    <value>SQM *{0}* is not a sky brightness. It is almost always the decimal point: 20.8 typed as 208, or as 2.08.</value>
+  </data>
+  <data name="Motore_InErrore" xml:space="preserve">
+    <value>The engine stopped during the calculation. This is not caused by anything you entered: it is a fault, and it should be reported. The engine says: {0}</value>
+  </data>
+  <data name="Motore_JsonIlleggibile" xml:space="preserve">
+    <value>The engine could not read the request the plugin sent it. This is a plugin fault, not something you did. The engine says: {0}</value>
+  </data>
+  <data name="Motore_NessunaPrescrizione" xml:space="preserve">
+    <value>With the filters you declared there is no workable road for this object. Try declaring more filters in the wheel, or pick an object the lines you own can actually trace.</value>
+  </data>
+  <data name="Motore_RichiestaIncompleta" xml:space="preserve">
+    <value>The plugin sent a request without {0}. This is a plugin fault, not something you did.</value>
+  </data>
+  <data name="Motore_RichiestaTroppoGrande" xml:space="preserve">
+    <value>The request is larger than the {0} bytes the engine accepts. This is a plugin fault, not something you did.</value>
+  </data>
+  <data name="Motore_Separatore" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="Motore_ViaSconosciuta" xml:space="preserve">
+    <value>The plugin knocked on a door the engine does not have. This happens when plugin and engine are different versions: update whichever is older.</value>
+  </data>
   <data name="Opzioni_CheCosEe" xml:space="preserve">
     <value>Brings into N.I.N.A. the prescription decided by AstroImage-Strategy: which channels to shoot, how many exposures, what sub length and which gain mode. This bridge decides nothing — it takes a prescription already worked out and builds it in the Advanced Sequencer. It never starts anything: pressing Play is your job.</value>
   </data>
@@ -499,7 +535,7 @@
     <value>the site coordinates, which come from the N.I.N.A. profile</value>
   </data>
   <data name="Sito_MancaSqm" xml:space="preserve">
-    <value>the sky quality (SQM): without it the engine cannot tell how much sky background you are collecting, and cannot work out the sub length</value>
+    <value>the sky quality (SQM): without it the engine cannot tell how much sky background you are collecting, and computes nothing at all, neither the hours nor the sub length</value>
   </data>
   <data name="Sito_ParametriNonLetti" xml:space="preserve">
     <value>The site parameters could not be read ({0}). Starting empty: no value was invented.</value>
