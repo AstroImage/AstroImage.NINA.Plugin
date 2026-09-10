@@ -101,6 +101,13 @@ namespace AstroImage.NINA.Plugin.Services {
             s.Lat = letto?.Lat; p["lat"] = s.Lat is null ? Assente : DaProfilo;
             s.Lon = letto?.Lon; p["lon"] = s.Lon is null ? Assente : DaProfilo;
 
+            /*  E L'ORIZZONTE PER AZIMUT sta con loro, per la stessa ragione: nessun
+             *  campo di testo puo' contenere una montagna. O ce l'hai in N.I.N.A. o
+             *  non ce l'hai, e allora vale il numero che dichiari. */
+            s.Orizzonte = letto?.Orizzonte;
+            s.OrizzonteFile = letto?.OrizzonteFile;
+            p["orizzonte"] = s.Orizzonte is null ? Assente : DaProfilo;
+
             /*  Per gli altri vince la MISURA sulla dichiarazione, sempre: se un
              *  misuratore c'e', il numero scritto a mano l'anno scorso non deve
              *  sovrascriverlo. */
@@ -110,12 +117,14 @@ namespace AstroImage.NINA.Plugin.Services {
 
             /*  ALTEZZA MINIMA E NOTTI SERENE: solo dichiarate.
              *
-             *  N.I.N.A. ha un orizzonte per AZIMUT, molto piu' ricco del numero solo
-             *  che il motore accetta. Ridurlo a un numero e' una derivazione con
-             *  perdita, e quale numero? Il massimo nasconde meta' cielo, il minimo fa
-             *  riprendere dentro la casa. Finche' il motore non accetta un profilo di
-             *  orizzonte, questa resta una dichiarazione — dirlo e' meglio che
-             *  scegliere di nascosto quale meta' dell'orizzonte buttare via.
+             *  L'orizzonte per AZIMUT adesso viaggia intero — vedi `s.Orizzonte` qui
+             *  sopra — e questo numero non e' piu' la sua riduzione: e' il ripiego per
+             *  chi in N.I.N.A. non ha configurato nessun Orizzonte Personalizzato.
+             *  Finche' il motore accettava un numero solo, ridurre il profilo sarebbe
+             *  stata una derivazione con perdita e per giunta obbligata: il massimo
+             *  nasconde meta' cielo, il minimo fa riprendere dentro la casa. Misurato
+             *  poi sul profilo vero di Borno: il minimo e' 6.4 gradi e la montagna a
+             *  nord-est ne ha 39.7 — un fattore due di ore su un oggetto del nord.
              *
              *  Le notti serene non le sa nessuno: nessuno strumento le misura. */
             s.HorizonMin = dichiarato?.HorizonMin;

@@ -40,6 +40,23 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonPropertyName("seeing")] public double? Seeing { get; set; }
         [JsonPropertyName("rms")] public double? Rms { get; set; }
         [JsonPropertyName("horizonMin")] public double? HorizonMin { get; set; }
+
+        /// <summary>
+        /// L'orizzonte del sito PER AZIMUT: coppie [azimut, altezza] in gradi. Viene
+        /// dall'Orizzonte Personalizzato di N.I.N.A. e NON si dichiara — nessun campo
+        /// di testo puo' contenere una montagna, ed e' la ragione per cui questa
+        /// proprieta' non esiste su <see cref="SitoDichiarato"/>.
+        /// <para>Null quando l'utente non l'ha configurato, e anche quando il file era
+        /// illeggibile: N.I.N.A. in quel caso azzera pure il percorso, quindi i due
+        /// casi non si distinguono. Nessuno dei due autorizza a inventare un orizzonte
+        /// piatto: allora vale <see cref="HorizonMin"/>, che si dichiara.</para>
+        /// </summary>
+        [JsonPropertyName("orizzonte")] public double[][]? Orizzonte { get; set; }
+
+        /// <summary>Da quale file viene l'orizzonte, per poterlo dire a chi guarda.
+        /// Vuoto quando non e' configurato — e anche quando la lettura e' fallita.</summary>
+        [JsonPropertyName("orizzonteFile")] public string? OrizzonteFile { get; set; }
+
         [JsonPropertyName("clearFrac")] public double? ClearFrac { get; set; }
 
         /// <summary>Per ogni campo, da dove viene quel numero. Chiave uguale al campo.</summary>
