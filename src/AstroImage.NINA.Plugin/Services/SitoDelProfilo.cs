@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AstroImage.NINA.Plugin.Models;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Profile.Interfaces;
@@ -69,6 +70,44 @@ namespace AstroImage.NINA.Plugin.Services {
             }
             s.Lat = lat;
             s.Lon = lon;
+
+            /*  L'ORIZZONTE PER AZIMUT, e finalmente per intero.
+             *
+             *  Questo commento, in DichiarazioneSito, diceva la cosa giusta e non la
+             *  poteva fare: «N.I.N.A. ha un orizzonte per AZIMUT, molto piu' ricco del
+             *  numero solo che il motore accetta [...] il massimo nasconde meta' cielo,
+             *  il minimo fa riprendere dentro la casa». Adesso il motore accetta un
+             *  profilo, e ridurlo sarebbe una scelta invece che un obbligo.
+             *
+             *  SI CAMPIONA A UN GRADO. `CustomHorizon.GetAltitude` interpola fra i punti
+             *  del file e normalizza da se' gli azimut fuori scala, quindi trecentosessanta
+             *  domande restituiscono la curva com'e': i file .hrz sono scritti a gradi
+             *  interi — quello di Borno ha esattamente 360 righe — e sotto il grado non
+             *  c'e' montagna che cambi. Il motore interpola allo stesso modo, cosi' la
+             *  curva che disegna N.I.N.A. e quella che usa Strategy sono la stessa.
+             *
+             *  Sono circa quattro kilobyte di JSON: la richiesta ne ammette mille.
+             *
+             *  NULL E' UN CASO NORMALE, non un errore. L'utente puo' non averlo mai
+             *  configurato; oppure il file era illeggibile al caricamento del profilo, e
+             *  allora N.I.N.A. azzera anche il percorso — i due casi collassano e nessuno
+             *  dei due autorizza a inventare un orizzonte piatto. Si lascia nullo, come
+             *  si fa con l'SQM, e chi non ce l'ha dichiara un numero. */
+            var oriz = Protetto(() => a.Horizon);
+            s.OrizzonteFile = Testo(Protetto(() => a.HorizonFilePath));
+            if (oriz is not null) {
+                var punti = new List<double[]>(360);
+                var buoni = 0;
+                for (var az = 0; az < 360; az++) {
+                    var h = Protetto(() => (double?)oriz.GetAltitude(az));
+                    if (h is null || !double.IsFinite(h.Value)) continue;
+                    punti.Add(new[] { (double)az, Math.Round(h.Value, 2) });
+                    buoni++;
+                }
+                /*  Due punti sono il minimo per interpolare. Sotto, quello che si e'
+                 *  letto non e' un orizzonte e si scarta invece di mandarlo a meta'. */
+                if (buoni >= 2) s.Orizzonte = punti.ToArray();
+            }
 
             /*  L'SQM E' UNA MISURA. Arriva solo da un misuratore collegato — un SQM-LE,
              *  una stazione che lo espone. Se non c'e', resta nullo e lo dichiari tu:
