@@ -177,6 +177,42 @@
   <data name="Montaggio_UnBlocco" xml:space="preserve">
     <value>un blocco</value>
   </data>
+  <data name="Motore_BancoSconosciuto" xml:space="preserve">
+    <value>Gli strumenti dichiarati non corrispondono a nessuna voce che il motore conosca. Il motore dice: {0}</value>
+  </data>
+  <data name="Motore_BersaglioSconosciuto" xml:space="preserve">
+    <value>Nessun oggetto si chiama *{0}*. Serve l'identificativo o il nome esatto: NGC 6888, M 31, IC 434.</value>
+  </data>
+  <data name="Motore_CieloAssente" xml:space="preserve">
+    <value>Manca la qualita' del cielo (SQM). Senza, il motore non sa quanto fondo cielo stai raccogliendo e non calcola niente, ne' le ore ne' la posa: il fondo cielo e' meta' del rapporto segnale-rumore. Dichiaralo qui sopra, fra *{0}* e *{1}* mag/arcsec².</value>
+  </data>
+  <data name="Motore_CieloImplausibile" xml:space="preserve">
+    <value>SQM *{0}* non e' la brillanza di un sito di ripresa: sono attesi valori fra *{1}* e *{2}* mag/arcsec². {2} e' il cielo naturale senza luce artificiale, {1} e' oltre il centro di una grande citta'.</value>
+  </data>
+  <data name="Motore_CieloNonValido" xml:space="preserve">
+    <value>SQM *{0}* non e' una brillanza di cielo. Quasi sempre e' il punto decimale: 20.8 battuto 208, oppure 2.08.</value>
+  </data>
+  <data name="Motore_InErrore" xml:space="preserve">
+    <value>Il motore si e' fermato durante il calcolo. Non e' colpa di quello che hai scritto: e' un guasto, e va segnalato. Il motore dice: {0}</value>
+  </data>
+  <data name="Motore_JsonIlleggibile" xml:space="preserve">
+    <value>Il motore non ha capito la richiesta che gli ha mandato il plugin. E' un guasto del plugin, non un errore tuo. Il motore dice: {0}</value>
+  </data>
+  <data name="Motore_NessunaPrescrizione" xml:space="preserve">
+    <value>Con i vetri che hai dichiarato non c'e' nessuna strada percorribile per questo soggetto. Prova a dichiarare piu' filtri in ruota, oppure scegli un oggetto che le righe che possiedi sappiano tracciare.</value>
+  </data>
+  <data name="Motore_RichiestaIncompleta" xml:space="preserve">
+    <value>Il plugin ha mandato una richiesta senza {0}. E' un guasto del plugin, non un errore tuo.</value>
+  </data>
+  <data name="Motore_RichiestaTroppoGrande" xml:space="preserve">
+    <value>La richiesta supera i {0} byte che il motore accetta. E' un guasto del plugin, non un errore tuo.</value>
+  </data>
+  <data name="Motore_Separatore" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="Motore_ViaSconosciuta" xml:space="preserve">
+    <value>Il plugin ha bussato a una porta che il motore non ha. Succede quando plugin e motore sono di due versioni diverse: aggiorna quello piu' vecchio dei due.</value>
+  </data>
   <data name="Opzioni_CheCosEe" xml:space="preserve">
     <value>Porta dentro N.I.N.A. la prescrizione decisa da AstroImage-Strategy: quali canali riprendere, con quante pose, quale posa e quale modo di guadagno. Il ponte non decide niente — riceve una prescrizione già presa e la costruisce nel Sequenziatore Avanzato. Non avvia mai niente: a premere Riproduci sei tu.</value>
   </data>
@@ -499,7 +535,7 @@
     <value>le coordinate del sito, che vengono dal profilo di N.I.N.A.</value>
   </data>
   <data name="Sito_MancaSqm" xml:space="preserve">
-    <value>la qualita' del cielo (SQM): senza, il motore non sa quanto fondo cielo stai raccogliendo e non puo' decidere la posa</value>
+    <value>la qualita' del cielo (SQM): senza, il motore non sa quanto fondo cielo stai raccogliendo e non calcola niente, ne' le ore ne' la posa</value>
   </data>
   <data name="Sito_ParametriNonLetti" xml:space="preserve">
     <value>I parametri del sito non si sono potuti leggere ({0}). Riparto da vuoto: nessun valore e' stato inventato.</value>

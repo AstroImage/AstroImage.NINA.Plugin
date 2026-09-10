@@ -86,7 +86,25 @@ namespace AstroImage.NINA.Plugin.Models {
     /// </summary>
     public sealed class ErroreServizio {
         [JsonPropertyName("codice")] public string? Codice { get; set; }
+
+        /// <summary>
+        /// La frase italiana del motore. E' il RIPIEGO, non il testo da mostrare:
+        /// serve quando il ponte non conosce il codice, e serve a chi legge i log o
+        /// interroga il servizio con curl. La frase per l'utente si compone da
+        /// <see cref="Codice"/> e <see cref="Dati"/> — vedi <c>MessaggioDelMotore</c>.
+        /// </summary>
         [JsonPropertyName("messaggio")] public string? Messaggio { get; set; }
+
+        /// <summary>
+        /// I valori nudi dell'errore: quale SQM e' arrivato, quali limiti erano
+        /// attesi, che cosa e' stato chiesto. Sono numeri e nomi, non pezzi di
+        /// frase, ed e' cio' che permette di scrivere il messaggio nella lingua di
+        /// chi guarda senza perdere la parte che serve a correggere l'errore.
+        /// <para>Assente su un motore piu' vecchio del contratto: allora si mostra
+        /// <see cref="Messaggio"/>, che c'e' sempre.</para>
+        /// </summary>
+        [JsonPropertyName("dati")] public IDictionary<string, JsonElement>? Dati { get; set; }
+
         [JsonExtensionData] public IDictionary<string, JsonElement>? Altro { get; set; }
     }
 
