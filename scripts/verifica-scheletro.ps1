@@ -11,8 +11,14 @@
       4. la chiave del DataTemplate delle opzioni combacia con AssemblyTitle
          CARATTERE PER CARATTERE — e' la convenzione, e sbagliarla non da' errore:
          da' una pagina vuota;
-      5. la cartella di uscita non contiene DLL di N.I.N.A. o di WebView2, che il
-         programma distribuisce gia' e che una seconda copia manderebbe in conflitto.
+      5. nella CARTELLA DEI PLUGIN di N.I.N.A. non arriva nient'altro che il DLL del
+         plugin: N.I.N.A. distribuisce gia' WebView2, e una seconda copia LI' DENTRO
+         vincerebbe sulla sua. Nella cartella di build quei file ci sono e non si
+         possono togliere — li mette il targets del pacchetto WebView2 — ma non
+         vengono distribuiti, e il controllo guarda cio' che si distribuisce;
+      6. la WebView2 con cui il plugin e' compilato e quella che N.I.N.A. distribuisce
+         sono la stessa: non portandosela dietro, la prende dall'ospite, e due versioni
+         diverse darebbero un pannello morto senza colpa dell'utente.
 
     Uso:  pwsh -File scripts/verifica-scheletro.ps1
 #>
@@ -63,10 +69,94 @@ Verifica "  e il nome non usa caratteri fuori dall'ASCII" `
     (-not ($titolo -match '[^\x20-\x7E]')) $titolo
 
 Write-Host "`n--- che cosa esce dalla compilazione ---"
-$estranei = Get-ChildItem $uscita -Recurse -File |
-    Where-Object { $_.Name -match '\.dll$' -and $_.Name -ne 'AstroImage.NINA.Plugin.dll' }
-Verifica "il plugin non si porta dietro DLL di N.I.N.A. o di WebView2" `
-    ($estranei.Count -eq 0) $(if ($estranei.Count) { ($estranei | ForEach-Object { $_.Name }) -join ', ' } else { 'solo il proprio DLL' })
+# QUESTO CONTROLLO GUARDAVA LA CARTELLA SBAGLIATA, e per un anno e' stato rosso a
+# torto. Pretendeva che nella cartella di BUILD non ci fosse nessun DLL oltre al
+# proprio, come surrogato di «non si distribuisce una seconda copia di WebView2, che
+# N.I.N.A. porta gia'». Il surrogato valeva quando distribuire voleva dire zippare la
+# cartella di uscita; da quando si installa copiando $(TargetPath) — un file solo — la
+# cartella di build non ha piu' rapporto con cio' che arriva a N.I.N.A.
+#
+# E quei file non si possono togliere. Non e' il .csproj a metterli: e' il
+# build\Common.targets DEL PACCHETTO WebView2, che aggiunge i tre assembly come
+# <Reference> copy-local e il loader nativo come <Content CopyToOutputDirectory>.
+# `ExcludeAssets: runtime` esclude gli asset di tipo RUNTIME, non quelli di tipo
+# BUILD: quel targets gira comunque, ed e' cosi' per disegno del pacchetto.
+#
+# Restano pero' due cose vere da misurare, e sono diverse fra loro.
+$estranei = @(Get-ChildItem $uscita -Recurse -File |
+    Where-Object { $_.Name -match '\.dll$' -and $_.Name -ne 'AstroImage.NINA.Plugin.dll' } |
+    ForEach-Object { $_.Name })
+$dllNina = @($estranei | Where-Object { $_ -like 'NINA*' })
+$dllWv2  = @($estranei | Where-Object { $_ -like 'Microsoft.Web.WebView2*' -or $_ -eq 'WebView2Loader.dll' })
+$dllAltri = @($estranei | Where-Object {
+    -not ($_ -like 'NINA*') -and -not ($_ -like 'Microsoft.Web.WebView2*') -and $_ -ne 'WebView2Loader.dll' })
+
+# QUESTO SI' che `ExcludeAssets: runtime` lo governa davvero: il pacchetto NINA.Plugin
+# non ha un proprio targets che forzi la copia, quindi se un DLL di N.I.N.A. comparisse
+# qui vorrebbe dire che quella riga e' saltata — ed e' una regressione vera.
+Verifica "la compilazione non produce DLL di N.I.N.A." ($dllNina.Count -eq 0) `
+    $(if ($dllNina.Count) { $dllNina -join ', ' } else { 'ExcludeAssets: runtime tiene' })
+
+# E nient'altro di inatteso: una dipendenza nuova che si porta dietro assembly va vista
+# adesso, non il giorno in cui litiga con qualcosa dentro N.I.N.A.
+Verifica "  ne altri DLL oltre a quelli di WebView2" ($dllAltri.Count -eq 0) `
+    $(if ($dllAltri.Count) { $dllAltri -join ', ' } else { 'nessuno' })
+
+Write-Host ("  --    WebView2 nella cartella di build: " + $dllWv2.Count +
+            " file, e li mette il targets del pacchetto. Non arrivano a N.I.N.A.: si veda sotto.")
+
+Write-Host "`n--- che cosa viene DISTRIBUITO ---"
+# LA GARANZIA CONTRO IL CONFLITTO STA QUI, e non nella cartella di build. Cio' che
+# N.I.N.A. carica e' quello che sta nella sua cartella dei plugin: se li' dentro
+# comparisse una seconda copia di WebView2, quella vincerebbe sulla propria e il
+# conflitto sarebbe reale. Finche' si copia il solo $(TargetPath), non puo' succedere —
+# e questa riga e' cio' che se ne accorgerebbe se un giorno il passo di installazione
+# diventasse «copia tutta la cartella».
+$cartellaNina = Join-Path $env:LOCALAPPDATA 'NINA\Plugins\3.0.0\AstroImage.NINA.Plugin'
+if (Test-Path $cartellaNina) {
+    $spediti = @(Get-ChildItem $cartellaNina -Recurse -File |
+        Where-Object { $_.Name -match '\.(dll|exe)$' -and $_.Name -ne 'AstroImage.NINA.Plugin.dll' } |
+        ForEach-Object { $_.Name })
+    Verifica "in N.I.N.A. arriva il solo DLL del plugin" ($spediti.Count -eq 0) `
+        $(if ($spediti.Count) { 'ANCHE: ' + ($spediti -join ', ') } else { 'nient altro' })
+} else {
+    Write-Host "  --    non installato   [dotnet build -c Release lo installa]"
+}
+
+Write-Host "`n--- WebView2: si usa quella di N.I.N.A., e allora deve essere la stessa ---"
+# IL ROVESCIO DELLA MEDAGLIA DI NON PORTARSELA DIETRO. Il plugin compila contro
+# WebView2 e a runtime la risolve dalla cartella di N.I.N.A., che la distribuisce. Va
+# bene finche' le due versioni coincidono; il giorno in cui N.I.N.A. ne distribuisse
+# una piu' vecchia di quella con cui si e' compilato, il plugin morirebbe al primo uso
+# del pannello con un MissingMethod, e l'utente non avrebbe sbagliato niente. E' lo
+# stesso guasto per cui Target Scheduler non si carica su questa macchina, letto
+# sull'altro versante: li' e' il plugin a chiedere troppo, qui sarebbe l'ospite a dare
+# troppo poco. Non si controlla il .csproj ma il deps.json, cioe' cio' contro cui si e'
+# compilato davvero.
+# Il deps.json si rilegge qui invece di riusare quello della sezione seguente: questa
+# sezione viene PRIMA, e appoggiarsi a una variabile definita dopo funzionerebbe solo
+# finche' nessuno sposta un blocco.
+$radiciProg = @($env:ProgramFiles, ${env:ProgramFiles(x86)}) | Where-Object { $_ -and (Test-Path $_) }
+$dirNina = @(Get-ChildItem -Path $radiciProg -Directory -ErrorAction SilentlyContinue |
+    Where-Object { Test-Path (Join-Path $_.FullName 'NINA.exe') } |
+    ForEach-Object { $_.FullName })
+$depsQui = Join-Path $uscita 'AstroImage.NINA.Plugin.deps.json'
+if ((Test-Path $depsQui) -and $dirNina.Count) {
+    $jQui = Get-Content $depsQui -Raw | ConvertFrom-Json
+    $nostra = ($jQui.libraries.PSObject.Properties.Name |
+        Where-Object { $_ -like 'Microsoft.Web.WebView2.Core/*' } |
+        Select-Object -First 1) -replace '^Microsoft\.Web\.WebView2\.Core/', ''
+    $core = Join-Path $dirNina[0] 'Microsoft.Web.WebView2.Core.dll'
+    if ($nostra -and (Test-Path $core)) {
+        $sua = (Get-Item $core).VersionInfo.FileVersion
+        Verifica "la WebView2 del plugin e quella di N.I.N.A. sono la stessa" ($nostra -eq $sua) `
+            "$nostra contro $sua"
+    } else {
+        Write-Host "  --    WebView2 non trovata in N.I.N.A.: controllo saltato"
+    }
+} else {
+    Write-Host "  --    N.I.N.A. non installato qui, oppure manca deps.json: controllo saltato"
+}
 
 Write-Host "`n--- contro quale N.I.N.A. e' stato compilato ---"
 # IL GUASTO DI TARGET SCHEDULER, che su questa macchina si vede nel log di N.I.N.A.:
