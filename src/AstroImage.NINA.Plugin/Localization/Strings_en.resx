@@ -276,6 +276,9 @@
   <data name="Pag_ColPose" xml:space="preserve">
     <value>exposures</value>
   </data>
+  <data name="Pag_ComeRiprendere" xml:space="preserve">
+    <value>How to shoot</value>
+  </data>
   <data name="Pag_ConfigFiltri" xml:space="preserve">
     <value>Filter configuration</value>
   </data>
@@ -313,7 +316,7 @@
     <value>Bridge test</value>
   </data>
   <data name="Pag_LatLonNota" xml:space="preserve">
-    <value>Latitude and longitude come from the N.I.N.A. profile and are not written here. The minimum altitude stays declared: N.I.N.A. has a horizon per azimuth, the engine a single number, and reducing one to the other would silently choose which half of the sky to throw away.</value>
+    <value>Latitude and longitude come from the N.I.N.A. profile and are not written here. So does the Custom Horizon, if you have configured one: it travels whole, azimuth by azimuth, and it is what decides. The minimum altitude below is the fallback for those who have none.</value>
   </data>
   <data name="Pag_Latitudine" xml:space="preserve">
     <value>latitude</value>
@@ -323,6 +326,24 @@
   </data>
   <data name="Pag_MandaANina" xml:space="preserve">
     <value>Send to N.I.N.A.</value>
+  </data>
+  <data name="Pag_ModoNota_dinamica" xml:space="preserve">
+    <value>Shortens the sub so the stars do not saturate, starting from Balance and reducing it only where needed. More frames, but more dynamic range in the highlights.</value>
+  </data>
+  <data name="Pag_ModoNota_equilibrio" xml:space="preserve">
+    <value>Shortens the sub as far as it pays off: a fair trade between acquisition time and the length of the single sub.</value>
+  </data>
+  <data name="Pag_ModoNota_resa" xml:space="preserve">
+    <value>The longest sub the physical limits allow; less total acquisition time to reach the same depth.</value>
+  </data>
+  <data name="Pag_Modo_dinamica" xml:space="preserve">
+    <value>Dynamic</value>
+  </data>
+  <data name="Pag_Modo_equilibrio" xml:space="preserve">
+    <value>Balance</value>
+  </data>
+  <data name="Pag_Modo_resa" xml:space="preserve">
+    <value>Yield</value>
   </data>
   <data name="Pag_MotivoNonDichiarato" xml:space="preserve">
     <value>no reason given</value>
@@ -403,7 +424,7 @@
     <value>Dropped:</value>
   </data>
   <data name="Pag_ScriviloQuiSotto" xml:space="preserve">
-    <value>Write it below: without it the engine works out the hours but not the sub length.</value>
+    <value>Write it below: without it the engine computes nothing at all, neither the hours nor the sub length.</value>
   </data>
   <data name="Pag_Seeing" xml:space="preserve">
     <value>seeing</value>

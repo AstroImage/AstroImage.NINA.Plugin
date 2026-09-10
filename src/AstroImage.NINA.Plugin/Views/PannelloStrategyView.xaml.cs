@@ -213,6 +213,8 @@ namespace AstroImage.NINA.Plugin.Views {
 
                 if (azione == "salvaFiltri") { SalvaFiltri(id, messaggio); return; }
 
+                if (azione == "modalita") { await Modalita(id); return; }
+
                 if (azione == "sito") { Sito(id); return; }
 
                 if (azione == "salvaSito") { SalvaSito(id, messaggio); return; }
@@ -525,6 +527,29 @@ namespace AstroImage.NINA.Plugin.Views {
                         " vetri dichiarati" + (ok ? "" : " — NON SCRITTA: " + perCheNo));
             Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo, 0, null,
                      new JsonObject { ["dichiarati"] = DichiarazioneRuota.IdDichiarati(nuova).Count });
+        }
+
+        /*  I TRE MODI DI RIPRESA, chiesti al motore e passati alla pagina.
+         *
+         *  Il ponte non sa che cosa siano: sa che esistono tre identificativi e li
+         *  inoltra. Che cosa comportino — la lunghezza della posa, il limite che la
+         *  lega, il prezzo della scelta — lo decide Strategy, e qui non c'e' una
+         *  soglia ne' una formula. Se ce ne fosse una sarebbe gia' una seconda
+         *  verita' accanto a quella del motore.
+         *
+         *  Le PAROLE arrivano insieme all'identificativo, ma sono un ripiego: la
+         *  pagina preferisce le proprie, tradotte, e usa queste solo per un modo che
+         *  non conosce ancora. Stessa regola dei codici d'errore.                  */
+        private async Task Modalita(string id) {
+            var cliente = (DataContext as PannelloStrategyVM)?.Cliente;
+            if (cliente is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaCorriere")); return; }
+            var m = await cliente.Modalita();
+            var elenco = new JsonArray();
+            foreach (var x in m.Elenco)
+                elenco.Add(new JsonObject { ["id"] = x.Id, ["etichetta"] = x.Etichetta,
+                                            ["spiegazione"] = x.Spiegazione });
+            Rispondi(id, true, null, null, null, 0, null, new JsonObject {
+                ["modalita"] = elenco, ["diSerie"] = m.DiSerie });
         }
 
         /*  DOVE SEI, e da dove lo sappiamo.
