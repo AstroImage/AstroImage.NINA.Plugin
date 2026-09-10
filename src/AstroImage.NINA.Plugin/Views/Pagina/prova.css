@@ -27,3 +27,71 @@
   button.manda:hover { background:#38a169; }
   ul { margin:8px 0 0 18px; padding:0; }
   li { margin:2px 0; }
+
+  /* ── LA RUOTA, IN ORIZZONTALE ────────────────────────────────────────────────
+     Gli slot nell'ordine fisico in cui stanno nella ruota. In fila e non in
+     cerchio: dieci posizioni in cerchio diventano illeggibili in un pannello
+     agganciato, e l'ordine di una ruota si legge lo stesso da sinistra a destra.
+     Scorre in orizzontale invece di andare a capo, cosi' la posizione 7 resta la
+     settima anche in una finestra stretta.
+
+     STRETTE FIN DOVE SI LEGGONO. Dieci slot devono stare sott'occhio insieme: se
+     per vederli tutti bisogna trascinare, la fila ha perso il suo unico vantaggio
+     sulla tabella di prima. */
+  .ruota { display:flex; gap:6px; margin:10px 0 0; padding-bottom:6px;
+           overflow-x:auto; }
+  .slot { flex:0 0 auto; width:62px; background:#1d2127; border:1px solid #333a43;
+          border-radius:7px; padding:6px 4px; text-align:center; cursor:pointer;
+          color:#dfe4ea; font:inherit; display:flex; flex-direction:column; gap:3px;
+          align-items:center; }
+  .slot:hover { border-color:#4a5563; background:#222731; }
+  .slot[aria-pressed="true"] { border-color:#2b6cb0; background:#1b2735;
+                               box-shadow:0 0 0 1px #2b6cb0 inset; }
+  /* Uno slot orfano c'e' ma non e' piu' in ruota: si vede spento, non sparisce. */
+  .slot.orfano { opacity:.5; }
+  .slot-n { font:10px ui-monospace, Consolas, monospace; opacity:.45;
+            font-variant-numeric:tabular-nums; line-height:1; }
+  .slot-nome { font-size:10.5px; line-height:1.2; word-break:break-word; }
+  .slot-stato { font-size:11px; opacity:.6; line-height:1; }
+
+  /* ── LE PASTIGLIE DELLE BANDE ────────────────────────────────────────────────
+     LE TONALITA' SONO QUELLE DI ASTROIMAGE-STRATEGY, riprese perche' un filtro
+     deve avere lo stesso colore nei due programmi: e' il punto della grammatica
+     comune. Ha #e05252, OIII #3fb9c9, SII #e0a13f, luminanza #c9d1d9, RGB #8b7fd4.
+     E lo stesso modo di usarle: testo pieno nel colore, sfondo al 9%, bordo al 45%.
+
+     Il colore aiuta a riconoscere, ma non porta MAI da solo l'informazione: la
+     sigla e' sempre scritta dentro, e lo stato e' sempre una parola. Chi non
+     distingue i colori legge la pagina lo stesso. */
+  .banda { display:inline-block; font-size:10px; font-weight:700; letter-spacing:.04em;
+           padding:1px 6px; border-radius:99px; border:1px solid transparent;
+           white-space:nowrap; line-height:1.5; }
+  .banda.b-ha   { color:#e05252; background:rgba(224,82,82,.10);  border-color:rgba(224,82,82,.45); }
+  .banda.b-oiii { color:#3fb9c9; background:rgba(63,185,201,.10); border-color:rgba(63,185,201,.45); }
+  .banda.b-sii  { color:#e0a13f; background:rgba(224,161,63,.10); border-color:rgba(224,161,63,.45); }
+  .banda.b-l    { color:#c9d1d9; background:rgba(201,209,217,.09);border-color:rgba(201,209,217,.38); }
+  /* R, G e B sono la terna del colore delle stelle, e in Strategy hanno una tinta
+     sola: la lettera dentro basta a distinguerle, e il gruppo si riconosce a colpo
+     d'occhio invece di sembrare tre cose diverse. */
+  .banda.b-r, .banda.b-g, .banda.b-b {
+                  color:#8b7fd4; background:rgba(139,127,212,.10);border-color:rgba(139,127,212,.45); }
+  /* Un dual e' UN filtro che raccoglie DUE righe, e la pastiglia lo dice tenendo a
+     ciascuna il proprio colore invece di inventarne un terzo. */
+  .banda.b-dual { color:#8d949c; background:#22262d; border-color:#3a4048; padding:1px 5px; }
+  .banda.b-dual .r1 { color:#e05252; }
+  .banda.b-dual .r2 { color:#3fb9c9; }
+  .banda i { font-style:normal; font-weight:700; }
+  .banda.vuota  { color:#6e757e; background:#1f2329; border-color:#2b3038; font-weight:600; }
+
+  /* ── LA SCHEDA DELLO SLOT SCELTO ─────────────────────────────────────────── */
+  .scheda { margin-top:10px; border-top:1px solid #262b32; padding-top:10px; }
+  .scheda-titolo { font-size:13px; margin-bottom:8px; }
+  .scheda-titolo .slot-n { opacity:.5; margin-right:6px; font-size:11px; }
+  .scheda select { background:#1d2127; color:#dfe4ea; border:1px solid #333a43;
+                   border-radius:5px; padding:6px 9px; font-size:13px; max-width:100%; }
+  .dati { display:flex; gap:18px; flex-wrap:wrap; margin-top:10px; font-size:12.5px; }
+  .dato { display:flex; flex-direction:column; gap:2px; }
+  .dato .k { font-size:11px; opacity:.55; text-transform:uppercase; letter-spacing:.06em; }
+  /* Un dato che non c'e' si vede che non c'e': non diventa un trattino qualunque
+     in mezzo agli altri numeri. */
+  .dato .assente { opacity:.45; font-style:italic; }

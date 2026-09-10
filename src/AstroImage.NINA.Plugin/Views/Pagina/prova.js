@@ -5,6 +5,10 @@
      vuota valgono i nomi di banda del motore, che su una ruota vera non
      combaciano quasi mai. */
   let righeRuota = [], catalogo = [], catalogoOk = false, diSerie = [];
+  /* Quale posizione si sta guardando. Vive qui e non dentro disegnaRuota perche'
+     deve sopravvivere a un salvataggio e a un cambio di lingua: sarebbe seccante
+     tornare ogni volta allo slot 0 dopo aver dichiarato il settimo. */
+  let slotScelto = 0;
   /* Dove sei. La geometria viene dal profilo di N.I.N.A.; il resto da uno strumento
      se c'e', dalla dichiarazione se no. Qui dentro non c'e' nessun numero di serie:
      fino a ieri ce ne erano sette, ed erano Borno. */
@@ -324,6 +328,10 @@
 
   function disegnaRuota(r) {
     righeRuota = r.righe || [];
+    /*  La ruota puo' essere cambiata sotto: un filtro tolto, il profilo cambiato. Se
+     *  lo slot che si stava guardando non c'e' piu', si torna al primo invece di
+     *  leggere fuori dall'elenco. */
+    if (slotScelto >= righeRuota.length) { slotScelto = 0; }
     catalogo = r.catalogo || [];
     catalogoOk = !!r.catalogoDisponibile;
     diSerie = r.diSerie || [];
@@ -353,40 +361,123 @@
       ignoto: T('Pag_StatoIgnoto'), orfano: T('Pag_StatoOrfano')
     };
 
+    /*  LA BANDA IN UNA PASTIGLIA.
+     *
+     *  Il colore aiuta a riconoscere; la sigla e' sempre scritta, perche' chi non
+     *  distingue i colori deve leggere la pagina lo stesso. Le bande sono quelle che
+     *  manda il motore — Ha, OIII, SII, L, R, G, B, dual — e qui si sceglie soltanto
+     *  come si vedono: nessuna banda viene calcolata o dedotta.
+     *
+     *  Un dual mostra le DUE righe che raccoglie, non una sola: sceglierne una
+     *  sarebbe dire meno di quello che il motore ha dichiarato. Le righe stanno in
+     *  `bande` sulla voce di catalogo, e si raggiungono per identificativo — e' una
+     *  ricerca in una tabella ricevuta, non un'inferenza.
+     */
+    const dellaBanda = { Ha: 'b-ha', OIII: 'b-oiii', SII: 'b-sii',
+                         L: 'b-l', R: 'b-r', G: 'b-g', B: 'b-b', dual: 'b-dual' };
+    const vociCatalogo = {};
+    for (const v of catalogo) { vociCatalogo[v.id] = v; }
+
+    const pastiglia = (x) => {
+      const v = x.id ? vociCatalogo[x.id] : null;
+      const bande = v && v.bande && v.bande.length > 1 ? v.bande : null;
+      if (bande) {
+        /*  Ogni riga si tiene il suo colore: un dual non e' una terza banda, sono
+         *  due bande dentro un filtro solo. */
+        return '<span class="banda b-dual"><i class="r1">' + esc(bande[0]) + '</i>+' +
+               '<i class="r2">' + esc(bande[1]) + '</i></span>';
+      }
+      if (!x.banda) return '<span class="banda vuota">' + esc(T('Pag_SenzaBanda')) + '</span>';
+      const cl = dellaBanda[x.banda] || 'b-l';
+      return '<span class="banda ' + cl + '">' + esc(x.banda) + '</span>';
+    };
+
+    /*  LA FILA DEGLI SLOT, nell'ordine fisico in cui stanno nella ruota. Anche quelli
+     *  non dichiarati ci sono: uno slot che non si vede e' un'assenza che si scopre
+     *  sotto il cielo. */
+    const fila = righeRuota.map((x, i) =>
+      '<button type="button" class="slot' + (x.stato === 'orfano' ? ' orfano' : '') + '"' +
+        ' data-riga="' + i + '" aria-pressed="' + (i === slotScelto) + '"' +
+        ' title="' + esc(MF('Pag_SlotNumero',
+              x.slot === null || x.slot === undefined ? '?' : x.slot) +
+            ' · ' + x.nina + ' · ' + (spiega[x.stato] || '')) + '">' +
+        '<span class="slot-n">' +
+          (x.slot === null || x.slot === undefined ? '&mdash;' : x.slot) + '</span>' +
+        pastiglia(x) +
+        '<span class="slot-nome">' + esc(x.nina) +
+          (x.ambiguo ? ' <span title="' + esc(T('Pag_TipAmbiguo')) + '">&#9888;</span>' : '') +
+        '</span>' +
+        /*  Nella scheda solo il segno; la parola sta nel suggerimento del riquadro,
+         *  e sta SEMPRE scritta per esteso nella scheda dello slot scelto. Cosi' dieci
+         *  slot stanno sott'occhio insieme senza che lo stato diventi un colore muto:
+         *  il suggerimento e' una comodita', non l'unico modo di saperlo. */
+        '<span class="slot-stato">' + (stati[x.stato] || '') + '</span>' +
+      '</button>').join('');
+
+    /*  LA SCHEDA DI QUELLO SCELTO. Una tendina sola invece di dieci: la fila si legge,
+     *  la scheda si tocca. E i dati che mancano si vedono mancare. */
+    const scelto = righeRuota[slotScelto];
+    const vScelto = scelto && scelto.id ? vociCatalogo[scelto.id] : null;
+    const dato = (chiave, valore) =>
+      '<span class="dato"><span class="k">' + esc(T(chiave)) + '</span>' +
+      (valore === null || valore === undefined
+        ? '<span class="assente">' + esc(T('Pag_NonDisponibile')) + '</span>'
+        : '<span>' + valore + '</span>') + '</span>';
+
+    const scheda = !scelto ? '' :
+      '<div class="scheda">' +
+        '<div class="scheda-titolo"><span class="slot-n">' +
+          esc(MF('Pag_SlotNumero', scelto.slot === null || scelto.slot === undefined
+                                    ? '&mdash;' : scelto.slot)) +
+        '</span><b>' + esc(scelto.nina) + '</b></div>' +
+        '<label>' + esc(T('Pag_ColEQuestoFiltro')) + ' ' +
+          '<select data-riga="' + slotScelto + '"' + (catalogoOk ? '' : ' disabled') + '>' +
+          opzioni(scelto.id) + '</select></label>' +
+        '<div class="dati">' +
+          dato('Pag_Banda', vScelto && vScelto.bande && vScelto.bande.length > 1
+                 ? esc(vScelto.bande.join('+')) + ' <span style="opacity:.6">' +
+                   esc(T('Pag_UnFiltroDueRighe')) + '</span>'
+                 : (scelto.banda ? esc(scelto.banda) : null)) +
+          dato('Pag_Fwhm', vScelto && vScelto.fwhm_nm ? esc(vScelto.fwhm_nm) + ' nm' : null) +
+          dato('Pag_Stato', esc(spiega[scelto.stato] || '')) +
+        '</div>' +
+        (scelto.nota ? '<div style="margin-top:8px;opacity:.8">&#9888; ' +
+          esc(scelto.nota) + '</div>' : '') +
+        /*  Il catalogo non dichiara questo filtro per la camera del profilo: non e' un
+         *  divieto, e' un dubbio, e si dice a parole invece che con un'icona muta. */
+        (scelto.stato === 'mappato' && scelto.adatto !== true &&
+         r.cameraAMatrice !== null && r.cameraAMatrice !== undefined
+          ? '<div style="margin-top:8px;opacity:.8">&#9888; ' +
+            esc(T('Pag_TipNonAdatto')) + '</div>' : '') +
+      '</div>';
+
     $('filtri').innerHTML =
       '<div class="box">' +
       '<b>' + T('Pag_ConfigFiltri') + '</b> — ' + MF('Pag_ConfigFiltriNota') +
       (avvisi.length ? '<div style="margin:.6em 0;opacity:.85">' +
         avvisi.map(a => '<div>&#9888; ' + a + '</div>').join('') + '</div>' : '') +
-      '<table style="width:100%"><tr>' +
-        '<th>' + T('Pag_ColSlot') + '</th><th>' + T('Pag_ColNomeNina') + '</th><th>' +
-        T('Pag_ColEQuestoFiltro') + '</th><th></th></tr>' +
-      righeRuota.map((x, i) =>
-        '<tr' + (x.stato === 'orfano' ? ' style="opacity:.6"' : '') + '>' +
-        '<td>' + (x.slot === null || x.slot === undefined ? '&mdash;' : x.slot) + '</td>' +
-        '<td>' + esc(x.nina) +
-          (x.ambiguo ? ' <span title="' + esc(T('Pag_TipAmbiguo')) + '">&#9888;</span>' : '') + '</td>' +
-        '<td><select data-riga="' + i + '"' + (catalogoOk ? '' : ' disabled') + '>' +
-          opzioni(x.id) + '</select>' +
-          (x.adatto === null || x.adatto === undefined
-            ? '' : '') +
-          (x.stato === 'mappato' && x.adatto !== true && r.cameraAMatrice !== null &&
-           r.cameraAMatrice !== undefined
-            ? ' <span style="opacity:.7" title="' + esc(T('Pag_TipNonAdatto')) +
-              '">&#9888;</span>' : '') +
-        '</td>' +
-        '<td title="' + esc(spiega[x.stato] || '') + '">' + (stati[x.stato] || '') + '</td>' +
-        '</tr>').join('') +
-      '</table>' +
+      '<div class="ruota">' + fila + '</div>' +
+      scheda +
       '<div style="margin-top:.7em">' +
         '<button id="salvaFiltri"' + (catalogoOk ? '' : ' disabled') + '>' +
           T('Pag_SalvaConfigurazione') + '</button> ' +
         '<span id="esitoFiltri" style="margin-left:.6em;opacity:.8"></span>' +
       '</div></div>';
 
-    Array.prototype.forEach.call(document.querySelectorAll('#filtri select'), s => {
-      s.addEventListener('change', () => {
-        righeRuota[+s.getAttribute('data-riga')].id = s.value || null;
+    /*  Scegliere uno slot ridisegna: lo stato sta in slotScelto, non nel DOM. */
+    Array.prototype.forEach.call(document.querySelectorAll('#filtri .slot'), b => {
+      b.addEventListener('click', () => {
+        slotScelto = +b.getAttribute('data-riga');
+        disegnaRuota(r);
+      });
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll('#filtri select'), sel => {
+      sel.addEventListener('change', () => {
+        righeRuota[+sel.getAttribute('data-riga')].id = sel.value || null;
+        /*  Si ridisegna perche' cambia anche la pastiglia della fila: la scelta si
+         *  deve vedere subito dove si guarda, non solo dove si e' cliccato. */
+        disegnaRuota(r);
         $('esitoFiltri').textContent = T('Pag_NonSalvato');
       });
     });

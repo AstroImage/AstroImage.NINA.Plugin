@@ -201,6 +201,9 @@
   <data name="Pag_AltezzaMinima" xml:space="preserve">
     <value>altezza minima</value>
   </data>
+  <data name="Pag_Banda" xml:space="preserve">
+    <value>banda</value>
+  </data>
   <data name="Pag_BlocchiPose" xml:space="preserve">
     <value>{0} blocchi, {1} pose.</value>
   </data>
@@ -228,9 +231,6 @@
   <data name="Pag_ColFiltri" xml:space="preserve">
     <value>filtri</value>
   </data>
-  <data name="Pag_ColNomeNina" xml:space="preserve">
-    <value>nome in N.I.N.A.</value>
-  </data>
   <data name="Pag_ColNotte" xml:space="preserve">
     <value>notte</value>
   </data>
@@ -239,9 +239,6 @@
   </data>
   <data name="Pag_ColPose" xml:space="preserve">
     <value>pose</value>
-  </data>
-  <data name="Pag_ColSlot" xml:space="preserve">
-    <value>slot</value>
   </data>
   <data name="Pag_ConfigFiltri" xml:space="preserve">
     <value>Configurazione dei filtri</value>
@@ -269,6 +266,9 @@
   </data>
   <data name="Pag_FiltroNonDichiarato" xml:space="preserve">
     <value>{0} — non dichiarato</value>
+  </data>
+  <data name="Pag_Fwhm" xml:space="preserve">
+    <value>FWHM</value>
   </data>
   <data name="Pag_InAttesa" xml:space="preserve">
     <value>in attesa</value>
@@ -302,6 +302,9 @@
   </data>
   <data name="Pag_NienteAvviato" xml:space="preserve">
     <value>Non e' stato avviato niente: a premere Riproduci sei tu.</value>
+  </data>
+  <data name="Pag_NonDisponibile" xml:space="preserve">
+    <value>non disponibile</value>
   </data>
   <data name="Pag_NonRiuscita" xml:space="preserve">
     <value>non riuscita</value>
@@ -369,17 +372,26 @@
   <data name="Pag_Seeing" xml:space="preserve">
     <value>seeing</value>
   </data>
+  <data name="Pag_SenzaBanda" xml:space="preserve">
+    <value>—</value>
+  </data>
   <data name="Pag_ServizioGiu" xml:space="preserve">
     <value>servizio non raggiungibile</value>
   </data>
   <data name="Pag_ServizioSu" xml:space="preserve">
     <value>servizio raggiungibile</value>
   </data>
+  <data name="Pag_SlotNumero" xml:space="preserve">
+    <value>slot {0}</value>
+  </data>
   <data name="Pag_Sottotitolo" xml:space="preserve">
     <value>La pagina chiede all'ospite, l'ospite chiede a Strategy. Qui dentro non c'e' nessun indirizzo.</value>
   </data>
   <data name="Pag_Sqm" xml:space="preserve">
     <value>cielo (SQM)</value>
+  </data>
+  <data name="Pag_Stato" xml:space="preserve">
+    <value>stato</value>
   </data>
   <data name="Pag_StatoDaDichiarare" xml:space="preserve">
     <value>da dichiarare</value>
@@ -407,6 +419,9 @@
   </data>
   <data name="Pag_TipNonAdatto" xml:space="preserve">
     <value>il catalogo non dichiara questo filtro per la camera di questo profilo — non e' un divieto, e' un dubbio</value>
+  </data>
+  <data name="Pag_UnFiltroDueRighe" xml:space="preserve">
+    <value>un filtro, due righe</value>
   </data>
   <data name="Pannello_AzioneSconosciuta" xml:space="preserve">
     <value>Azione: {0}</value>
