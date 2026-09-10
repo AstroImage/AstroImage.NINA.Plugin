@@ -55,7 +55,13 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.StartsWith(p, "<!doctype html>");
             StringAssert.Contains(p, "<style>", "il foglio non e' entrato");
             StringAssert.Contains(p, "<script>", "lo script non e' entrato");
-            StringAssert.Contains(p, ":root { color-scheme: dark; }", "il contenuto del foglio non c'e'");
+            /*  Ci si ancora al CONTENUTO, non alla sua punteggiatura: la prima versione
+                cercava «:root { color-scheme: dark; }» con la graffa di chiusura, e si e'
+                rotta il giorno in cui al blocco `:root` sono state aggiunte le variabili
+                di colore. Cio' che la prova difende e' che il foglio sia entrato, non
+                come sia scritto dentro. */
+            StringAssert.Contains(p, "color-scheme: dark", "il contenuto del foglio non c'e'");
+            StringAssert.Contains(p, ".goalcard", "il foglio e' entrato a meta'");
             StringAssert.Contains(p, "window.chrome.webview.postMessage", "il contenuto dello script non c'e'");
         }
 
@@ -165,6 +171,88 @@ namespace AstroImage.NINA.Plugin.Tests {
             var d = new System.Collections.Generic.Dictionary<string, string>();
             foreach (System.Collections.DictionaryEntry e in set!) d[(string)e.Key] = (string)(e.Value ?? "");
             return d;
+        }
+
+        /*  IL RIQUADRO DEI MODI HA LE MISURE DI AIS, E NON "PRESSAPPOCO".
+         *
+         *  Questa prova nasce da un errore vero: il riquadro era stato copiato dalle
+         *  `.stratcard` di AIS — che sono le card dei RISULTATI, quelle col numero
+         *  grande e il costo — invece che dal fieldset «Come riprendere», che e'
+         *  `.goalbox` / `.goalcard` / `.gc`. A schermo sembrava giusto. Erano diversi
+         *  otto valori su otto: griglia 8 invece di 10, colonna 190 invece di 210,
+         *  imbottitura 10/12 invece di 12/14, raggio 10 invece di 12, fondo della
+         *  scelta `--surface-2` invece dell'accento al 9%, icona 15 invece di 19,
+         *  spunta aggiunta e tolta invece che in dissolvenza, descrizione 10.5/1.35
+         *  su `--dim2` invece di 11.5/1.5 su `--dim`.
+         *
+         *  Nessuno di questi si vede senza misurarli. Percio' li misura una prova:
+         *  se un giorno AIS cambia, questa diventa rossa e dice dove sono andati a
+         *  divergere, invece di lasciarli divergere in silenzio.
+         *
+         *  I valori vengono da index.html di AstroImage-Strategy, righe 810-827.   */
+        [TestMethod]
+        public void IL_RIQUADRO_DEI_MODI_HaLeMisureDiAIS() {
+            var css = Risorsa("prova.css");
+            var attesi = new[] {
+                "gap:10px",                                       // .goalgrid
+                "repeat(auto-fit,minmax(210px,1fr))",             // .goalgrid
+                "border-radius:12px",                             // .gc
+                "padding:12px 14px",                              // .gc
+                "flex-direction:column",                          // .gc
+                "background:rgba(var(--acc-rgb),.09)",            // .gc scelta
+                "border-color:var(--acc)",                        // .gc scelta
+                "width:19px; height:19px",                        // .gc-h svg
+                "font-size:11.5px; line-height:1.5",              // .gc-d
+                "letter-spacing:.09em",                           // .hc-k
+            };
+            foreach (var v in attesi)
+                StringAssert.Contains(css, v,
+                    $"il riquadro dei modi non ha piu' la misura di AIS: «{v}»");
+
+            /*  E le classi dei RISULTATI non devono ricomparire: se tornano, vuol dire
+                che qualcuno ha ricopiato dal posto sbagliato una seconda volta. */
+            foreach (var v in new[] { ".stratcard {", ".stratgrid {", ".sc-h {" })
+                Assert.IsFalse(css.Contains(v),
+                    $"«{v}» sono le card dei risultati di AIS, non il riquadro dei modi");
+        }
+
+        /*  L'ELENCO DEI MODI NON STA NEL PONTE.
+         *
+         *  Se ci stesse, il giorno in cui il motore ne dichiarasse un quarto ci
+         *  sarebbero due verita' — e quella sbagliata sarebbe questa. La pagina
+         *  chiede, riceve, mostra; le parole tradotte le mette sopra quando conosce
+         *  l'identificativo, e quando non lo conosce usa quelle che arrivano.       */
+        [TestMethod]
+        public void L_ELENCO_DEI_MODI_ArrivaDalServizio() {
+            var js = Risorsa("prova.js");
+            StringAssert.Contains(js, "chiedi('modalita')",
+                "la pagina non chiede piu' l'elenco dei modi");
+            StringAssert.Contains(js, "modi = r.modalita",
+                "l'elenco non arriva piu' dalla risposta");
+            Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(js, @"modi\s*=\s*\[\s*\{"),
+                "l'elenco dei modi e' stato scritto dentro la pagina: adesso ce ne sono due");
+        }
+
+        /*  E LA PAGINA NON SI INVENTA UN MODO.
+         *
+         *  Ogni valore che finisce in `modoScelto` deve venire da fuori: il
+         *  predefinito che dichiara il servizio, il primo dell'elenco che manda il
+         *  servizio, o il bottone che ha premuto chi guarda. Un identificativo
+         *  scritto qui dentro partirebbe verso il motore senza che il motore lo
+         *  conosca, e tornerebbe indietro come `modalita_sconosciuta` — che e'
+         *  esattamente il guasto che quel codice esiste per rendere visibile.       */
+        [TestMethod]
+        public void LA_PAGINA_NON_SI_INVENTA_UnModo() {
+            var js = Risorsa("prova.js");
+            var fonti = System.Text.RegularExpressions.Regex.Matches(js, @"modoScelto\s*=\s*([^;]+);")
+                .Cast<System.Text.RegularExpressions.Match>()
+                .Select(m => m.Groups[1].Value.Trim())
+                .ToArray();
+            Assert.IsTrue(fonti.Length > 0, "nessuna assegnazione a modoScelto: la scelta non parte piu'");
+            foreach (var f in fonti)
+                Assert.IsTrue(f == "null" || f.Contains("r.diSerie") || f.Contains("modi[0].id")
+                              || f.Contains("i.value"),
+                    $"modoScelto prende un valore che non viene dal motore ne' dalla scelta: «{f}»");
         }
 
         [TestMethod]

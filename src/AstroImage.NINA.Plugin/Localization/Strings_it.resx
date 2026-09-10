@@ -199,7 +199,7 @@
     <value>Il motore non ha capito la richiesta che gli ha mandato il plugin. E' un guasto del plugin, non un errore tuo. Il motore dice: {0}</value>
   </data>
   <data name="Motore_NessunaPrescrizione" xml:space="preserve">
-    <value>Con i vetri che hai dichiarato non c'e' nessuna strada percorribile per questo soggetto. Prova a dichiarare piu' filtri in ruota, oppure scegli un oggetto che le righe che possiedi sappiano tracciare.</value>
+    <value>Con i filtri che hai dichiarato non c'e' nessuna strada percorribile per questo soggetto. Prova a dichiarare piu' filtri in ruota, oppure scegli un oggetto che le righe che possiedi sappiano tracciare.</value>
   </data>
   <data name="Motore_RichiestaIncompleta" xml:space="preserve">
     <value>Il plugin ha mandato una richiesta senza {0}. E' un guasto del plugin, non un errore tuo.</value>
@@ -276,6 +276,9 @@
   <data name="Pag_ColPose" xml:space="preserve">
     <value>pose</value>
   </data>
+  <data name="Pag_ComeRiprendere" xml:space="preserve">
+    <value>Come riprendere</value>
+  </data>
   <data name="Pag_ConfigFiltri" xml:space="preserve">
     <value>Configurazione dei filtri</value>
   </data>
@@ -313,7 +316,7 @@
     <value>Prova del ponte</value>
   </data>
   <data name="Pag_LatLonNota" xml:space="preserve">
-    <value>Latitudine e longitudine vengono dal profilo di N.I.N.A. e non si scrivono qui. L'altezza minima resta dichiarata: N.I.N.A. ha un orizzonte per azimut, il motore un numero solo, e ridurre l'uno all'altro sceglierebbe di nascosto quale meta' del cielo buttare via.</value>
+    <value>Latitudine e longitudine vengono dal profilo di N.I.N.A. e non si scrivono qui. Anche l'Orizzonte Personalizzato, se l'hai configurato: arriva intero, azimut per azimut, e comanda lui. L'altezza minima qui sotto e' il ripiego per chi non ce l'ha.</value>
   </data>
   <data name="Pag_Latitudine" xml:space="preserve">
     <value>latitudine</value>
@@ -323,6 +326,24 @@
   </data>
   <data name="Pag_MandaANina" xml:space="preserve">
     <value>Manda a N.I.N.A.</value>
+  </data>
+  <data name="Pag_ModoNota_dinamica" xml:space="preserve">
+    <value>Accorcia la posa per non saturare le stelle, partendo da Equilibrio e riducendola solo dove serve. Più fotogrammi, ma maggiore dinamica sulle alte luci.</value>
+  </data>
+  <data name="Pag_ModoNota_equilibrio" xml:space="preserve">
+    <value>Accorcia la posa fin dove conviene: un buon compromesso tra tempo di acquisizione e durata della singola posa.</value>
+  </data>
+  <data name="Pag_ModoNota_resa" xml:space="preserve">
+    <value>La posa più lunga che i limiti fisici consentono; meno tempo totale di acquisizione per raggiungere la stessa profondità.</value>
+  </data>
+  <data name="Pag_Modo_dinamica" xml:space="preserve">
+    <value>Dinamica</value>
+  </data>
+  <data name="Pag_Modo_equilibrio" xml:space="preserve">
+    <value>Equilibrio</value>
+  </data>
+  <data name="Pag_Modo_resa" xml:space="preserve">
+    <value>Resa</value>
   </data>
   <data name="Pag_MotivoNonDichiarato" xml:space="preserve">
     <value>motivo non dichiarato</value>
@@ -403,7 +424,7 @@
     <value>Scartato:</value>
   </data>
   <data name="Pag_ScriviloQuiSotto" xml:space="preserve">
-    <value>Scrivilo qui sotto: senza, il motore calcola le ore ma non la posa.</value>
+    <value>Scrivilo qui sotto: senza, il motore non calcola niente, ne' le ore ne' la posa.</value>
   </data>
   <data name="Pag_Seeing" xml:space="preserve">
     <value>seeing</value>

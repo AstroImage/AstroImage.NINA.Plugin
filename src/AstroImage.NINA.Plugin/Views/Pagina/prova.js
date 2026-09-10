@@ -14,6 +14,39 @@
      fino a ieri ce ne erano sette, ed erano Borno. */
   let sito = null, sitoScritto = {}, sitoProv = {}, sitoManca = null;
 
+  /*  I TRE MODI DI RIPRESA — e questa pagina non sa che cosa siano.
+   *
+   *  Sa che esistono tre identificativi, che uno e' selezionato, e che quello
+   *  selezionato va nella richiesta. Che cosa comportino — quanto lunga la posa,
+   *  quale limite la lega, quanto costa la scelta — lo decide Strategy, e il ponte
+   *  non ne conserva nemmeno una soglia. Se qui comparisse un numero di secondi
+   *  sarebbe gia' una seconda verita' accanto a quella del motore.
+   *
+   *  L'ELENCO SI SCOPRE, non si scrive: arriva da GET /v1/salute attraverso il C#.
+   *  Se il motore ne aggiungesse un quarto comparirebbe da solo, con l'etichetta e
+   *  la spiegazione che il motore dichiara — in italiano — finche' qualcuno non
+   *  scrive la traduzione. Si degrada, non si rompe: e' la stessa regola dei codici
+   *  d'errore.
+   *
+   *  Il predefinito lo dichiara il servizio. Se non risponde si resta senza modi
+   *  visibili e la richiesta non porta la chiave: e' il servizio a scegliere, come
+   *  ha sempre fatto — non questa pagina al posto suo. */
+  let modi = [], modoScelto = null;
+
+  /*  Le icone: tre segni, nessun colore proprio. Prendono il colore dal testo e
+   *  diventano accento quando la card e' scelta — come in AIS, dove i tre modi
+   *  sono tre facce della stessa decisione e non tre prodotti. */
+  const PAROLE = {
+    resa:       { nome: 'Pag_Modo_resa',       nota: 'Pag_ModoNota_resa' },
+    equilibrio: { nome: 'Pag_Modo_equilibrio', nota: 'Pag_ModoNota_equilibrio' },
+    dinamica:   { nome: 'Pag_Modo_dinamica',   nota: 'Pag_ModoNota_dinamica' },
+  };
+  const ICONE = {
+    resa:       '<path d="M4 19h16"/><path d="M6 16V9"/><path d="M11 16V5"/><path d="M16 16v-4"/>',
+    equilibrio: '<path d="M12 4v16"/><path d="M5 8h14"/><path d="M5 8 2 15h6Z"/><path d="M19 8l-3 7h6Z"/>',
+    dinamica:   '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/>',
+  };
+
   /* L'unica via verso il mondo: un messaggio all'ospite. */
   function chiedi(azione, corpo, extra) {
     const id = 'r' + (++contatore);
@@ -48,12 +81,27 @@
      della lingua. Cio' che e' gia' sullo schermo e' il resoconto di una cosa
      avvenuta: resta nella lingua in cui e' avvenuta, e la prossima esce nell'altra. */
   function ridisegna() {
+    chiedi('modalita').then(r => {
+      if (!r.ok || !r.modalita || !r.modalita.length) return;
+      modi = r.modalita;
+      modoScelto = r.diSerie && modi.some(m => m.id === r.diSerie) ? r.diSerie : modi[0].id;
+      disegnaModi();
+    });
     chiedi('sito').then(r => { if (r.ok) disegnaSito(r); });
     chiedi('filtri').then(r => { if (r.ok) disegnaRuota(r); });
+    /*  I modi si ridisegnano soltanto: l'elenco e la scelta restano quelli, cambia
+     *  la lingua delle parole. Richiederli al servizio sarebbe una chiamata in piu'
+     *  per girare un interruttore. */
+    if (modi.length) disegnaModi();
   }
 
   const stato = (t, c) => { const s = $('stato'); s.textContent = t; s.className = 'stato ' + (c || ''); };
-  const esc = s => String(s).replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c]));
+  /*  Le virgolette si proteggono come gli angoli, e non e' pedanteria: `esc` finisce
+   *  dentro un attributo ventisei volte in questo file, e li' una virgoletta nel
+   *  testo chiuderebbe l'attributo e trasformerebbe il resto in markup. Nel testo
+   *  normale &quot; si vede come una virgoletta, quindi non costa niente. */
+  const esc = s => String(s).replace(/[&<>"]/g,
+    c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
 
   /* ── LE PAROLE NON STANNO QUI DENTRO ──────────────────────────────────────────
      Le manda l'ospite in window.__LOC__, gia' nella lingua che vale adesso, e le
@@ -74,7 +122,12 @@
      L'enfasi con gli asterischi e' l'unica marcatura ammessa dentro un testo, ed
      esiste per non dover spezzare una frase in tre chiavi solo perche' una parola va
      in grassetto. Il testo resta testo; come si vede lo decide la pagina. */
-  const T = k => { const v = (window.__LOC__ || {})[k]; return v === undefined ? k : v; };
+  /*  Con un valore di RISERVA, e serve a una cosa sola: un identificativo che il
+   *  ponte non conosce ancora — un modo nuovo dichiarato dal motore — deve
+   *  comparire con le parole che il motore manda, in italiano, invece di sparire
+   *  o di mostrare il nome della chiave. Senza riserva si comporta come prima. */
+  const T = (k, riserva) => { const v = (window.__LOC__ || {})[k];
+    return v === undefined ? (riserva !== undefined ? riserva : k) : v; };
   const M = t => esc(t).replace(/\*([^*]+)\*/g, '<strong>$1</strong>');
   const MF = (k, ...a) => M(T(k)).replace(/\{(\d+)\}/g, (m, i) => a[+i] === undefined ? m : a[+i]);
 
@@ -83,6 +136,52 @@
   function applicaVoci() {
     for (const el of document.querySelectorAll('[data-loc]'))
       el.innerHTML = M(T(el.getAttribute('data-loc')));
+  }
+
+  /*  UNA CARD PER MODO. Il testo tradotto vince quando c'e' — `Pag_Modo_<id>` e
+   *  `Pag_ModoNota_<id>` — e si ripiega su quello che il motore dichiara quando non
+   *  c'e': un modo nuovo si vede subito, in italiano, invece di sparire. */
+  function disegnaModi() {
+    if (!modi.length) { $('modi').innerHTML = ''; return; }
+    const titolo = T('Pag_ComeRiprendere');
+    /*  UN RADIOGROUP VERO, non tre pulsanti che si somigliano. E' la stessa forma
+     *  di AIS: una <label> per modo con dentro un <input type=radio> nascosto. Si
+     *  arriva col tab, si cambia con le frecce, e il browser garantisce da solo che
+     *  ne resti scelto uno — cosa che tre pulsanti con aria-pressed non fanno.    */
+    $('modi').innerHTML =
+      '<fieldset class="goalbox"><legend class="hc-k">' + esc(titolo) + '</legend>' +
+      '<div class="goalgrid" role="radiogroup" aria-label="' + esc(titolo) + '">' +
+      modi.map(m => {
+        /*  LE CHIAVI SONO LETTERALI, non composte. Comporle — `'Pag_Modo_' + id` —
+         *  le rendeva invisibili alla prova che cerca le voci orfane nei resx, e una
+         *  voce che nessuna prova vede e' una voce che un giorno sparisce.
+         *  Questo NON e' l'elenco dei modi: l'elenco arriva dal servizio. Questa e'
+         *  la traduzione per gli identificativi che conosciamo, con ripiego su quelli
+         *  che non conosciamo — la stessa forma di `MessaggioDelMotore`. */
+        const p = PAROLE[m.id];
+        const nome = p ? T(p.nome, m.etichetta || m.id) : (m.etichetta || m.id);
+        const nota = p ? T(p.nota, m.spiegazione || '') : (m.spiegazione || '');
+        return '<label class="goalcard"><input type="radio" name="modo" value="' +
+            esc(m.id) + '"' + (m.id === modoScelto ? ' checked' : '') + '>' +
+          '<span class="gc"><span class="gc-h">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+              'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+              (ICONE[m.id] || ICONE.resa) + '</svg>' +
+            '<b>' + esc(nome) + '</b>' +
+            '<span class="gc-tick" aria-hidden="true">&#10003;</span></span>' +
+          '<span class="gc-d">' + esc(nota) + '</span></span></label>';
+      }).join('') + '</div></fieldset>';
+
+    Array.prototype.forEach.call($('modi').querySelectorAll('.goalcard input'), i => {
+      i.addEventListener('change', () => {
+        /*  Cambia solo quale identificativo partira'. Niente si ricalcola qui: la
+         *  prescrizione gia' a schermo resta il resoconto di com'e' andata con il
+         *  modo di allora, e la prossima uscira' con quello nuovo. E non si ridisegna
+         *  niente: la spunta e il bordo li muove il foglio di stile da solo, sul
+         *  :checked, e ridisegnare qui butterebbe via il fuoco della tastiera. */
+        modoScelto = i.value;
+      });
+    });
   }
 
   async function vai() {
@@ -104,7 +203,11 @@
       banco:     { tel: 'askar71f', red: 0.75, cam: 'asi2600mc', mnt: 'am5', bin: 1 },
       bersaglio: { id: $('oggetto').value.trim() },
       quando:    { data: $('data').value.trim(), notti: 3 },
-      opzioni:   { strategia: 'equilibrio', pannelli: 1 }
+      /*  L'IDENTIFICATIVO E NIENT'ALTRO. Non un numero di secondi, non una soglia:
+       *  che cosa comporti questo modo lo decide Strategy. Quando l'elenco non e'
+       *  arrivato la chiave non parte affatto, e il servizio applica il proprio
+       *  predefinito — che e' sempre stato compito suo. */
+      opzioni:   modoScelto ? { strategia: modoScelto, pannelli: 1 } : { pannelli: 1 }
     });
 
     $('vai').disabled = false;

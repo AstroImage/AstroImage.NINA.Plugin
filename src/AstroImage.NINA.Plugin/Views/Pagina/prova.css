@@ -1,4 +1,17 @@
-  :root { color-scheme: dark; }
+  /*  LA TAVOLOZZA E' QUELLA DI AstroImage-Strategy, valore per valore.
+   *
+   *  Non e' una citazione: i tre modi sono la STESSA decisione che si prende in
+   *  AIS, e devono sembrare parte nativa di quella pagina invece di tre pulsanti
+   *  di un altro prodotto. Reinterpretarli graficamente — un altro azzurro, un
+   *  altro raggio, un altro respiro — direbbe a chi guarda che sono un'altra cosa.
+   *
+   *  I valori vengono da index.html di AIS, blocco `:root`.                     */
+  :root {
+    color-scheme: dark;
+    --bg:#070b11; --surface:#0d141d; --surface-2:#111a24;
+    --line:#1e2a38; --fg:#dbe5f1; --dim:#8395aa; --dim2:#5e708a;
+    --acc:#3b82f6; --acc-rgb:59,130,246; --warn:#d29922;
+  }
   body { margin:0; padding:20px; background:#15181d; color:#dfe4ea;
          font:14px/1.55 "Segoe UI", system-ui, sans-serif; }
   h1 { font-size:15px; font-weight:600; margin:0 0 2px; letter-spacing:.02em; }
@@ -25,6 +38,43 @@
   code { font:12px ui-monospace, Consolas, monospace; opacity:.8; }
   button.manda { background:#2f855a; padding:4px 11px; font-size:12.5px; }
   button.manda:hover { background:#38a169; }
+  /* ── I TRE MODI ────────────────────────────────────────────────
+     Ogni valore qui sotto e' copiato dal riquadro «Come riprendere» di AIS —
+     `.goalbox` / `.goalgrid` / `.goalcard` / `.gc` — e NON dalle `.stratcard`,
+     che in AIS sono le card dei risultati e hanno un'altra misura in ogni cosa.
+
+     I NOMI DELLE CLASSI SONO QUELLI DI AIS APPOSTA. Chiamarle diversamente qui
+     avrebbe reso il confronto fra i due file un esercizio di memoria: cosi'
+     invece si mettono affiancati e si legge riga per riga. Se un giorno AIS
+     cambia, questi vanno cambiati con lei — sono la stessa cosa vista da due
+     finestre, non una citazione.
+
+     La differenza che resta e' una sola, e non e' grafica: in AIS la scelta
+     convive con la prescrizione gia' calcolata, qui la precede. Percio' non ci
+     sono i secondi ne' il costo: quelli nascono dalla prescrizione, e quando si
+     sceglie non c'e' ancora. Il riquadro e' lo stesso, senza i numeri che qui
+     nessuno saprebbe scrivere. */
+  #modi { margin-bottom:14px; }
+  .goalbox { border:0; padding:0; margin:0; min-width:0; }
+  .goalbox > legend { padding:0; margin-bottom:8px; }
+  .hc-k { font-size:10.5px; text-transform:uppercase; letter-spacing:.09em; color:var(--dim2); }
+  .goalgrid { display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); }
+  .goalcard { margin:0; border-bottom:none; display:block; cursor:pointer; }
+  .goalcard input { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+  .goalcard .gc { display:flex; flex-direction:column; gap:5px; height:100%;
+                  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+                  padding:12px 14px; transition:border-color .15s, background .15s; }
+  .goalcard:hover .gc { border-color:var(--dim2); }
+  .goalcard input:checked + .gc { border-color:var(--acc); background:rgba(var(--acc-rgb),.09); }
+  .goalcard input:focus-visible + .gc { outline:2px solid var(--acc); outline-offset:2px; }
+  .gc-h { display:flex; align-items:center; gap:9px; font-size:14px; color:var(--fg); }
+  .gc-h svg { width:19px; height:19px; flex:none; color:var(--dim); }
+  .goalcard input:checked + .gc .gc-h svg { color:var(--acc); }
+  .gc-tick { margin-left:auto; font-size:13px; color:var(--acc); opacity:0; transition:opacity .15s; }
+  .goalcard input:checked + .gc .gc-tick { opacity:1; }
+  .gc-d { font-size:11.5px; line-height:1.5; color:var(--dim); }
+  @media (max-width:560px) { .gc { padding:10px 12px } .gc-d { font-size:11px } }
+
   ul { margin:8px 0 0 18px; padding:0; }
   li { margin:2px 0; }
 

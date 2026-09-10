@@ -137,6 +137,42 @@ namespace AstroImage.NINA.Plugin.Services {
                 busta?.Contratto, busta?.Misura?.Ms, busta?.Prodotto?.Bersaglio);
         }
 
+        /*  I TRE MODI DI RIPRESA, chiesti e non scritti.
+         *
+         *  RESA, EQUILIBRIO e DINAMICA sono decisioni del MOTORE: e' lui a sapere
+         *  quanto lunga viene la posa, quale limite la lega e quanto costa la scelta.
+         *  Il ponte non ne conserva niente — nemmeno l'elenco degli identificativi —
+         *  perche' un elenco copiato qui sarebbe una seconda verita' accanto a quella
+         *  del motore, e le due divergerebbero il giorno in cui ne comparisse un
+         *  quarto.
+         *
+         *  Torna vuoto quando il servizio non risponde o non li dichiara: allora la
+         *  pagina non mostra i modi e la richiesta parte senza la chiave, cosi' il
+         *  servizio applica il proprio predefinito — che e' sempre stato compito suo.
+         */
+        public async Task<ModalitaDiRipresa> Modalita(CancellationToken ct = default) {
+            try {
+                using var r = await _http.GetAsync(_salute, ct).ConfigureAwait(false);
+                if (!r.IsSuccessStatusCode) return ModalitaDiRipresa.Vuota;
+                var corpo = await r.Content.ReadAsStringAsync().ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(corpo);
+                if (!doc.RootElement.TryGetProperty("modalita", out var m)) return ModalitaDiRipresa.Vuota;
+                var elenco = new List<ModoDiRipresa>();
+                if (m.TryGetProperty("elenco", out var el) && el.ValueKind == JsonValueKind.Array)
+                    foreach (var x in el.EnumerateArray()) {
+                        var id = x.TryGetProperty("id", out var i) ? i.GetString() : null;
+                        if (string.IsNullOrWhiteSpace(id)) continue;
+                        elenco.Add(new ModoDiRipresa { Id = id!,
+                            Etichetta = x.TryGetProperty("etichetta", out var e) ? e.GetString() : null,
+                            Spiegazione = x.TryGetProperty("spiegazione", out var s) ? s.GetString() : null });
+                    }
+                return new ModalitaDiRipresa { Elenco = elenco,
+                    DiSerie = m.TryGetProperty("di_serie", out var d) ? d.GetString() : null };
+            } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
+                throw;
+            } catch { return ModalitaDiRipresa.Vuota; }
+        }
+
         /// <summary>C'e' qualcuno dall'altra parte? Vero o falso, senza spiegazioni:
         /// serve solo a dire all'utente se accendere il servizio.</summary>
         public async Task<bool> Raggiungibile(CancellationToken ct = default) {
@@ -147,6 +183,22 @@ namespace AstroImage.NINA.Plugin.Services {
                 throw;
             } catch { return false; }
         }
+    }
+
+    /// <summary>Un modo di ripresa come il motore lo dichiara: un identificativo, e
+    /// le parole che servono a chi non ha una traduzione per quell'identificativo.</summary>
+    public sealed class ModoDiRipresa {
+        public string Id { get; set; } = string.Empty;
+        public string? Etichetta { get; set; }
+        public string? Spiegazione { get; set; }
+    }
+
+    /// <summary>L'elenco chiuso dei modi e quale vale quando non se ne sceglie
+    /// nessuno. Vuoto quando il servizio non risponde: non si inventa.</summary>
+    public sealed class ModalitaDiRipresa {
+        public IReadOnlyList<ModoDiRipresa> Elenco { get; set; } = new List<ModoDiRipresa>();
+        public string? DiSerie { get; set; }
+        public static ModalitaDiRipresa Vuota => new ModalitaDiRipresa();
     }
 
     /// <summary>
