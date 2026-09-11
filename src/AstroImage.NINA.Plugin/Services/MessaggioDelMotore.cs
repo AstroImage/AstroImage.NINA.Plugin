@@ -62,7 +62,18 @@ namespace AstroImage.NINA.Plugin.Services {
                 ["cielo_non_valido"]      = ("Motore_CieloNonValido",      new[] { "ricevuto" }),
                 ["cielo_implausibile"]    = ("Motore_CieloImplausibile",   new[] { "ricevuto", "min", "max" }),
                 ["bersaglio_sconosciuto"] = ("Motore_BersaglioSconosciuto", new[] { "chiesto" }),
-                ["banco_sconosciuto"]     = ("Motore_BancoSconosciuto",    new[] { "dettaglio" }),
+                /*  DUE CODICI DOVE PRIMA CE N'ERA UNO, e non e' pignoleria: sono due
+                 *  situazioni che si correggono in modo diverso. Un identificativo che
+                 *  non risulta si corregge scegliendone un altro o descrivendo il pezzo;
+                 *  un record a cui mancano dei campi si corregge riempiendoli. Il
+                 *  vecchio `banco_sconosciuto` li faceva sembrare la stessa cosa e ci
+                 *  incastonava dentro il messaggio grezzo del motore, che nessuno puo'
+                 *  tradurre.
+                 *
+                 *  `campi` arriva come lista e diventa una riga sola: ci pensa
+                 *  `Appiattisci` col separatore localizzato.                          */
+                ["setup_sconosciuto"]     = ("Motore_SetupSconosciuto",    new[] { "pezzo", "chiesto" }),
+                ["setup_incompleto"]      = ("Motore_SetupIncompleto",     new[] { "pezzo", "chiesto", "campi" }),
                 ["nessuna_prescrizione"]  = ("Motore_NessunaPrescrizione", new string[0]),
                 //  DIAGNOSTICA — se un utente la vede, il problema non e' la lingua
                 ["via_sconosciuta"]       = ("Motore_ViaSconosciuta",      new string[0]),

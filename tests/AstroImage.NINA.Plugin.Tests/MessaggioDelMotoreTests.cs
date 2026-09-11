@@ -62,7 +62,7 @@ namespace AstroImage.NINA.Plugin.Tests {
          *  chiuso, e quel fallimento e' il promemoria di venire ad aggiornare questo. */
         private static readonly string[] CodiciDelMotore = {
             "cielo_assente", "cielo_non_valido", "cielo_implausibile",
-            "bersaglio_sconosciuto", "banco_sconosciuto", "nessuna_prescrizione",
+            "bersaglio_sconosciuto", "setup_sconosciuto", "setup_incompleto", "nessuna_prescrizione",
             "via_sconosciuta", "richiesta_incompleta", "richiesta_troppo_grande",
             "json_illeggibile", "motore_in_errore",
         };
@@ -225,11 +225,15 @@ namespace AstroImage.NINA.Plugin.Tests {
         [TestMethod]
         public void IlDettaglioGrezzoViveDentroUnaFraseNostra() {
             Loc.Instance.ForzaLingua("en");
-            var s = MessaggioDelMotore.Rendi("banco_sconosciuto",
+            /*  IL CODICE E' CAMBIATO, la regola no. Il dettaglio grezzo non vive piu'
+             *  in `banco_sconosciuto` — che non esiste piu' — ma in `motore_in_errore`,
+             *  che e' l'unico posto dove un messaggio non traducibile ha ancora senso:
+             *  li' l'utente non deve capire il guasto, deve poterlo riferire.        */
+            var s = MessaggioDelMotore.Rendi("motore_in_errore",
                 Dati(@"{""dettaglio"":""telescopio non trovato: pippo""}"), "ripiego");
             StringAssert.Contains(s!, "telescopio non trovato: pippo", "il dettaglio e' sparito");
             Assert.IsTrue(s!.Length > 40, "il dettaglio e' rimasto solo, senza una frase intorno");
-            StringAssert.Contains(s, "equipment", "la frase intorno non e' nella lingua scelta");
+            StringAssert.Contains(s, "engine", "la frase intorno non e' nella lingua scelta");
         }
     }
 }

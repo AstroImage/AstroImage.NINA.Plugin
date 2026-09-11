@@ -177,10 +177,7 @@
   <data name="Montaggio_UnBlocco" xml:space="preserve">
     <value>a block</value>
   </data>
-  <data name="Motore_BancoSconosciuto" xml:space="preserve">
-    <value>The declared equipment does not match anything the engine knows. The engine says: {0}</value>
-  </data>
-  <data name="Motore_BersaglioSconosciuto" xml:space="preserve">
+<data name="Motore_BersaglioSconosciuto" xml:space="preserve">
     <value>No object is called *{0}*. Use the exact catalogue id or name: NGC 6888, M 31, IC 434.</value>
   </data>
   <data name="Motore_CieloAssente" xml:space="preserve">
@@ -209,6 +206,12 @@
   </data>
   <data name="Motore_Separatore" xml:space="preserve">
     <value>, </value>
+  </data>
+  <data name="Motore_SetupIncompleto" xml:space="preserve">
+    <value>The setup is incomplete: the {0} “{1}” is missing data without which nothing can be prescribed — {2}. Fill them in and try again.</value>
+  </data>
+  <data name="Motore_SetupSconosciuto" xml:space="preserve">
+    <value>The setup is not recognised: {0} “{1}” is not among the entries the engine knows. Pick one from the list, or describe it.</value>
   </data>
   <data name="Motore_ViaSconosciuta" xml:space="preserve">
     <value>The plugin knocked on a door the engine does not have. This happens when plugin and engine are different versions: update whichever is older.</value>
