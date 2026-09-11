@@ -177,10 +177,7 @@
   <data name="Montaggio_UnBlocco" xml:space="preserve">
     <value>un blocco</value>
   </data>
-  <data name="Motore_BancoSconosciuto" xml:space="preserve">
-    <value>Gli strumenti dichiarati non corrispondono a nessuna voce che il motore conosca. Il motore dice: {0}</value>
-  </data>
-  <data name="Motore_BersaglioSconosciuto" xml:space="preserve">
+<data name="Motore_BersaglioSconosciuto" xml:space="preserve">
     <value>Nessun oggetto si chiama *{0}*. Serve l'identificativo o il nome esatto: NGC 6888, M 31, IC 434.</value>
   </data>
   <data name="Motore_CieloAssente" xml:space="preserve">
@@ -209,6 +206,12 @@
   </data>
   <data name="Motore_Separatore" xml:space="preserve">
     <value>, </value>
+  </data>
+  <data name="Motore_SetupIncompleto" xml:space="preserve">
+    <value>Il setup e' incompleto: al {0} «{1}» mancano dati senza i quali non c'e' niente da prescrivere — {2}. Riempili e riprova.</value>
+  </data>
+  <data name="Motore_SetupSconosciuto" xml:space="preserve">
+    <value>Il setup non e' riconosciuto: {0} «{1}» non risulta fra le voci che il motore conosce. Scegline una dall'elenco, oppure descrivila.</value>
   </data>
   <data name="Motore_ViaSconosciuta" xml:space="preserve">
     <value>Il plugin ha bussato a una porta che il motore non ha. Succede quando plugin e motore sono di due versioni diverse: aggiorna quello piu' vecchio dei due.</value>
