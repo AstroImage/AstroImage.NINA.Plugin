@@ -197,6 +197,15 @@ namespace AstroImage.NINA.Plugin.Models.Setup {
         [JsonPropertyName("collegato")] public bool? Collegato { get; set; }
         [JsonPropertyName("nome")] public string? Nome { get; set; }
         [JsonPropertyName("driver")] public string? Driver { get; set; }
+        /// <summary>
+        /// L'identificativo che N.I.N.A. usa per questo dispositivo, per esempio
+        /// «ZWOptical_ZWO ASI2600MC Pro_». E' machine-readable e inequivocabile,
+        /// al contrario del nome dei filtri che lo scrive chi configura: un driver
+        /// nativo DEVE identificarsi. Non serve al motore per riconoscere il
+        /// sensore — a quello ci pensa la geometria — ma serve a sapere di QUALE
+        /// dispositivo si sta parlando quando se ne collega un altro.
+        /// </summary>
+        [JsonPropertyName("device_id")] public string? DeviceId { get; set; }
 
         /// <summary>Passo del pixel in µm come lo dichiara il DRIVER.</summary>
         [JsonPropertyName("pixel_um")] public double? PixelUm { get; set; }

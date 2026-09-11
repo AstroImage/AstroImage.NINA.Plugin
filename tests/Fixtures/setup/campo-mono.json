@@ -24,6 +24,7 @@
     "collegato": false,
     "nome": null,
     "driver": null,
+    "device_id": null,
     "pixel_um": null,
     "pixel_um_profilo": 3.76,
     "larghezza_px": null,

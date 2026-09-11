@@ -24,6 +24,7 @@
     "collegato": true,
     "nome": "ZWO ASI2600MC Pro",
     "driver": null,
+    "device_id": null,
     "pixel_um": 3.76,
     "pixel_um_profilo": 3.76,
     "larghezza_px": 6248,

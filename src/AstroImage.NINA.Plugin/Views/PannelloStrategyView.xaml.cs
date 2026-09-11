@@ -215,6 +215,8 @@ namespace AstroImage.NINA.Plugin.Views {
 
                 if (azione == "modalita") { await Modalita(id); return; }
 
+                if (azione == "camera") { Camera(id); return; }
+
                 if (azione == "sito") { Sito(id); return; }
 
                 if (azione == "salvaSito") { SalvaSito(id, messaggio); return; }
@@ -550,6 +552,45 @@ namespace AstroImage.NINA.Plugin.Views {
                                             ["spiegazione"] = x.Spiegazione });
             Rispondi(id, true, null, null, null, 0, null, new JsonObject {
                 ["modalita"] = elenco, ["diSerie"] = m.DiSerie });
+        }
+
+        /*  LA CAMERA COM'E', e nient'altro che com'e'.
+         *
+         *  Qui non si riconosce niente. Si prende quello che il driver dichiara —
+         *  passo del pixel, dimensioni, matrice, bit, elettroni per ADU, guadagno in
+         *  uso — e lo si passa. Quale sensore sia, e in quale modo lo stia leggendo,
+         *  lo decide `resolveSensor` dentro Strategy, dalla GEOMETRIA: e' cosi' che
+         *  distingue un IMX294 venduto binnato dallo stesso silicio letto intero.
+         *
+         *  Se il ponte tenesse una tabella di alias ci sarebbero due verita', e
+         *  quella sbagliata sarebbe la copia — il giorno in cui il catalogo dei
+         *  sensori cambia, questa non lo saprebbe.
+         *
+         *  CAMERA SPENTA E' UN CASO NORMALE, non un errore: si risponde con quello
+         *  che si sa (niente), e la pagina manda l'identificativo di catalogo come
+         *  ha sempre fatto. Il motore accetta tutte e due le forme.                */
+        private void Camera(string id) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
+
+            var c = vm.Banco.Leggi().Camera;
+            if (c is null || c.Collegato != true) {
+                Rispondi(id, true, null, null, null, 0, null, new JsonObject { ["camera"] = null });
+                return;
+            }
+            Rispondi(id, true, null, null, null, 0, null, new JsonObject {
+                ["camera"] = new JsonObject {
+                    ["deviceId"]  = c.DeviceId,
+                    ["nome"]      = c.Nome,
+                    ["pixel_um"]  = c.PixelUm,
+                    ["width_px"]  = c.LarghezzaPx,
+                    ["height_px"] = c.AltezzaPx,
+                    ["matrice"]   = c.Sensore,
+                    ["bit"]       = c.Bit,
+                    ["e_per_adu"] = c.ElettroniPerAdu,
+                    ["gain"]      = c.Gain?.Attuale,
+                },
+            });
         }
 
         /*  DOVE SEI, e da dove lo sappiamo.

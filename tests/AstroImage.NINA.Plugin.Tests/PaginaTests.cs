@@ -255,6 +255,54 @@ namespace AstroImage.NINA.Plugin.Tests {
                     $"modoScelto prende un valore che non viene dal motore ne' dalla scelta: «{f}»");
         }
 
+        /*  IL PONTE NON RICONOSCE I SENSORI, E NON DEVE COMINCIARE.
+         *
+         *  Della camera collegata legge quello che il driver dichiara — passo del
+         *  pixel, dimensioni, matrice, bit, elettroni per ADU, guadagno — e lo passa.
+         *  Quale silicio ci sia sotto, e in quale modo lo stia leggendo, lo decide
+         *  `resolveSensor` dentro Strategy, dalla GEOMETRIA: e' cosi' che distingue un
+         *  IMX294 venduto binnato dallo stesso sensore letto intero, che i costruttori
+         *  chiamano IMX492.
+         *
+         *  Se qui comparisse una tabella di alias — «ASI2600 e' un IMX571» — ci
+         *  sarebbero due verita', e il giorno in cui il catalogo dei sensori cambia
+         *  quella sbagliata sarebbe la copia. Lo stesso vale per il pozzetto, il
+         *  rumore di lettura e la QE: sono caratterizzazione, e stanno nel catalogo.
+         *
+         *  La prova cerca i nomi delle famiglie di sensori, che sono il segno piu'
+         *  riconoscibile di una tabella che sta nascendo.                            */
+        [TestMethod]
+        public void IL_PONTE_NON_CONOSCE_I_Sensori() {
+            /*  Si risale finche' non si trova, come fa la prova sulle chiavi orfane:
+                contare i «..» dipende dalla forma della cartella di uscita, che cambia
+                fra Debug e Release e fra una versione di .NET e l'altra. */
+            string? radice = null;
+            var d = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var i = 0; i < 8 && d is not null; i++, d = d.Parent) {
+                var c = System.IO.Path.Combine(d.FullName, "src", "AstroImage.NINA.Plugin");
+                if (System.IO.Directory.Exists(c)) { radice = c; break; }
+            }
+            if (radice is null) { Assert.Inconclusive("sorgenti non trovati accanto ai test"); return; }
+
+            var testo = string.Join("\n", new[] { "*.cs", "*.js" }
+                .SelectMany(p => System.IO.Directory.EnumerateFiles(radice, p, System.IO.SearchOption.AllDirectories))
+                .Where(f => !f.Contains(System.IO.Path.DirectorySeparatorChar + "obj" + System.IO.Path.DirectorySeparatorChar)
+                         && !f.Contains(System.IO.Path.DirectorySeparatorChar + "bin" + System.IO.Path.DirectorySeparatorChar))
+                .Select(System.IO.File.ReadAllText));
+
+            /*  I commenti restano: uno che SPIEGA perche' il ponte non riconosce i
+                sensori nomina per forza un IMX. E' il codice a non doverli nominare. */
+            var codice = System.Text.RegularExpressions.Regex.Replace(testo, @"/\*.*?\*/", " ",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            codice = System.Text.RegularExpressions.Regex.Replace(codice, @"(?m)^\s*//.*$", " ");
+
+            var trovati = new[] { "IMX", "ICX", "MN34", "KAF", "sensor_id", "saturazione_e" }
+                .Where(t => codice.Contains(t, StringComparison.OrdinalIgnoreCase)).ToArray();
+            Assert.AreEqual(0, trovati.Length,
+                "nel codice del ponte compaiono nomi di sensori o campi del catalogo: "
+                + string.Join(", ", trovati) + ". Il riconoscimento sta in Strategy.");
+        }
+
         [TestMethod]
         public void ComporLaPaginaDueVolte_DaLoStessoDocumento() {
             /*  Si compone una volta e si tiene. Se un giorno qualcuno la rendesse
