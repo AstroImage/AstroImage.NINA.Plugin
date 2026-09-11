@@ -141,6 +141,11 @@ namespace AstroImage.NINA.Plugin.Services {
                 Collegato = Protetto(() => (bool?)i!.Connected),
                 Nome = Testo(Protetto(() => i!.DisplayName)) ?? Testo(Protetto(() => i!.Name)),
                 Driver = Testo(Protetto(() => i!.DriverInfo)),
+                /*  L'identificativo del dispositivo: machine-readable, e un driver
+                 *  nativo DEVE darlo. Non serve a riconoscere il sensore — a quello
+                 *  ci pensa la geometria dentro Strategy — ma a sapere di quale
+                 *  camera si sta parlando quando se ne collega un'altra.           */
+                DeviceId = Testo(Protetto(() => i!.DeviceId)),
                 PixelUmProfilo = Positivo(Protetto(() => (double?)cfg!.PixelSize)),
                 MatriceProfilo = Testo(Protetto(() => cfg!.BayerPattern.ToString())),
             };

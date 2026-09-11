@@ -13,6 +13,10 @@
      se c'e', dalla dichiarazione se no. Qui dentro non c'e' nessun numero di serie:
      fino a ieri ce ne erano sette, ed erano Borno. */
   let sito = null, sitoScritto = {}, sitoProv = {}, sitoManca = null;
+  /*  LA CAMERA COM'E', quando c'e'. Nulla se non e' collegata, e allora la richiesta
+   *  porta l'identificativo di catalogo come ha sempre fatto. Qui dentro non c'e'
+   *  nessun nome di sensore e nessuna tabella: solo quello che il driver dichiara. */
+  let camera = null;
 
   /*  I TRE MODI DI RIPRESA — e questa pagina non sa che cosa siano.
    *
@@ -87,6 +91,7 @@
       modoScelto = r.diSerie && modi.some(m => m.id === r.diSerie) ? r.diSerie : modi[0].id;
       disegnaModi();
     });
+    chiedi('camera').then(r => { if (r.ok) camera = r.camera || null; });
     chiedi('sito').then(r => { if (r.ok) disegnaSito(r); });
     chiedi('filtri').then(r => { if (r.ok) disegnaRuota(r); });
     /*  I modi si ridisegnano soltanto: l'elenco e la scelta restano quelli, cambia
@@ -200,7 +205,13 @@
          dispositivo sarebbe indovinare l'identita' fisica da un'etichetta — lo stesso
          difetto dei filtri, ripetuto sull'ottica. Serve una dichiarazione, come per la
          ruota, e finche' non c'e' la pagina lo dice invece di far finta. */
-      banco:     { tel: 'askar71f', red: 0.75, cam: 'asi2600mc', mnt: 'am5', bin: 1 },
+      /*  LA CAMERA VERA QUANDO C'E'. Il motore accetta per `cam` un identificativo
+       *  di catalogo oppure la descrizione che il driver dichiara, e da quella
+       *  riconosce sensore e modo di lettura per conto suo. Il resto del banco e'
+       *  ancora scritto qui, e lo sara' finche' non arrivera' dal profilo: N.I.N.A.
+       *  sa focale e rapporto focale, ma apertura, ostruzione e trasmissione no. */
+      banco:     { tel: 'askar71f', red: 0.75, mnt: 'am5', bin: 1,
+                   cam: camera || 'asi2600mc' },
       bersaglio: { id: $('oggetto').value.trim() },
       quando:    { data: $('data').value.trim(), notti: 3 },
       /*  L'IDENTIFICATIVO E NIENT'ALTRO. Non un numero di secondi, non una soglia:

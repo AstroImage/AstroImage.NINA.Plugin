@@ -159,7 +159,16 @@ namespace AstroImage.NINA.Plugin.ViewModels {
                 IProfileService profileService,
                 [Import(AllowDefault = true)] ISequenceMediator mediatore,
                 [Import(AllowDefault = true)] IWeatherDataMediator meteo,
-                [Import(AllowDefault = true)] IGuiderMediator guida) : base(profileService) {
+                [Import(AllowDefault = true)] IGuiderMediator guida,
+                /*  I MEDIATORI DEI DISPOSITIVI, per leggere il banco che c'e' davvero.
+                 *  Tutti con AllowDefault: un plugin che sparisce dall'elenco perche'
+                 *  manca un rotatore sarebbe un difetto peggiore di quello che risolve.
+                 *  Chi non c'e' resta nullo, e `LettoreSetup` lo tratta come tale.    */
+                [Import(AllowDefault = true)] ICameraMediator camera,
+                [Import(AllowDefault = true)] ITelescopeMediator montatura,
+                [Import(AllowDefault = true)] IFilterWheelMediator ruotaDisp,
+                [Import(AllowDefault = true)] IFocuserMediator focheggiatore,
+                [Import(AllowDefault = true)] IRotatorMediator rotatore) : base(profileService) {
             Title = "AstroImage Strategy";
             CanClose = true;
             /*  Nessuna icona: N.I.N.A. accetta un pannello senza geometria e ne disegna
@@ -201,6 +210,16 @@ namespace AstroImage.NINA.Plugin.ViewModels {
              *  concreta di N.I.N.A., e il resto del ponte vede solo `IMemoriaRuota`.
              *  Se non si riesce a costruirlo il pannello resta usabile e lo dice
              *  provando a salvare — meglio che sparire dall'elenco dei plugin. */
+            /*  IL BANCO COM'E', letto dai dispositivi collegati.
+             *
+             *  `LettoreSetup` esisteva gia' — scritto, commentato e provato — e non lo
+             *  costruiva nessuno. Si aggancia qui per intero invece di scrivere un
+             *  lettore stretto per la sola camera: due lettori della stessa cosa sono
+             *  il modo piu' rapido di averne uno sbagliato. Di quello che legge, per
+             *  ora, esce solo la camera.                                             */
+            Banco = new LettoreSetup(profileService, camera, montatura, ruotaDisp,
+                                     focheggiatore, rotatore, guida, meteo);
+
             Ruota = new RuotaDelProfilo(profileService);
             IMemoriaRuota memoria;
             try {
@@ -238,6 +257,10 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         public const string IdentitaPlugin = "3AC982AD-64D9-45F0-99EA-56063E94E206";
 
         /// <summary>La ruota com'e' adesso nel profilo attivo. Si chiede ogni volta.</summary>
+        /// <summary>Il banco come i dispositivi collegati lo dichiarano. Di quello
+        /// che legge, per ora, la pagina chiede solo la camera.</summary>
+        public LettoreSetup Banco { get; }
+
         public RuotaDelProfilo Ruota { get; }
 
         /// <summary>Dove vive la dichiarazione dei vetri.</summary>
