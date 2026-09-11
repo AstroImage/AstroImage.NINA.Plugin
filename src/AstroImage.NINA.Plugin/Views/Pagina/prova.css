@@ -11,6 +11,10 @@
     --bg:#070b11; --surface:#0d141d; --surface-2:#111a24;
     --line:#1e2a38; --fg:#dbe5f1; --dim:#8395aa; --dim2:#5e708a;
     --acc:#3b82f6; --acc-rgb:59,130,246; --warn:#d29922;
+    /*  I quattro che servono ai controlli della domanda: il fondo dei riquadri,
+        l'incavo dei segmenti, il raggio e il passo di spaziatura. Stessi nomi e
+        stessi valori di AIS. */
+    --bg3:#131c27; --sunken:#090f16; --radius:8px; --s4:16px;
   }
   body { margin:0; padding:20px; background:#15181d; color:#dfe4ea;
          font:14px/1.55 "Segoe UI", system-ui, sans-serif; }
@@ -145,3 +149,40 @@
   /* Un dato che non c'e' si vede che non c'e': non diventa un trattino qualunque
      in mezzo agli altri numeri. */
   .dato .assente { opacity:.45; font-style:italic; }
+  /*  LA DOMANDA — le tre cose che decide chi riprende, con la grafica del motore.
+
+      In quante notti, quando, e se il progetto e' il soggetto intero o una sua
+      inquadratura. Non sono impostazioni: sono la domanda. Cambiano il piano, la
+      Luna e il totale di progetto, e il Ponte deve poterle DICHIARARE — finora ne
+      mandava tre scritte dentro il codice che nessun utente aveva scelto.
+
+      Le regole vengono da index.html di AIS (`.hero-row`, `.hero-cov`, `.hc-seg`,
+      `label.f`, `.hero-num`), copiate valore per valore: stessa forma, stesse
+      misure, stessi colori. `.hc-k` sta gia' piu' sopra — la usa la legenda dei tre
+      modi, ed e' identica a quella di AIS — quindi si riusa invece di riscriverla. */
+  .hero-row { display:flex; gap:var(--s4); flex-wrap:wrap; align-items:stretch;
+              margin-bottom:16px; }
+  label.f { display:flex; flex-direction:column; gap:4px; font-size:11.5px;
+            color:var(--dim); text-transform:uppercase; letter-spacing:.06em; }
+  label.f > input { text-transform:none; font-size:14px; letter-spacing:0; color:var(--fg); }
+  .hero-num { justify-content:center; max-width:150px; }
+  .hero-num input { font-size:16px; font-weight:600; font-variant-numeric:tabular-nums; }
+  /* La copertura decide se il progetto e' il soggetto intero o una sua
+     inquadratura: cambia il costo di tutto quello che si legge sotto, quindi sta
+     qui sopra e non nella diagnostica. Due segmenti perche' le scelte sono due. */
+  .hero-cov { display:flex; flex-direction:column; justify-content:center; gap:6px;
+              background:var(--bg3); border:1px solid var(--line);
+              border-radius:var(--radius); padding:8px var(--s4);
+              flex:1 1 260px; min-width:230px; }
+  .hc-seg { display:flex; border:1px solid var(--line); border-radius:var(--radius);
+            overflow:hidden; background:var(--sunken); }
+  .hc-seg label { flex:1; margin:0; border-bottom:none; display:flex; }
+  .hc-seg label + label { border-left:1px solid var(--line); }
+  .hc-seg input { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+  .hc-seg span { flex:1; display:flex; align-items:center; justify-content:center;
+                 padding:8px 7px; font-size:12.5px; font-weight:600; color:var(--dim);
+                 text-align:center; line-height:1.25; cursor:pointer;
+                 transition:background .15s, color .15s; }
+  .hc-seg span:hover { color:var(--fg); }
+  .hc-seg input:checked + span { background:rgba(var(--acc-rgb),.16); color:var(--acc); }
+  .hc-seg input:focus-visible + span { outline:2px solid var(--acc); outline-offset:-2px; }

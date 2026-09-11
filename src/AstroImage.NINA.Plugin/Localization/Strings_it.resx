@@ -291,6 +291,9 @@
   <data name="Pag_Contratto" xml:space="preserve">
     <value>{0} · motore {1} · risposta {2} KB intatti</value>
   </data>
+  <data name="Pag_CoperturaDelSoggetto" xml:space="preserve">
+    <value>copertura del soggetto</value>
+  </data>
   <data name="Pag_DaSapere" xml:space="preserve">
     <value>Da sapere:</value>
   </data>
@@ -314,6 +317,12 @@
   </data>
   <data name="Pag_InAttesa" xml:space="preserve">
     <value>in attesa</value>
+  </data>
+  <data name="Pag_InQuanteNotti" xml:space="preserve">
+    <value>in quante notti</value>
+  </data>
+  <data name="Pag_InquadraturaLibera" xml:space="preserve">
+    <value>Inquadratura libera</value>
   </data>
   <data name="Pag_Intestazione" xml:space="preserve">
     <value>Prova del ponte</value>
@@ -443,6 +452,9 @@
   </data>
   <data name="Pag_SlotNumero" xml:space="preserve">
     <value>slot {0}</value>
+  </data>
+  <data name="Pag_SoggettoCompleto" xml:space="preserve">
+    <value>Soggetto completo</value>
   </data>
   <data name="Pag_Sottotitolo" xml:space="preserve">
     <value>La pagina chiede all'ospite, l'ospite chiede a Strategy. Qui dentro non c'e' nessun indirizzo.</value>

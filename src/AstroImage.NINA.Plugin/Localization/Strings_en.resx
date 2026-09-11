@@ -291,6 +291,9 @@
   <data name="Pag_Contratto" xml:space="preserve">
     <value>{0} · engine {1} · answer {2} KB intact</value>
   </data>
+  <data name="Pag_CoperturaDelSoggetto" xml:space="preserve">
+    <value>subject coverage</value>
+  </data>
   <data name="Pag_DaSapere" xml:space="preserve">
     <value>Worth knowing:</value>
   </data>
@@ -314,6 +317,12 @@
   </data>
   <data name="Pag_InAttesa" xml:space="preserve">
     <value>waiting</value>
+  </data>
+  <data name="Pag_InQuanteNotti" xml:space="preserve">
+    <value>how many nights</value>
+  </data>
+  <data name="Pag_InquadraturaLibera" xml:space="preserve">
+    <value>Free framing</value>
   </data>
   <data name="Pag_Intestazione" xml:space="preserve">
     <value>Bridge test</value>
@@ -443,6 +452,9 @@
   </data>
   <data name="Pag_SlotNumero" xml:space="preserve">
     <value>slot {0}</value>
+  </data>
+  <data name="Pag_SoggettoCompleto" xml:space="preserve">
+    <value>Whole subject</value>
   </data>
   <data name="Pag_Sottotitolo" xml:space="preserve">
     <value>The page asks its host, the host asks Strategy. There is no address in here.</value>
