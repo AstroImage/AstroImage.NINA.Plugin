@@ -186,3 +186,12 @@
   .hc-seg span:hover { color:var(--fg); }
   .hc-seg input:checked + span { background:rgba(var(--acc-rgb),.16); color:var(--acc); }
   .hc-seg input:focus-visible + span { outline:2px solid var(--acc); outline-offset:-2px; }
+
+  /*  L'AVVISO STA DOVE SAREBBERO STATI I RIQUADRI, e ha la forma di un errore
+      invece di quella di una card: chi guarda deve capire in un colpo che li non
+      c'e' una scelta da fare, ma una cosa da accendere. */
+  .motore-giu { padding:12px 14px; }
+  .motore-giu .mg-dove { margin-top:6px; font-family:Consolas,monospace;
+                         font-size:12px; opacity:.85; word-break:break-all; }
+  .motore-giu .mg-perche { margin-top:8px; font-size:12.5px; opacity:.75;
+                           line-height:1.5; }

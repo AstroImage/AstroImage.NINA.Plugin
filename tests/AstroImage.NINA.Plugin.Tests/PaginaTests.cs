@@ -88,6 +88,69 @@ namespace AstroImage.NINA.Plugin.Tests {
                     $"la pagina contiene «{spia}»: gli indirizzi stanno nel C#, non qui");
         }
 
+        /*  IL PANNELLO NON RESTA MUTO QUANDO STRATEGY NON RISPONDE.
+         *
+         *  Il difetto: `ClienteStrategy.Modalita` restituisce `Vuota` su ogni
+         *  fallimento, il gestore rispondeva `ok: true` con zero modi, e la pagina
+         *  faceva `return`. I tre riquadri non comparivano e NIENTE diceva perche':
+         *  chi guarda vede un plugin rotto, e il plugin sta benissimo. E' costato un
+         *  pomeriggio, due volte.
+         *
+         *  Quattro affermazioni, una per ogni modo di ricaderci.                   */
+        [TestMethod]
+        public void IL_PANNELLO_NON_RESTA_MUTO_SeStrategyNonRisponde() {
+            /*  Si RISALE finche' non si trovano i sorgenti, invece di contare i `..`:
+                la profondita' della cartella di uscita cambia fra Debug e Release e fra
+                una versione di .NET e l'altra, e un conteggio cablato non trova niente
+                — cioe' diventa una prova che non prova. Stesso idioma della prova dei
+                sensori, che per questo era nata gia' cosi'. */
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var i = 0; i < 8 && su is not null; i++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src",
+                        "AstroImage.NINA.Plugin"))) { radice = System.IO.Path.Combine(su.FullName, "src"); break; }
+            if (radice is null) { Assert.Inconclusive("sorgenti non trovati accanto ai test"); return; }
+
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(
+                radice, "AstroImage.NINA.Plugin", "Views", "PannelloStrategyView.xaml.cs"));
+
+            //  1 · un elenco vuoto non e' una risposta: il gestore lo rifiuta
+            var gestore = vista.Substring(vista.IndexOf("Task Modalita(string id)", StringComparison.Ordinal));
+            gestore = gestore.Substring(0, gestore.IndexOf("\n        }", StringComparison.Ordinal));
+            Assert.IsTrue(gestore.Contains("Elenco.Count == 0", StringComparison.Ordinal),
+                "il gestore `modalita` non rifiuta l'elenco vuoto: rispondera' «e' andata " +
+                "bene, zero modi», e la pagina non avra' niente da dire");
+
+            //  2 · e lo dice NOMINANDO l'indirizzo, che e' l'unica cosa utile
+            Assert.IsTrue(gestore.Contains("Pannello_NessunoRisponde", StringComparison.Ordinal),
+                "il rifiuto non usa la frase che nomina l'indirizzo configurato: " +
+                "«non risponde» senza dire DOVE non dice dove andare a guardare");
+
+            //  3 · la pagina non torna indietro in silenzio su quel ramo
+            var pagina = Risorsa("prova.js");
+            var ramo = pagina.Substring(pagina.IndexOf("chiedi('modalita')", StringComparison.Ordinal));
+            ramo = ramo.Substring(0, Math.Min(600, ramo.Length));
+            Assert.IsTrue(ramo.Contains("motoreGiu(", StringComparison.Ordinal),
+                "il ramo di fallimento di `modalita` non avvisa nessuno: era `return` e basta");
+            Assert.IsTrue(pagina.Contains("function motoreGiu", StringComparison.Ordinal),
+                "manca l'avviso stesso");
+            //  e l'avviso porta il messaggio dell'ospite, che e' quello con l'indirizzo
+            var avviso = pagina.Substring(pagina.IndexOf("function motoreGiu", StringComparison.Ordinal));
+            avviso = avviso.Substring(0, Math.Min(800, avviso.Length));
+            Assert.IsTrue(avviso.Contains("r.messaggio", StringComparison.Ordinal),
+                "l'avviso non mostra il messaggio dell'ospite: perderebbe l'indirizzo");
+
+            //  4 · le due frasi esistono in tutte e due le lingue, o una resta muta
+            foreach (var lingua in new[] { "Strings_it.resx", "Strings_en.resx" }) {
+                var dizionario = System.IO.File.ReadAllText(System.IO.Path.Combine(
+                    radice, "AstroImage.NINA.Plugin", "Localization", lingua));
+                foreach (var chiave in new[] { "Pag_StrategyNonRisponde", "Pag_PercioNienteModi",
+                                               "Pannello_NessunoRisponde" })
+                    Assert.IsTrue(dizionario.Contains("name=\"" + chiave + "\"", StringComparison.Ordinal),
+                        lingua + " non ha «" + chiave + "»: in quella lingua il pannello resta muto");
+            }
+        }
+
         // ── 0b: le parole non stanno nella pagina ────────────────────────────────
 
         private static string Risorsa(string nome) {

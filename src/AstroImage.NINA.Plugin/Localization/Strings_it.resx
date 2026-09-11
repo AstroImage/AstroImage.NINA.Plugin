@@ -405,6 +405,9 @@
   <data name="Pag_OpzNonDichiarato" xml:space="preserve">
     <value>(non dichiarato)</value>
   </data>
+  <data name="Pag_PercioNienteModi" xml:space="preserve">
+    <value>I tre modi di ripresa li dichiara Strategy: finche' non risponde il pannello non li inventa. Accendi il motore e riapri il pannello.</value>
+  </data>
   <data name="Pag_RigaCalcolataSu" xml:space="preserve">
     <value>calcolata su</value>
   </data>
@@ -482,6 +485,9 @@
   </data>
   <data name="Pag_StoMandando" xml:space="preserve">
     <value>sto mandando…</value>
+  </data>
+  <data name="Pag_StrategyNonRisponde" xml:space="preserve">
+    <value>Strategy non risponde</value>
   </data>
   <data name="Pag_StrumentazioneNota" xml:space="preserve">
     <value>La *strumentazione* e' ancora una configurazione Strategy scritta nel ponte, *non* letta dal profilo di N.I.N.A.: Askar 71F 0.75× con ASI2600MC. N.I.N.A. non possiede apertura, ostruzione, trasmissione, QE ne' rumore di lettura, quindi il collegamento richiedera' una dichiarazione come quella dei filtri.</value>

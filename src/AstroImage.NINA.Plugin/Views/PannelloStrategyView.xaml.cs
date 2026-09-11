@@ -546,6 +546,26 @@ namespace AstroImage.NINA.Plugin.Views {
             var cliente = (DataContext as PannelloStrategyVM)?.Cliente;
             if (cliente is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaCorriere")); return; }
             var m = await cliente.Modalita();
+
+            /*  UN ELENCO VUOTO NON E' UNA RISPOSTA: E' UN'ASSENZA DI RISPOSTA.
+             *
+             *  `ClienteStrategy.Modalita` restituisce `Vuota` su ogni fallimento — motore
+             *  spento, stato non riuscito, corpo illeggibile — e qui si rispondeva
+             *  `ok: true` con zero modi. La pagina riceveva «tutto bene, nessun modo»,
+             *  che e' indistinguibile da «il motore non ne ha»: percio' taceva, e i tre
+             *  riquadri non comparivano senza che niente dicesse perche'. Chi guarda
+             *  vedeva un plugin rotto, e il plugin stava benissimo.
+             *
+             *  Il motore i suoi modi li dichiara sempre — lo verifica gate-strategie —
+             *  quindi vuoto vuol dire che non ha risposto. Si riusano il codice e la
+             *  frase di `salute`, che NOMINA l'indirizzo configurato: senza il nome
+             *  dell'indirizzo «non risponde» non dice dove andare a guardare.        */
+            if (m.Elenco is null || m.Elenco.Count == 0) {
+                Rispondi(id, false, null, "servizio_irraggiungibile",
+                         Loc.F("Pannello_NessunoRisponde", (DataContext as PannelloStrategyVM)?.Radice));
+                return;
+            }
+
             var elenco = new JsonArray();
             foreach (var x in m.Elenco)
                 elenco.Add(new JsonObject { ["id"] = x.Id, ["etichetta"] = x.Etichetta,
