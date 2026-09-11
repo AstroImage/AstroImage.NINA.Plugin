@@ -84,9 +84,31 @@
      una chiamata al motore e forse numeri diversi, per aver girato un interruttore
      della lingua. Cio' che e' gia' sullo schermo e' il resoconto di una cosa
      avvenuta: resta nella lingua in cui e' avvenuta, e la prossima esce nell'altra. */
+  /*  IL MOTORE NON RISPONDE, E SI DEVE VEDERE.
+   *
+   *  L'avviso va dove sarebbero comparsi i tre riquadri, perche' e' li' che manca
+   *  qualcosa: un messaggio in fondo alla pagina lo leggerebbe chi lo sta gia'
+   *  cercando. E porta l'INDIRIZZO, che l'ospite ha gia' composto: «non risponde»
+   *  senza dire dove non dice dove andare a guardare, ed e' la differenza fra un
+   *  minuto e un pomeriggio.
+   *
+   *  Non inventa niente: i tre modi li dichiara Strategy, e finche' non risponde la
+   *  pagina dice che non risponde invece di mostrare tre riquadri suoi.         */
+  function motoreGiu(r) {
+    modi = []; modoScelto = null;
+    const dove = (r && r.messaggio) ? '<div class="mg-dove">' + esc(r.messaggio) + '</div>' : '';
+    $('modi').innerHTML =
+      '<div class="box err motore-giu">' +
+      '<b>' + esc(T('Pag_StrategyNonRisponde')) + '</b>' + dove +
+      '<div class="mg-perche">' + esc(T('Pag_PercioNienteModi')) + '</div></div>';
+    stato((r && r.messaggio) ? r.messaggio : T('Pag_ServizioGiu'), 'no');
+  }
+
   function ridisegna() {
     chiedi('modalita').then(r => {
-      if (!r.ok || !r.modalita || !r.modalita.length) return;
+      /*  Qui c'era `return`, e basta: senza modi la pagina non disegnava i riquadri
+          e non diceva niente. Adesso lo dice, con l'indirizzo. */
+      if (!r.ok || !r.modalita || !r.modalita.length) { motoreGiu(r); return; }
       modi = r.modalita;
       modoScelto = r.diSerie && modi.some(m => m.id === r.diSerie) ? r.diSerie : modi[0].id;
       disegnaModi();
@@ -378,8 +400,12 @@
 
   $('vai').addEventListener('click', vai);
 
-  chiedi('salute').then(r => stato(T(r.ok ? 'Pag_ServizioSu' : 'Pag_ServizioGiu'),
-                                  r.ok ? 'ok' : 'no'));
+  /*  LA FRASE DELL'OSPITE VINCE SU QUELLA GENERICA: l'ospite compone gia'
+      «Nessuno risponde a <indirizzo>» con la radice davvero in uso, e la pagina la
+      buttava via per scrivere «servizio non raggiungibile», che non dice DOVE. */
+  chiedi('salute').then(r => stato(
+    r.ok ? T('Pag_ServizioSu') : (r.messaggio || T('Pag_ServizioGiu')),
+    r.ok ? 'ok' : 'no'));
 
   /* LA RUOTA VIRTUALE: che cosa sono, fisicamente, i vetri che hai in ruota.
      N.I.N.A. da' i nomi e gli slot; il motore da' l'elenco dei vetri che conosce;

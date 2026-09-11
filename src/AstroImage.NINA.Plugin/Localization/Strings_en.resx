@@ -405,6 +405,9 @@
   <data name="Pag_OpzNonDichiarato" xml:space="preserve">
     <value>(not declared)</value>
   </data>
+  <data name="Pag_PercioNienteModi" xml:space="preserve">
+    <value>The three capture modes are declared by Strategy: until it answers, this panel will not invent them. Start the engine and reopen the panel.</value>
+  </data>
   <data name="Pag_RigaCalcolataSu" xml:space="preserve">
     <value>computed on</value>
   </data>
@@ -482,6 +485,9 @@
   </data>
   <data name="Pag_StoMandando" xml:space="preserve">
     <value>sending…</value>
+  </data>
+  <data name="Pag_StrategyNonRisponde" xml:space="preserve">
+    <value>Strategy is not answering</value>
   </data>
   <data name="Pag_StrumentazioneNota" xml:space="preserve">
     <value>The *equipment* is still a Strategy configuration written into the bridge, *not* read from the N.I.N.A. profile: Askar 71F 0.75× with ASI2600MC. N.I.N.A. does not hold aperture, obstruction, throughput, QE or read noise, so wiring it up will need a declaration like the one for filters.</value>
