@@ -213,12 +213,31 @@
       banco:     { tel: 'askar71f', red: 0.75, mnt: 'am5', bin: 1,
                    cam: camera || 'asi2600mc' },
       bersaglio: { id: $('oggetto').value.trim() },
-      quando:    { data: $('data').value.trim(), notti: 3 },
+      /*  LE TRE DICHIARAZIONI, e adesso vengono dai controlli.
+       *  `notti` era il letterale 3 e la data era cablata nel markup: due numeri
+       *  che nessun utente aveva scelto, su cui pero' il piano si costruiva.
+       *  Si manda quello che c'e' scritto, senza correggerlo: se e' fuori scala lo
+       *  dice il servizio, che ha la lista chiusa dei rifiuti. */
+      /*  SI MANDA QUELLO CHE C'E' SCRITTO, senza convertirlo. `Number('due')` da'
+       *  NaN, e JSON lo scrive `null`: un valore malformato diventava un'ASSENZA,
+       *  e il servizio applicava il proprio predefinito invece di rifiutare. Il
+       *  Ponte trasporta; a giudicare se sono notti valide e' Strategy, che ha la
+       *  lista chiusa dei rifiuti e sa dire perche'. */
+      quando:    { data: $('data').value.trim(),
+                   notti: $('notti').value.trim() },
       /*  L'IDENTIFICATIVO E NIENT'ALTRO. Non un numero di secondi, non una soglia:
        *  che cosa comporti questo modo lo decide Strategy. Quando l'elenco non e'
        *  arrivato la chiave non parte affatto, e il servizio applica il proprio
        *  predefinito — che e' sempre stato compito suo. */
-      opzioni:   modoScelto ? { strategia: modoScelto, pannelli: 1 } : { pannelli: 1 }
+      /*  LA COPERTURA SI DICHIARA, I RIQUADRI NO.
+       *  Qui partiva `pannelli: 1` e la copertura non partiva affatto: il motore
+       *  legge l'assenza come «soggetto completo», quindi la richiesta diceva
+       *  insieme «copri tutto il soggetto» e «il progetto e' un campo solo».
+       *  I riquadri sono GEOMETRIA — dipendono da come il sensore cade sul cielo e
+       *  da quanto hai ruotato — e una pagina senza inquadratura non puo'
+       *  calcolarli: non li manda, e Strategy dichiara quanti ne ha assunti. */
+      opzioni:   Object.assign({ copertura: coperturaScelta() },
+                               modoScelto ? { strategia: modoScelto } : {})
     });
 
     $('vai').disabled = false;
@@ -339,6 +358,23 @@
       '<span style="opacity:.7">' + T('Pag_NienteAvviato') + '</span></div>' +
       elenco(T('Pag_Scartato'), r.scartati) + elenco(T('Pag_DaSapere'), r.note) + '</div>';
   }
+
+  /*  QUALE COPERTURA E' SPUNTATA. Due segmenti, e uno lo e' sempre: il markup
+      preseleziona «soggetto completo» come fa AIS. Se un giorno nessuno lo fosse,
+      si manda null e il servizio lo dichiara come non dichiarato. */
+  const coperturaScelta = () => {
+    const s = document.querySelector('input[name="cov"]:checked');
+    return s ? s.value : null;
+  };
+
+  /*  LA DATA DI OGGI, messa dalla pagina e non dal markup. Una data scritta nel
+      file e' una data che mente il giorno dopo, e la Luna si calcola su quella:
+      il pannello mostrerebbe la fase di un'altra sera senza dirlo. */
+  (function dataDiOggi() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    $('data').value = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  })();
 
   $('vai').addEventListener('click', vai);
 

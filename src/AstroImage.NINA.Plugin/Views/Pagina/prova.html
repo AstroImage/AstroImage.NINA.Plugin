@@ -20,9 +20,36 @@
 
 <div class="riga">
   <input id="oggetto" value="ngc6888" spellcheck="false">
-  <input id="data" value="2026-09-15" spellcheck="false" style="width:110px">
+  <!-- La data NON ha un valore qui dentro: lo mette prova.js, ed e' oggi. Una data
+       cablata nel markup e' una data che mente il giorno dopo, e la Luna si calcola
+       su quella. -->
+  <input id="data" spellcheck="false" style="width:110px">
   <button id="vai" data-loc="Pag_ChiediPrescrizione"></button>
   <span id="stato" class="stato" data-loc="Pag_InAttesa"></span>
+</div>
+
+<!--  LA DOMANDA — le tre cose che decide chi riprende, non il programma.
+
+      Quante notti, e se il progetto e' il soggetto intero o una sua inquadratura.
+      Cambiano il piano e il totale, e finora il Ponte ne mandava valori scritti nel
+      codice che nessun utente aveva scelto: tre notti sempre, e la copertura mai
+      dichiarata — che il motore legge come «soggetto completo», il caso caro.
+
+      Struttura identica a quella di AIS, perche' e' la stessa domanda: se le due
+      pagine la chiedessero in due modi diversi, la stessa prescrizione avrebbe due
+      volti. Le parole stanno nel dizionario, come tutto il resto di questo file.  -->
+<div class="hero-row">
+  <div class="hero-cov">
+    <div class="hc-k" data-loc="Pag_CoperturaDelSoggetto"></div>
+    <div class="hc-seg" role="radiogroup">
+      <label><input type="radio" name="cov" id="covFull" value="full" checked>
+        <span data-loc="Pag_SoggettoCompleto"></span></label>
+      <label><input type="radio" name="cov" id="covFrame" value="framing">
+        <span data-loc="Pag_InquadraturaLibera"></span></label>
+    </div>
+  </div>
+  <label class="f hero-num"><span data-loc="Pag_InQuanteNotti"></span>
+    <input type="number" id="notti" step="1" min="1" max="60" value="3"></label>
 </div>
 
 <div id="modi"></div>
