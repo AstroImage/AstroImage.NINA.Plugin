@@ -322,7 +322,7 @@
     <value>in quante notti</value>
   </data>
   <data name="Pag_InquadraturaLibera" xml:space="preserve">
-    <value>Inquadratura libera</value>
+    <value>Un riquadro solo</value>
   </data>
   <data name="Pag_Intestazione" xml:space="preserve">
     <value>Prova del ponte</value>
@@ -457,7 +457,7 @@
     <value>slot {0}</value>
   </data>
   <data name="Pag_SoggettoCompleto" xml:space="preserve">
-    <value>Soggetto completo</value>
+    <value>Tutto l'oggetto — a mosaico se serve</value>
   </data>
   <data name="Pag_Sottotitolo" xml:space="preserve">
     <value>La pagina chiede all'ospite, l'ospite chiede a Strategy. Qui dentro non c'e' nessun indirizzo.</value>
@@ -635,5 +635,224 @@
   </data>
   <data name="Vm_SenzaMontatore" xml:space="preserve">
     <value>Il montatore non e' stato costruito.</value>
+  </data>
+  <data name="Pag_ComePianificare" xml:space="preserve">
+    <value>Come distribuire le notti</value>
+  </data>
+  <data name="Pag_Politica_sessione" xml:space="preserve">
+    <value>Sessione completa</value>
+  </data>
+  <data name="Pag_PoliticaNota_sessione" xml:space="preserve">
+    <value>Ogni notte porta tutti i canali, nelle proporzioni della prescrizione: se domani piove, stanotte hai già un'immagine.</value>
+  </data>
+  <data name="Pag_Politica_progetto" xml:space="preserve">
+    <value>Ottimizza sul progetto</value>
+  </data>
+  <data name="Pag_PoliticaNota_progetto" xml:space="preserve">
+    <value>I canali si dividono le notti secondo la Luna: rende di più sul progetto intero, ma una notte da sola non è un'immagine completa.</value>
+  </data>
+  <data name="Pag_Prov_profilo" xml:space="preserve">
+    <value>dal profilo di N.I.N.A.</value>
+  </data>
+  <data name="Pag_Prov_misurato" xml:space="preserve">
+    <value>misurato dallo strumento</value>
+  </data>
+  <data name="Pag_Prov_dichiarato" xml:space="preserve">
+    <value>dichiarato da te</value>
+  </data>
+  <data name="Pag_Prov_non_disponibile" xml:space="preserve">
+    <value>non disponibile</value>
+  </data>
+  <data name="Pag_Men_Titolo" xml:space="preserve">
+    <value>Tecnica di ripresa</value>
+  </data>
+  <data name="Pag_Men_Sottotitolo" xml:space="preserve">
+    <value>quali canali riprendere: l'immagine cambia, la fisica resta</value>
+  </data>
+  <data name="Pag_Men_SceglieMotore" xml:space="preserve">
+    <value>Scelta del motore</value>
+  </data>
+  <data name="Pag_Men_SceglieMotoreNota" xml:space="preserve">
+    <value>la più completa che le tue ore consentono</value>
+  </data>
+  <data name="Pag_Men_OraSarebbe" xml:space="preserve">
+    <value>adesso: *{0}*</value>
+  </data>
+  <data name="Pag_Men_InUso" xml:space="preserve">
+    <value>in uso</value>
+  </data>
+  <data name="Pag_Men_SceltaTua" xml:space="preserve">
+    <value>scelta da te</value>
+  </data>
+  <data name="Pag_Men_LaPrendeIlMotore" xml:space="preserve">
+    <value>presa dal motore</value>
+  </data>
+  <data name="Pag_Men_Raccomandata" xml:space="preserve">
+    <value>raccomandata</value>
+  </data>
+  <data name="Pag_Men_NonDisponibile" xml:space="preserve">
+    <value>non disponibile</value>
+  </data>
+  <data name="Pag_Men_StessaRipresa" xml:space="preserve">
+    <value>stessa ripresa</value>
+  </data>
+  <data name="Pag_Men_Esclusa" xml:space="preserve">
+    <value>esclusa</value>
+  </data>
+  <data name="Pag_Men_StessiCanali" xml:space="preserve">
+    <value>stessi canali</value>
+  </data>
+  <data name="Pag_Men_Prezzo" xml:space="preserve">
+    <value>{0} h per completarla</value>
+  </data>
+  <data name="Pag_Men_PrezzoProgetto" xml:space="preserve">
+    <value>{0} h in tutto per completarla</value>
+  </data>
+  <data name="Pag_Men_CostoNonCalcolabile" xml:space="preserve">
+    <value>il costo non si può calcolare</value>
+  </data>
+  <data name="Pag_Men_RaccomandataPerche" xml:space="preserve">
+    <value>*{0}* è raccomandata: {1}</value>
+  </data>
+  <data name="Pag_Men_PrimaScelta" xml:space="preserve">
+    <value>per questa classe la prima scelta è {0}</value>
+  </data>
+  <data name="Pag_Men_Margine" xml:space="preserve">
+    <value>{0} in {1} immagini su AstroBin, {2} in {3}</value>
+  </data>
+  <data name="Pag_Men_MargineSolo" xml:space="preserve">
+    <value>{0} in {1} immagini su AstroBin</value>
+  </data>
+  <data name="Pag_Men_ConteggiDel" xml:space="preserve">
+    <value>conteggi del {0}</value>
+  </data>
+  <data name="Pag_Men_FormatoData" xml:space="preserve">
+    <value>it-IT</value>
+  </data>
+  <data name="Pag_Men_SuMatrice" xml:space="preserve">
+    <value>su una camera a colori la {0} si fa con la voce {1}</value>
+  </data>
+  <data name="Pag_Men_Via_variante_pura" xml:space="preserve">
+    <value>fra le voci {0} è la variante pura, senza stelle a colori</value>
+  </data>
+  <data name="Pag_Men_Via_default_della_scheda" xml:space="preserve">
+    <value>fra le voci {0} è quella che la scheda consiglia</value>
+  </data>
+  <data name="Pag_Men_Via_prima_voce_della_tecnica" xml:space="preserve">
+    <value>è la prima voce {0}</value>
+  </data>
+  <data name="Pag_Men_Assente_classe_non_misurata" xml:space="preserve">
+    <value>Nessuna tecnica è raccomandata: per questa classe la tabella delle tecniche non è ancora misurata</value>
+  </data>
+  <data name="Pag_Men_Assente_nessuna_voce_della_tecnica" xml:space="preserve">
+    <value>Nessuna tecnica è raccomandata: {0}, e fra le tecniche con un prezzo non ce n'è una {1}</value>
+  </data>
+  <data name="Pag_Men_Assente_prima_scelta_non_percorribile" xml:space="preserve">
+    <value>Nessuna tecnica è raccomandata: {0}, e con la ruota di adesso «{1}» non si riprende</value>
+  </data>
+  <data name="Pag_Men_NonPrezzabile_scala_del_soggetto_non_dichiarata" xml:space="preserve">
+    <value>la scheda non dice ancora quante ore servono alla banda larga quando è lei a portare il soggetto</value>
+  </data>
+  <data name="Pag_Men_NonPrezzabile_scala_delle_stelle_non_dichiarata" xml:space="preserve">
+    <value>la scheda non dice ancora quante ore servono al colore delle stelle</value>
+  </data>
+  <data name="Pag_Men_Stessa_stessa_ripresa_su_matrice" xml:space="preserve">
+    <value>su una camera a colori la luminanza non è un canale a sé: questa ripresa la fa {0}</value>
+  </data>
+  <data name="Pag_Men_Stessa_passata_stelle_non_riprendibile" xml:space="preserve">
+    <value>{0}: questa ripresa la fa {1}</value>
+  </data>
+  <data name="Pag_Men_StelleNonRiprendibili" xml:space="preserve">
+    <value>con questa ruota la passata per il colore delle stelle non si fa</value>
+  </data>
+  <data name="Pag_Men_StelleNonRiprendibili_spento" xml:space="preserve">
+    <value>con questa ruota la passata per il colore delle stelle non si fa: il canale {0} è spento</value>
+  </data>
+  <data name="Pag_Men_StelleNonRiprendibili_mancano" xml:space="preserve">
+    <value>con questa ruota la passata per il colore delle stelle non si fa: mancano {0}</value>
+  </data>
+  <data name="Pag_Men_Esclusa_spezzata_dalla_coppia" xml:space="preserve">
+    <value>col dual-band le due righe arrivano insieme: questa tecnica ne terrebbe una sola, e la ripresa è quella della tecnica accoppiata</value>
+  </data>
+  <data name="Pag_Men_Esclusa_stessi_canali" xml:space="preserve">
+    <value>ha gli stessi canali di {0}: è la stessa ripresa</value>
+  </data>
+  <data name="Pag_Men_Dove_matrice" xml:space="preserve">
+    <value>OSC</value>
+  </data>
+  <data name="Pag_Men_Dove_mono" xml:space="preserve">
+    <value>monocromatica</value>
+  </data>
+  <data name="Pag_Men_Motivo_canale_spento" xml:space="preserve">
+    <value>il canale {0} è spento</value>
+  </data>
+  <data name="Pag_Men_Motivo_canale_assente_rgb" xml:space="preserve">
+    <value>per l'RGB su {0} servono R, G e B: mancano {1}</value>
+  </data>
+  <data name="Pag_Men_Motivo_canale_assente_non_esiste" xml:space="preserve">
+    <value>per {0} su {1} non esiste nessun filtro</value>
+  </data>
+  <data name="Pag_Men_Motivo_canale_assente" xml:space="preserve">
+    <value>per {0} su {1} serve un filtro come {2}, e in ruota non c'è</value>
+  </data>
+  <data name="Pag_Men_Motivo_sensore_incompatibile_ruota" xml:space="preserve">
+    <value>nessun filtro per {0}: {1} in ruota non va su {2}; serve un filtro come {3}</value>
+  </data>
+  <data name="Pag_Men_Motivo_sensore_incompatibile" xml:space="preserve">
+    <value>per {0} hai scelto {1}, che su {2} non va</value>
+  </data>
+  <data name="Pag_Men_Motivo_non_in_ruota" xml:space="preserve">
+    <value>per {0} hai scelto {1}, che non è in ruota</value>
+  </data>
+  <data name="Pag_Men_Motivo_vetro_sconosciuto" xml:space="preserve">
+    <value>per {0} hai scelto un filtro che il motore non conosce ({1})</value>
+  </data>
+  <data name="Pag_Men_Motivo_classe_incompatibile" xml:space="preserve">
+    <value>per {0} hai scelto {1}, che quella banda non la fa passare</value>
+  </data>
+  <data name="Pag_Men_Motivo_sotto_soglia_continuo" xml:space="preserve">
+    <value>per {0} su OSC hai scelto {1}: apre {2} nm, e davanti a una matrice serve un continuo di almeno {3} nm</value>
+  </data>
+  <data name="Pag_Men_Motivo_escluso_per_decisione" xml:space="preserve">
+    <value>per {0} su OSC hai scelto {1}, che la sua scheda esclude dalla banda larga davanti a una matrice</value>
+  </data>
+  <data name="Pag_Men_Motivo_generico" xml:space="preserve">
+    <value>il canale {0} non si riprende con questa ruota</value>
+  </data>
+  <data name="Pag_Men_ChiestaBloccata" xml:space="preserve">
+    <value>La tecnica che avevi scelto, *{0}*, con la ruota di adesso non si riprende: {1}. Finché non la riscegli, sceglie il motore.</value>
+  </data>
+  <data name="Pag_Men_ChiestaStelle" xml:space="preserve">
+    <value>La tecnica che avevi scelto, *{0}*: {1}. La stessa ripresa la fa *{2}*, e la prescrizione segue quella.</value>
+  </data>
+  <data name="Pag_Men_ChiestaStessaRipresa" xml:space="preserve">
+    <value>La tecnica che avevi scelto, *{0}*, su una camera a colori è la stessa ripresa di *{1}*: la luminanza non è un canale a sé. La prescrizione segue quella.</value>
+  </data>
+  <data name="Pag_Men_Sostituita_strada_sconosciuta" xml:space="preserve">
+    <value>La tecnica che avevi scelto, *{0}*, non c'è più in questa scheda. La prescrizione segue la scelta del motore, *{1}*.</value>
+  </data>
+  <data name="Pag_Men_Sostituita_spezzata_dalla_coppia" xml:space="preserve">
+    <value>La tecnica che avevi scelto, *{0}*, col dual-band in ruota terrebbe una sola delle due righe che arrivano insieme. La prescrizione segue la scelta del motore, *{1}*.</value>
+  </data>
+  <data name="Pag_Men_Sostituita_scala_del_soggetto_non_dichiarata" xml:space="preserve">
+    <value>La tecnica che avevi scelto, *{0}*, non è disponibile: la scheda non dice ancora quante ore servono alla banda larga quando è lei a portare il soggetto. La prescrizione segue la scelta del motore, *{1}*.</value>
+  </data>
+  <data name="Pag_Men_Sostituita_stessi_canali" xml:space="preserve">
+    <value>La tecnica che avevi scelto, *{0}*, ha gli stessi canali di *{2}*. La prescrizione segue la scelta del motore, *{1}*.</value>
+  </data>
+  <data name="Pag_Men_Sostituita_generica" xml:space="preserve">
+    <value>La tecnica che avevi scelto, *{0}*, con questa ruota non si può prendere. La prescrizione segue la scelta del motore, *{1}*.</value>
+  </data>
+  <data name="Pag_Men_StaiScegliendo" xml:space="preserve">
+    <value>Stai scegliendo tu: con queste ore il motore prenderebbe *{0}*. La prescrizione segue la tua scelta.</value>
+  </data>
+  <data name="Pag_Men_AutoRisolta" xml:space="preserve">
+    <value>Il motore sceglie *{0}*, ma {1}: la prescrizione segue *{2}*, che fa la stessa ripresa.</value>
+  </data>
+  <data name="Pag_Men_LimiteStelle" xml:space="preserve">
+    <value>*{0}*: {1}, e la prescrizione non ha il colore delle stelle.</value>
+  </data>
+  <data name="Pag_Men_BancoNonLetto" xml:space="preserve">
+    <value>Banco: *{0}* — scritto nella pagina, non ancora letto dal profilo di N.I.N.A.: se il tuo è diverso, i riquadri e i prezzi qui sotto non sono i tuoi.</value>
   </data>
 </root>

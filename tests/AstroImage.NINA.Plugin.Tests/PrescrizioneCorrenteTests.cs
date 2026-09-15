@@ -54,7 +54,7 @@ namespace AstroImage.NINA.Plugin.Tests {
                 seq.Add(new SequenzaDiNotte { Notte = n, Modello = new SequenceModel() });
             return typeof(EsitoPrescrizione)
                 .GetMethod("Riuscita", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-                .Invoke(null, new object?[] { 200, "{}", seq, 0, "1", 1.0, null }) as EsitoPrescrizione
+                .Invoke(null, new object?[] { 200, "{}", seq, 0, "1", 1.0 }) as EsitoPrescrizione
                 ?? throw new InvalidOperationException();
         }
 

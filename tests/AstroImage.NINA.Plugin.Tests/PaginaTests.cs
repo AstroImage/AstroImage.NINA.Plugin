@@ -285,6 +285,23 @@ namespace AstroImage.NINA.Plugin.Tests {
          *  sarebbero due verita' — e quella sbagliata sarebbe questa. La pagina
          *  chiede, riceve, mostra; le parole tradotte le mette sopra quando conosce
          *  l'identificativo, e quando non lo conosce usa quelle che arrivano.       */
+        /*  OGNI CHIAVE CHE LA PAGINA CHIEDE ESISTE, E HA IL PREFISSO CHE LA FA ARRIVARE. Il contrario delle voci
+         *  orfane: una chiave chiesta e assente, o scritta senza Pag_, a schermo e' un'etichetta che manca senza un
+         *  errore — Pagina.cs passa alla pagina solo le voci Pag_. */
+        [TestMethod]
+        public void OGNI_CHIAVE_CHIESTA_DALLA_PAGINA_ESISTE_ECHA_IL_PREFISSO() {
+            var js = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.js"), @"/\*.*?\*/", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            var senzaPrefisso = System.Text.RegularExpressions.Regex.Matches(js, @"\b(?:T|MF)\('(?!Pag_)([A-Za-z_]+)'")
+                .Cast<System.Text.RegularExpressions.Match>().Select(m => m.Groups[1].Value).Distinct().ToArray();
+            Assert.AreEqual(0, senzaPrefisso.Length, "chiavi senza il prefisso Pag_: " + string.Join(", ", senzaPrefisso));
+            var p = Pagina();
+            var assenti = System.Text.RegularExpressions.Regex.Matches(js, @"'(Pag_[A-Za-z_]+)'")
+                .Cast<System.Text.RegularExpressions.Match>().Select(m => m.Groups[1].Value).Distinct()
+                .Where(k => !p.Contains("\"" + k + "\"")).ToArray();
+            Assert.AreEqual(0, assenti.Length, "chiavi chieste dalla pagina e assenti dal dizionario: " + string.Join(", ", assenti));
+        }
+
         [TestMethod]
         public void L_ELENCO_DEI_MODI_ArrivaDalServizio() {
             var js = Risorsa("prova.js");
@@ -316,6 +333,59 @@ namespace AstroImage.NINA.Plugin.Tests {
                 Assert.IsTrue(f == "null" || f.Contains("r.diSerie") || f.Contains("modi[0].id")
                               || f.Contains("i.value"),
                     $"modoScelto prende un valore che non viene dal motore ne' dalla scelta: «{f}»");
+        }
+
+        /*  LE POLITICHE ARRIVANO DAL SERVIZIO, e la pagina non ne sceglie una di suo: il valore che parte viene
+         *  dal predefinito che il servizio dichiara, dal primo dell'elenco che manda, o dal bottone premuto. */
+        [TestMethod]
+        public void LE_POLITICHE_ArrivanoDalServizio_ELaPaginaNonNeInventaUna() {
+            var js = Risorsa("prova.js");
+            StringAssert.Contains(js, "politiche = r.politiche", "l'elenco delle politiche non arriva piu' dalla risposta");
+            Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(js, @"politiche\s*=\s*\[\s*\{"),
+                "l'elenco delle politiche e' stato scritto dentro la pagina: adesso ce ne sono due");
+            var fonti = System.Text.RegularExpressions.Regex.Matches(js, @"politicaScelta\s*=\s*([^;]+);")
+                .Cast<System.Text.RegularExpressions.Match>().Select(m => m.Groups[1].Value.Trim()).ToArray();
+            Assert.IsTrue(fonti.Length > 0, "nessuna assegnazione a politicaScelta: la scelta non parte");
+            foreach (var f in fonti)
+                Assert.IsTrue(f == "null" || f.Contains("r.politicaDiSerie") || f.Contains("i.value"),
+                    $"politicaScelta prende un valore che non viene dal motore ne' dalla scelta: «{f}»");
+            StringAssert.Contains(js, "politica: politicaScelta", "la politica scelta non parte nella richiesta");
+        }
+
+        /*  IL MENU LEGGE LE STRADE E NON NE DECIDE NESSUNA. Il nome di una strada e' quello del motore; il prezzo e'
+         *  quello di progetto, e la pagina non lo moltiplica per i riquadri — sarebbe una regola di scala del motore
+         *  scritta qui; le chiavi delle parole sono letterali, perche' una chiave composta la prova delle voci orfane
+         *  non la vede; e il clic rifa' la domanda con la strada, invece di rimescolare le carte. */
+        [TestMethod]
+        public void IL_MENU_LEGGE_LE_STRADE_E_NON_NE_DECIDE_NESSUNA() {
+            var js = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.js"), @"/\*.*?\*/", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(js, @"'Pag_[A-Za-z_]*'\s*\+"),
+                "una chiave composta col codice: la prova delle voci orfane non la vede");
+            Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(js, @"\*\s*(pr\.)?panels|panels\s*\*"),
+                "la pagina moltiplica per i riquadri: e' una regola di scala del motore");
+            StringAssert.Contains(js, "c.progetto && c.progetto.ideal", "il prezzo non e' piu' quello di progetto");
+            StringAssert.Contains(js, "esc(c.name)", "il nome della strada non e' piu' quello del motore");
+            StringAssert.Contains(js, "strada: stradaScelta", "la strada scelta non parte nella richiesta");
+            foreach (var letto in new[] { "roadChoices", "raccomandataPerche", "raccomandataAssente", "blocked",
+                                          "stessaRipresa", "stradeEscluse", "nonPrezzabili", "roadRequestedSostituita",
+                                          "roadRequestedStessaRipresa", "roadAutoRisolta", "limitiDellaStrada" })
+                StringAssert.Contains(js, letto, $"il menu non legge piu' «{letto}»");
+        }
+
+        /*  IL BANCO SCRITTO NELLA PAGINA SI VEDE. Finche' la richiesta porta un banco scritto a mano e non letto dal
+         *  profilo, la pagina lo dice sopra il menu, e mostra quello che parte davvero: se il banco di chi guarda e'
+         *  diverso, i riquadri e i prezzi del menu non sono i suoi. Quando il banco arrivera' dal profilo la prima
+         *  verifica cade apposta: si toglie la fascia, e questa prova con lei. */
+        [TestMethod]
+        public void IL_BANCO_SCRITTO_NELLA_PAGINA_LO_DICE_LA_PAGINA() {
+            var js = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.js"), @"/\*.*?\*/", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            StringAssert.Contains(js, "tel: 'askar71f'",
+                "il banco non e' piu' scritto nella pagina: togli la fascia gialla e questa prova");
+            StringAssert.Contains(js, "MF('Pag_Men_BancoNonLetto'", "il banco e' scritto nella pagina e la pagina non lo dice");
+            Assert.IsTrue(System.Text.RegularExpressions.Regex.IsMatch(js, @"banco:\s*bancoMandato\b"),
+                "la fascia mostra un banco diverso da quello che parte nella richiesta");
         }
 
         /*  IL PONTE NON RICONOSCE I SENSORI, E NON DEVE COMINCIARE.

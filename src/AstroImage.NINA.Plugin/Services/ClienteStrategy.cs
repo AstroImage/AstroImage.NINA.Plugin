@@ -134,7 +134,7 @@ namespace AstroImage.NINA.Plugin.Services {
             }
 
             return EsitoPrescrizione.Riuscita(stato, corpo, sequenze, scartate,
-                busta?.Contratto, busta?.Misura?.Ms, busta?.Prodotto?.Bersaglio);
+                busta?.Contratto, busta?.Misura?.Ms);
         }
 
         /*  I TRE MODI DI RIPRESA, chiesti e non scritti.
@@ -166,8 +166,25 @@ namespace AstroImage.NINA.Plugin.Services {
                             Etichetta = x.TryGetProperty("etichetta", out var e) ? e.GetString() : null,
                             Spiegazione = x.TryGetProperty("spiegazione", out var s) ? s.GetString() : null });
                     }
+                /*  E LE POLITICHE DI SESSIONE, dalla stessa risposta e con la stessa forma: elenco e predefinito li
+                 *  dichiara il motore. Assenti su un motore piu' vecchio: la pagina resta senza il secondo
+                 *  controllo, e la richiesta parte senza la chiave. */
+                var politiche = new List<ModoDiRipresa>();
+                string? politicaDiSerie = null;
+                if (doc.RootElement.TryGetProperty("politica", out var pol) && pol.ValueKind == JsonValueKind.Object) {
+                    if (pol.TryGetProperty("elenco", out var pel) && pel.ValueKind == JsonValueKind.Array)
+                        foreach (var y in pel.EnumerateArray()) {
+                            var pid = y.TryGetProperty("id", out var pi) ? pi.GetString() : null;
+                            if (string.IsNullOrWhiteSpace(pid)) continue;
+                            politiche.Add(new ModoDiRipresa { Id = pid!,
+                                Etichetta = y.TryGetProperty("etichetta", out var pe) ? pe.GetString() : null,
+                                Spiegazione = y.TryGetProperty("spiegazione", out var ps) ? ps.GetString() : null });
+                        }
+                    politicaDiSerie = pol.TryGetProperty("di_serie", out var pd) ? pd.GetString() : null;
+                }
                 return new ModalitaDiRipresa { Elenco = elenco,
-                    DiSerie = m.TryGetProperty("di_serie", out var d) ? d.GetString() : null };
+                    DiSerie = m.TryGetProperty("di_serie", out var d) ? d.GetString() : null,
+                    Politiche = politiche, PoliticaDiSerie = politicaDiSerie };
             } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
                 throw;
             } catch { return ModalitaDiRipresa.Vuota; }
@@ -198,6 +215,9 @@ namespace AstroImage.NINA.Plugin.Services {
     public sealed class ModalitaDiRipresa {
         public IReadOnlyList<ModoDiRipresa> Elenco { get; set; } = new List<ModoDiRipresa>();
         public string? DiSerie { get; set; }
+        /// <summary>Le politiche di sessione, con la stessa forma dei modi. Vuote su un motore che non le dichiara.</summary>
+        public IReadOnlyList<ModoDiRipresa> Politiche { get; set; } = new List<ModoDiRipresa>();
+        public string? PoliticaDiSerie { get; set; }
         public static ModalitaDiRipresa Vuota => new ModalitaDiRipresa();
     }
 
@@ -228,15 +248,14 @@ namespace AstroImage.NINA.Plugin.Services {
         public string? MessaggioTradotto => MessaggioDelMotore.Rendi(Codice, Dati, Messaggio);
         public string? Contratto { get; private set; }
         public double? MsDelMotore { get; private set; }
-        public BersaglioRisolto? Bersaglio { get; private set; }
         public IReadOnlyList<SequenzaDiNotte> Sequenze { get; private set; } = new List<SequenzaDiNotte>();
         /// <summary>Quante notti sono arrivate senza modello. Zero, di solito.</summary>
         public int Scartate { get; private set; }
 
         internal static EsitoPrescrizione Riuscita(int stato, string corpo, IReadOnlyList<SequenzaDiNotte> seq,
-                int scartate, string? contratto, double? ms, BersaglioRisolto? bersaglio) =>
+                int scartate, string? contratto, double? ms) =>
             new EsitoPrescrizione { Riuscito = true, Stato = stato, Corpo = corpo, Sequenze = seq,
-                Scartate = scartate, Contratto = contratto, MsDelMotore = ms, Bersaglio = bersaglio };
+                Scartate = scartate, Contratto = contratto, MsDelMotore = ms };
 
         internal static EsitoPrescrizione Fallito(int stato, string? codice, string? messaggio,
                 string corpo = "", IReadOnlyDictionary<string, string>? dati = null) =>

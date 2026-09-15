@@ -322,7 +322,7 @@
     <value>how many nights</value>
   </data>
   <data name="Pag_InquadraturaLibera" xml:space="preserve">
-    <value>Free framing</value>
+    <value>A single frame</value>
   </data>
   <data name="Pag_Intestazione" xml:space="preserve">
     <value>Bridge test</value>
@@ -457,7 +457,7 @@
     <value>slot {0}</value>
   </data>
   <data name="Pag_SoggettoCompleto" xml:space="preserve">
-    <value>Whole subject</value>
+    <value>The whole object — as a mosaic if needed</value>
   </data>
   <data name="Pag_Sottotitolo" xml:space="preserve">
     <value>The page asks its host, the host asks Strategy. There is no address in here.</value>
@@ -635,5 +635,224 @@
   </data>
   <data name="Vm_SenzaMontatore" xml:space="preserve">
     <value>The builder was not constructed.</value>
+  </data>
+  <data name="Pag_ComePianificare" xml:space="preserve">
+    <value>How to spread the nights</value>
+  </data>
+  <data name="Pag_Politica_sessione" xml:space="preserve">
+    <value>Complete session</value>
+  </data>
+  <data name="Pag_PoliticaNota_sessione" xml:space="preserve">
+    <value>Every night carries every channel, in the prescription's proportions: if tomorrow is cloudy, tonight is already an image.</value>
+  </data>
+  <data name="Pag_Politica_progetto" xml:space="preserve">
+    <value>Optimise for the project</value>
+  </data>
+  <data name="Pag_PoliticaNota_progetto" xml:space="preserve">
+    <value>Channels share the nights according to the Moon: better for the whole project, but a single night is not a complete image.</value>
+  </data>
+  <data name="Pag_Prov_profilo" xml:space="preserve">
+    <value>from the N.I.N.A. profile</value>
+  </data>
+  <data name="Pag_Prov_misurato" xml:space="preserve">
+    <value>measured by the instrument</value>
+  </data>
+  <data name="Pag_Prov_dichiarato" xml:space="preserve">
+    <value>declared by you</value>
+  </data>
+  <data name="Pag_Prov_non_disponibile" xml:space="preserve">
+    <value>not available</value>
+  </data>
+  <data name="Pag_Men_Titolo" xml:space="preserve">
+    <value>Imaging technique</value>
+  </data>
+  <data name="Pag_Men_Sottotitolo" xml:space="preserve">
+    <value>which channels to shoot: the image changes, the physics stays</value>
+  </data>
+  <data name="Pag_Men_SceglieMotore" xml:space="preserve">
+    <value>Engine's choice</value>
+  </data>
+  <data name="Pag_Men_SceglieMotoreNota" xml:space="preserve">
+    <value>the richest your hours allow</value>
+  </data>
+  <data name="Pag_Men_OraSarebbe" xml:space="preserve">
+    <value>right now: *{0}*</value>
+  </data>
+  <data name="Pag_Men_InUso" xml:space="preserve">
+    <value>in use</value>
+  </data>
+  <data name="Pag_Men_SceltaTua" xml:space="preserve">
+    <value>your pick</value>
+  </data>
+  <data name="Pag_Men_LaPrendeIlMotore" xml:space="preserve">
+    <value>engine's pick</value>
+  </data>
+  <data name="Pag_Men_Raccomandata" xml:space="preserve">
+    <value>recommended</value>
+  </data>
+  <data name="Pag_Men_NonDisponibile" xml:space="preserve">
+    <value>not available</value>
+  </data>
+  <data name="Pag_Men_StessaRipresa" xml:space="preserve">
+    <value>same capture</value>
+  </data>
+  <data name="Pag_Men_Esclusa" xml:space="preserve">
+    <value>excluded</value>
+  </data>
+  <data name="Pag_Men_StessiCanali" xml:space="preserve">
+    <value>same channels</value>
+  </data>
+  <data name="Pag_Men_Prezzo" xml:space="preserve">
+    <value>{0} h to complete it</value>
+  </data>
+  <data name="Pag_Men_PrezzoProgetto" xml:space="preserve">
+    <value>{0} h in total to complete it</value>
+  </data>
+  <data name="Pag_Men_CostoNonCalcolabile" xml:space="preserve">
+    <value>the cost cannot be computed</value>
+  </data>
+  <data name="Pag_Men_RaccomandataPerche" xml:space="preserve">
+    <value>*{0}* is recommended: {1}</value>
+  </data>
+  <data name="Pag_Men_PrimaScelta" xml:space="preserve">
+    <value>the first choice for this class is {0}</value>
+  </data>
+  <data name="Pag_Men_Margine" xml:space="preserve">
+    <value>{0} in {1} AstroBin images, {2} in {3}</value>
+  </data>
+  <data name="Pag_Men_MargineSolo" xml:space="preserve">
+    <value>{0} in {1} AstroBin images</value>
+  </data>
+  <data name="Pag_Men_ConteggiDel" xml:space="preserve">
+    <value>counts as of {0}</value>
+  </data>
+  <data name="Pag_Men_FormatoData" xml:space="preserve">
+    <value>en-GB</value>
+  </data>
+  <data name="Pag_Men_SuMatrice" xml:space="preserve">
+    <value>on a colour camera {0} is shot with the {1} entry</value>
+  </data>
+  <data name="Pag_Men_Via_variante_pura" xml:space="preserve">
+    <value>among the {0} entries it is the pure one, without colour stars</value>
+  </data>
+  <data name="Pag_Men_Via_default_della_scheda" xml:space="preserve">
+    <value>among the {0} entries it is the one the target sheet recommends</value>
+  </data>
+  <data name="Pag_Men_Via_prima_voce_della_tecnica" xml:space="preserve">
+    <value>it is the first {0} entry</value>
+  </data>
+  <data name="Pag_Men_Assente_classe_non_misurata" xml:space="preserve">
+    <value>No technique is recommended: the technique table for this class has not been measured yet</value>
+  </data>
+  <data name="Pag_Men_Assente_nessuna_voce_della_tecnica" xml:space="preserve">
+    <value>No technique is recommended: {0}, and none of the priced techniques is {1}</value>
+  </data>
+  <data name="Pag_Men_Assente_prima_scelta_non_percorribile" xml:space="preserve">
+    <value>No technique is recommended: {0}, and “{1}” cannot be shot with the current wheel</value>
+  </data>
+  <data name="Pag_Men_NonPrezzabile_scala_del_soggetto_non_dichiarata" xml:space="preserve">
+    <value>the target sheet does not yet say how many hours broadband needs when it carries the subject</value>
+  </data>
+  <data name="Pag_Men_NonPrezzabile_scala_delle_stelle_non_dichiarata" xml:space="preserve">
+    <value>the target sheet does not yet say how many hours star colour needs</value>
+  </data>
+  <data name="Pag_Men_Stessa_stessa_ripresa_su_matrice" xml:space="preserve">
+    <value>on a colour camera luminance is not a separate channel: {0} makes this capture</value>
+  </data>
+  <data name="Pag_Men_Stessa_passata_stelle_non_riprendibile" xml:space="preserve">
+    <value>{0}: {1} makes this capture</value>
+  </data>
+  <data name="Pag_Men_StelleNonRiprendibili" xml:space="preserve">
+    <value>the star colour pass cannot be done with this wheel</value>
+  </data>
+  <data name="Pag_Men_StelleNonRiprendibili_spento" xml:space="preserve">
+    <value>the star colour pass cannot be done with this wheel: channel {0} is turned off</value>
+  </data>
+  <data name="Pag_Men_StelleNonRiprendibili_mancano" xml:space="preserve">
+    <value>the star colour pass cannot be done with this wheel: missing {0}</value>
+  </data>
+  <data name="Pag_Men_Esclusa_spezzata_dalla_coppia" xml:space="preserve">
+    <value>with a dual-band filter both lines arrive together: this technique would keep only one, and the capture is the paired technique's</value>
+  </data>
+  <data name="Pag_Men_Esclusa_stessi_canali" xml:space="preserve">
+    <value>same channels as {0}: it is the same capture</value>
+  </data>
+  <data name="Pag_Men_Dove_matrice" xml:space="preserve">
+    <value>OSC</value>
+  </data>
+  <data name="Pag_Men_Dove_mono" xml:space="preserve">
+    <value>mono camera</value>
+  </data>
+  <data name="Pag_Men_Motivo_canale_spento" xml:space="preserve">
+    <value>channel {0} is turned off</value>
+  </data>
+  <data name="Pag_Men_Motivo_canale_assente_rgb" xml:space="preserve">
+    <value>RGB on {0} needs R, G and B: missing {1}</value>
+  </data>
+  <data name="Pag_Men_Motivo_canale_assente_non_esiste" xml:space="preserve">
+    <value>no filter exists for {0} on {1}</value>
+  </data>
+  <data name="Pag_Men_Motivo_canale_assente" xml:space="preserve">
+    <value>{0} on {1} needs a filter like {2}, and the wheel has none</value>
+  </data>
+  <data name="Pag_Men_Motivo_sensore_incompatibile_ruota" xml:space="preserve">
+    <value>no filter for {0}: {1} in the wheel does not suit {2}; a filter like {3} is needed</value>
+  </data>
+  <data name="Pag_Men_Motivo_sensore_incompatibile" xml:space="preserve">
+    <value>for {0} you picked {1}, which does not suit {2}</value>
+  </data>
+  <data name="Pag_Men_Motivo_non_in_ruota" xml:space="preserve">
+    <value>for {0} you picked {1}, which is not in the wheel</value>
+  </data>
+  <data name="Pag_Men_Motivo_vetro_sconosciuto" xml:space="preserve">
+    <value>for {0} you picked a filter the engine does not know ({1})</value>
+  </data>
+  <data name="Pag_Men_Motivo_classe_incompatibile" xml:space="preserve">
+    <value>for {0} you picked {1}, which does not pass that band</value>
+  </data>
+  <data name="Pag_Men_Motivo_sotto_soglia_continuo" xml:space="preserve">
+    <value>for {0} on OSC you picked {1}: it opens {2} nm, and a colour sensor needs a continuum of at least {3} nm</value>
+  </data>
+  <data name="Pag_Men_Motivo_escluso_per_decisione" xml:space="preserve">
+    <value>for {0} on OSC you picked {1}, which its filter sheet excludes from broadband on a colour sensor</value>
+  </data>
+  <data name="Pag_Men_Motivo_generico" xml:space="preserve">
+    <value>channel {0} cannot be shot with this wheel</value>
+  </data>
+  <data name="Pag_Men_ChiestaBloccata" xml:space="preserve">
+    <value>The technique you picked, *{0}*, cannot be shot with the current wheel: {1}. Until you pick it again, the engine chooses.</value>
+  </data>
+  <data name="Pag_Men_ChiestaStelle" xml:space="preserve">
+    <value>The technique you picked, *{0}*: {1}. *{2}* makes the same capture, and the prescription follows it.</value>
+  </data>
+  <data name="Pag_Men_ChiestaStessaRipresa" xml:space="preserve">
+    <value>The technique you picked, *{0}*, is the same capture as *{1}* on a colour camera: luminance is not a separate channel. The prescription follows it.</value>
+  </data>
+  <data name="Pag_Men_Sostituita_strada_sconosciuta" xml:space="preserve">
+    <value>The technique you picked, *{0}*, is no longer in this target sheet. The prescription follows the engine's choice, *{1}*.</value>
+  </data>
+  <data name="Pag_Men_Sostituita_spezzata_dalla_coppia" xml:space="preserve">
+    <value>The technique you picked, *{0}*, would keep only one of the two lines a dual-band filter passes together. The prescription follows the engine's choice, *{1}*.</value>
+  </data>
+  <data name="Pag_Men_Sostituita_scala_del_soggetto_non_dichiarata" xml:space="preserve">
+    <value>The technique you picked, *{0}*, is not available: the target sheet does not yet say how many hours broadband needs when it carries the subject. The prescription follows the engine's choice, *{1}*.</value>
+  </data>
+  <data name="Pag_Men_Sostituita_stessi_canali" xml:space="preserve">
+    <value>The technique you picked, *{0}*, has the same channels as *{2}*. The prescription follows the engine's choice, *{1}*.</value>
+  </data>
+  <data name="Pag_Men_Sostituita_generica" xml:space="preserve">
+    <value>The technique you picked, *{0}*, cannot be taken with this wheel. The prescription follows the engine's choice, *{1}*.</value>
+  </data>
+  <data name="Pag_Men_StaiScegliendo" xml:space="preserve">
+    <value>You are choosing: with these hours the engine would take *{0}*. The prescription follows your choice.</value>
+  </data>
+  <data name="Pag_Men_AutoRisolta" xml:space="preserve">
+    <value>The engine chooses *{0}*, but {1}: the prescription follows *{2}*, which makes the same capture.</value>
+  </data>
+  <data name="Pag_Men_LimiteStelle" xml:space="preserve">
+    <value>*{0}*: {1}, so the prescription has no star colour.</value>
+  </data>
+  <data name="Pag_Men_BancoNonLetto" xml:space="preserve">
+    <value>Setup: *{0}* — written into this page, not yet read from the N.I.N.A. profile: if yours is different, the panel counts and prices below are not yours.</value>
   </data>
 </root>

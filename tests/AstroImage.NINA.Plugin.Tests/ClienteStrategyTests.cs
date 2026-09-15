@@ -220,6 +220,38 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.AreEqual(2, esito.Scartate, "e il ponte dice quante ne ha buttate");
         }
 
+        // ----------------------------------------------- le politiche di sessione, dalla salute
+
+        /*  IL SECONDO CONTROLLO SI SCOPRE COME IL PRIMO: elenco e predefinito arrivano da /v1/salute, con la
+         *  stessa forma dei modi. Una voce senza identificativo non entra, e un motore che non le dichiara lascia
+         *  l'elenco vuoto invece di farne inventare uno. */
+        [TestMethod]
+        public async Task Modalita_LeggeAncheLePoliticheDiSessione() {
+            const string salute = "{\"modalita\":{\"di_serie\":\"equilibrio\",\"elenco\":[{\"id\":\"resa\"},{\"id\":\"equilibrio\"}]}," +
+                "\"politica\":{\"di_serie\":\"sessione\",\"elenco\":[{\"id\":\"sessione\",\"etichetta\":\"sessione completa\"}," +
+                "{\"id\":\"progetto\"},{\"etichetta\":\"senza identificativo\"}]}}";
+            var (cliente, _) = Banco(HttpStatusCode.OK, salute);
+
+            var m = await cliente.Modalita();
+
+            Assert.AreEqual(2, m.Elenco.Count, "i modi restano quelli");
+            CollectionAssert.AreEqual(new[] { "sessione", "progetto" }, m.Politiche.Select(x => x.Id).ToArray(),
+                "le politiche arrivano, e una voce senza identificativo non entra");
+            Assert.AreEqual("sessione", m.PoliticaDiSerie);
+            Assert.AreEqual("sessione completa", m.Politiche[0].Etichetta);
+        }
+
+        [TestMethod]
+        public async Task Modalita_UnMotoreSenzaPolitiche_NonNeFaInventareUna() {
+            var (cliente, _) = Banco(HttpStatusCode.OK, "{\"modalita\":{\"elenco\":[{\"id\":\"resa\"}]}}");
+
+            var m = await cliente.Modalita();
+
+            Assert.AreEqual(1, m.Elenco.Count);
+            Assert.AreEqual(0, m.Politiche.Count);
+            Assert.IsNull(m.PoliticaDiSerie);
+        }
+
         // ------------------------------------------------------------------- c'e' qualcuno?
 
         [TestMethod]

@@ -570,8 +570,14 @@ namespace AstroImage.NINA.Plugin.Views {
             foreach (var x in m.Elenco)
                 elenco.Add(new JsonObject { ["id"] = x.Id, ["etichetta"] = x.Etichetta,
                                             ["spiegazione"] = x.Spiegazione });
+            /*  E le politiche di sessione, con la stessa forma: la pagina ne fa il secondo controllo. */
+            var politiche = new JsonArray();
+            foreach (var x in m.Politiche)
+                politiche.Add(new JsonObject { ["id"] = x.Id, ["etichetta"] = x.Etichetta,
+                                               ["spiegazione"] = x.Spiegazione });
             Rispondi(id, true, null, null, null, 0, null, new JsonObject {
-                ["modalita"] = elenco, ["diSerie"] = m.DiSerie });
+                ["modalita"] = elenco, ["diSerie"] = m.DiSerie,
+                ["politiche"] = politiche, ["politicaDiSerie"] = m.PoliticaDiSerie });
         }
 
         /*  LA CAMERA COM'E', e nient'altro che com'e'.
