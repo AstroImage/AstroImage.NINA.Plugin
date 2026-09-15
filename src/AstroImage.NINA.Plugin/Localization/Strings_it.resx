@@ -855,4 +855,10 @@
   <data name="Pag_Men_BancoNonLetto" xml:space="preserve">
     <value>Banco: *{0}* — scritto nella pagina, non ancora letto dal profilo di N.I.N.A.: se il tuo è diverso, i riquadri e i prezzi qui sotto non sono i tuoi.</value>
   </data>
+  <data name="Pag_ProfiloCambiato" xml:space="preserve">
+    <value>Il profilo di N.I.N.A. è cambiato: la prescrizione di prima era calcolata sul banco e sul sito dell'altro profilo, ed è stata ritirata. Chiedine una nuova.</value>
+  </data>
+  <data name="Presc_RitirataPerProfilo" xml:space="preserve">
+    <value>questa prescrizione è stata ritirata perché il profilo di N.I.N.A. è cambiato: era calcolata sul banco e sul sito dell'altro profilo. Chiedine una nuova.</value>
+  </data>
 </root>

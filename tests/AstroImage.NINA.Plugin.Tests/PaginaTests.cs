@@ -388,6 +388,23 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "la fascia mostra un banco diverso da quello che parte nella richiesta");
         }
 
+        /*  SUL CAMBIO DI PROFILO LA PRESCRIZIONE ESCE DALLO SCHERMO. Il pannello la ritira dalle mani del Ponte
+         *  (CambioDiProfiloTests); la pagina la deve togliere da davanti agli occhi, dire perche', e dimenticare la strada
+         *  scelta, che era di una scheda calcolata sull'altro banco. */
+        [TestMethod]
+        public void SUL_CAMBIO_DI_PROFILO_LA_PRESCRIZIONE_SI_TOGLIE_DALLO_SCHERMO_E_SI_DICE_PERCHE() {
+            var js = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.js"), @"/\*.*?\*/", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            var i = js.IndexOf("r.evento === 'profilo'", StringComparison.Ordinal);
+            Assert.IsTrue(i >= 0, "la pagina non ascolta il cambio di profilo");
+            var fine = js.IndexOf("return;", i, StringComparison.Ordinal);
+            Assert.IsTrue(fine > i, "il ramo del cambio di profilo non si chiude");
+            var ramo = js.Substring(i, fine - i);
+            StringAssert.Contains(ramo, "$('uscita').innerHTML", "la prescrizione dell'altro profilo resta a schermo");
+            StringAssert.Contains(ramo, "Pag_ProfiloCambiato", "la pagina toglie la prescrizione senza dire perche'");
+            StringAssert.Contains(ramo, "stradaScelta = null", "la strada scelta sull'altro banco resta scelta");
+        }
+
         /*  IL PONTE NON RICONOSCE I SENSORI, E NON DEVE COMINCIARE.
          *
          *  Della camera collegata legge quello che il driver dichiara — passo del

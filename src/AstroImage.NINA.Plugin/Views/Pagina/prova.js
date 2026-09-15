@@ -79,6 +79,16 @@
       ridisegna();
       return;
     }
+    /* IL PROFILO DI N.I.N.A. E' CAMBIATO. La prescrizione a schermo era calcolata sul banco e sul sito dell'altro
+       profilo: si ritira — non si rietichetta e non si richiede da sola — e si dice perche'. Sito, filtri e camera si
+       rileggono, perche' adesso sono quelli del profilo nuovo, o nessuno. */
+    if (r && r.evento === 'profilo') {
+      stradaScelta = null;
+      $('uscita').innerHTML = '<div class="box" style="border-color:#e0a030"><span style="color:#e0a030">' +
+        esc(T('Pag_ProfiloCambiato')) + '</span></div>';
+      ridisegna();
+      return;
+    }
     const f = attese.get(r.id); if (!f) return;
     attese.delete(r.id); f(r);
   });
