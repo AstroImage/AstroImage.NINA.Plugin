@@ -55,11 +55,13 @@ questo deve attraversare. Una fixture presa dal servizio, prima di entrare qui, 
 ai campi che le prove leggono. Dove una prova guarda la forma del contratto — che una
 chiave arrivi — la chiave resta con un segnaposto vuoto; la prosa non resta mai.
 
-`servizio/prescrizione-ok.json` porta `contratto`, `misura`, `prodotto.bersaglio`,
+`servizio/prescrizione-ok.json` porta `contratto`, `prodotto.bersaglio`,
 `prodotto.sequenze` intere e `prodotto.posa.<canale>.ex.spec.filter.id` per ogni canale;
 `valutazione`, `prescrizione`, `piano` e la chiave di servizio `posa.__modes` sono oggetti
-vuoti. La risposta intera pesava 138 620 byte, la fixture ne pesa 1 201. Le altre fixture
-non portano prosa: nessuna stringa oltre 80 byte.
+vuoti. `misura` non c'è: nessuna prova la legge, e porta il tempo della chiamata, che cambia
+ogni volta — una fixture che non si rigenera identica non si può verificare rigenerandola.
+La risposta intera pesava 138 620 byte, la fixture ne pesa 1 180. Le altre fixture non
+portano prosa: nessuna stringa oltre 80 byte.
 
 Fino al 15 settembre 2026 la regola era un'altra — la prosa sostituita da
 `(prosa non pubblicata)`, tutti i campi al loro posto — e stava scritta soltanto in un
