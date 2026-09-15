@@ -17,6 +17,9 @@ index.html
 data/
 *.strategy.json
 
+# i nomi delle macchine di chi installa: il modello e' scripts/installa.esempio.psd1
+scripts/installa.locale.psd1
+
 # uscite del banco di prova
 TestResults/
 *.trx
