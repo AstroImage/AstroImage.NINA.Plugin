@@ -22,7 +22,9 @@ promemoria. Una fixture presa dal servizio porta solo i campi che le prove leggo
 
 - Si lavora su un ramo, e il push si fa col via di chi mantiene il progetto.
 - Nei file che si pubblicano non va nessun nome di macchina, nessun indirizzo, nessun percorso utente. I
-  nomi delle macchine per l'installazione stanno in `scripts/installa.locale.psd1`, che git ignora.
+  nomi delle macchine per l'installazione stanno in `scripts/installa.locale.psd1`, che git ignora. Prima
+  del push si lancia `powershell -File scripts/controlla-pubblicabile.ps1`: guarda i file cambiati e i
+  messaggi dei commit non pubblicati, nomina uno per uno gli attesi, e con `-Prova` si vede colpire.
 
 ## La prova
 
