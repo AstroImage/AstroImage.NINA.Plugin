@@ -24,8 +24,8 @@ namespace AstroImage.NINA.Plugin.Tests {
      *  idea sbagliata.
      *
      *  LA FIXTURE PORTA SOLO I CAMPI CHE LE PROVE LEGGONO. Della risposta riuscita
-     *  restano il contratto, la misura, il bersaglio, le sequenze intere e il filtro di
-     *  ogni canale di `posa`; `valutazione`, `prescrizione` e `piano` restano come
+     *  restano il contratto, il bersaglio, le sequenze intere e il filtro di ogni
+     *  canale di `posa`; `valutazione`, `prescrizione` e `piano` restano come
      *  chiavi con un oggetto vuoto, perche' qui sotto si guarda che arrivino. Il resto
      *  — la scheda dell'oggetto, le trappole, il comportamento dei filtri, le note di
      *  provenienza — e' il lavoro del motore, che sta in un repository privato, e
