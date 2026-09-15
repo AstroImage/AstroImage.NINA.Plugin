@@ -230,10 +230,15 @@ namespace AstroImage.NINA.Plugin.ViewModels {
                 memoria = new MemoriaAssente();
             }
             Memoria = memoria;
-            Dichiarazione = DichiarazioneRuota.Leggi(Memoria.Leggi(MemoriaNelProfilo.ChiaveRuota), out var notaR);
-            NotaDichiarazione = notaR;
+            Dichiarazioni = new DichiarazioniDelProfilo(Memoria);
             Logger.Info($"[AstroImage] virtual wheel: {DichiarazioneRuota.IdDichiarati(Dichiarazione).Count} filters declared" +
-                        (notaR is null ? "" : " — " + notaR));
+                        (NotaDichiarazione is null ? "" : " — " + NotaDichiarazione));
+
+            /*  IL CAMBIO DI PROFILO SI ASCOLTA. Ruota e sito dichiarati stanno nel profilo — l'accessor e' per profilo,
+             *  misurato in PersistenzaDelProfiloTests —, ma fino al 16 settembre 2026 si leggevano solo qui, una volta:
+             *  cambiando profilo a N.I.N.A. aperta restavano quelli di prima. Sull'evento si rileggono e la prescrizione
+             *  in mano si ritira. CambioDiProfiloTests toglie questa riga e cade. */
+            profileService.ProfileChanged += AlCambioDiProfilo;
 
             /*  IL SITO. La geometria viene dal profilo — latitudine e longitudine, che
              *  ogni utente ha inserito per forza — e il resto da uno strumento se c'e',
@@ -244,12 +249,10 @@ namespace AstroImage.NINA.Plugin.ViewModels {
              *  stazione meteo e senza guider il pannello deve aprirsi lo stesso e dire
              *  che quei valori mancano, non sparire dall'elenco dei plugin. */
             Sito = new SitoDelProfilo(profileService, meteo, guida);
-            SitoScritto = DichiarazioneSito.Leggi(Memoria.Leggi(MemoriaNelProfilo.ChiaveSito), out var notaS);
-            NotaSito = notaS;
             var letto = Sito.Leggi(out var perCheSito);
             Logger.Info("[AstroImage] site: " + (perCheSito ?? $"lat {letto.Lat}, lon {letto.Lon}" +
                         (letto.Sqm is null ? ", SQM not measured" : $", SQM {letto.Sqm} measured")) +
-                        (notaS is null ? "" : " — " + notaS));
+                        (NotaSito is null ? "" : " — " + NotaSito));
         }
 
         /// <summary>Il GUID dell'assembly: e' lo spazio che N.I.N.A. ci ritaglia dentro
@@ -266,11 +269,28 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         /// <summary>Dove vive la dichiarazione dei vetri.</summary>
         public IMemoriaRuota Memoria { get; }
 
-        /// <summary>Che cosa sono, fisicamente, i vetri che hai in ruota.</summary>
-        public RuotaVirtuale Dichiarazione { get; private set; }
+        /// <summary>Le dichiarazioni del profilo attivo — la ruota e il sito —, rilette a ogni cambio di profilo.</summary>
+        public DichiarazioniDelProfilo Dichiarazioni { get; }
+
+        /// <summary>Che cosa sono, fisicamente, i vetri che hai in ruota nel profilo attivo.</summary>
+        public RuotaVirtuale Dichiarazione => Dichiarazioni.Ruota;
 
         /// <summary>Perche' la dichiarazione non e' quella che ti aspettavi, se e' il caso.</summary>
-        public string NotaDichiarazione { get; private set; }
+        public string NotaDichiarazione => Dichiarazioni.NotaRuota;
+
+        /// <summary>Quante volte il profilo e' cambiato da quando il pannello esiste: la vista lo confronta con quello
+        /// che la pagina ha gia' saputo.</summary>
+        public int CambiDiProfilo { get; private set; }
+
+        /// <summary>Il profilo e' cambiato, le dichiarazioni sono state rilette e la prescrizione in mano ritirata.</summary>
+        public event EventHandler ProfiloCambiato;
+
+        private void AlCambioDiProfilo(object mittente, EventArgs e) {
+            CambioDiProfilo.Applica(Dichiarazioni, InMano);
+            CambiDiProfilo++;
+            Logger.Info($"[AstroImage] profile changed: declarations re-read ({DichiarazioneRuota.IdDichiarati(Dichiarazione).Count} filters declared), prescription in hand withdrawn");
+            ProfiloCambiato?.Invoke(this, EventArgs.Empty);
+        }
 
         /// <summary>
         /// Il catalogo del motore, chiesto una volta e tenuto: cambia solo quando cambia
@@ -282,29 +302,21 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         /// <summary>Sostituisce la dichiarazione e la salva. Torna false con un motivo
         /// se non si e' potuta scrivere: chi configura deve sapere subito se il suo
         /// lavoro e' andato a terra, non scoprirlo dopo un riavvio.</summary>
-        public bool SalvaDichiarazione(RuotaVirtuale nuova, out string perCheNo) {
-            Dichiarazione = nuova ?? new RuotaVirtuale();
-            NotaDichiarazione = null;
-            return Memoria.Scrivi(MemoriaNelProfilo.ChiaveRuota,
-                                  DichiarazioneRuota.Scrivi(Dichiarazione), out perCheNo);
-        }
+        public bool SalvaDichiarazione(RuotaVirtuale nuova, out string perCheNo) =>
+            Dichiarazioni.SalvaRuota(nuova, out perCheNo);
 
         /// <summary>Dove sei, secondo N.I.N.A. Si chiede ogni volta: i profili si
         /// cambiano, e con loro la postazione.</summary>
         public SitoDelProfilo Sito { get; }
 
-        /// <summary>I parametri del sito che N.I.N.A. non sa e che hai dichiarato tu.</summary>
-        public SitoDichiarato SitoScritto { get; private set; }
+        /// <summary>I parametri del sito che N.I.N.A. non sa e che hai dichiarato tu, nel profilo attivo.</summary>
+        public SitoDichiarato SitoScritto => Dichiarazioni.Sito;
 
         /// <summary>Che cosa non andava nei parametri salvati, se qualcosa non andava.</summary>
-        public string NotaSito { get; private set; }
+        public string NotaSito => Dichiarazioni.NotaSito;
 
-        /// <summary>Sostituisce i parametri dichiarati del sito e li salva nel profilo.</summary>
-        public bool SalvaSito(SitoDichiarato nuovo, out string perCheNo) {
-            SitoScritto = nuovo ?? new SitoDichiarato();
-            NotaSito = null;
-            return Memoria.Scrivi(MemoriaNelProfilo.ChiaveSito,
-                                  DichiarazioneSito.Scrivi(SitoScritto), out perCheNo);
-        }
+        /// <summary>Sostituisce i parametri dichiarati del sito e li salva nel profilo attivo.</summary>
+        public bool SalvaSito(SitoDichiarato nuovo, out string perCheNo) =>
+            Dichiarazioni.SalvaSito(nuovo, out perCheNo);
     }
 }

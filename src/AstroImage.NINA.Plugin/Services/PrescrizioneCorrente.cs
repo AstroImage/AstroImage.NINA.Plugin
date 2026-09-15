@@ -45,6 +45,7 @@ namespace AstroImage.NINA.Plugin.Services {
         /// mandare, e tenerla vorrebbe dire poter consegnare l'errore di prima.
         /// </summary>
         public string? Prendi(EsitoPrescrizione? esito) {
+            _ritirata = false;
             if (esito is null || !esito.Riuscito || esito.Sequenze.Count == 0) {
                 _id = null; _esito = null; return null;
             }
@@ -54,7 +55,15 @@ namespace AstroImage.NINA.Plugin.Services {
         }
 
         /// <summary>Dimentica quello che ha in mano.</summary>
-        public void Lascia() { _id = null; _esito = null; }
+        public void Lascia() { _id = null; _esito = null; _ritirata = false; }
+
+        /*  RITIRARE NON E' LASCIARE. Una prescrizione lasciata non c'e' e basta; una ritirata c'era, ed e' stata tolta
+         *  perche' il profilo di N.I.N.A. e' cambiato sotto di lei. Chi preme «manda» su una riga rimasta a schermo deve
+         *  sapere questo, non «chiedine una». */
+        private bool _ritirata;
+
+        /// <summary>Toglie la prescrizione in mano perche' il profilo e' cambiato, e lo ricorda per dirlo.</summary>
+        public void Ritira() { _id = null; _esito = null; _ritirata = true; }
 
         /// <summary>
         /// Quale vetro il motore ha dichiarato di aver usato, canale per canale. Si
@@ -74,6 +83,11 @@ namespace AstroImage.NINA.Plugin.Services {
             codice = null; motivo = null;
 
             if (_esito is null || _id is null) {
+                if (_ritirata) {
+                    codice = "prescrizione_ritirata";
+                    motivo = Loc.T("Presc_RitirataPerProfilo");
+                    return null;
+                }
                 codice = "nessuna_prescrizione";
                 motivo = Loc.T("Presc_Nessuna");
                 return null;

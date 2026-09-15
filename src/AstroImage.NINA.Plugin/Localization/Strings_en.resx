@@ -855,4 +855,10 @@
   <data name="Pag_Men_BancoNonLetto" xml:space="preserve">
     <value>Setup: *{0}* — written into this page, not yet read from the N.I.N.A. profile: if yours is different, the panel counts and prices below are not yours.</value>
   </data>
+  <data name="Pag_ProfiloCambiato" xml:space="preserve">
+    <value>The N.I.N.A. profile has changed: the previous prescription was worked out on the other profile's setup and site, and it has been withdrawn. Ask for a new one.</value>
+  </data>
+  <data name="Presc_RitirataPerProfilo" xml:space="preserve">
+    <value>this prescription was withdrawn because the N.I.N.A. profile changed: it was worked out on the other profile's setup and site. Ask for a new one.</value>
+  </data>
 </root>

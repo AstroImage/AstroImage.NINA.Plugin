@@ -43,11 +43,11 @@ namespace AstroImage.NINA.Plugin.Services {
     public sealed class MemoriaNelProfilo : IMemoriaRuota {
 
         /// <summary>La chiave della ruota dichiarata, dentro lo spazio del nostro plugin.</summary>
-        public const string ChiaveRuota = "ruotaVirtuale";
+        public const string ChiaveRuota = DichiarazioniDelProfilo.ChiaveRuota;
 
         /// <summary>I parametri del sito che N.I.N.A. non sa: SQM dichiarato, seeing,
         /// RMS, notti serene, altezza minima.</summary>
-        public const string ChiaveSito = "sitoDichiarato";
+        public const string ChiaveSito = DichiarazioniDelProfilo.ChiaveSito;
 
         private readonly IPluginOptionsAccessor? opzioni;
 

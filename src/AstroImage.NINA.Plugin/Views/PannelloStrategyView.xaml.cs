@@ -86,16 +86,44 @@ namespace AstroImage.NINA.Plugin.Views {
              *  iscrizioni vorrebbero dire due ricariche per ogni cambio. */
             Loc.Instance.PropertyChanged -= AlCambioLingua;
             Loc.Instance.PropertyChanged += AlCambioLingua;
+            if (DataContext is PannelloStrategyVM vm) {
+                vm.ProfiloCambiato -= AlCambioProfilo;
+                vm.ProfiloCambiato += AlCambioProfilo;
+            }
             /*  Alla PRIMA apertura _pronto e' ancora falso — AlCaricamento sta aspettando
              *  WebView2 — e la pagina nascera' gia' nella lingua giusta da se'. */
-            if (_pronto) { ChiediRidisegno(); }
+            if (_pronto) { ChiediRidisegno(); AvvisaSeIlProfiloECambiato(); }
         }
 
         /*  Loc e' un oggetto solo che vive quanto N.I.N.A.: un suo evento agganciato a
          *  questa vista la terrebbe viva per sempre. Un pannello aperto e chiuso dieci
-         *  volte lascerebbe dieci viste, ognuna con dentro un WebView2. */
-        private void AlCongedo(object mittente, RoutedEventArgs e) =>
+         *  volte lascerebbe dieci viste, ognuna con dentro un WebView2. Lo stesso vale per
+         *  il pannello, che vive quanto N.I.N.A. anche lui. */
+        private void AlCongedo(object mittente, RoutedEventArgs e) {
             Loc.Instance.PropertyChanged -= AlCambioLingua;
+            if (DataContext is PannelloStrategyVM vm) { vm.ProfiloCambiato -= AlCambioProfilo; }
+        }
+
+        /*  IL PROFILO E' CAMBIATO, e la pagina lo deve sapere: la prescrizione a schermo e' dell'altro profilo. Il
+         *  pannello ha gia' riletto le dichiarazioni e ritirato la prescrizione in mano; qui si dice alla pagina di
+         *  toglierla dallo schermo. Si conta invece di ricordare un booleano: se il cambio avviene mentre il pannello e'
+         *  chiuso, al ritorno la pagina ha ancora la prescrizione vecchia, e il numero dice che non l'ha saputo. */
+        private int _cambiDiProfiloVisti;
+
+        private void AlCambioProfilo(object mittente, EventArgs e) => AvvisaSeIlProfiloECambiato();
+
+        private void AvvisaSeIlProfiloECambiato() {
+            if (!_pronto) { return; }
+            Dispatcher.BeginInvoke(new Action(() => {
+                if (!(DataContext is PannelloStrategyVM vm) || vm.CambiDiProfilo == _cambiDiProfiloVisti) { return; }
+                _cambiDiProfiloVisti = vm.CambiDiProfilo;
+                try {
+                    Vetro?.CoreWebView2?.PostWebMessageAsString(new JsonObject { ["evento"] = "profilo" }.ToJsonString());
+                } catch (Exception) {
+                    /*  La pagina puo' non esserci ancora: nascera' sul profilo nuovo, senza prescrizione. */
+                }
+            }));
+        }
 
         /*  IL CAMBIO LINGUA ARRIVA DALLE OPZIONI, che sono un'altra pagina.
          *
@@ -168,6 +196,8 @@ namespace AstroImage.NINA.Plugin.Views {
         }
 
         private void AlNavigazione(object mittente, CoreWebView2NavigationCompletedEventArgs e) {
+            /*  La pagina nasce sul profilo attivo, senza prescrizione: i cambi avvenuti prima non le riguardano. */
+            if (e.IsSuccess && DataContext is PannelloStrategyVM vm) { _cambiDiProfiloVisti = vm.CambiDiProfilo; }
             if (e.IsSuccess) { MostraVetro(); }
             else { MostraRipiego(Loc.T("Pannello_PaginaNonCaricata"), "WebErrorStatus: " + e.WebErrorStatus); }
         }
