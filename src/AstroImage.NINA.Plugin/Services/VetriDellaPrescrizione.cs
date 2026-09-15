@@ -91,9 +91,10 @@ namespace AstroImage.NINA.Plugin.Services {
         }
 
         /// <summary>
-        /// Il vetro di un blocco, che puo' coprire piu' canali: su una camera a matrice
-        /// il blocco «R+G+B» e' un'unica ripresa dietro un unico filtro, e infatti i tre
-        /// canali rispondono lo stesso identificativo.
+        /// Il vetro di un blocco, che puo' coprire piu' canali: un blocco su piu' canali e'
+        /// un'unica ripresa dietro un unico filtro, e i canali rispondono lo stesso
+        /// identificativo. Il contratto lo permette; su una camera a matrice pero' il colore
+        /// arriva come un canale solo, «RGB», da quando la L davanti a una matrice non esiste.
         /// <para/>
         /// Se i canali di uno stesso blocco dichiarassero vetri DIVERSI non ci sarebbe un
         /// vetro giusto da scegliere: si torna null con il motivo, e chi chiama rifiuta.

@@ -2,11 +2,11 @@
   "notte": 1,
   "quando": {
     "data": "2026-09-01",
-    "inizio": "2026-09-01T20:05:00.000Z",
+    "inizio": "2026-09-01T19:45:00.000Z",
     "fine": "2026-09-02T03:00:00.000Z",
-    "oreUtili": 6.317
+    "oreUtili": 6.567
   },
-  "nome": "M31 — OSC, notte 1",
+  "nome": null,
   "bersaglio": {
     "nome": "M31",
     "rot": 0,
@@ -45,32 +45,17 @@
   "blocchi": [
     {
       "canali": [
-        "L"
+        "RGB"
       ],
       "filtro": "L",
-      "sec": 240,
-      "n": 75,
-      "gain": 0,
-      "offset": 50,
-      "modo": "LCG"
-    },
-    {
-      "canali": [
-        "R",
-        "G",
-        "B"
-      ],
-      "filtro": "L",
-      "sec": 120,
-      "n": 30,
-      "gain": 0,
-      "offset": 50,
+      "sec": 180,
+      "n": 131,
+      "gain": -1,
+      "offset": -1,
       "modo": "LCG"
     }
   ],
-  "nonFusi": [
-    "R 120s contro L 240s"
-  ],
+  "nonFusi": [],
   "dither": {
     "ogniPose": 2
   },

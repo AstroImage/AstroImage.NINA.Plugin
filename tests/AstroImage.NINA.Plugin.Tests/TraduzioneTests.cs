@@ -122,12 +122,29 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsTrue(r.Blocchi.Count > 0, "le pose ci sono lo stesso: si riprende anche cosi'");
         }
 
+        /*  Su una matrice la banda larga e' un canale solo, RGB (dal 14 settembre 2026 la L non
+         *  esiste davanti a una matrice), e il blocco si chiama come il canale. */
         [TestMethod]
-        public void Osc_IlBloccoFusoPortaITreCanali() {
+        public void Osc_IlBloccoDellaBandaLargaSiChiamaRGB() {
             var r = Traduzione.Traduci(Modello("osc"));
-            var fuso = r.Blocchi.FirstOrDefault(b => b.Canali.Count > 1);
-            Assert.IsNotNull(fuso, "su una matrice i canali larghi sono una ripresa sola");
-            Assert.IsTrue(fuso!.Etichetta.Contains("+"), "l'etichetta dice quali canali copre: " + fuso.Etichetta);
+            var largo = r.Blocchi.SingleOrDefault(b => b.Etichetta == "RGB");
+            Assert.IsNotNull(largo, "su una matrice la banda larga e' una ripresa sola, e si chiama RGB: " +
+                string.Join(" · ", r.Blocchi.Select(b => b.Etichetta)));
+            CollectionAssert.AreEqual(new List<string> { "RGB" }, largo!.Canali.ToList());
+        }
+
+        /*  UN BLOCCO SU PIU' CANALI, su una fixture vera degradata. Il contratto lo permette —
+         *  il motore fonde due canali larghi con lo stesso filtro, la stessa posa e lo stesso
+         *  guadagno —, ma nessuna risposta vera lo produce piu': su una matrice la L non esiste,
+         *  e il colore arriva come un canale solo. Il ramo resta provato qui, invece di restare
+         *  un ramo che nessuno ha eseguito. */
+        [TestMethod]
+        public void UnBloccoSuPiuCanali_LEtichettaLiNominaTutti() {
+            var j = JsonNode.Parse(Testo("osc"))!.AsObject();
+            j["blocchi"]![0]!["canali"] = new JsonArray("R", "G", "B");
+            var r = Traduzione.Traduci(SequenceModel.Leggi(j.ToJsonString())!);
+            Assert.AreEqual("R+G+B", r.Blocchi[0].Etichetta, "l'etichetta dice quali canali copre");
+            CollectionAssert.AreEqual(new List<string> { "R", "G", "B" }, r.Blocchi[0].Canali.ToList());
         }
 
         // ------------------------------------------------ cio' che NON si deve fare

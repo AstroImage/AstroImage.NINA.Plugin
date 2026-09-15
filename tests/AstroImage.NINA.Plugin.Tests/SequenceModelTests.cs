@@ -23,9 +23,9 @@ namespace AstroImage.NINA.Plugin.Tests {
      *
      *  Cinque casi, scelti per coprire i rami che il contratto ha davvero:
      *    mono      - monocromatica, cinque filtri, niente offset, capacita' di serie;
-     *    osc       - camera a matrice: i canali larghi si fondono in un blocco solo,
-     *                e cio' che non si e' potuto fondere e' dichiarato in nonFusi;
-     *    osc-hdr   - matrice con serie corta: due pose diverse sullo stesso vetro;
+     *    osc       - camera a matrice: la banda larga arriva come un canale solo, RGB;
+     *    osc-hdr   - matrice con serie corta: due pose diverse sullo stesso vetro,
+     *                dichiarate in nonFusi;
      *    completo  - campo spostato, rotazione, rotatore dichiarato, dither ogni 3;
      *    scarno    - il caso povero: niente sito, niente autoguida, niente ottica.
      *
@@ -142,14 +142,25 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsFalse(m.Bersaglio.Spostato);
         }
 
+        /*  SU UNA MATRICE LA BANDA LARGA ARRIVA COME UN CANALE SOLO.
+         *
+         *  Prima arrivavano R, G e B fusi in un blocco, accanto a una L con un'altra posa
+         *  dichiarata in `nonFusi`. Dal 14 settembre 2026 su una matrice la L non esiste e il
+         *  motore porta il colore come `RGB`: un canale, un blocco, niente da fondere. Un blocco
+         *  su piu' canali il contratto lo permette ancora — lo provano TraduzioneTests e
+         *  RuotaVirtualeTests su una fixture vera degradata —, e `nonFusi` pieno lo porta
+         *  osc-hdr. Fixture rigenerata dal servizio il 15 settembre 2026. */
         [TestMethod]
-        public void Osc_IcanaliLarghiDiventanoUnaRipresaSola() {
+        public void Osc_LaBandaLargaArrivaComeUnCanaleSolo() {
             var m = SequenceModel.Leggi(Testo("osc"))!;
             Assert.IsTrue(m.Ottica!.Matrice, "il caso OSC deve dichiarare il sensore a matrice");
-            Assert.IsTrue(m.Blocchi.Any(b => b.Canali.Count > 1),
-                "su una matrice almeno un blocco deve coprire piu' canali: e' la fusione");
-            Assert.IsTrue(m.NonFusi.Count > 0,
-                "questo caso ha una fusione impossibile, e il motore la dichiara invece di appianarla");
+            var larghi = m.Blocchi.Where(b => b.Canali.Contains("RGB")).ToList();
+            Assert.AreEqual(1, larghi.Count, "su una matrice la banda larga e' una ripresa sola: un blocco");
+            CollectionAssert.AreEqual(new List<string> { "RGB" }, larghi[0].Canali.ToList(),
+                "e un canale solo: il colore lo separa la matrice, non tre filtri");
+            Assert.IsFalse(m.Blocchi.Any(b => b.Canali.Any(c => c == "R" || c == "G" || c == "B" || c == "L")),
+                "nessun R, G, B o L separato: su una matrice la L non esiste");
+            Assert.AreEqual(0, m.NonFusi.Count, "niente da fondere, niente da dichiarare");
         }
 
         [TestMethod]
