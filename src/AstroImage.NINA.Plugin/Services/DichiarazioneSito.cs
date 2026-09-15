@@ -26,14 +26,18 @@ namespace AstroImage.NINA.Plugin.Services {
 
         public const int VersioneCorrente = 1;
 
+        /*  LA PROVENIENZA E' UN CODICE, e la parola la mette la pagina dal dizionario (15 settembre 2026). Qui
+         *  c'erano quattro frasi italiane, e la pagina le confrontava per scegliere il colore: tradotte, il
+         *  confronto si sarebbe rotto in silenzio; non tradotte, in inglese si leggevano in italiano. La
+         *  provenienza non va al motore: resta fra il C# e la pagina. */
         /// <summary>Da N.I.N.A., sempre disponibile.</summary>
-        public const string DaProfilo = "profilo N.I.N.A.";
+        public const string DaProfilo = "profilo";
         /// <summary>Da uno strumento collegato: e' una misura.</summary>
-        public const string Misurato = "misurato dallo strumento";
+        public const string Misurato = "misurato";
         /// <summary>Scritto da chi riprende: e' una sua responsabilita'.</summary>
-        public const string Dichiarato = "dichiarato da te";
+        public const string Dichiarato = "dichiarato";
         /// <summary>Non lo sa nessuno.</summary>
-        public const string Assente = "non disponibile";
+        public const string Assente = "non_disponibile";
 
         private static readonly JsonSerializerOptions Opzioni = new JsonSerializerOptions {
             PropertyNameCaseInsensitive = true,

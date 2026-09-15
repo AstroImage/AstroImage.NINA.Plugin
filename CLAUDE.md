@@ -20,7 +20,9 @@ promemoria. Una fixture presa dal servizio porta solo i campi che le prove leggo
 
 ## Prima di ogni push
 
-- Si lavora su un ramo, e il push si fa col via di chi mantiene il progetto.
+- Si lavora su un ramo. **Sul ramo di lavoro i commit e i push sono liberi** (deciso il 15 settembre 2026 per
+  `menu-delle-strade`): non si chiede il via. **Il via resta solo sulla fusione su master**, e la fusione
+  aspetta la prova in N.I.N.A. (sotto).
 - Nei file che si pubblicano non va nessun nome di macchina, nessun indirizzo, nessun percorso utente. I
   nomi delle macchine per l'installazione stanno in `scripts/installa.locale.psd1`, che git ignora. Prima
   del push si lancia `powershell -File scripts/controlla-pubblicabile.ps1`: guarda i file cambiati e i

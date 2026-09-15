@@ -69,6 +69,7 @@ $ELENCO_ATTESI = @(
     @{ Re = '(?<=Co-Authored-By:[^<\r\n]*<)noreply@anthropic\.com(?=>)'; Perche = "l'attribuzione che ogni commit porta" },
     @{ Re = '(?<![\d.])127\.0\.0\.1(?![\d.])'; Perche = 'indirizzo generico, non di una macchina' },
     @{ Re = '(?<![\d.])0\.0\.0\.0(?![\d.])'; Perche = 'indirizzo generico, non di una macchina' },
+    @{ Re = '(?<=Version=)\d+\.\d+\.\d+\.\d+(?![\d.])'; Perche = "la versione di un assembly .NET, non un indirizzo (le intestazioni dei resx: Version=4.0.0.0)" },
     @{ Re = 'Alessandro Curci'; Perche = "il credito d'autore, gia' pubblico" },
     @{ Re = '%LOCAL' + $APP.ToUpper() + '%|\$env:LOCAL' + $APP.ToUpper(); Perche = "la variabile d'ambiente, non il percorso di qualcuno" }
 )

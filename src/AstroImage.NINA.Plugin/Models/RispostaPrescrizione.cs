@@ -51,20 +51,13 @@ namespace AstroImage.NINA.Plugin.Models {
     /// </summary>
     public sealed class ProdottoPrescrizione {
 
-        [JsonPropertyName("bersaglio")] public BersaglioRisolto? Bersaglio { get; set; }
-
         [JsonPropertyName("sequenze")] public List<SequenzaDiNotte>? Sequenze { get; set; }
 
-        /// <summary>Qui dentro finiscono valutazione, prescrizione, posa, piano e la
-        /// notte: roba dell'interfaccia, che il ponte trasporta senza leggerla.</summary>
-        [JsonExtensionData] public IDictionary<string, JsonElement>? Altro { get; set; }
-    }
-
-    /// <summary>Quale oggetto il motore ha capito, e da dove l'ha preso.</summary>
-    public sealed class BersaglioRisolto {
-        [JsonPropertyName("id")] public string? Id { get; set; }
-        [JsonPropertyName("nomi")] public List<string>? Nomi { get; set; }
-        [JsonPropertyName("via")] public string? Via { get; set; }
+        /// <summary>Qui dentro finiscono il bersaglio, la valutazione, la prescrizione, la posa, il
+        /// piano e la notte: roba dell'interfaccia, che il ponte trasporta senza leggerla.
+        /// <para>Il bersaglio aveva un tipo, e il ponte lo conservava senza usarlo: il nome che arriva a
+        /// N.I.N.A. viene dal modello di sequenza, e la pagina lo legge dal corpo. Due sorgenti per lo
+        /// stesso valore, una morta: tolta il 15 settembre 2026.</para></summary>
         [JsonExtensionData] public IDictionary<string, JsonElement>? Altro { get; set; }
     }
 

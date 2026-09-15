@@ -87,10 +87,10 @@ namespace AstroImage.NINA.Plugin.Tests {
              *  secondo quello che si salva nel profilo. Confonderli avrebbe portato a
              *  salvare anche la latitudine — un doppione destinato a divergere dal
              *  profilo di N.I.N.A., che e' l'unico posto dove quel dato ha una casa. */
-            Assert.AreEqual(21, tipi.Length,
+            Assert.AreEqual(20, tipi.Length,
                 "il modello deve avere esattamente questi tipi: SequenceModel, Quando, Bersaglio, " +
                 "Offset, Ottica, Sito, Capacita, Blocco, Dither, la busta del servizio " +
-                "RispostaPrescrizione, ProdottoPrescrizione, BersaglioRisolto, SequenzaDiNotte, " +
+                "RispostaPrescrizione, ProdottoPrescrizione, SequenzaDiNotte, " +
                 "ErroreServizio, MisuraServizio, la ruota virtuale CatalogoDelMotore, " +
                 "VetroDelMotore, RuotaVirtuale, VoceRuota, e il sito SitoDiRipresa, " +
                 "SitoDichiarato. Trovati: " +
@@ -98,7 +98,7 @@ namespace AstroImage.NINA.Plugin.Tests {
             foreach (var atteso in new[] { "SequenceModel", "Quando", "Bersaglio", "Offset",
                                            "Ottica", "Sito", "Capacita", "Blocco", "Dither",
                                            "RispostaPrescrizione", "ProdottoPrescrizione",
-                                           "BersaglioRisolto", "SequenzaDiNotte",
+                                           "SequenzaDiNotte",
                                            "ErroreServizio", "MisuraServizio" }) {
                 Assert.IsTrue(tipi.Any(t => t.Name == atteso), $"{atteso} non si e' caricato");
             }

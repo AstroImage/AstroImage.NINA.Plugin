@@ -36,6 +36,12 @@
    *  visibili e la richiesta non porta la chiave: e' il servizio a scegliere, come
    *  ha sempre fatto — non questa pagina al posto suo. */
   let modi = [], modoScelto = null;
+  /*  LE POLITICHE DI SESSIONE, con la stessa regola dei modi: l'elenco e il predefinito li dichiara Strategy su
+   *  /v1/salute, e questa pagina sa solo che una e' scelta e che va nella richiesta. */
+  let politiche = [], politicaScelta = null;
+  /*  LA STRADA SCELTA NEL MENU. Nulla vuol dire «sceglie il motore», e la richiesta non porta la chiave. Si azzera
+   *  quando cambia l'oggetto, la data o le notti: una strada e' di una scheda e di una notte. */
+  let stradaScelta = null;
 
   /*  Le icone: tre segni, nessun colore proprio. Prendono il colore dal testo e
    *  diventano accento quando la card e' scelta — come in AIS, dove i tre modi
@@ -112,6 +118,10 @@
       modi = r.modalita;
       modoScelto = r.diSerie && modi.some(m => m.id === r.diSerie) ? r.diSerie : modi[0].id;
       disegnaModi();
+      politiche = r.politiche || [];
+      politicaScelta = r.politicaDiSerie && politiche.some(x => x.id === r.politicaDiSerie) ? r.politicaDiSerie
+        : (politiche.length ? politiche[0].id : null);
+      disegnaPolitiche();
     });
     chiedi('camera').then(r => { if (r.ok) camera = r.camera || null; });
     chiedi('sito').then(r => { if (r.ok) disegnaSito(r); });
@@ -120,6 +130,7 @@
      *  la lingua delle parole. Richiederli al servizio sarebbe una chiamata in piu'
      *  per girare un interruttore. */
     if (modi.length) disegnaModi();
+    if (politiche.length) disegnaPolitiche();
   }
 
   const stato = (t, c) => { const s = $('stato'); s.textContent = t; s.className = 'stato ' + (c || ''); };
@@ -129,6 +140,9 @@
    *  normale &quot; si vede come una virgoletta, quindi non costa niente. */
   const esc = s => String(s).replace(/[&<>"]/g,
     c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  /*  Un campo che il motore non ha mandato si scrive come niente, non come «undefined»: e' un ripiego sul vuoto, non
+   *  su un valore. */
+  const escOVuoto = s => s == null ? '' : esc(s);
 
   /* ── LE PAROLE NON STANNO QUI DENTRO ──────────────────────────────────────────
      Le manda l'ospite in window.__LOC__, gia' nella lingua che vale adesso, e le
@@ -153,7 +167,16 @@
    *  ponte non conosce ancora — un modo nuovo dichiarato dal motore — deve
    *  comparire con le parole che il motore manda, in italiano, invece di sparire
    *  o di mostrare il nome della chiave. Senza riserva si comporta come prima. */
+  /*  UNA CHIAVE CHIESTA E NON TROVATA FA RUMORE, una volta per chiave. Alla pagina arrivano solo le voci Pag_
+   *  (Pagina.Prefisso): una chiave scritta senza quel prefisso non arriva, e senza questo avviso sarebbe
+   *  un'etichetta che manca senza un errore. Con una riserva si ripiega in silenzio, perche' li' e' voluto. */
+  const chiaviMancanti = new Set();
   const T = (k, riserva) => { const v = (window.__LOC__ || {})[k];
+    if (v === undefined && riserva === undefined && !chiaviMancanti.has(k)) {
+      chiaviMancanti.add(k);
+      console.warn('[AstroImage] chiave assente dal dizionario della pagina: ' + k +
+        (k.indexOf('Pag_') === 0 ? '' : ' (senza il prefisso Pag_ non arriva alla pagina)'));
+    }
     return v === undefined ? (riserva !== undefined ? riserva : k) : v; };
   const M = t => esc(t).replace(/\*([^*]+)\*/g, '<strong>$1</strong>');
   const MF = (k, ...a) => M(T(k)).replace(/\{(\d+)\}/g, (m, i) => a[+i] === undefined ? m : a[+i]);
@@ -211,11 +234,44 @@
     });
   }
 
+  /*  IL SECONDO CONTROLLO: COME SI DISTRIBUISCONO LE NOTTI. Stessa forma dei modi e stessa regola: l'elenco arriva
+   *  dal servizio, la traduzione vince quando conosce l'identificativo e ripiega sulle parole del motore quando no. */
+  const PAROLE_POLITICA = {
+    sessione: { nome: 'Pag_Politica_sessione', nota: 'Pag_PoliticaNota_sessione' },
+    progetto: { nome: 'Pag_Politica_progetto', nota: 'Pag_PoliticaNota_progetto' },
+  };
+  function disegnaPolitiche() {
+    if (!politiche.length) { $('politiche').innerHTML = ''; return; }
+    const titolo = T('Pag_ComePianificare');
+    $('politiche').innerHTML =
+      '<fieldset class="goalbox"><legend class="hc-k">' + esc(titolo) + '</legend>' +
+      '<div class="goalgrid" role="radiogroup" aria-label="' + esc(titolo) + '">' +
+      politiche.map(x => {
+        const p = PAROLE_POLITICA[x.id];
+        const nome = p ? T(p.nome, x.etichetta || x.id) : (x.etichetta || x.id);
+        const nota = p ? T(p.nota, x.spiegazione || '') : (x.spiegazione || '');
+        return '<label class="goalcard"><input type="radio" name="politica" value="' + esc(x.id) + '"' +
+            (x.id === politicaScelta ? ' checked' : '') + '>' +
+          '<span class="gc"><span class="gc-h"><b>' + esc(nome) + '</b>' +
+            '<span class="gc-tick" aria-hidden="true">&#10003;</span></span>' +
+          '<span class="gc-d">' + esc(nota) + '</span></span></label>';
+      }).join('') + '</div></fieldset>';
+    Array.prototype.forEach.call($('politiche').querySelectorAll('.goalcard input'), i => {
+      i.addEventListener('change', () => { politicaScelta = i.value; });
+    });
+  }
+
   async function vai() {
     $('vai').disabled = true;
     stato(T('Pag_StoChiedendo'));
     $('uscita').innerHTML = '';
 
+    /*  IL BANCO SCRITTO QUI ha un nome perche' la pagina lo deve anche MOSTRARE (il perche' e' scritto sotto, dentro la
+     *  richiesta). Un banco che non si legge dal profilo e' un banco che nessuno confronta col proprio: la fascia gialla
+     *  sopra il menu lo dice, finche' il banco non arrivera' dal profilo. Il contrario vale uguale: un campo sbagliato
+     *  nel profilo — una focale plausibile e falsa — farebbe prescrivere per un telescopio che non esiste, e lo prende
+     *  solo chi vede il banco che il Ponte ha letto. */
+    const bancoMandato = { tel: 'askar71f', red: 0.75, mnt: 'am5', bin: 1, cam: camera || 'asi2600mc' };
     const r = await chiedi('prescrizione', {
       /* IL SITO E' QUELLO DEL PROFILO, non piu' sette numeri scritti qui dentro.
          Se manca qualcosa manca davvero: nessun ripiego, nessun valore di serie. */
@@ -232,8 +288,7 @@
        *  riconosce sensore e modo di lettura per conto suo. Il resto del banco e'
        *  ancora scritto qui, e lo sara' finche' non arrivera' dal profilo: N.I.N.A.
        *  sa focale e rapporto focale, ma apertura, ostruzione e trasmissione no. */
-      banco:     { tel: 'askar71f', red: 0.75, mnt: 'am5', bin: 1,
-                   cam: camera || 'asi2600mc' },
+      banco:     bancoMandato,
       bersaglio: { id: $('oggetto').value.trim() },
       /*  LE TRE DICHIARAZIONI, e adesso vengono dai controlli.
        *  `notti` era il letterale 3 e la data era cablata nel markup: due numeri
@@ -258,8 +313,12 @@
        *  I riquadri sono GEOMETRIA — dipendono da come il sensore cade sul cielo e
        *  da quanto hai ruotato — e una pagina senza inquadratura non puo'
        *  calcolarli: non li manda, e Strategy dichiara quanti ne ha assunti. */
+      /*  E la politica di sessione e la strada del menu, con la stessa regola: si mandano quando ci sono, e quando
+       *  mancano sceglie il servizio. */
       opzioni:   Object.assign({ copertura: coperturaScelta() },
-                               modoScelto ? { strategia: modoScelto } : {})
+                               modoScelto ? { strategia: modoScelto } : {},
+                               politicaScelta ? { politica: politicaScelta } : {},
+                               stradaScelta ? { strada: stradaScelta } : {})
     });
 
     $('vai').disabled = false;
@@ -332,6 +391,11 @@
            esc(d.misura ? d.misura.ms + ' ms' : '—'),
            (r.corpo.length / 1024).toFixed(0)) + '</td></tr>' +
       '</table></div>' +
+      /*  La fascia gialla del banco scritto qui: gli identificativi cosi' come partono, nessuna parola composta. */
+      '<div class="box" style="border-color:#e0a030"><span style="color:#e0a030">' +
+        MF('Pag_Men_BancoNonLetto', [bancoMandato.tel, bancoMandato.red, bancoMandato.mnt, bancoMandato.cam].map(esc).join(' · ')) +
+        '</span></div>' +
+      disegnaMenu(p.prescrizione) +
       '<div class="box"><table>' +
       '<tr><th>' + T('Pag_ColNotte') + '</th><th>' + T('Pag_ColData') + '</th><th>' +
         T('Pag_ColBlocchi') + '</th><th>' + T('Pag_ColPose') + '</th><th>' +
@@ -345,6 +409,13 @@
 
     for (const b of document.querySelectorAll('button.manda'))
       b.addEventListener('click', () => manda(b));
+    /*  IL CLIC SU UNA STRADA RIFA' LA DOMANDA con quella strada, e basta: ore, pose e sequenze le ricalcola
+     *  Strategy. Qui non si sposta niente da una carta all'altra. */
+    for (const c of document.querySelectorAll('#menu [data-strada]'))
+      c.addEventListener('click', () => {
+        stradaScelta = c.getAttribute('data-strada') === 'auto' ? null : c.getAttribute('data-strada');
+        vai();
+      });
   }
 
   /* CONSEGNARE. Alla richiesta va solo il numero della notte e l'identificativo:
@@ -399,6 +470,10 @@
   })();
 
   $('vai').addEventListener('click', vai);
+  /*  Una strada e' di una scheda e di una notte: cambiando oggetto, data o notti la scelta non vale piu', e la
+   *  prossima domanda torna a far scegliere il motore. */
+  for (const campo of ['oggetto', 'data', 'notti'])
+    $(campo).addEventListener('input', () => { stradaScelta = null; });
 
   /*  LA FRASE DELL'OSPITE VINCE SU QUELLA GENERICA: l'ospite compone gia'
       «Nessuno risponde a <indirizzo>» con la radice davvero in uso, e la pagina la
@@ -442,9 +517,13 @@
        valgono lo stesso per il motore, ma non per chi guarda. */
     const riga = (etichetta, campo, unita, scrivibile) => {
       const v = sito ? sito[campo] : null;
-      const p = sitoProv[campo] || 'non disponibile';
-      const colore = p.indexOf('non disponibile') === 0 ? 'color:#e0a030'
-                   : p.indexOf('dichiarato') === 0 ? 'opacity:.75' : 'opacity:.6';
+      /*  LA PROVENIENZA E' UN CODICE, e la parola la mette il dizionario. Qui si confrontava la frase italiana
+       *  («non disponibile», «dichiarato»): tradotta, il colore sarebbe stato sbagliato in silenzio; non tradotta,
+       *  in inglese si leggeva in italiano. */
+      const p = sitoProv[campo] || 'non_disponibile';
+      const colore = p === 'non_disponibile' ? 'color:#e0a030' : p === 'dichiarato' ? 'opacity:.75' : 'opacity:.6';
+      const parola = { profilo: 'Pag_Prov_profilo', misurato: 'Pag_Prov_misurato',
+                       dichiarato: 'Pag_Prov_dichiarato', non_disponibile: 'Pag_Prov_non_disponibile' }[p];
       return '<tr><th>' + etichetta + '</th><td>' +
         (scrivibile
           ? '<input data-sito="' + campo + '" value="' + (sitoScritto[campo] === null ||
@@ -452,7 +531,7 @@
             '" style="width:70px" spellcheck="false"> ' +
             (v === null || v === undefined ? '' : '<b>' + num(v) + '</b> ' + unita)
           : '<b>' + num(v) + '</b> ' + unita) +
-        ' <span style="font-size:12px;' + colore + '">' + esc(p) + '</span></td></tr>';
+        ' <span style="font-size:12px;' + colore + '">' + esc(parola ? T(parola) : p) + '</span></td></tr>';
     };
 
     $('sito').innerHTML =
@@ -668,6 +747,202 @@
           if (r2.ok) chiedi('filtri').then(disegnaRuota);
         });
     });
+  }
+
+  /* ── IL MENU DELLE STRADE ─────────────────────────────────────────────────────
+   *  Le carte sono quelle che Strategy manda nella prescrizione, e questa pagina non ne decide nessuna: quali strade
+   *  si scelgono, quale e' raccomandata e perche', quali non si fanno e con che motivo, il prezzo di ognuna alla scala
+   *  del progetto. Qui si leggono e si scrivono con parole del Ponte, per codice. Il nome di una strada e' quello del
+   *  motore e non si traduce: e' il nome che arriva in N.I.N.A.
+   *
+   *  Il colore dice la natura della frase, come nella pagina del motore: neutro una spiegazione, giallo un limite
+   *  dichiarato, rosso un guasto.
+   *
+   *  Le chiavi sono letterali, non composte col codice: una chiave composta la prova delle voci orfane non la vede.
+   *  Un codice che qui non ha una voce non diventa una frase inventata: si scrive il codice. */
+  const PAROLA_VIA = {
+    variante_pura: 'Pag_Men_Via_variante_pura',
+    default_della_scheda: 'Pag_Men_Via_default_della_scheda',
+    prima_voce_della_tecnica: 'Pag_Men_Via_prima_voce_della_tecnica',
+  };
+  const PAROLA_NON_PREZZABILE = {
+    scala_del_soggetto_non_dichiarata: 'Pag_Men_NonPrezzabile_scala_del_soggetto_non_dichiarata',
+    scala_delle_stelle_non_dichiarata: 'Pag_Men_NonPrezzabile_scala_delle_stelle_non_dichiarata',
+  };
+  const PAROLA_SOSTITUITA = {
+    strada_sconosciuta: 'Pag_Men_Sostituita_strada_sconosciuta',
+    spezzata_dalla_coppia: 'Pag_Men_Sostituita_spezzata_dalla_coppia',
+    scala_del_soggetto_non_dichiarata: 'Pag_Men_Sostituita_scala_del_soggetto_non_dichiarata',
+    stessi_canali: 'Pag_Men_Sostituita_stessi_canali',
+  };
+
+  /*  I conteggi della tabella con la loro data: la data arriva nella forma dei dati, e si scrive in quella della
+   *  lingua. Senza la data nei dati non se ne scrive una. */
+  function margineDellaClasse(m) {
+    if (!m || m.conteggio === null || m.conteggio === undefined) return '';
+    const base = m.seconda
+      ? MF('Pag_Men_Margine', esc(m.tecnica), esc(m.conteggio), esc(m.seconda.tecnica), esc(m.seconda.conteggio))
+      : MF('Pag_Men_MargineSolo', esc(m.tecnica), esc(m.conteggio));
+    const d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(m.conteggiDel || '');
+    if (!d) return base;
+    let quando = m.conteggiDel;
+    try {
+      quando = new Date(Date.UTC(+d[1], +d[2] - 1, +d[3])).toLocaleDateString(T('Pag_Men_FormatoData'),
+        { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    } catch (e) { /* una lingua che il browser non conosce: resta la data dei dati */ }
+    return base + '; ' + MF('Pag_Men_ConteggiDel', esc(quando));
+  }
+  function primaScelta(m) {
+    const margine = margineDellaClasse(m);
+    return MF('Pag_Men_PrimaScelta', esc(m.tecnica)) + (margine ? ' (' + margine + ')' : '');
+  }
+  function testoDellaRaccomandata(v) {
+    const m = v && v.raccomandataPerche;
+    if (!m || !PAROLA_VIA[m.motivo]) return '';
+    return primaScelta(m) +
+      (m.tecnicaDellaVoce ? '; ' + MF('Pag_Men_SuMatrice', esc(m.tecnica), esc(m.tecnicaDellaVoce)) : '') +
+      '; ' + MF(PAROLA_VIA[m.motivo], esc(m.tecnicaDellaVoce || m.tecnica));
+  }
+  function testoDellAssenza(a, pr) {
+    if (!a) return '';
+    if (a.motivo === 'classe_non_misurata') return MF('Pag_Men_Assente_classe_non_misurata');
+    if (a.motivo === 'nessuna_voce_della_tecnica')
+      return MF('Pag_Men_Assente_nessuna_voce_della_tecnica', primaScelta(a), esc(a.tecnica));
+    if (a.motivo === 'prima_scelta_non_percorribile') {
+      const b = (pr.blocked || []).find(x => x.road === a.road);
+      return MF('Pag_Men_Assente_prima_scelta_non_percorribile', primaScelta(a), esc(b ? (b.name || b.road) : a.road));
+    }
+    return esc(a.motivo);
+  }
+
+  /*  IL MOTIVO DI UNA BANDA CHE MANCA lo scrive Strategy coi dati che servono a dirlo — la banda, se la camera ha la
+   *  matrice, quali filtri mancano, quale filtro suggerisce, quali filtri in ruota non vanno —, e qui si mettono le
+   *  parole. Nessun catalogo dei filtri qui dentro: i nomi arrivano nel motivo. */
+  function testoDelMotivo(x) {
+    if (!x) return '';
+    /*  Il nome della banda come arriva nel motivo, protetto e nient'altro: qui non si ricava una banda. E le larghezze
+     *  si scrivono come le manda Strategy: arrotondarle qui sarebbe gia' decidere quale cifra conta. */
+    const nomeDellaBanda = escOVuoto(x.banda);
+    const dove = esc(T(x.matrice ? 'Pag_Men_Dove_matrice' : 'Pag_Men_Dove_mono'));
+    const scelto = esc(x.nome || x.filtro || '');
+    const suggerito = esc((x.suggerito || {}).nome || '');
+    switch (x.tipo) {
+      case 'canale_spento': return MF('Pag_Men_Motivo_canale_spento', nomeDellaBanda);
+      case 'canale_assente':
+        if (Array.isArray(x.mancano)) return MF('Pag_Men_Motivo_canale_assente_rgb', dove, x.mancano.map(esc).join(', '));
+        if (x.nelCatalogo === false) return MF('Pag_Men_Motivo_canale_assente_non_esiste', nomeDellaBanda, dove);
+        return MF('Pag_Men_Motivo_canale_assente', nomeDellaBanda, dove, suggerito);
+      case 'sensore_incompatibile':
+        if (Array.isArray(x.nomi) && x.nomi.length)
+          return MF('Pag_Men_Motivo_sensore_incompatibile_ruota', nomeDellaBanda, x.nomi.map(esc).join(', '), dove, suggerito);
+        return MF('Pag_Men_Motivo_sensore_incompatibile', nomeDellaBanda, scelto, dove);
+      case 'non_in_ruota': return MF('Pag_Men_Motivo_non_in_ruota', nomeDellaBanda, scelto);
+      case 'vetro_sconosciuto': return MF('Pag_Men_Motivo_vetro_sconosciuto', nomeDellaBanda, scelto);
+      case 'classe_incompatibile': return MF('Pag_Men_Motivo_classe_incompatibile', nomeDellaBanda, scelto);
+      case 'sotto_soglia_continuo':
+        return MF('Pag_Men_Motivo_sotto_soglia_continuo', nomeDellaBanda, scelto, esc(x.larghezza_nm), esc(x.soglia_nm));
+      case 'escluso_per_decisione': return MF('Pag_Men_Motivo_escluso_per_decisione', nomeDellaBanda, scelto);
+      default: return MF('Pag_Men_Motivo_generico', nomeDellaBanda);
+    }
+  }
+  function testoStelle(perche) {
+    if (perche && perche.tipo === 'canale_spento')
+      return MF('Pag_Men_StelleNonRiprendibili_spento', escOVuoto(perche.banda));
+    const m = (perche && perche.mancano) || [];
+    return m.length ? MF('Pag_Men_StelleNonRiprendibili_mancano', m.map(esc).join(', '))
+                    : MF('Pag_Men_StelleNonRiprendibili');
+  }
+
+  function disegnaMenu(pr) {
+    if (!pr || !pr.roadChoices || !pr.roadChoices.length) return '';
+    const voci = pr.roadChoices;
+    const chiuse = (pr.blocked || []).filter(b => (b.needs || []).length && !voci.some(c => c.id === b.road));
+    const nonPrezzabili = ((pr.generazione || {}).nonPrezzabili) || [];
+    const stesse = pr.stessaRipresa || [];
+    const escluse = pr.stradeEscluse || [];
+    const assenza = testoDellAssenza(pr.raccomandataAssente, pr);
+    const titolo = '<div class="sc-t">' + esc(T('Pag_Men_Titolo')) +
+      ' <span class="muted">' + esc(T('Pag_Men_Sottotitolo')) + '</span></div>';
+    /*  Un menu da una carta non ha niente da scegliere, ma il perche' di un'assenza resta: e' un'informazione sulla
+     *  classe o sull'attrezzatura. E le bloccate contano fra le carte: e' per questo che una prima scelta che la
+     *  ruota non fa non fa mai collassare il menu a una carta. */
+    if (voci.length + chiuse.length + nonPrezzabili.length + stesse.length + escluse.length < 2)
+      return assenza ? '<div class="box stratbox" id="menu">' + titolo +
+        '<div class="sc-s"><span class="p-warn">' + assenza + '.</span></div></div>' : '';
+
+    const pastiglia = (chiave, classe) => '<span class="pill ' + (classe || 'p-dim') + '">' + esc(T(chiave)) + '</span>';
+    const nomeDi = id => { const v = voci.find(c => c.id === id); return v ? v.name : (id || ''); };
+    /*  Il prezzo di progetto, come Strategy lo manda: qui non si moltiplica niente per i riquadri. */
+    const prezzo = c => {
+      const ore = c.progetto && c.progetto.ideal;
+      if (ore === null || ore === undefined) return '<span class="p-bad">' + esc(T('Pag_Men_CostoNonCalcolabile')) + '</span>';
+      return MF(pr.panels > 1 ? 'Pag_Men_PrezzoProgetto' : 'Pag_Men_Prezzo', esc(ore.toFixed(1)));
+    };
+    const carta = c => {
+      const scelta = !!(pr.roadPicked && pr.road && pr.road.id === c.id);
+      const presa = !!(!pr.roadPicked && pr.road && pr.road.id === c.id);
+      const pastiglie = (scelta ? pastiglia('Pag_Men_SceltaTua', 'p-ok') : presa ? pastiglia('Pag_Men_LaPrendeIlMotore') : '') +
+        (c.raccomandata ? pastiglia('Pag_Men_Raccomandata') : '');
+      return '<button class="roadcard' + (scelta ? ' on' : '') + (presa ? ' now' : '') + '" data-strada="' + esc(c.id) +
+          '" aria-pressed="' + (scelta ? 'true' : 'false') + '">' +
+        '<div class="rc-h"><b>' + esc(c.name) + '</b></div>' +
+        (pastiglie ? '<div class="rc-p">' + pastiglie + '</div>' : '') +
+        (c.when ? '<div class="rc-w">' + esc(c.when) + '</div>' : '') +
+        (c.limiti || []).filter(l => l.tipo === 'passata_stelle_non_riprendibile')
+          .map(l => '<div class="rc-n"><span class="p-warn">' + testoStelle(l.perche) + '</span></div>').join('') +
+        '<div class="rc-n">' + prezzo(c) + '</div></button>';
+    };
+    const ferma = (nome, chiavePastiglia, testo) => '<div class="roadcard lack" aria-disabled="true">' +
+      '<div class="rc-h"><b>' + esc(nome) + '</b></div><div class="rc-p">' + pastiglia(chiavePastiglia) + '</div>' +
+      '<div class="rc-n">' + testo + '</div></div>';
+    const auto = voci.find(c => c.id === pr.roadAuto);
+    const cartaAuto = '<button class="roadcard auto' + (pr.roadPicked ? '' : ' on') + '" data-strada="auto" aria-pressed="' +
+        (pr.roadPicked ? 'false' : 'true') + '">' +
+      '<div class="rc-h"><b>' + esc(T('Pag_Men_SceglieMotore')) + '</b></div>' +
+      (pr.roadPicked ? '' : '<div class="rc-p">' + pastiglia('Pag_Men_InUso', 'p-ok') + '</div>') +
+      '<div class="rc-w">' + esc(T('Pag_Men_SceglieMotoreNota')) + '</div>' +
+      '<div class="rc-n">' + MF('Pag_Men_OraSarebbe', esc(auto ? auto.name : (pr.roadAuto || ''))) + '</div></button>';
+
+    const righe = [];
+    const racc = voci.find(c => c.raccomandata);
+    const perche = racc ? testoDellaRaccomandata(racc) : '';
+    if (perche) righe.push('<div class="sc-s">' + MF('Pag_Men_RaccomandataPerche', esc(racc.name), perche) + '.</div>');
+    if (assenza) righe.push('<div class="sc-s"><span class="p-warn">' + assenza + '.</span></div>');
+    const chiesta = pr.roadRequestedBlocked, rs = pr.roadRequestedStessaRipresa, sost = pr.roadRequestedSostituita;
+    const presaOra = pr.road ? pr.road.name : '';
+    if (chiesta)
+      righe.push('<div class="sc-s">' + MF('Pag_Men_ChiestaBloccata', esc(chiesta.name || chiesta.road),
+        (chiesta.perche || []).map(testoDelMotivo).join(' · ')) + '</div>');
+    else if (rs && rs.motivo === 'passata_stelle_non_riprendibile')
+      righe.push('<div class="sc-s">' + MF('Pag_Men_ChiestaStelle', esc(rs.nomeChiesta || rs.chiesta),
+        testoStelle(rs.perche), esc(presaOra)) + '</div>');
+    else if (rs)
+      righe.push('<div class="sc-s">' + MF('Pag_Men_ChiestaStessaRipresa', esc(rs.nomeChiesta || rs.chiesta), esc(presaOra)) + '</div>');
+    else if (sost)
+      righe.push('<div class="sc-s">' + MF(PAROLA_SOSTITUITA[sost.motivo] || 'Pag_Men_Sostituita_generica',
+        esc(sost.nomeChiesta || sost.chiesta), esc(presaOra), esc(sost.nomeCon || sost.con || '')) + '</div>');
+    else if (pr.roadPicked && !pr.roadAutoSame)
+      righe.push('<div class="sc-s">' + MF('Pag_Men_StaiScegliendo', esc(auto ? auto.name : (pr.roadAuto || ''))) + '</div>');
+    if (!pr.roadPicked && pr.roadAutoRisolta)
+      righe.push('<div class="sc-s">' + MF('Pag_Men_AutoRisolta', esc(pr.roadAutoRisolta.nomeDecisa),
+        testoStelle(pr.roadAutoRisolta.perche), esc(pr.roadAutoRisolta.nomePresa)) + '</div>');
+    for (const l of (pr.limitiDellaStrada || []).filter(l => l.tipo === 'passata_stelle_non_riprendibile'))
+      righe.push('<div class="sc-s">' + MF('Pag_Men_LimiteStelle', esc(presaOra), testoStelle(l.perche)) + '</div>');
+
+    return '<div class="box stratbox" id="menu">' + titolo + '<div class="roadgrid">' +
+      cartaAuto + voci.map(carta).join('') +
+      chiuse.map(b => ferma(b.name || b.road, 'Pag_Men_NonDisponibile',
+        '<span class="p-warn">' + (b.perche || []).map(testoDelMotivo).join(' · ') + '</span>')).join('') +
+      nonPrezzabili.map(x => ferma(x.name, 'Pag_Men_NonDisponibile', '<span class="p-warn">' +
+        (PAROLA_NON_PREZZABILE[x.motivo] ? esc(T(PAROLA_NON_PREZZABILE[x.motivo])) : esc(x.motivo)) + '</span>')).join('') +
+      stesse.map(x => ferma(x.name, 'Pag_Men_StessaRipresa', x.motivo === 'passata_stelle_non_riprendibile'
+        ? '<span class="p-warn">' + MF('Pag_Men_Stessa_passata_stelle_non_riprendibile', testoStelle(x.perche), esc(nomeDi(x.con))) + '</span>'
+        : MF('Pag_Men_Stessa_stessa_ripresa_su_matrice', esc(nomeDi(x.con))))).join('') +
+      escluse.map(x => ferma(x.name || x.road, x.motivo === 'stessi_canali' ? 'Pag_Men_StessiCanali' : 'Pag_Men_Esclusa',
+        x.motivo === 'spezzata_dalla_coppia'
+          ? '<span class="p-warn">' + MF('Pag_Men_Esclusa_spezzata_dalla_coppia') + '</span>'
+          : MF('Pag_Men_Esclusa_stessi_canali', esc(x.nomeCon || x.con || '')))).join('') +
+      '</div>' + righe.join('') + '</div>';
   }
 
   applicaVoci();
