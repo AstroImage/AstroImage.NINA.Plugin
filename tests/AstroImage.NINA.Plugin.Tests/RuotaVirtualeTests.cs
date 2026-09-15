@@ -330,18 +330,33 @@ namespace AstroImage.NINA.Plugin.Tests {
 
             Assert.AreEqual("lult", perCanale["Ha+OIII"],
                 "il duale su cui il motore ha davvero fatto il conto");
-            Assert.AreEqual("idas", perCanale["R"]);
-            Assert.AreEqual("idas", perCanale["G"]);
-            Assert.AreEqual("idas", perCanale["B"]);
+            Assert.AreEqual("idas", perCanale["RGB"],
+                "e su una matrice la banda larga e' un canale solo, RGB, dietro il suo filtro");
+            Assert.IsFalse(perCanale.ContainsKey("R") || perCanale.ContainsKey("G") || perCanale.ContainsKey("B"),
+                "dal 14 settembre 2026 la risposta non porta R, G e B separati su una matrice");
             Assert.IsFalse(perCanale.Keys.Any(k => k.StartsWith("__")),
                 "le chiavi di servizio del motore non sono canali");
         }
 
         [TestMethod]
-        public void UnBloccoSuPiuCanali_HaUnVetroSOLO() {
-            /*  Su una camera a matrice il blocco «R+G+B» e' un'unica ripresa dietro un
-                unico filtro, e infatti i tre canali rispondono lo stesso identificativo. */
+        public void IlBloccoDellaBandaLarga_HaIlSuoVetro() {
             var perCanale = VetriDellaPrescrizione.PerCanale(Fixture("prescrizione-ok"));
+            var id = VetriDellaPrescrizione.DelBlocco(new[] { "RGB" }, perCanale, out var perche);
+
+            Assert.AreEqual("idas", id);
+            Assert.IsNull(perche);
+        }
+
+        [TestMethod]
+        public void UnBloccoSuPiuCanali_HaUnVetroSOLO() {
+            /*  Un blocco su piu' canali e' un'unica ripresa dietro un unico filtro, e i canali
+                rispondono lo stesso identificativo. Il contratto lo permette, ma nessuna risposta
+                vera lo porta piu' — su una matrice il colore arriva come RGB —: si prova su una
+                risposta vera degradata, copiando la posa dell'RGB su R, G e B. */
+            var j = JsonNode.Parse(Fixture("prescrizione-ok"))!.AsObject();
+            var posa = j["prodotto"]!["posa"]!.AsObject();
+            foreach (var c in new[] { "R", "G", "B" }) posa[c] = posa["RGB"]!.DeepClone();
+            var perCanale = VetriDellaPrescrizione.PerCanale(j.ToJsonString());
             var id = VetriDellaPrescrizione.DelBlocco(new[] { "R", "G", "B" }, perCanale, out var perche);
 
             Assert.AreEqual("idas", id);

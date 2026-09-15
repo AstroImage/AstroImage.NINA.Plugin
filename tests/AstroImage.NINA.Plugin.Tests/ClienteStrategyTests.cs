@@ -17,21 +17,26 @@ namespace AstroImage.NINA.Plugin.Tests {
 
     /*  IL CORRIERE, PROVATO SENZA IL SERVIZIO ACCESO.
      *
-     *  Le due fixture sono risposte VERE del servizio, catturate mentre girava sul
-     *  motore vero: `prescrizione-ok.json` e' una richiesta riuscita su NGC 6888 —
-     *  la taglia che il ponte incontrera' davvero — e `prescrizione-errore.json` e'
-     *  un bersaglio inesistente. Una risposta inventata proverebbe soltanto che chi
-     *  l'ha scritta e chi la legge hanno avuto la stessa idea sbagliata.
+     *  Le due fixture vengono da risposte VERE del servizio, catturate mentre girava
+     *  sul motore vero: `prescrizione-ok.json` e' una richiesta riuscita su NGC 6888,
+     *  e `prescrizione-errore.json` e' un bersaglio inesistente. Una risposta inventata
+     *  proverebbe soltanto che chi l'ha scritta e chi la legge hanno avuto la stessa
+     *  idea sbagliata.
      *
-     *  LA PROSA E' STATA TOLTA, LA STRUTTURA NO. Dove la risposta vera portava un
-     *  testo discorsivo — la scheda dell'oggetto, le trappole di elaborazione, il
-     *  comportamento dei filtri, le stringhe di provenienza — la fixture porta
-     *  `(prosa non pubblicata)`. Quel testo e' il lavoro editoriale del motore, che
-     *  e' in un repository privato, e questo e' pubblico. Non e' un impoverimento
-     *  del contratto: i campi ci sono tutti, con lo stesso tipo e nello stesso
-     *  posto, e nessun numero e' stato toccato — 3.289 percorsi prima, 3.289 dopo.
-     *  Il ponte non legge nulla di quei campi: li trasporta e basta, ed e'
-     *  esattamente cio' che questi test verificano.
+     *  LA FIXTURE PORTA SOLO I CAMPI CHE LE PROVE LEGGONO. Della risposta riuscita
+     *  restano il contratto, la misura, il bersaglio, le sequenze intere e il filtro di
+     *  ogni canale di `posa`; `valutazione`, `prescrizione` e `piano` restano come
+     *  chiavi con un oggetto vuoto, perche' qui sotto si guarda che arrivino. Il resto
+     *  — la scheda dell'oggetto, le trappole, il comportamento dei filtri, le note di
+     *  provenienza — e' il lavoro del motore, che sta in un repository privato, e
+     *  questo e' pubblico.
+     *
+     *  Fino al 15 settembre 2026 la regola era un'altra, «la prosa tolta, la struttura
+     *  no», e stava scritta soltanto qui: rigenerando la fixture dal servizio la si e'
+     *  disfatta senza vederla. Adesso sta nel README delle fixture, accanto al modo di
+     *  rigenerarle. E la taglia vera non la chiede nessuna prova: il corriere legge il
+     *  corpo intero come stringa, senza un limite suo, e il corpo torna identico
+     *  carattere per carattere che pesi un kilobyte o cento.
      *
      *  Qui non si accende niente e non si apre nessuna porta: il trasporto e' finto,
      *  le risposte sono vere. E' la divisione giusta, perche' cio' che si vuole
