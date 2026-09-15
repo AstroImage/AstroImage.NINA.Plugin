@@ -23,6 +23,15 @@ che il motore non risponde.
 aperto che fa da mediatore verso un servizio esterno. Il ponte è il tubo; quello che ci
 passa dentro è un'altra cosa.
 
+Il motore può stare su un'altra macchina: il plugin legge l'indirizzo da un file
+`strategy.url` accanto al DLL. **Questo va detto, non scoperto.** Di serie il servizio
+ascolta soltanto sulla macchina dove gira; acceso per la rete (`--ascolta 0.0.0.0`)
+risponde a chiunque stia sulla stessa rete, in chiaro e senza sapere chi chiede. È l'uso
+previsto su una rete di casa, fra macchine proprie; non su una rete condivisa con altri.
+In pratica, per la prova sul PC in campo il servizio va avviato con `--ascolta 0.0.0.0`
+sulla macchina dove gira il motore: avviato di serie, dall'altra macchina il plugin non lo
+raggiunge.
+
 ## L'idea
 
 Il progetto nasce da una convinzione precisa: **pianificare una sessione non è
@@ -202,8 +211,8 @@ cd C:\Users\<nome>\Documents\AstroImage.NINA.Plugin
 dotnet build -c Release
 ```
 
-Il DLL esce sempre in `src/AstroImage.NINA.Plugin/bin/x64/Release` — uno solo, una
-decina di KB — **e viene installato subito** in
+Il DLL esce sempre in `src/AstroImage.NINA.Plugin/bin/x64/Release` — uno solo, circa
+260 KB — **e viene installato subito** in
 `%LOCALAPPDATA%\NINA\Plugins\3.0.0\AstroImage.NINA.Plugin`,
 così quello che si prova è sempre l'ultimo compilato. N.I.N.A. legge quella cartella
 all'avvio: se è già aperto, il plugin compare al riavvio successivo. Per toglierlo si
@@ -220,6 +229,21 @@ Per controllare che sia un plugin e non solo un DLL che compila:
 ```
 powershell -File scripts/verifica-scheletro.ps1
 ```
+
+Per installare anche sul PC in campo, dove il plugin gira e il motore no:
+
+```
+powershell -File scripts/installa.ps1
+```
+
+**La prova a schermo non vale se non si sa quale binario sta girando.** Lo script compila,
+controlla che N.I.N.A. sia chiuso su tutte e due le macchine, copia il DLL nella cartella
+dei plugin di questa e in quella del PC in campo — condivisa in rete —, scrive accanto al
+secondo l'indirizzo del motore in `strategy.url`, e alla fine confronta l'impronta SHA-256
+di ogni copia con quella compilata. Se un controllo cade non copia niente, da nessuna
+parte; se accanto al plugin trova altri DLL li nomina e non li tocca. I nomi delle macchine
+stanno in `scripts/installa.locale.psd1`, che git ignora: il modello è
+`scripts/installa.esempio.psd1`. Con `-SoloControlli` guarda e basta.
 
 Per eseguire i test del contratto:
 
