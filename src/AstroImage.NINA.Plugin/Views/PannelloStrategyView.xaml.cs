@@ -721,12 +721,20 @@ namespace AstroImage.NINA.Plugin.Views {
             foreach (var kv in unito.Provenienza ?? new Dictionary<string, string>())
                 prov[kv.Key] = kv.Value;
 
+            /*  L'ORIZZONTE DEL PROFILO VIAGGIA COL SITO (prova in N.I.N.A. sul MiniX, 16 settembre 2026). La pagina rimanda
+             *  questo sito nella richiesta: senza l'orizzonte qui, il profilo letto da `SitoDelProfilo` si perdeva un
+             *  metro dopo, e il motore assumeva il limite operativo su un sito che una montagna ce l'ha. Il file si dice
+             *  accanto, fuori dal sito: e' per chi guarda, non per il motore. */
+            Logger.Info($"[AstroImage] site horizon: {(unito.Orizzonte?.Length ?? 0)} points" +
+                        (string.IsNullOrWhiteSpace(unito.OrizzonteFile) ? ", no file in the profile" : $" from «{unito.OrizzonteFile}»"));
             Rispondi(id, true, null, null, null, 0, null, new JsonObject {
                 ["sito"] = new JsonObject {
                     ["lat"] = unito.Lat, ["lon"] = unito.Lon, ["sqm"] = unito.Sqm,
                     ["seeing"] = unito.Seeing, ["rms"] = unito.Rms,
                     ["horizonMin"] = unito.HorizonMin, ["clearFrac"] = unito.ClearFrac,
+                    ["orizzonte"] = unito.Orizzonte is null ? null : JsonSerializer.SerializeToNode(unito.Orizzonte),
                 },
+                ["orizzonteFile"] = unito.OrizzonteFile,
                 /*  Solo i campi che l'utente puo' scrivere: la geometria non si dichiara,
                  *  viene dal profilo e un doppione qui divergerebbe da quello. */
                 ["dichiarato"] = new JsonObject {

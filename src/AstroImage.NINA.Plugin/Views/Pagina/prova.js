@@ -817,6 +817,19 @@
       s.outerHTML = provenienzaDelSito(s.getAttribute('data-prov-sito'));
   }
 
+  /*  L'ORIZZONTE DEL PROFILO (prova in N.I.N.A. sul MiniX, 16 settembre 2026): da quale file viene e quanti punti porta,
+   *  oppure che il profilo lo nomina e non si e' letto. Senza file non c'e' riga: vale l'altezza minima qui sotto. Il
+   *  profilo viaggia dentro `sito`, e la richiesta lo rimanda com'e'. */
+  function rigaOrizzonte(r) {
+    const punti = sito && Array.isArray(sito.orizzonte) ? sito.orizzonte.length : 0;
+    const file = (r && r.orizzonteFile) || '';
+    if (!punti && !file) return '';
+    const nome = esc(file.split(/[\\/]/).pop());
+    return '<tr><th>' + esc(T('Pag_Orizzonte')) + '</th><td><span style="font-size:12px;' +
+      (punti ? 'opacity:.6">' + MF('Pag_OrizzonteDalProfilo', nome, cifra(punti))
+             : 'color:#e0a030">' + MF('Pag_OrizzonteNonLetto', nome)) + '</span></td></tr>';
+  }
+
   function disegnaSito(r) {
     sito = r.sito || null;
     sitoScritto = r.dichiarato || {};
@@ -852,6 +865,7 @@
       riga(T('Pag_Sqm'), 'sqm', 'mag/arcsec&sup2;', true) +
       riga(T('Pag_Seeing'), 'seeing', '&Prime;', true) +
       riga(T('Pag_Rms'), 'rms', '&Prime;', true) +
+      rigaOrizzonte(r) +
       riga(T('Pag_AltezzaMinima'), 'horizonMin', '&deg;', true) +
       riga(T('Pag_NottiSerene'), 'clearFrac', '', true) +
       '</table>' +
