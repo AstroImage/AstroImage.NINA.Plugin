@@ -963,4 +963,13 @@
   <data name="Motore_PoliticaSconosciuta" xml:space="preserve">
     <value>The engine does not know the way of spreading the nights that the plugin asked for, and it will not pick another one for you: that would put the same hours on different nights. The ones it knows are: {0}. This happens when plugin and engine are different versions: update whichever is older.</value>
   </data>
+  <data name="Ruota_SoloOrfane" xml:space="preserve">
+    <value>None of the filters you declared is in the wheel now: {0}. Without filters there is no road to prescribe, and the engine's stock wheel is not yours: the request was not sent. If you renamed them in N.I.N.A., point them again in the filter view.</value>
+  </data>
+  <data name="Montaggio_BloccoMancato" xml:space="preserve">
+    <value>The target was NOT delivered: {0} of {1} blocks could not be built, and a half target in the sequencer looks exactly like a complete one. This must not happen: it is a defect of the bridge, report it with the N.I.N.A. log.</value>
+  </data>
+  <data name="Pag_RuotaOrfana" xml:space="preserve">
+    <value>You declared {0}, and it is no longer in the wheel: it stays out of this prescription. If you renamed it in N.I.N.A., point it again in the filter view.</value>
+  </data>
 </root>

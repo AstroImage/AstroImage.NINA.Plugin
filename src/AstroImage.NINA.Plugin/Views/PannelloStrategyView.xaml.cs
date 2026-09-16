@@ -280,16 +280,21 @@ namespace AstroImage.NINA.Plugin.Views {
                  *  un'aggiunta silenziosa sarebbe esattamente il difetto che stiamo
                  *  togliendo, girato dall'altra parte. */
                 var vmR = DataContext as PannelloStrategyVM;
-                var corpoJson = messaggio["corpo"]?.AsObject() ?? new JsonObject();
-                var dichiarati = DichiarazioneRuota.IdDichiarati(vmR?.Dichiarazione) ?? new List<string>();
+                /*  LA COMPOSIZIONE STA IN `RichiestaDelPannello`, dove si prova senza N.I.N.A.: qui si passano la
+                 *  dichiarazione e i nomi che la ruota del profilo ha adesso. */
+                var domanda = RichiestaDelPannello.Componi(messaggio["corpo"]?.AsObject(), vmR?.Dichiarazione,
+                                                           vmR?.Ruota.Nomi());
+                var dichiarati = domanda.RuotaAggiunta ?? new List<string>();
                 JsonArray ruotaInviata = null;
-                if (corpoJson["ruota"] is null && dichiarati.Count > 0) {
+                if (domanda.RuotaAggiunta != null) {
                     ruotaInviata = new JsonArray();
-                    foreach (var v in dichiarati) ruotaInviata.Add(v);
-                    corpoJson["ruota"] = ruotaInviata.DeepClone();
+                    foreach (var v in domanda.RuotaAggiunta) ruotaInviata.Add(v);
                 }
-                var corpo = corpoJson.ToJsonString();
-                var esito = await cliente.Prescrizione(corpo);
+                if (domanda.Corpo is null) {
+                    Logger.Warning("[AstroImage] prescription not asked — " + domanda.Rifiuto);
+                    Rispondi(id, false, null, "ruota_solo_orfane", domanda.Rifiuto); return;
+                }
+                var esito = await cliente.Prescrizione(domanda.Corpo);
                 /*  LA FRASE SI SCRIVE QUI, non dove l'errore e' nato.
                  *
                  *  Strategy parla italiano e basta: e' un calcolatore dietro una
@@ -328,6 +333,10 @@ namespace AstroImage.NINA.Plugin.Views {
                                 prescrizione che si sta guardando e' stata calcolata sui
                                 vetri di serie del motore e non sui propri. */
                              ["ruotaAggiunta"] = ruotaInviata?.DeepClone(),
+                             /*  Le voci dichiarate che in ruota non ci sono piu': non sono partite, e la pagina
+                                 lo dice in giallo accanto alla ruota su cui la prescrizione e' calcolata. */
+                             ["orfane"] = new JsonArray(domanda.Orfane.Select(o => (JsonNode)new JsonObject {
+                                 ["nina"] = o.Nina, ["id"] = o.Motore }).ToArray()),
                          });
             } catch (Exception ex) {
                 Rispondi(id, false, null, "ponte_in_errore", ex.Message);
@@ -427,6 +436,13 @@ namespace AstroImage.NINA.Plugin.Views {
             }
 
             var contenitore = vm.Costruttore.Costruisci(scelta.Modello, out var ricetta);
+            /*  UN BLOCCO MANCATO E' UN DIFETTO DEL PONTE, e si dice come tale: nel log a livello di errore, e alla
+             *  pagina con un codice suo. Con le orfane fuori dalla domanda non deve succedere. */
+            if (contenitore is null && ricetta.BloccoMancato) {
+                Logger.Error(IO + "send: a block could not be built, target NOT delivered — " + string.Join("; ", ricetta.Scartati));
+                Rispondi(id, false, null, "blocco_non_costruito", string.Join(" ", ricetta.Scartati));
+                return;
+            }
             if (contenitore is null) {
                 Logger.Warning(IO + "send: nothing to build — " +
                     (ricetta.Scartati.Count > 0 ? string.Join("; ", ricetta.Scartati) : "nessun motivo dichiarato"));

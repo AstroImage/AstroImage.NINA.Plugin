@@ -90,17 +90,21 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
                 "e non si chiede niente a un magazzino che ha gia' detto di non avere niente");
         }
 
+        /*  UNA FONTE CHE PROMETTE E NON MANTIENE. Fino al 16 settembre 2026 qui si provava il contenitore che
+         *  manca: adesso i blocchi si costruiscono prima di chiederlo, e fuori da N.I.N.A. una posa da copiare non
+         *  nasce (vedi FonteFinta), quindi la fonte bugiarda cade sulla posa e il ramo del contenitore mancante non
+         *  si raggiunge piu' su questo banco. Resta da vedere dentro N.I.N.A., ed e' dichiarato. */
         [TestMethod]
-        public void FonteSenzaContenitore_NonEsplode_ELoDice() {
-            var fonte = FonteFinta.Bugiarda();   // disponibile, ma non da' il contenitore
+        public void FonteBugiarda_NonEsplode_ELoDice() {
+            var fonte = FonteFinta.Bugiarda();   // disponibile, ma non da' ne' posa ne' contenitore
             var b = new SequenceBuilder(fonte, null!);
 
             var c = b.Costruisci(ModelloSenzaFiltri(), out var ricetta);
 
             Assert.IsNull(c);
-            Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("contenitore")),
+            Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("nessun blocco di ripresa disponibile")),
                 "il caso peggiore — una fonte che promette e non mantiene — non passa in silenzio");
-            CollectionAssert.Contains(fonte.Chieste, nameof(FonteFinta.Contenitore));
+            CollectionAssert.Contains(fonte.Chieste, nameof(FonteFinta.Posa));
         }
 
         [TestMethod]
@@ -209,6 +213,28 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
                 "al magazzino non si e' chiesto niente: si sapeva gia' che non si poteva consegnare");
         }
 
+        /*  UN BLOCCO CHE NON SI COSTRUISCE FERMA IL BERSAGLIO, E FA RUMORE (regia, 16 settembre 2026).
+         *
+         *  Prima un blocco che il Ponte non riusciva a costruire si saltava, e il bersaglio partiva con gli altri:
+         *  una consegna a meta' che in sequenza non si distingue da una conforme, e una somma di pose che contava
+         *  anche il blocco saltato. Con le orfane fuori dalla domanda questo non deve succedere; se succede lo
+         *  stesso, la rete ha un altro buco, e deve dirlo forte. E i blocchi si costruiscono PRIMA di chiedere il
+         *  contenitore: non si costruisce cio' che si buttera' via, ed e' questo che rende la regola provabile qui. */
+        [TestMethod]
+        public void UnBloccoCheNonSiCostruisce_IlBersaglioNonSiConsegna_EFaRumore() {
+            var fonte = FonteFinta.Bugiarda();   // disponibile, ma non da' pose da copiare
+            var b = new SequenceBuilder(fonte, null!);
+
+            var c = b.Costruisci(ModelloSenzaFiltri(), out var ricetta);
+
+            Assert.IsNull(c, "un bersaglio a cui manca un blocco non si consegna");
+            Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("NON e' stato consegnato") && s.Contains("difetto del Ponte")),
+                "e lo si dice come un difetto, non come uno scarto fra gli altri: " + string.Join(" | ", ricetta.Scartati));
+            CollectionAssert.DoesNotContain(fonte.Chieste, nameof(FonteFinta.Contenitore),
+                "il contenitore non si chiede per un bersaglio che non partira'");
+            Assert.IsTrue(ricetta.BloccoMancato, "e chi consegna lo sa, per dirlo a livello di errore");
+        }
+
         [TestMethod]
         public void SenzaFiltriPrescritti_IlControlloNonSiIntromette() {
             var fonte = FonteFinta.Bugiarda();
@@ -218,7 +244,8 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
 
             Assert.IsFalse(ricetta.Scartati.Any(s => s.Contains("filtro")),
                 "un modello che non chiede vetri non ha filtri mancanti");
-            CollectionAssert.Contains(fonte.Chieste, nameof(FonteFinta.Contenitore),
+            /*  Il primo pezzo che si chiede e' la posa dei blocchi (16 settembre 2026: prima il contenitore). */
+            CollectionAssert.Contains(fonte.Chieste, nameof(FonteFinta.Posa),
                 "e il montaggio prosegue fino a chiedere i pezzi");
         }
 

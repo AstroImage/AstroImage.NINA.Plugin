@@ -166,6 +166,31 @@ namespace AstroImage.NINA.Plugin.Services {
                      .Distinct(StringComparer.OrdinalIgnoreCase)
                      .ToList();
 
+        /// <summary>
+        /// Gli identificativi che partono come `ruota` quando la domanda parte dal pannello, e le voci
+        /// dichiarate che nella ruota di N.I.N.A. adesso non ci sono.
+        /// </summary>
+        /// <remarks>
+        /// LE ORFANE NON RENDONO PERCORRIBILE UNA STRADA (regia, 16 settembre 2026). Parte l'identificativo di ogni
+        /// voce il cui nome e' nella ruota adesso; una voce il cui nome non c'e' piu' e' orfana, e non parte — a meno
+        /// che lo stesso identificativo sia dichiarato anche sotto un nome che c'e'. Una voce senza identificativo
+        /// non e' mai entrata, quindi non e' un'orfana. Il confronto dei nomi e' quello di `SequenceBuilder`: senza
+        /// maiuscole e senza spazi ai bordi.
+        /// </remarks>
+        public static IReadOnlyList<string> PerLaRichiesta(RuotaVirtuale? r, IEnumerable<string>? nomiInRuota,
+                                                           out List<VoceRuota> orfane) {
+            var nomi = new HashSet<string>(
+                (nomiInRuota ?? Enumerable.Empty<string>()).Where(n => !string.IsNullOrWhiteSpace(n)).Select(n => n.Trim()),
+                StringComparer.OrdinalIgnoreCase);
+            var dichiarate = r?.Vetri.Where(v => !string.IsNullOrWhiteSpace(v.Motore) && !string.IsNullOrWhiteSpace(v.Nina))
+                                      .ToList() ?? new List<VoceRuota>();
+            orfane = dichiarate.Where(v => !nomi.Contains(v.Nina!.Trim())).ToList();
+            return dichiarate.Where(v => nomi.Contains(v.Nina!.Trim()))
+                             .Select(v => v.Motore!)
+                             .Distinct(StringComparer.OrdinalIgnoreCase)
+                             .ToList();
+        }
+
         /// <summary>Come mostrare un vetro del catalogo: il suo nome, che per quasi tutti
         /// porta gia' dentro il costruttore. Sta qui e non sul modello per la stessa
         /// ragione di tutto il resto.</summary>

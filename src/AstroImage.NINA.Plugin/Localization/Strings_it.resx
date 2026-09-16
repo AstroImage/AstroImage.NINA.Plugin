@@ -963,4 +963,13 @@
   <data name="Motore_PoliticaSconosciuta" xml:space="preserve">
     <value>Il motore non conosce il modo di distribuire le notti che il plugin ha chiesto, e non ne sceglie un altro al posto tuo: poserebbe le stesse ore su notti diverse. Quelli che conosce sono: {0}. Succede quando plugin e motore sono di due versioni diverse: aggiorna quello più vecchio dei due.</value>
   </data>
+  <data name="Ruota_SoloOrfane" xml:space="preserve">
+    <value>Nessuno dei filtri che hai dichiarato è in ruota adesso: {0}. Senza filtri non c'è una strada da prescrivere, e la ruota di serie del motore non è la tua: la domanda non è partita. Se li hai rinominati in N.I.N.A., ripuntali nella vista dei filtri.</value>
+  </data>
+  <data name="Montaggio_BloccoMancato" xml:space="preserve">
+    <value>Il bersaglio NON e' stato consegnato: {0} blocchi su {1} non si sono potuti costruire, e un bersaglio a meta' in sequenza non si distingue da uno conforme. Non deve succedere: e' un difetto del Ponte, riportalo col log di N.I.N.A.</value>
+  </data>
+  <data name="Pag_RuotaOrfana" xml:space="preserve">
+    <value>Hai dichiarato {0}, e in ruota non c'è più: resta fuori da questa prescrizione. Se l'hai rinominato in N.I.N.A., ripuntalo nella vista dei filtri.</value>
+  </data>
 </root>
