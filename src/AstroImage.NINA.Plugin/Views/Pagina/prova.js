@@ -102,6 +102,7 @@
       if (r.voci) { window.__LOC__ = r.voci; }
       applicaVoci();
       ridisegna();
+      riempiElencoOggetti();
       return;
     }
     /* IL PROFILO DI N.I.N.A. E' CAMBIATO. La prescrizione a schermo era calcolata sul banco e sul sito dell'altro
@@ -600,7 +601,7 @@
       stato(T('Pag_NonRiuscita'), 'no');
       $('dettagli').innerHTML = '';
       $('uscita').innerHTML = '<div class="box err"><b>' + esc(r.codice || T('Pag_Errore')) +
-        '</b><div style="margin-top:6px;opacity:.8">' + esc(r.messaggio || '') + '</div></div>';
+        '</b><div style="margin-top:6px;opacity:.8">' + M(r.messaggio || '') + '</div></div>';
       return;
     }
 
@@ -778,6 +779,36 @@
    *  prossima domanda torna a far scegliere il motore. */
   for (const campo of ['oggetto', 'data', 'notti'])
     $(campo).addEventListener('input', () => { stradaScelta = null; });
+
+  /*  L'OGGETTO SI TROVA MENTRE SI SCRIVE, come in AIS (17 settembre 2026: IC 435 dal Ponte non si trovava). A ogni
+   *  tasto, dopo una breve pausa, la pagina chiede all'ospite `cerca`, e l'elenco sotto il campo si riempie con le
+   *  corrispondenze del servizio, nello stesso ordine della pagina di AIS; con meno di due lettere, le schede complete.
+   *  La pagina non cerca da sola: il catalogo e' del motore. Vince l'ultima domanda: una risposta arrivata tardi non
+   *  copre quella del testo di adesso. Accanto al nome, l'alias che contiene quello che si e' scritto — «horse» e'
+   *  IC 434 perche' si chiama Horsehead, e va detto — o i primi due, poi il tipo e la costellazione. */
+  let ultimaRicerca = 0, pausaRicerca = null;
+  function riempiElencoOggetti() {
+    const mia = ++ultimaRicerca;
+    const scritto = $('oggetto').value;
+    const piatto = s => String(s).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+    chiedi('cerca', null, { q: $('oggetto').value }).then(r => {
+      if (mia !== ultimaRicerca || !r.ok) return;
+      let risultati;
+      try { risultati = JSON.parse(r.corpo).risultati || []; } catch (e) { return; }
+      $('elencoOggetti').innerHTML = risultati.map(x => {
+        const alias = x.alias || [];
+        const suo = piatto(scritto).length >= 2 && alias.find(a => piatto(a).indexOf(piatto(scritto)) >= 0);
+        const parti = [suo || alias.slice(0, 2).join(', '), x.scheda ? T('Pag_CercaScheda') : x.tipo, x.costellazione];
+        if (x.daCollaudare) parti.push(T('Pag_CercaDaCollaudare'));
+        return '<option value="' + esc(x.nome) + '">' + esc(parti.filter(Boolean).join(' · ')) + '</option>';
+      }).join('');
+    });
+  }
+  $('oggetto').addEventListener('input', () => {
+    clearTimeout(pausaRicerca);
+    pausaRicerca = setTimeout(riempiElencoOggetti, 120);
+  });
+  riempiElencoOggetti();
 
   /*  LA FRASE DELL'OSPITE VINCE SU QUELLA GENERICA: l'ospite compone gia'
       «Nessuno risponde a <indirizzo>» con la radice davvero in uso, e la pagina la

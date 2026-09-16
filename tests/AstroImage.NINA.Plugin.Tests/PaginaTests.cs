@@ -728,6 +728,51 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(html, "M8 3v4M16 3v4M3.5 10h17", "l'icona del calendario non e' quella di AIS");
         }
 
+        /*  L'OGGETTO SI TROVA MENTRE SI SCRIVE, COME IN AIS (17 settembre 2026: IC 435 dal Ponte non si trovava). Sotto il
+         *  campo si apre l'elenco che il servizio da' con `v1/cerca` — le stesse corrispondenze, nello stesso ordine, che la
+         *  pagina di AIS propone —, chiesto all'ospite a ogni tasto, e vince l'ultima domanda. La pagina non cerca da sola:
+         *  il catalogo e' del motore. E l'ospite porta la domanda e rimanda il corpo com'e'. Guardia strutturale. */
+        [TestMethod]
+        public void L_OGGETTO_SI_TROVA_MENTRE_SI_SCRIVE() {
+            var html = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.html"), "<!--.*?-->", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            var campo = System.Text.RegularExpressions.Regex.Match(html, "<input id=\"oggetto\"[^>]*>").Value;
+            StringAssert.Contains(campo, "list=\"elencoOggetti\"", "il campo dell'oggetto non ha l'elenco sotto");
+            StringAssert.Contains(campo, "autocomplete=\"off\"", "i nomi scritti in passato coprirebbero l'elenco del catalogo");
+            StringAssert.Contains(html, "<datalist id=\"elencoOggetti\">", "manca l'elenco sotto il campo");
+
+            var js = PaginaSenzaCommenti();
+            var riempi = Tratto(js, "function riempiElencoOggetti() {", "\n  }");
+            foreach (var pezzo in new[] { "chiedi('cerca', null, { q: $('oggetto').value })", "JSON.parse(r.corpo).risultati",
+                                          "x.nome", "x.scheda", "x.tipo", "x.costellazione", "x.daCollaudare", "x.alias",
+                                          "'Pag_CercaScheda'", "'Pag_CercaDaCollaudare'", "$('elencoOggetti').innerHTML" })
+                StringAssert.Contains(riempi, pezzo, "l'elenco sotto il campo non usa «" + pezzo + "»");
+            StringAssert.Contains(riempi, "mia !== ultimaRicerca", "una risposta arrivata tardi coprirebbe quella del testo di adesso");
+            StringAssert.Contains(Tratto(js, "$('oggetto').addEventListener('input'", "});"), "riempiElencoOggetti",
+                "l'elenco non si riempie mentre si scrive");
+            foreach (var lingua in new[] { "it", "en" })
+                foreach (var k in new[] { "Pag_CercaScheda", "Pag_CercaDaCollaudare" })
+                    Assert.IsTrue(Tutte(lingua).TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+            Assert.IsFalse(js.Contains("openngc", StringComparison.OrdinalIgnoreCase) || js.Contains("searchCatalog", StringComparison.Ordinal),
+                "la pagina del Ponte cerca da sola: il catalogo e' del motore");
+
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var i = 0; i < 8 && su is not null; i++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views",
+                "PannelloStrategyView.xaml.cs"));
+            StringAssert.Contains(vista, "if (azione == \"cerca\") { await Cerca(id, messaggio); return; }", "l'ospite non porta la ricerca");
+            var i0 = vista.IndexOf("private async Task Cerca(string id, JsonObject messaggio)", StringComparison.Ordinal);
+            Assert.IsTrue(i0 >= 0, "il gestore della ricerca non si trova");
+            var gestore = vista.Substring(i0, vista.IndexOf("\n        }", i0, StringComparison.Ordinal) - i0);
+            StringAssert.Contains(gestore, "Rispondi(id, true, corpo, null, null)", "il corpo della ricerca non torna com'e'");
+            StringAssert.Contains(gestore, "Pannello_NessunoRisponde", "col servizio spento la ricerca non dice dove guardare");
+        }
+
         /*  LA PRESCRIZIONE NON SI VIETA (decisione del 16 settembre 2026): la soglia di Luna segnala, non toglie. Nessun
          *  canale «fuori», nessun verdetto che lo dica, nella pagina o nel dizionario. Guardia strutturale: se il divieto
          *  tornasse, cade. */

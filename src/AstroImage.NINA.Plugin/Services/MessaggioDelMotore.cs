@@ -62,6 +62,10 @@ namespace AstroImage.NINA.Plugin.Services {
                 ["cielo_non_valido"]      = ("Motore_CieloNonValido",      new[] { "ricevuto" }),
                 ["cielo_implausibile"]    = ("Motore_CieloImplausibile",   new[] { "ricevuto", "min", "max" }),
                 ["bersaglio_sconosciuto"] = ("Motore_BersaglioSconosciuto", new[] { "chiesto" }),
+                /*  Il catalogo intero sulla porta (17 settembre 2026): un oggetto che si trova e non si prescrive, e le
+                 *  situazioni sono due — una stella, e un oggetto a cui manca l'evidenza della classe. */
+                ["bersaglio_non_esteso"]   = ("Motore_BersaglioNonEsteso",   new[] { "nome" }),
+                ["bersaglio_senza_classe"] = ("Motore_BersaglioSenzaClasse", new[] { "nome" }),
                 /*  DUE CODICI DOVE PRIMA CE N'ERA UNO, e non e' pignoleria: sono due
                  *  situazioni che si correggono in modo diverso. Un identificativo che
                  *  non risulta si corregge scegliendone un altro o descrivendo il pezzo;

@@ -287,6 +287,41 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.AreEqual(0, m.DivergenzeDelBanco.Count);
         }
 
+        // ------------------------------------------------------- la ricerca mentre si scrive
+
+        /*  LA RICERCA (17 settembre 2026): la domanda va a `v1/cerca`, sotto la radice come le altre, col testo e il numero
+         *  nell'indirizzo, codificati; la risposta torna come testo, identica, perche' la legge la pagina. */
+        [TestMethod]
+        public async Task Cerca_VaAV1Cerca_ETornaIlCorpoComeE() {
+            const string corpo = "{\"contratto\":\"1\",\"risultati\":[{\"nome\":\"IC 435\",\"alias\":[\"IC0435\"],\"scheda\":false}]}";
+            var (cliente, t) = Banco(HttpStatusCode.OK, corpo, "http://127.0.0.1:8791/strategy/");
+
+            var r = await cliente.Cerca("IC 435 & più");
+
+            Assert.AreEqual(corpo, r, "il corpo non torna identico");
+            Assert.AreEqual("/strategy/v1/cerca", t.Indirizzo!.AbsolutePath, "la ricerca non va sotto la radice");
+            var q = System.Web.HttpUtility.ParseQueryString(t.Indirizzo.Query);
+            Assert.AreEqual("IC 435 & più", q["q"], "il testo non arriva intero: " + t.Indirizzo.Query);
+            Assert.AreEqual("12", q["n"], "il numero di serie non e' quello della pagina di AIS");
+            Assert.IsNull(t.Corpo, "la ricerca e' una GET: niente corpo");
+        }
+
+        /*  Servizio spento o risposta non riuscita: null, e l'elenco sotto il campo resta com'era. */
+        [TestMethod]
+        public async Task Cerca_ServizioSpentoORispostaNonRiuscita_Null() {
+            var (rifiuta, _) = Banco(HttpStatusCode.NotFound, "{\"errore\":{\"codice\":\"via_sconosciuta\"}}");
+            Assert.IsNull(await rifiuta.Cerca("ic"));
+
+            var spentoT = new Trasporto(_ => throw new HttpRequestException("niente"));
+            var spento = new ClienteStrategy(new HttpClient(spentoT), new Uri("http://127.0.0.1:1/"));
+            Assert.IsNull(await spento.Cerca("ic"));
+
+            var (vuoto, t) = Banco(HttpStatusCode.OK, "{}");
+            Assert.AreEqual("{}", await vuoto.Cerca(null!));
+            Assert.AreEqual(string.Empty, System.Web.HttpUtility.ParseQueryString(t.Indirizzo!.Query)["q"],
+                "un testo assente parte vuoto, non come «null»");
+        }
+
         // ------------------------------------------------------------------- c'e' qualcuno?
 
         [TestMethod]

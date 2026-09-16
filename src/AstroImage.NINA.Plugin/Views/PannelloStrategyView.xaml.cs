@@ -24,7 +24,7 @@ namespace AstroImage.NINA.Plugin.Views {
      *  segreto vive nel C#, dove chi apre gli strumenti di sviluppo sulla pagina non
      *  lo trova.
      *
-     *  IL PROTOCOLLO, cinque azioni e nessuna cerimonia:
+     *  IL PROTOCOLLO, le azioni della domanda e nessuna cerimonia:
      *
      *      salute        { id, azione: "salute" }
      *                 -> { id, ok }
@@ -40,6 +40,9 @@ namespace AstroImage.NINA.Plugin.Views {
      *                 -> { id, ok, corpo: "<il JSON del servizio>", notti, ms,
      *                      prescrizione: "<identificativo>", consegnabile, perche,
      *                      ruotaAggiunta }
+     *
+     *      cerca         { id, azione: "cerca", q: "<il testo del campo dell'oggetto>" }
+     *                 -> { id, ok, corpo: "<il JSON di v1/cerca>" }
      *
      *      manda         { id, azione: "manda", prescrizione: "<identificativo>", notte: n }
      *                 -> { id, ok, nome, bersaglio, blocchi, pose, note[], scartati[] }
@@ -278,6 +281,8 @@ namespace AstroImage.NINA.Plugin.Views {
                 if (azione == "banco") { BancoLetto(id); return; }
 
                 if (azione == "salvaBanco") { SalvaBanco(id, messaggio); return; }
+
+                if (azione == "cerca") { await Cerca(id, messaggio); return; }
 
                 if (azione != "prescrizione") {
                     Rispondi(id, false, null, "azione_sconosciuta", Loc.F("Pannello_AzioneSconosciuta", azione)); return;
@@ -605,6 +610,24 @@ namespace AstroImage.NINA.Plugin.Views {
             Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo, 0, null,
                      new JsonObject { ["dichiarati"] = DichiarazioneRuota.IdDichiarati(nuova).Count,
                                       ["ritirata"] = ritirata ? "ruota" : null });
+        }
+
+        /*  LA RICERCA MENTRE SI SCRIVE (17 settembre 2026: IC 435 dal Ponte non si trovava). La pagina manda il testo del
+         *  campo, l'ospite lo porta a `v1/cerca` e rimanda il corpo com'e': le corrispondenze sono del motore, e la pagina
+         *  non ne tiene una copia. Servizio spento: `ok: false` con la frase che nomina l'indirizzo, e l'elenco sotto il
+         *  campo resta com'era. */
+        private async Task Cerca(string id, JsonObject messaggio) {
+            var cliente = (DataContext as PannelloStrategyVM)?.Cliente;
+            if (cliente is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaCorriere")); return; }
+            string q;
+            try { q = messaggio["q"]?.GetValue<string>(); } catch { q = null; }
+            var corpo = await cliente.Cerca(q ?? string.Empty);
+            if (corpo is null) {
+                Rispondi(id, false, null, "servizio_irraggiungibile",
+                         Loc.F("Pannello_NessunoRisponde", (DataContext as PannelloStrategyVM)?.Radice));
+                return;
+            }
+            Rispondi(id, true, corpo, null, null);
         }
 
         /*  I TRE MODI DI RIPRESA, chiesti al motore e passati alla pagina.
