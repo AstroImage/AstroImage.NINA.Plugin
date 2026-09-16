@@ -894,6 +894,12 @@
   <data name="Pag_Banco_mnt_rms_caratteristico_arcsec" xml:space="preserve">
     <value>RMS caratteristico</value>
   </data>
+  <data name="Pag_Banco_luna_riferimento_deg" xml:space="preserve">
+    <value>Luna: distanza di riferimento</value>
+  </data>
+  <data name="Pag_Banco_LunaNota" xml:space="preserve">
+    <value>La distanza minima da una Luna piena per un Hα da 3 nm. Da qui Strategy ricava la soglia di ogni filtro: cresce con la larghezza della banda e verso il blu, e scala con la fase. È quanto slavato accetti: se la dichiari vince sul catalogo, e zero toglie la soglia.</value>
+  </data>
   <data name="Pag_Banco_RmsNota" xml:space="preserve">
     <value>La cifra che la montatura tiene abitualmente con questo carico, non quella di una notte. Entra nelle decisioni: se la dichiari vince sul catalogo, ed è una tua responsabilità.</value>
   </data>
@@ -1157,6 +1163,21 @@
   </data>
   <data name="Pag_Verdetto_Coperto" xml:space="preserve">
     <value>le notti chieste ({0}) coprono il {1} % del progetto</value>
+  </data>
+  <data name="Pag_Verdetto_LunaFuori" xml:space="preserve">
+    <value>la Luna tiene fuori un canale del progetto dalle notti chieste ({0}): per il minimo ne servono {1}</value>
+  </data>
+  <data name="Pag_Verdetto_LunaFuoriOltre" xml:space="preserve">
+    <value>la Luna tiene fuori un canale del progetto dalle notti chieste ({0}), e il minimo non si raggiunge entro {1} notti utili da qui</value>
+  </data>
+  <data name="Pag_LunaFuoriTitolo" xml:space="preserve">
+    <value>La Luna tiene fuori: vicino alla Luna il fondo diventa un gradiente sul campo e luce diffusa nell'ottica, e le ore in più non lo tolgono. Il canale esce da quella notte, non dal progetto, e le sue ore vanno sulle altre.</value>
+  </data>
+  <data name="Pag_LunaFuori" xml:space="preserve">
+    <value>Notte {0}: {1} ({2}) fuori, Luna al {3} % a {4}°, soglia {5}°.</value>
+  </data>
+  <data name="Pag_LunaFuoriCongiunto" xml:space="preserve">
+    <value>Notte {0}: {1} ({2}) fuori, Luna al {3} % a {4}°, soglia {5}°. Le righe del filtro stanno nello stesso frame e non si separano: vale la soglia più severa, e per Hα+OIII è quella dell'OIII.</value>
   </data>
   <data name="Pag_Men_ImmagineDiversa" xml:space="preserve">
     <value>La {0} che ricevi è un’immagine diversa dalla {1}, con un’altra tavolozza: non una {1} più economica.</value>

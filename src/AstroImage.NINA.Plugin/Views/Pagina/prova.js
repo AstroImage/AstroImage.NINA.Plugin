@@ -333,8 +333,10 @@
     'tel.ostruzione': 'Pag_Banco_tel_ostruzione', 'tel.trasmissione': 'Pag_Banco_tel_trasmissione',
     'tel.focale_mm': 'Pag_Banco_tel_focale_mm', 'tel.rapporto': 'Pag_Banco_tel_rapporto',
     'red': 'Pag_Banco_red', 'mnt': 'Pag_Banco_mnt', 'cam': 'Pag_Banco_cam',
-    'mnt.rms_caratteristico_arcsec': 'Pag_Banco_mnt_rms_caratteristico_arcsec' };
-  const NOTA_CAMPO_BANCO = { 'mnt.rms_caratteristico_arcsec': 'Pag_Banco_RmsNota' };
+    'mnt.rms_caratteristico_arcsec': 'Pag_Banco_mnt_rms_caratteristico_arcsec',
+    'luna.riferimento_deg': 'Pag_Banco_luna_riferimento_deg' };
+  const NOTA_CAMPO_BANCO = { 'mnt.rms_caratteristico_arcsec': 'Pag_Banco_RmsNota',
+    'luna.riferimento_deg': 'Pag_Banco_LunaNota' };
   const PAROLA_DIVERGENZA_BANCO = {
     'dichiarato_diverso_dal_catalogo': 'Pag_Banco_Div_dichiarato_diverso_dal_catalogo',
     'focale_diversa_dal_catalogo': 'Pag_Banco_Div_focale_diversa_dal_catalogo',
@@ -346,7 +348,8 @@
   const PAROLA_FONTE_BANCO = { nina: 'Pag_Banco_Fonte_nina', catalogo: 'Pag_Banco_Fonte_catalogo',
     dichiarato: 'Pag_Banco_Fonte_dichiarato', riferimento: 'Pag_Banco_Fonte_riferimento' };
   /*  La camera c'e' dal 16 settembre 2026: la geometria la dice il driver, la voce di catalogo porta la fisica. */
-  const PEZZI_DEL_BLOCCO = ['ottica', 'riduttore', 'camera', 'montatura'];
+  /*  La Luna c'e' dal 16 settembre 2026: la distanza di riferimento da cui Strategy ricava la soglia di ogni filtro. */
+  const PEZZI_DEL_BLOCCO = ['ottica', 'riduttore', 'camera', 'montatura', 'luna'];
 
   /*  QUELLO CHE IL BANCO NON DICEVA (regia, 16 settembre 2026): `parziale` del prodotto, in giallo, una parola per tipo
    *  coi numeri che il motore manda. Un tipo senza parola si scrive col suo nome, e la guardia del motore lo dice in
@@ -381,6 +384,20 @@
       return '<li>' + MF(w[0], ...valori) + '</li>';
     });
     return '<div class="box" style="color:#e0a030"><b>' + esc(T('Pag_ParzialeTitolo')) + '</b>' +
+      '<ul style="margin:.4em 0 0 1.1em;padding:0">' + righe.join('') + '</ul></div>';
+  }
+
+  /*  LA LUNA TIENE FUORI (regia, 16 settembre 2026): notte per notte, i canali sotto la loro soglia di Luna, coi numeri che
+   *  Strategy manda — la fase, la distanza, la soglia. Giallo: il canale esce dalla notte, non dal progetto. Il filtro si
+   *  scrive col nome della ruota, come nella sequenza; una notte in cui la Luna tiene fuori tutto non ha una riga sopra,
+   *  e resta qui. */
+  function lunaFuori(l) {
+    const fuori = (l && l.fuori) || [];
+    if (!fuori.length) return '';
+    const righe = fuori.map(f => '<li>' + MF(f.congiunto ? 'Pag_LunaFuoriCongiunto' : 'Pag_LunaFuori',
+      cifra(f.notte), esc(f.id), esc(vetroNellaRuota(f.filtro)), cifra(f.fasePercento),
+      cifra(f.distanza, 0), cifra(f.soglia, 0)) + '</li>');
+    return '<div class="box" style="color:#e0a030"><b>' + esc(T('Pag_LunaFuoriTitolo')) + '</b>' +
       '<ul style="margin:.4em 0 0 1.1em;padding:0">' + righe.join('') + '</ul></div>';
   }
 
@@ -641,7 +658,12 @@
           ne servono per il minimo. I numeri li fa Strategy; senza, la riga non c'e'. */
       ((v => (v && v.coperturaPercento != null)
         ? '<tr><th>' + T('Pag_RigaVerdetto') + '</th><td>' +
-          (v.perIlMinimo == null
+          /*  la Luna tiene fuori un canale da tutte le notti chieste: nessuna copertura da dire, il perche' */
+          (v.lunaFuori
+            ? (v.perIlMinimo == null
+              ? MF('Pag_Verdetto_LunaFuoriOltre', cifra(v.notti), cifra(v.massimo))
+              : MF('Pag_Verdetto_LunaFuori', cifra(v.notti), cifra(v.perIlMinimo)))
+          : v.perIlMinimo == null
             ? MF('Pag_Verdetto_MinimoOltre', cifra(v.notti), cifra(v.coperturaPercento), cifra(v.massimo))
             : v.perIlMinimo > v.notti
               ? MF('Pag_Verdetto_Minimo', cifra(v.notti), cifra(v.coperturaPercento), cifra(v.perIlMinimo))
@@ -673,6 +695,7 @@
         T('Pag_ColBlocchi') + '</th><th>' + T('Pag_ColPose') + '</th><th>' +
         T('Pag_ColDurata') + '</th><th>' + T('Pag_ColFiltri') + '</th><th>' + T('Pag_ColGuadagno') + '</th><th></th></tr>' +
       righe + '</table></div>' +
+      lunaFuori(p.luna) +
       (r.consegnabile ? '' :
         '<div class="box err"><b>' + T('Pag_NonSiPuoMandare') + '</b>' +
         '<div style="margin-top:6px;opacity:.85">' +
@@ -787,6 +810,11 @@
       id = s.id;
     }
     if (!id) return b.filtro || canali.join('+') || '—';
+    return vetroNellaRuota(id);
+  }
+  /*  Il nome che la ruota di N.I.N.A. da' a un filtro del catalogo: e' quello che si legge nella sequenza. */
+  function vetroNellaRuota(id) {
+    if (!id) return '—';
     if (id === '__none') return T('Pag_NessunFiltroBayer');
     const v = righeRuota.find(x => x.id === id);
     return v ? v.nina : T('Pag_FiltroNonDichiarato').replace('{0}', id);
