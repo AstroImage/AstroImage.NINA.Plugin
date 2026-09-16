@@ -211,7 +211,7 @@
     <value>, </value>
   </data>
   <data name="Motore_SetupIncompleto" xml:space="preserve">
-    <value>Il setup e' incompleto: al {0} «{1}» mancano dati senza i quali non c'e' niente da prescrivere — {2}. Riempili e riprova.</value>
+    <value>Il setup è incompleto: per {0} «{1}» mancano dati senza i quali non c'è niente da prescrivere — {2}. Riempili e riprova.</value>
   </data>
   <data name="Motore_SetupSconosciuto" xml:space="preserve">
     <value>Il setup non e' riconosciuto: {0} «{1}» non risulta fra le voci che il motore conosce. Scegline una dall'elenco, oppure descrivila.</value>
@@ -1004,5 +1004,104 @@
   </data>
   <data name="Pag_Banco_Cam_matrice" xml:space="preserve">
     <value>matrice</value>
+  </data>
+  <data name="Motore_SetupIncompletoSenzaNome" xml:space="preserve">
+    <value>Nel banco manca {0}: serve {1}. Scrivila nel blocco del banco; per la camera basta anche collegarla in N.I.N.A.</value>
+  </data>
+  <data name="Motore_Pezzo_ottica" xml:space="preserve">
+    <value>l'ottica</value>
+  </data>
+  <data name="Motore_Pezzo_camera" xml:space="preserve">
+    <value>la camera</value>
+  </data>
+  <data name="Motore_Pezzo_montatura" xml:space="preserve">
+    <value>la montatura</value>
+  </data>
+  <data name="Motore_Pezzo_riduttore" xml:space="preserve">
+    <value>il riduttore</value>
+  </data>
+  <data name="Motore_Campo_voce" xml:space="preserve">
+    <value>la voce del catalogo</value>
+  </data>
+  <data name="Motore_Campo_matrice" xml:space="preserve">
+    <value>la matrice, a colori o monocromatica</value>
+  </data>
+  <data name="Motore_Campo_fattore" xml:space="preserve">
+    <value>il fattore del riduttore, oppure la focale letta da N.I.N.A.</value>
+  </data>
+  <data name="Motore_Campo_pixel_um" xml:space="preserve">
+    <value>il passo del pixel</value>
+  </data>
+  <data name="Motore_Campo_width_px" xml:space="preserve">
+    <value>la larghezza del sensore</value>
+  </data>
+  <data name="Motore_Campo_height_px" xml:space="preserve">
+    <value>l'altezza del sensore</value>
+  </data>
+  <data name="Motore_Campo_aperture_mm" xml:space="preserve">
+    <value>l'apertura</value>
+  </data>
+  <data name="Motore_Campo_obstruction_linear" xml:space="preserve">
+    <value>l'ostruzione</value>
+  </data>
+  <data name="Motore_Campo_throughput" xml:space="preserve">
+    <value>la trasmissione</value>
+  </data>
+  <data name="Motore_Campo_focal_mm" xml:space="preserve">
+    <value>la focale</value>
+  </data>
+  <data name="Pag_ParzialeTitolo" xml:space="preserve">
+    <value>Dati assunti, non dichiarati</value>
+  </data>
+  <data name="Pag_Parziale_rumore_di_lettura_non_noto" xml:space="preserve">
+    <value>Rumore di lettura non noto: assunti {0} e⁻.</value>
+  </data>
+  <data name="Pag_Parziale_posa_massima_non_nota" xml:space="preserve">
+    <value>La montatura non dichiara la posa massima: vale il tetto di classe, {0} s.</value>
+  </data>
+  <data name="Pag_Parziale_rumore_sotto_il_pavimento" xml:space="preserve">
+    <value>Rumore di lettura dichiarato ({0} e⁻, {1}) sotto quello che il sensore può fare ({2} e⁻): il valore resta, ed è sospetto.</value>
+  </data>
+  <data name="Pag_Parziale_rms_caratteristico_non_noto" xml:space="preserve">
+    <value>RMS caratteristico della montatura non noto: vale il riferimento del motore, {0}″.</value>
+  </data>
+  <data name="Pag_Parziale_buio_non_noto" xml:space="preserve">
+    <value>Buio del sensore non noto: assunti {0} e⁻/pixel/s a {1} °C.</value>
+  </data>
+  <data name="Pag_Parziale_buio_senza_fonte" xml:space="preserve">
+    <value>Il buio di «{0}», {1} e⁻/pixel/s, è un valore di catalogo senza fonte né temperatura.</value>
+  </data>
+  <data name="Pag_Parziale_camera_non_riconosciuta" xml:space="preserve">
+    <value>Camera non riconosciuta («{0}»): la fisica viene dal sensore e da valori tipici, pozzo {1} e⁻. Scrivi la sua voce del catalogo nel banco, se c'è.</value>
+  </data>
+  <data name="Pag_Parziale_coppia_pozzo_rumore_incerta" xml:space="preserve">
+    <value>«{0}» ha un modo di lettura solo: rumore {1} e⁻, quello dei guadagni alti, col pozzo di tutto il sensore, {2} e⁻. Nessun modo reale ha questa coppia.</value>
+  </data>
+  <data name="Pag_Parziale_pozzo_non_noto" xml:space="preserve">
+    <value>Pozzo della camera non noto: segnaposto {0} e⁻.</value>
+  </data>
+  <data name="Pag_Parziale_filtro_davanti_non_dichiarato" xml:space="preserve">
+    <value>Il filtro di protezione davanti al sensore di «{0}» non è dichiarato: una ripresa senza filtri può non avere il taglio IR.</value>
+  </data>
+  <data name="Pag_Parziale_bin_non_dichiarato" xml:space="preserve">
+    <value>Binning non dichiarato: 1×1.</value>
+  </data>
+  <data name="Pag_Parziale_orizzonte_non_dichiarato" xml:space="preserve">
+    <value>Orizzonte non dichiarato nel profilo: vale il limite operativo, {0}°.</value>
+  </data>
+  <data name="Pag_Parziale_seeing_non_dichiarato" xml:space="preserve">
+    <value>Seeing non dichiarato: vale il riferimento, {0}″.</value>
+  </data>
+  <data name="Pag_Parziale_guida_non_dichiarata" xml:space="preserve">
+    <value>Guida non dichiarata: vale il riferimento, {0}″.</value>
+  </data>
+  <data name="Pag_Parziale_notti_serene_non_dichiarate" xml:space="preserve">
+    <value>Notti serene non dichiarate: vale la frazione tipica, {0}.</value>
+  </data>
+  <data name="Pag_Parziale_ruota_non_dichiarata" xml:space="preserve">
+    <value>Ruota non dichiarata: la prescrizione usa i filtri di serie del motore — {0}.</value>
+  </data>
+  <data name="Pag_Parziale_convenzioni_di_posa" xml:space="preserve">
+    <value>Convenzioni della posa non dichiarate: scarico {0} s, assestamento {1} s, dithering ogni {2} pose.</value>
   </data>
 </root>

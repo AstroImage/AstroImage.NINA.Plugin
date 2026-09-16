@@ -211,7 +211,7 @@
     <value>, </value>
   </data>
   <data name="Motore_SetupIncompleto" xml:space="preserve">
-    <value>The setup is incomplete: the {0} “{1}” is missing data without which nothing can be prescribed — {2}. Fill them in and try again.</value>
+    <value>The setup is incomplete: {0} “{1}” is missing data without which nothing can be prescribed — {2}. Fill them in and try again.</value>
   </data>
   <data name="Motore_SetupSconosciuto" xml:space="preserve">
     <value>The setup is not recognised: {0} “{1}” is not among the entries the engine knows. Pick one from the list, or describe it.</value>
@@ -1004,5 +1004,104 @@
   </data>
   <data name="Pag_Banco_Cam_matrice" xml:space="preserve">
     <value>colour matrix</value>
+  </data>
+  <data name="Motore_SetupIncompletoSenzaNome" xml:space="preserve">
+    <value>The bench is missing {0}: it needs {1}. Enter it in the bench block; for the camera, connecting it in N.I.N.A. is also enough.</value>
+  </data>
+  <data name="Motore_Pezzo_ottica" xml:space="preserve">
+    <value>the optics</value>
+  </data>
+  <data name="Motore_Pezzo_camera" xml:space="preserve">
+    <value>the camera</value>
+  </data>
+  <data name="Motore_Pezzo_montatura" xml:space="preserve">
+    <value>the mount</value>
+  </data>
+  <data name="Motore_Pezzo_riduttore" xml:space="preserve">
+    <value>the reducer</value>
+  </data>
+  <data name="Motore_Campo_voce" xml:space="preserve">
+    <value>the catalogue entry</value>
+  </data>
+  <data name="Motore_Campo_matrice" xml:space="preserve">
+    <value>the colour matrix, colour or mono</value>
+  </data>
+  <data name="Motore_Campo_fattore" xml:space="preserve">
+    <value>the reducer factor, or the focal length read from N.I.N.A.</value>
+  </data>
+  <data name="Motore_Campo_pixel_um" xml:space="preserve">
+    <value>the pixel size</value>
+  </data>
+  <data name="Motore_Campo_width_px" xml:space="preserve">
+    <value>the sensor width</value>
+  </data>
+  <data name="Motore_Campo_height_px" xml:space="preserve">
+    <value>the sensor height</value>
+  </data>
+  <data name="Motore_Campo_aperture_mm" xml:space="preserve">
+    <value>the aperture</value>
+  </data>
+  <data name="Motore_Campo_obstruction_linear" xml:space="preserve">
+    <value>the obstruction</value>
+  </data>
+  <data name="Motore_Campo_throughput" xml:space="preserve">
+    <value>the transmission</value>
+  </data>
+  <data name="Motore_Campo_focal_mm" xml:space="preserve">
+    <value>the focal length</value>
+  </data>
+  <data name="Pag_ParzialeTitolo" xml:space="preserve">
+    <value>Assumed, not declared</value>
+  </data>
+  <data name="Pag_Parziale_rumore_di_lettura_non_noto" xml:space="preserve">
+    <value>Read noise unknown: {0} e⁻ assumed.</value>
+  </data>
+  <data name="Pag_Parziale_posa_massima_non_nota" xml:space="preserve">
+    <value>The mount does not declare its longest exposure: the class limit applies, {0} s.</value>
+  </data>
+  <data name="Pag_Parziale_rumore_sotto_il_pavimento" xml:space="preserve">
+    <value>Declared read noise ({0} e⁻, {1}) below what the sensor can do ({2} e⁻): the value stays, and it is suspect.</value>
+  </data>
+  <data name="Pag_Parziale_rms_caratteristico_non_noto" xml:space="preserve">
+    <value>Characteristic mount RMS unknown: the engine reference applies, {0}″.</value>
+  </data>
+  <data name="Pag_Parziale_buio_non_noto" xml:space="preserve">
+    <value>Sensor dark current unknown: {0} e⁻/pixel/s assumed at {1} °C.</value>
+  </data>
+  <data name="Pag_Parziale_buio_senza_fonte" xml:space="preserve">
+    <value>The dark current of “{0}”, {1} e⁻/pixel/s, is a catalogue value with no source and no temperature.</value>
+  </data>
+  <data name="Pag_Parziale_camera_non_riconosciuta" xml:space="preserve">
+    <value>Camera not recognised (“{0}”): the physics comes from the sensor and typical values, full well {1} e⁻. Enter its catalogue entry in the bench, if there is one.</value>
+  </data>
+  <data name="Pag_Parziale_coppia_pozzo_rumore_incerta" xml:space="preserve">
+    <value>“{0}” has a single read mode: read noise {1} e⁻, the high-gain one, with the full well of the whole sensor, {2} e⁻. No real mode has this pair.</value>
+  </data>
+  <data name="Pag_Parziale_pozzo_non_noto" xml:space="preserve">
+    <value>Camera full well unknown: placeholder {0} e⁻.</value>
+  </data>
+  <data name="Pag_Parziale_filtro_davanti_non_dichiarato" xml:space="preserve">
+    <value>The protective window in front of the sensor of “{0}” is not declared: an unfiltered shot may lack the IR cut.</value>
+  </data>
+  <data name="Pag_Parziale_bin_non_dichiarato" xml:space="preserve">
+    <value>Binning not declared: 1×1.</value>
+  </data>
+  <data name="Pag_Parziale_orizzonte_non_dichiarato" xml:space="preserve">
+    <value>Horizon not declared in the profile: the operating limit applies, {0}°.</value>
+  </data>
+  <data name="Pag_Parziale_seeing_non_dichiarato" xml:space="preserve">
+    <value>Seeing not declared: the reference applies, {0}″.</value>
+  </data>
+  <data name="Pag_Parziale_guida_non_dichiarata" xml:space="preserve">
+    <value>Guiding not declared: the reference applies, {0}″.</value>
+  </data>
+  <data name="Pag_Parziale_notti_serene_non_dichiarate" xml:space="preserve">
+    <value>Clear-night fraction not declared: the typical fraction applies, {0}.</value>
+  </data>
+  <data name="Pag_Parziale_ruota_non_dichiarata" xml:space="preserve">
+    <value>Filter wheel not declared: the prescription uses the engine’s stock filters — {0}.</value>
+  </data>
+  <data name="Pag_Parziale_convenzioni_di_posa" xml:space="preserve">
+    <value>Exposure conventions not declared: download {0} s, settle {1} s, dither every {2} frames.</value>
   </data>
 </root>
