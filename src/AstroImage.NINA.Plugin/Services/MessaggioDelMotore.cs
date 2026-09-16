@@ -79,6 +79,11 @@ namespace AstroImage.NINA.Plugin.Services {
                  *  percorso, e un valore che non e' un numero del suo campo. */
                 ["banco_chiave_sconosciuta"] = ("Motore_BancoChiaveSconosciuta", new[] { "chiave" }),
                 ["banco_valore_non_valido"]  = ("Motore_BancoValoreNonValido",   new[] { "pezzo", "chiave", "ricevuto" }),
+                /*  La modalita' di ripresa e la politica di sessione (16 settembre 2026): il pannello le manda dai suoi
+                 *  bottoni, quindi un rifiuto vuol dire due versioni diverse. La frase usa solo `valide`: `ricevuto` il
+                 *  servizio lo manda nullo quando il valore non e' un testo, e un nullo qui diventa un vuoto. */
+                ["modalita_sconosciuta"]  = ("Motore_ModalitaSconosciuta", new[] { "valide" }),
+                ["politica_sconosciuta"]  = ("Motore_PoliticaSconosciuta", new[] { "valide" }),
                 //  DIAGNOSTICA — se un utente la vede, il problema non e' la lingua
                 ["via_sconosciuta"]       = ("Motore_ViaSconosciuta",      new string[0]),
                 ["richiesta_incompleta"]  = ("Motore_RichiestaIncompleta", new[] { "mancano" }),
