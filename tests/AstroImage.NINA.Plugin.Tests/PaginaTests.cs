@@ -692,6 +692,42 @@ namespace AstroImage.NINA.Plugin.Tests {
                 Assert.IsFalse(Tutte(lingua)["Pag_LunaPenaMinima"].Contains("*{6}"), lingua + ": la soglia e' piu' in evidenza del moltiplicatore");
         }
 
+        /*  IL CUORE DEL PONTE STA SOTTO LA DOMANDA, COL ROSSO DI AIS (decisione del 17 settembre 2026). Subito sotto le icone
+         *  della domanda, la tecnica di ripresa e le notti da mandare a N.I.N.A., con quello che le riguarda — il perche' se
+         *  non si possono mandare, l'esito della consegna, la penalizzazione lunare; poi il resto della risposta; in fondo
+         *  sito, banco e filtri, che una volta dichiarati non devono stare fra l'occhio e la scelta. Il tasto della domanda
+         *  e' il rosso di AIS (`.hero-go`, `--go`), e la data si sceglie dal calendario come in AIS. Guardia strutturale. */
+        [TestMethod]
+        public void IL_CUORE_DEL_PONTE_STA_SOTTO_LA_DOMANDA() {
+            var html = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.html"), "<!--.*?-->", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            var ordine = new[] { "id=\"notti\"", "id=\"modi\"", "id=\"politiche\"", "id=\"uscita\"", "id=\"dettagli\"",
+                                 "id=\"sito\"", "id=\"banco\"", "id=\"filtri\"" };
+            var pos = ordine.Select(k => html.IndexOf(k, StringComparison.Ordinal)).ToArray();
+            for (var i = 0; i < pos.Length; i++) Assert.IsTrue(pos[i] >= 0, "nella pagina manca " + ordine[i]);
+            for (var i = 1; i < pos.Length; i++)
+                Assert.IsTrue(pos[i] > pos[i - 1], ordine[i] + " sta sopra " + ordine[i - 1]);
+            StringAssert.Contains(html, "id=\"data\" type=\"date\"", "la data non si sceglie dal calendario");
+
+            var js = PaginaSenzaCommenti();
+            var cuore = Tratto(js, "disegnaMenu(p.prescrizione) +", "lunaPenalizzazione(p.luna);");
+            foreach (var pezzo in new[] { "'Pag_ColPose'", "righe", "'Pag_NonSiPuoMandare'", "id=\"consegna\"" })
+                StringAssert.Contains(cuore, pezzo, "sotto la domanda manca " + pezzo);
+            Assert.IsFalse(cuore.Contains("Pag_RigaVerdetto"), "il resto della risposta sta fra la domanda e le notti");
+            var resto = Tratto(js, "$('dettagli').innerHTML =", "parzialeDelProdotto(p.parziale);");
+            foreach (var pezzo in new[] { "'Pag_ColOggetto'", "'Pag_RigaVerdetto'", "'Pag_RigaCalcolataSu'", "'Pag_RigaContratto'" })
+                StringAssert.Contains(resto, pezzo, "nel resto della risposta manca " + pezzo);
+            Assert.IsTrue(js.Split(new[] { "$('dettagli').innerHTML = ''" }, StringSplitOptions.None).Length - 1 >= 3,
+                "il resto della risposta non si toglie insieme al cuore: nuova domanda, errore, ritiro");
+
+            var css = Risorsa("prova.css");
+            foreach (var v in new[] { "--go:#e5261a", "#vai {", "background:var(--go)", "0 0 0 3px rgba(var(--go-rgb),.30)",
+                                      "0 6px 22px rgba(var(--go-rgb),.34)", "input[type=date]::-webkit-calendar-picker-indicator",
+                                      "stroke:var(--acc); stroke-width:1.8" })
+                StringAssert.Contains(css, v, "il tasto o il calendario non sono quelli di AIS: «" + v + "»");
+            StringAssert.Contains(html, "M8 3v4M16 3v4M3.5 10h17", "l'icona del calendario non e' quella di AIS");
+        }
+
         /*  LA PRESCRIZIONE NON SI VIETA (decisione del 16 settembre 2026): la soglia di Luna segnala, non toglie. Nessun
          *  canale «fuori», nessun verdetto che lo dica, nella pagina o nel dizionario. Guardia strutturale: se il divieto
          *  tornasse, cade. */

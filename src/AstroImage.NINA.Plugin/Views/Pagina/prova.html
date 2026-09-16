@@ -23,7 +23,9 @@
   <!-- La data NON ha un valore qui dentro: lo mette prova.js, ed e' oggi. Una data
        cablata nel markup e' una data che mente il giorno dopo, e la Luna si calcola
        su quella. -->
-  <input id="data" spellcheck="false" style="width:110px">
+  <!-- Il calendario come in AIS: l'icona e' disegnata qui, perche' nella pagina non entra nessun indirizzo, nemmeno
+       quello di un'icona incorporata; il tasto nativo le sta sotto, trasparente, e il clic arriva a lui. -->
+  <span class="data-cal"><input id="data" type="date"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
   <button id="vai" data-loc="Pag_ChiediPrescrizione"></button>
   <span id="stato" class="stato" data-loc="Pag_InAttesa"></span>
 </div>
@@ -54,10 +56,14 @@
 
 <div id="modi"></div>
 <div id="politiche"></div>
+<!--  IL CUORE DEL PONTE STA QUI (17 settembre 2026): subito sotto la domanda, la tecnica di ripresa e le notti da
+      mandare a N.I.N.A.; poi il resto della risposta; in fondo sito, banco e filtri, che una volta dichiarati non
+      devono stare fra l'occhio e la scelta. -->
+<div id="uscita"></div>
+<div id="dettagli"></div>
 <div id="sito"></div>
 <div id="banco"></div>
 <div id="filtri"></div>
-<div id="uscita"></div>
 
 <!-- Le parole entrano qui: le mette l'ospite, nella lingua che vale adesso. -->
 <!--voci-->

@@ -76,6 +76,7 @@
     stradaScelta = null;
     bancoUsato = null;
     parzialeUsato = null;
+    $('dettagli').innerHTML = '';
     $('uscita').innerHTML = '<div class="box" style="border-color:#e0a030"><span style="color:#e0a030">' +
       esc(T(FRASE_DEL_RITIRO[perche] || 'Pag_ProfiloCambiato')) + '</span></div>';
     aggiornaProvenienzeDelSito();
@@ -547,6 +548,7 @@
     $('vai').disabled = true;
     stato(T('Pag_StoChiedendo'));
     $('uscita').innerHTML = '';
+    $('dettagli').innerHTML = '';
     parzialeUsato = null;
     aggiornaProvenienzeDelSito();
 
@@ -596,6 +598,7 @@
 
     if (!r.ok) {
       stato(T('Pag_NonRiuscita'), 'no');
+      $('dettagli').innerHTML = '';
       $('uscita').innerHTML = '<div class="box err"><b>' + esc(r.codice || T('Pag_Errore')) +
         '</b><div style="margin-top:6px;opacity:.8">' + esc(r.messaggio || '') + '</div></div>';
       return;
@@ -641,7 +644,10 @@
                '<td>' + tasto + '</td></tr>';
     }
 
-    $('uscita').innerHTML =
+    /*  IL CUORE IN ALTO (17 settembre 2026): sotto la domanda, subito, la tecnica di ripresa e le notti da mandare a
+     *  N.I.N.A. (`uscita`); il resto della risposta — oggetto, notte, verdetto, filtri, contratto, dati assunti — sta
+     *  sotto, in `dettagli`, e sopra sito, banco e filtri. */
+    $('dettagli').innerHTML =
       '<div class="box"><table>' +
       '<tr><th>' + T('Pag_ColOggetto') + '</th><td>' + esc((p.bersaglio.nomi || [p.bersaglio.id])[0]) +
         ' <span style="opacity:.55">(' + esc(p.bersaglio.via) + ')</span></td></tr>' +
@@ -685,19 +691,20 @@
            d.misura ? cifra(d.misura.ms) + ' ms' : '—',
            (r.corpo.length / 1024).toFixed(0)) + '</td></tr>' +
       '</table></div>' +
-      parzialeDelProdotto(p.parziale) +
+      parzialeDelProdotto(p.parziale);
+    $('uscita').innerHTML =
       disegnaMenu(p.prescrizione) +
       '<div class="box"><table>' +
       '<tr><th>' + T('Pag_ColNotte') + '</th><th>' + T('Pag_ColData') + '</th><th>' +
         T('Pag_ColBlocchi') + '</th><th>' + T('Pag_ColPose') + '</th><th>' +
         T('Pag_ColDurata') + '</th><th>' + T('Pag_ColFiltri') + '</th><th>' + T('Pag_ColGuadagno') + '</th><th></th></tr>' +
       righe + '</table></div>' +
-      lunaPenalizzazione(p.luna) +
       (r.consegnabile ? '' :
         '<div class="box err"><b>' + T('Pag_NonSiPuoMandare') + '</b>' +
         '<div style="margin-top:6px;opacity:.85">' +
         esc(r.perche || T('Pag_MotivoNonDichiarato')) + '</div></div>') +
-      '<div id="consegna"></div>';
+      '<div id="consegna"></div>' +
+      lunaPenalizzazione(p.luna);
     /*  Il banco che questa prescrizione ha usato, campo per campo con la sua provenienza e le divergenze. */
     bancoUsato = p.banco || null;
     disegnaBanco();
