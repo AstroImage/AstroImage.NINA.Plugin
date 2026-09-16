@@ -957,4 +957,10 @@
   <data name="Motore_BancoValoreNonValido" xml:space="preserve">
     <value>Il valore di «{1}» ({0}) non è valido: «{2}». Scrivi un numero del suo campo.</value>
   </data>
+  <data name="Motore_ModalitaSconosciuta" xml:space="preserve">
+    <value>Il motore non conosce la modalità di ripresa che il plugin ha chiesto, e non ne sceglie un'altra al posto tuo: darebbe pose diverse. Quelle che conosce sono: {0}. Succede quando plugin e motore sono di due versioni diverse: aggiorna quello più vecchio dei due.</value>
+  </data>
+  <data name="Motore_PoliticaSconosciuta" xml:space="preserve">
+    <value>Il motore non conosce il modo di distribuire le notti che il plugin ha chiesto, e non ne sceglie un altro al posto tuo: poserebbe le stesse ore su notti diverse. Quelli che conosce sono: {0}. Succede quando plugin e motore sono di due versioni diverse: aggiorna quello più vecchio dei due.</value>
+  </data>
 </root>

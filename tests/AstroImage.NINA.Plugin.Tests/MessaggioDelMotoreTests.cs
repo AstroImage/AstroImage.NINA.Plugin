@@ -65,6 +65,8 @@ namespace AstroImage.NINA.Plugin.Tests {
             "bersaglio_sconosciuto", "setup_sconosciuto", "setup_incompleto", "nessuna_prescrizione",
             /* il contratto del banco, dal 16 settembre 2026 */
             "banco_chiave_sconosciuta", "banco_valore_non_valido",
+            /* la modalita' e la politica di sessione sul filo: fino al 16 settembre 2026 uscivano in italiano */
+            "modalita_sconosciuta", "politica_sconosciuta",
             "via_sconosciuta", "richiesta_incompleta", "richiesta_troppo_grande",
             "json_illeggibile", "motore_in_errore",
         };
@@ -195,6 +197,29 @@ namespace AstroImage.NINA.Plugin.Tests {
                 var d = Dati(@"{""ricevuto"":20.8}");
                 Assert.AreEqual("20.8", d["ricevuto"], "il punto decimale e' diventato una virgola");
             } finally { System.Threading.Thread.CurrentThread.CurrentCulture = prima; }
+        }
+
+        /*  MODALITA' E POLITICA RIFIUTATE, coi dati nella forma in cui il servizio li manda: `ricevuto` e' nullo quando
+         *  il valore chiesto non era un testo. La frase si compone lo stesso, non ha un «» dentro, e porta le valide. */
+        [TestMethod]
+        public void ModalitaEPoliticaSconosciute_DiconoLeValide_ENonHannoBuchi() {
+            foreach (var lingua in new[] { "it", "en" }) {
+                Loc.Instance.ForzaLingua(lingua);
+                var m = MessaggioDelMotore.Rendi("modalita_sconosciuta",
+                    Dati(@"{""ricevuto"":null,""valide"":[""resa"",""equilibrio"",""dinamica""],""di_serie"":""equilibrio""}"),
+                    "ripiego");
+                Assert.AreNotEqual("ripiego", m, lingua + ": la modalita' e' uscita in italiano");
+                StringAssert.Contains(m!, "resa, equilibrio, dinamica", lingua + ": mancano le modalita' valide");
+                var p = MessaggioDelMotore.Rendi("politica_sconosciuta",
+                    Dati(@"{""ricevuto"":""Sessione"",""valide"":[""sessione"",""progetto""],""di_serie"":""sessione""}"),
+                    "ripiego");
+                Assert.AreNotEqual("ripiego", p, lingua + ": la politica e' uscita in italiano");
+                StringAssert.Contains(p!, "sessione, progetto", lingua + ": mancano le politiche valide");
+                foreach (var s in new[] { m!, p! }) {
+                    Assert.IsFalse(s.Contains("«»") || s.Contains("“”") || s.Contains("()"), lingua + ": un buco nella frase: " + s);
+                    Assert.IsFalse(Regex.IsMatch(s, @"\{\d\}"), lingua + ": un segnaposto in chiaro: " + s);
+                }
+            }
         }
 
         [TestMethod]

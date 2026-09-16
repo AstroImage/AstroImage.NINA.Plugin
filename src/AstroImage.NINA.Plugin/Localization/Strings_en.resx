@@ -957,4 +957,10 @@
   <data name="Motore_BancoValoreNonValido" xml:space="preserve">
     <value>The value of “{1}” ({0}) is not valid: “{2}”. Enter a number that fits the field.</value>
   </data>
+  <data name="Motore_ModalitaSconosciuta" xml:space="preserve">
+    <value>The engine does not know the imaging mode the plugin asked for, and it will not pick another one for you: that would give different exposures. The modes it knows are: {0}. This happens when plugin and engine are different versions: update whichever is older.</value>
+  </data>
+  <data name="Motore_PoliticaSconosciuta" xml:space="preserve">
+    <value>The engine does not know the way of spreading the nights that the plugin asked for, and it will not pick another one for you: that would put the same hours on different nights. The ones it knows are: {0}. This happens when plugin and engine are different versions: update whichever is older.</value>
+  </data>
 </root>
