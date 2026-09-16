@@ -1168,10 +1168,10 @@
     <value>Penalizzazione lunare, notte per notte: di quanto si moltiplicano le ore di ogni canale, e con quale Luna. Sotto la soglia del filtro il numero è un minimo: vicino alla Luna il danno è un gradiente sul campo e luce diffusa nell'ottica, che impilando non si tolgono. Nessun canale si toglie: decidi tu.</value>
   </data>
   <data name="Pag_LunaPena" xml:space="preserve">
-    <value>Notte {0}: {1} ({2}) ×{3} — Luna al {4} % a {5}°.</value>
+    <value>Notte {0}: {1} ({2}) *×{3}* — Luna al {4} % a {5}°.</value>
   </data>
   <data name="Pag_LunaPenaMinima" xml:space="preserve">
-    <value>Notte {0}: {1} ({2}) almeno ×{3} — Luna al {4} % a {5}°, sotto la soglia di {6}°: le ore non ricomprano il contrasto.</value>
+    <value>Notte {0}: {1} ({2}) *almeno ×{3}* — Luna al {4} % a {5}°, sotto la soglia di {6}°: le ore non ricomprano il contrasto.</value>
   </data>
   <data name="Pag_LunaPenaCongiunto" xml:space="preserve">
     <value>Le righe del filtro stanno nello stesso frame e non si separano: vale la soglia più severa, e per Hα+OIII è quella dell'OIII.</value>

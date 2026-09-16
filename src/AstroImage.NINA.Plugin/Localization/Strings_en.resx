@@ -1168,10 +1168,10 @@
     <value>Moon penalty, night by night: how much each channel's hours are multiplied, and under which Moon. Below the filter's threshold the number is a minimum: close to the Moon the damage is a gradient across the field and scattered light in the optics, which stacking does not remove. No channel is removed: the choice is yours.</value>
   </data>
   <data name="Pag_LunaPena" xml:space="preserve">
-    <value>Night {0}: {1} ({2}) ×{3} — Moon {4} % illuminated at {5}°.</value>
+    <value>Night {0}: {1} ({2}) *×{3}* — Moon {4} % illuminated at {5}°.</value>
   </data>
   <data name="Pag_LunaPenaMinima" xml:space="preserve">
-    <value>Night {0}: {1} ({2}) at least ×{3} — Moon {4} % illuminated at {5}°, below the {6}° threshold: more hours do not buy back the contrast.</value>
+    <value>Night {0}: {1} ({2}) *at least ×{3}* — Moon {4} % illuminated at {5}°, below the {6}° threshold: more hours do not buy back the contrast.</value>
   </data>
   <data name="Pag_LunaPenaCongiunto" xml:space="preserve">
     <value>The filter's lines share one frame and cannot be separated: the strictest threshold applies, and for Hα+OIII it is the OIII one.</value>
