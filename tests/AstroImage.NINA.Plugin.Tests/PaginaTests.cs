@@ -682,6 +682,14 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(Tutte("it")["Pag_LunaPenaMinima"], "almeno");
             StringAssert.Contains(Tutte("it")["Pag_LunaPenaMinima"], "le ore non ricomprano il contrasto");
             StringAssert.Contains(Tutte("it")["Pag_LunaPenaCongiunto"], "stesso frame");
+            /*  IL MOLTIPLICATORE IN EVIDENZA (regia, 17 settembre 2026): la soglia la manda il motore
+             *  filtro per filtro; per i filtri larghi il numero che distingue e' il moltiplicatore, e si legge per primo. */
+            StringAssert.Contains(Tutte("it")["Pag_LunaPena"], "*×{3}*", "it: il moltiplicatore non e' in evidenza");
+            StringAssert.Contains(Tutte("it")["Pag_LunaPenaMinima"], "*almeno ×{3}*", "it: il minimo non e' in evidenza");
+            StringAssert.Contains(Tutte("en")["Pag_LunaPena"], "*×{3}*", "en: il moltiplicatore non e' in evidenza");
+            StringAssert.Contains(Tutte("en")["Pag_LunaPenaMinima"], "*at least ×{3}*", "en: il minimo non e' in evidenza");
+            foreach (var lingua in new[] { "it", "en" })
+                Assert.IsFalse(Tutte(lingua)["Pag_LunaPenaMinima"].Contains("*{6}"), lingua + ": la soglia e' piu' in evidenza del moltiplicatore");
         }
 
         /*  LA PRESCRIZIONE NON SI VIETA (decisione del 16 settembre 2026): la soglia di Luna segnala, non toglie. Nessun
