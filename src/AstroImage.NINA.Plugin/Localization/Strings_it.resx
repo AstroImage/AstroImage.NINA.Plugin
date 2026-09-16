@@ -181,7 +181,13 @@
     <value>un blocco</value>
   </data>
 <data name="Motore_BersaglioSconosciuto" xml:space="preserve">
-    <value>Nessun oggetto si chiama *{0}*. Serve l'identificativo o il nome esatto: NGC 6888, M 31, IC 434.</value>
+    <value>Nessun oggetto si chiama *{0}*. Scegli un nome dall'elenco che si apre mentre scrivi, o scrivi quello esatto: NGC 6888, M 31, IC 434.</value>
+  </data>
+  <data name="Motore_BersaglioNonEsteso" xml:space="preserve">
+    <value>*{0}* nel catalogo è una stella, o una coppia di stelle: non è un oggetto deep-sky esteso, e non c'è niente da prescrivergli. Se cercavi la nebulosa che la circonda, scegli il suo nome dall'elenco.</value>
+  </data>
+  <data name="Motore_BersaglioSenzaClasse" xml:space="preserve">
+    <value>*{0}* è un oggetto vero e catalogato, ma non c'è l'evidenza per stabilire che cosa emette: una prescrizione sarebbe inventata.</value>
   </data>
   <data name="Motore_CieloAssente" xml:space="preserve">
     <value>Manca la qualità del cielo (SQM). Senza, il motore non sa quanto fondo cielo stai raccogliendo e non calcola niente, né le ore né la posa: il fondo cielo è metà del rapporto segnale-rumore. Dichiaralo qui sopra, fra *{0}* e *{1}* mag/arcsec².</value>
@@ -1172,6 +1178,12 @@
   </data>
   <data name="Pag_LunaPenaMinima" xml:space="preserve">
     <value>Notte {0}: {1} ({2}) *almeno ×{3}* — Luna al {4} % a {5}°, sotto la soglia di {6}°: le ore non ricomprano il contrasto.</value>
+  </data>
+  <data name="Pag_CercaScheda" xml:space="preserve">
+    <value>scheda completa</value>
+  </data>
+  <data name="Pag_CercaDaCollaudare" xml:space="preserve">
+    <value>classe da collaudare</value>
   </data>
   <data name="Pag_LunaPenaCongiunto" xml:space="preserve">
     <value>Le righe del filtro stanno nello stesso frame e non si separano: vale la soglia più severa, e per Hα+OIII è quella dell'OIII.</value>

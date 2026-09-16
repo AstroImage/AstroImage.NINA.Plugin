@@ -19,7 +19,10 @@
 <div class="sotto" data-loc="Pag_Sottotitolo"></div>
 
 <div class="riga">
-  <input id="oggetto" value="ngc6888" spellcheck="false">
+  <!-- L'oggetto si trova mentre si scrive, come in AIS: l'elenco sotto il campo lo riempie prova.js con le
+       corrispondenze del servizio. Niente completamento del browser: i nomi scritti in passato coprirebbero il catalogo. -->
+  <input id="oggetto" value="ngc6888" spellcheck="false" list="elencoOggetti" autocomplete="off">
+  <datalist id="elencoOggetti"></datalist>
   <!-- La data NON ha un valore qui dentro: lo mette prova.js, ed e' oggi. Una data
        cablata nel markup e' una data che mente il giorno dopo, e la Luna si calcola
        su quella. -->

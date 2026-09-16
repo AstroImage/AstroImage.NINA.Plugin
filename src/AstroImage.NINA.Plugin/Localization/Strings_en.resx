@@ -181,7 +181,13 @@
     <value>a block</value>
   </data>
 <data name="Motore_BersaglioSconosciuto" xml:space="preserve">
-    <value>No object is called *{0}*. Use the exact catalogue id or name: NGC 6888, M 31, IC 434.</value>
+    <value>No object is called *{0}*. Pick a name from the list that opens as you type, or type the exact one: NGC 6888, M 31, IC 434.</value>
+  </data>
+  <data name="Motore_BersaglioNonEsteso" xml:space="preserve">
+    <value>*{0}* is a star, or a pair of stars, in the catalogue: not an extended deep-sky object, so there is nothing to prescribe. If you meant the nebula around it, pick its name from the list.</value>
+  </data>
+  <data name="Motore_BersaglioSenzaClasse" xml:space="preserve">
+    <value>*{0}* is a real, catalogued object, but there is no evidence of what it emits: a prescription would be made up.</value>
   </data>
   <data name="Motore_CieloAssente" xml:space="preserve">
     <value>The sky quality (SQM) is missing. Without it the engine cannot tell how much sky background you are collecting, and computes nothing at all, neither the hours nor the sub length: sky background is half of the signal-to-noise ratio. Declare it above, between *{0}* and *{1}* mag/arcsec².</value>
@@ -1172,6 +1178,12 @@
   </data>
   <data name="Pag_LunaPenaMinima" xml:space="preserve">
     <value>Night {0}: {1} ({2}) *at least ×{3}* — Moon {4} % illuminated at {5}°, below the {6}° threshold: more hours do not buy back the contrast.</value>
+  </data>
+  <data name="Pag_CercaScheda" xml:space="preserve">
+    <value>full profile</value>
+  </data>
+  <data name="Pag_CercaDaCollaudare" xml:space="preserve">
+    <value>class not yet verified</value>
   </data>
   <data name="Pag_LunaPenaCongiunto" xml:space="preserve">
     <value>The filter's lines share one frame and cannot be separated: the strictest threshold applies, and for Hα+OIII it is the OIII one.</value>

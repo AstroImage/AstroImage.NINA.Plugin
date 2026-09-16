@@ -46,6 +46,7 @@ namespace AstroImage.NINA.Plugin.Services {
         private readonly Uri _prescrizione;
         private readonly Uri _salute;
         private readonly Uri _filtri;
+        private readonly Uri _cerca;
 
         /// <param name="http">Il cliente HTTP. Lo costruisce chi sa quanto deve durare
         /// una connessione e quante ne servono: non e' una decisione di questo file.</param>
@@ -57,6 +58,7 @@ namespace AstroImage.NINA.Plugin.Services {
             _prescrizione = new Uri(baseUri, "v1/prescrizione");
             _salute = new Uri(baseUri, "v1/salute");
             _filtri = new Uri(baseUri, "v1/filtri");
+            _cerca = new Uri(baseUri, "v1/cerca");
         }
 
         /*  IL CATALOGO DEI VETRI, per far dichiarare all'utente che cosa ha in ruota.
@@ -212,6 +214,20 @@ namespace AstroImage.NINA.Plugin.Services {
             } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
                 throw;
             } catch { return ModalitaDiRipresa.Vuota; }
+        }
+
+        /*  LA RICERCA MENTRE SI SCRIVE (17 settembre 2026). Il testo del campo va al servizio cosi' com'e', e la risposta
+         *  torna come testo: le corrispondenze e il loro ordine sono del motore, la pagina le mostra. Il numero di serie e'
+         *  quello della pagina di AIS. Null quando non si e' potuta avere: l'elenco sotto il campo resta com'era. */
+        public async Task<string?> Cerca(string q, int n = 12, CancellationToken ct = default) {
+            try {
+                var indirizzo = new Uri(_cerca.AbsoluteUri + "?q=" + Uri.EscapeDataString(q ?? string.Empty) + "&n=" + n);
+                using var r = await _http.GetAsync(indirizzo, ct).ConfigureAwait(false);
+                if (!r.IsSuccessStatusCode) return null;
+                return await r.Content.ReadAsStringAsync().ConfigureAwait(false);
+            } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
+                throw;
+            } catch { return null; }
         }
 
         /// <summary>C'e' qualcuno dall'altra parte? Vero o falso, senza spiegazioni:
