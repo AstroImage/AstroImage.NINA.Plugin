@@ -420,6 +420,24 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.AreEqual(3, dopo["blocchi"]![0]!["priorita"]!.GetValue<int>());
         }
 
+        /*  CHI HA DECISO IL GUADAGNO (regia, 16 settembre 2026): il motore sceglie il modo e la sequenza lo imposta, e il
+         *  blocco dice chi l'ha deciso — `dichiarato` o `motore` — subito dopo l'offset, come lo scrive il motore. Un
+         *  campo che il modello non conosce finirebbe in fondo, dopo le ore: l'ordine lo dice. */
+        [TestMethod]
+        public void IlBloccoDiceChiHaDecisoIlGuadagno_AlSuoPosto() {
+            var j = JsonNode.Parse(Testo("completo"))!.AsObject();
+            var b0 = new JsonObject {
+                ["canali"] = new JsonArray("Ha+OIII"), ["filtro"] = "HO", ["sec"] = 600, ["n"] = 42,
+                ["gain"] = 100, ["offset"] = 50, ["gainFonte"] = "motore", ["modo"] = "HCG", ["ore"] = 7.0,
+            };
+            j["blocchi"] = new JsonArray(b0);
+            var dopo = JsonNode.Parse(SequenceModel.Leggi(j.ToJsonString())!.Scrivi())!;
+            CollectionAssert.AreEqual(
+                new[] { "canali", "filtro", "sec", "n", "gain", "offset", "gainFonte", "modo", "ore" },
+                dopo["blocchi"]![0]!.AsObject().Select(p => p.Key).ToArray());
+            Assert.AreEqual("motore", dopo["blocchi"]![0]!["gainFonte"]!.GetValue<string>());
+        }
+
         [TestMethod]
         public void OrdineDelleChiavi_ComeLoScriveIlMotore() {
             /*  L'ordine non cambia il significato del JSON, ma cambia la leggibilita'

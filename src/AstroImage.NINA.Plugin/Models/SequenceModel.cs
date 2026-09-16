@@ -488,6 +488,15 @@ namespace AstroImage.NINA.Plugin.Models {
         public int Offset { get; set; }
 
         /// <summary>
+        /// Chi ha deciso il guadagno: <c>dichiarato</c> dal banco, oppure <c>motore</c>, che lo ha scelto per la posa.
+        /// Nullo quando il guadagno vale -1,
+        /// e non si riscrive quando manca: un motore piu' vecchio non lo manda.
+        /// </summary>
+        [JsonPropertyName("gainFonte")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? GainFonte { get; set; }
+
+        /// <summary>
         /// Il nome del modo di guadagno della camera, se ne aveva uno. Puo' essere
         /// nullo, ed e' una descrizione: nessuno deve dedurne niente.
         /// </summary>

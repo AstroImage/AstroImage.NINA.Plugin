@@ -83,10 +83,11 @@ namespace AstroImage.NINA.Plugin.Tests {
             /*  Si contano le CHIAMATE, non la definizione: «function ridisegna()» e'
                 la terza occorrenza e non e' un uso. */
             /*  Dal 16 settembre 2026 le chiamate sono tre: il cambio di profilo di N.I.N.A. rilegge sito, filtri e
-                camera dallo STESSO punto, e ridisegna resta l'unica strada. */
-            Assert.AreEqual(3, Regex.Matches(p, @"(?<!function )\bridisegna\(\)").Count,
-                "ridisegna va chiamata tre volte: all'apertura, al cambio lingua e al cambio di profilo. Se sono " +
-                "di piu' o di meno, l'avvio e i cambi hanno preso strade diverse");
+                camera dallo STESSO punto, e ridisegna resta l'unica strada. E lo stesso giorno quattro: la camera
+                collegata o scollegata ritira la prescrizione e rilegge il banco, dallo stesso punto. */
+            Assert.AreEqual(4, Regex.Matches(p, @"(?<!function )\bridisegna\(\)").Count,
+                "ridisegna va chiamata quattro volte: all'apertura, al cambio lingua, al cambio di profilo e al cambio " +
+                "della camera. Se sono di piu' o di meno, l'avvio e i cambi hanno preso strade diverse");
         }
 
         /// <summary>Il corpo di una funzione JavaScript, contando le graffe.</summary>

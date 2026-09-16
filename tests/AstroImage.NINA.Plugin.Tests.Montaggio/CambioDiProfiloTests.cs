@@ -129,6 +129,55 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
             Assert.AreEqual(3, new HashSet<string>(motivi).Count, "tre salvataggi, tre perche': " + string.Join(" | ", motivi));
         }
 
+        /*  LA CAMERA COLLEGATA O SCOLLEGATA RITIRA LA PRESCRIZIONE (regia, 16 settembre 2026). La camera entra nel banco —
+         *  la geometria dal driver, la voce riconosciuta —: collegarne o scollegarne una cambia il banco anche
+         *  senza salvare, e la prescrizione in mano valeva per quello di prima. Il pannello ascolta gli eventi del mediatore
+         *  della camera; senza una prescrizione in mano non ritira niente e non disturba la pagina. */
+        private static (PannelloStrategyVM Vm, List<Delegate> Gestori) PannelloConCamera() {
+            var a = Profilo("A");
+            var servizio = PersistenzaDelProfiloTests.Finto.Crea<IProfileService>((m, args) =>
+                m.Name == "get_ActiveProfile" ? a : DiSerie(m.ReturnType));
+            var gestori = new List<Delegate>();
+            var camera = PersistenzaDelProfiloTests.Finto.Crea<global::NINA.Equipment.Interfaces.Mediator.ICameraMediator>((m, args) => {
+                if (m.Name == "add_Connected" || m.Name == "add_Disconnected") { gestori.Add((Delegate)args![0]!); return null; }
+                if (m.Name == "remove_Connected" || m.Name == "remove_Disconnected") { gestori.Remove((Delegate)args![0]!); return null; }
+                return DiSerie(m.ReturnType);
+            });
+            return (new PannelloStrategyVM(servizio, null!, null!, null!, camera, null!, null!, null!, null!), gestori);
+        }
+
+        [TestMethod]
+        public void IlPannello_SulCambioDellaCamera_RitiraLaPrescrizione() {
+            var (vm, gestori) = PannelloConCamera();
+            var delPannello = gestori.FindAll(g => g.Method.DeclaringType == typeof(PannelloStrategyVM));
+            Assert.AreEqual(2, delPannello.Count, "il pannello ascolta la camera che si collega e quella che si scollega");
+            var id = vm.InMano.Prendi(EsitoConUnaNotte());
+            var prima = CambiDiCamera(vm);
+            foreach (var g in delPannello) {
+                var r = g.DynamicInvoke(null, EventArgs.Empty);
+                if (r is System.Threading.Tasks.Task t) t.GetAwaiter().GetResult();
+            }
+            Assert.IsNull(vm.InMano.Notte(id, 1, out var codice, out var motivo), "la prescrizione dell'altro banco non si consegna");
+            Assert.AreEqual("prescrizione_ritirata", codice, motivo);
+            Assert.AreEqual(Loc.T("Presc_RitirataPerCamera"), motivo, "il perche' e' la camera");
+            Assert.AreEqual(prima + 1, CambiDiCamera(vm), "il ritiro si conta, perche' la vista lo dica alla pagina");
+        }
+
+        [TestMethod]
+        public void IlPannello_SenzaPrescrizione_CollegareLaCameraNonRitiraNiente() {
+            var (vm, gestori) = PannelloConCamera();
+            foreach (var g in gestori.FindAll(x => x.Method.DeclaringType == typeof(PannelloStrategyVM))) {
+                var r = g.DynamicInvoke(null, EventArgs.Empty);
+                if (r is System.Threading.Tasks.Task t) t.GetAwaiter().GetResult();
+            }
+            Assert.IsNull(vm.InMano.Notte(null, 1, out var codice, out _));
+            Assert.AreEqual("nessuna_prescrizione", codice);
+            Assert.AreEqual(0, CambiDiCamera(vm), "senza niente da ritirare la pagina non si disturba");
+        }
+
+        private static int CambiDiCamera(PannelloStrategyVM vm) =>
+            (int?)typeof(PannelloStrategyVM).GetProperty("CambiDiCamera")?.GetValue(vm) ?? -1;
+
         /*  Senza una prescrizione in mano un salvataggio non inventa un ritiro: chi preme «manda» sente «chiedine una». */
         [TestMethod]
         public void IlPannello_SenzaUnaPrescrizioneInMano_UnSalvataggioNonRitiraNiente() {

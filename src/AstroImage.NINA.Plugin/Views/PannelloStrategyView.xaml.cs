@@ -89,10 +89,12 @@ namespace AstroImage.NINA.Plugin.Views {
             if (DataContext is PannelloStrategyVM vm) {
                 vm.ProfiloCambiato -= AlCambioProfilo;
                 vm.ProfiloCambiato += AlCambioProfilo;
+                vm.CameraCambiata -= AlCambioCamera;
+                vm.CameraCambiata += AlCambioCamera;
             }
             /*  Alla PRIMA apertura _pronto e' ancora falso — AlCaricamento sta aspettando
              *  WebView2 — e la pagina nascera' gia' nella lingua giusta da se'. */
-            if (_pronto) { ChiediRidisegno(); AvvisaSeIlProfiloECambiato(); }
+            if (_pronto) { ChiediRidisegno(); AvvisaSeIlProfiloECambiato(); AvvisaSeLaCameraECambiata(); }
         }
 
         /*  Loc e' un oggetto solo che vive quanto N.I.N.A.: un suo evento agganciato a
@@ -101,7 +103,26 @@ namespace AstroImage.NINA.Plugin.Views {
          *  il pannello, che vive quanto N.I.N.A. anche lui. */
         private void AlCongedo(object mittente, RoutedEventArgs e) {
             Loc.Instance.PropertyChanged -= AlCambioLingua;
-            if (DataContext is PannelloStrategyVM vm) { vm.ProfiloCambiato -= AlCambioProfilo; }
+            if (DataContext is PannelloStrategyVM vm) { vm.ProfiloCambiato -= AlCambioProfilo; vm.CameraCambiata -= AlCambioCamera; }
+        }
+
+        /*  LA CAMERA COLLEGATA O SCOLLEGATA (regia, 16 settembre 2026): il pannello ha ritirato la prescrizione in mano,
+         *  e la pagina la toglie dallo schermo. Stesso conteggio del profilo, per la stessa ragione. */
+        private int _cambiDiCameraVisti;
+
+        private void AlCambioCamera(object mittente, EventArgs e) => AvvisaSeLaCameraECambiata();
+
+        private void AvvisaSeLaCameraECambiata() {
+            if (!_pronto) { return; }
+            Dispatcher.BeginInvoke(new Action(() => {
+                if (!(DataContext is PannelloStrategyVM vm) || vm.CambiDiCamera == _cambiDiCameraVisti) { return; }
+                _cambiDiCameraVisti = vm.CambiDiCamera;
+                try {
+                    Vetro?.CoreWebView2?.PostWebMessageAsString(new JsonObject { ["evento"] = "camera" }.ToJsonString());
+                } catch (Exception) {
+                    /*  La pagina puo' non esserci ancora: nascera' senza prescrizione. */
+                }
+            }));
         }
 
         /*  IL PROFILO E' CAMBIATO, e la pagina lo deve sapere: la prescrizione a schermo e' dell'altro profilo. Il
@@ -197,7 +218,10 @@ namespace AstroImage.NINA.Plugin.Views {
 
         private void AlNavigazione(object mittente, CoreWebView2NavigationCompletedEventArgs e) {
             /*  La pagina nasce sul profilo attivo, senza prescrizione: i cambi avvenuti prima non le riguardano. */
-            if (e.IsSuccess && DataContext is PannelloStrategyVM vm) { _cambiDiProfiloVisti = vm.CambiDiProfilo; }
+            if (e.IsSuccess && DataContext is PannelloStrategyVM vm) {
+                _cambiDiProfiloVisti = vm.CambiDiProfilo;
+                _cambiDiCameraVisti = vm.CambiDiCamera;
+            }
             if (e.IsSuccess) { MostraVetro(); }
             else { MostraRipiego(Loc.T("Pannello_PaginaNonCaricata"), "WebErrorStatus: " + e.WebErrorStatus); }
         }
@@ -457,6 +481,8 @@ namespace AstroImage.NINA.Plugin.Views {
             try {
                 SequenceBuilder.Consegna(vm.Mediatore, contenitore);
                 Logger.Info(IO + "send: AddAdvancedTarget called, no exception");
+                /*  la notte e' nel Sequenziatore: un secondo «Manda» sulla stessa riga si rifiuta (16 settembre 2026) */
+                vm.InMano.SegnaConsegnata(idPrescrizione, notte);
             } catch (Exception ex) {
                 Logger.Error(IO + "send: AddAdvancedTarget threw", ex);
                 Rispondi(id, false, null, "consegna_fallita", ex.Message);

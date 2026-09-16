@@ -1134,4 +1134,46 @@
   <data name="Pag_Prov_assunto" xml:space="preserve">
     <value>non dichiarato: il motore assume {0}{1}</value>
   </data>
+  <data name="Pag_ColGuadagno" xml:space="preserve">
+    <value>guadagno</value>
+  </data>
+  <data name="Pag_GuadagnoMotore" xml:space="preserve">
+    <value>{0} ({1}, scelto dal motore)</value>
+  </data>
+  <data name="Pag_GuadagnoDichiarato" xml:space="preserve">
+    <value>{0} (dichiarato)</value>
+  </data>
+  <data name="Pag_GuadagnoDellaCamera" xml:space="preserve">
+    <value>quello della camera</value>
+  </data>
+  <data name="Pag_RigaVerdetto" xml:space="preserve">
+    <value>verdetto</value>
+  </data>
+  <data name="Pag_Verdetto_Minimo" xml:space="preserve">
+    <value>le notti chieste ({0}) coprono il {1} % del progetto: per il minimo ne servono {2}</value>
+  </data>
+  <data name="Pag_Verdetto_MinimoOltre" xml:space="preserve">
+    <value>le notti chieste ({0}) coprono il {1} % del progetto, e il minimo non si raggiunge entro {2} notti utili da qui</value>
+  </data>
+  <data name="Pag_Verdetto_Coperto" xml:space="preserve">
+    <value>le notti chieste ({0}) coprono il {1} % del progetto</value>
+  </data>
+  <data name="Pag_Men_ImmagineDiversa" xml:space="preserve">
+    <value>La {0} che ricevi è un’immagine diversa dalla {1}, con un’altra tavolozza: non una {1} più economica.</value>
+  </data>
+  <data name="Pag_Men_Motivo_sensore_incompatibile_suggerito" xml:space="preserve">
+    <value>per {0} hai scelto {1}, che su {2} non va: serve un filtro come {3}</value>
+  </data>
+  <data name="Presc_RitirataPerCamera" xml:space="preserve">
+    <value>questa prescrizione è stata ritirata perché la camera si è collegata o scollegata: era calcolata sul banco di prima. Chiedine una nuova.</value>
+  </data>
+  <data name="Pag_RitirataPerCamera" xml:space="preserve">
+    <value>La camera si è collegata o scollegata: la prescrizione di prima era calcolata sul banco di prima, ed è stata ritirata. Chiedine una nuova.</value>
+  </data>
+  <data name="Presc_NotteGiaConsegnata" xml:space="preserve">
+    <value>la notte {0} di questa prescrizione è già nel Sequenziatore Avanzato: mandarla di nuovo la raddoppierebbe. Se la vuoi di nuovo, toglila dal Sequenziatore e chiedi una prescrizione nuova.</value>
+  </data>
+  <data name="Pag_SeparatoreDecimale" xml:space="preserve">
+    <value>,</value>
+  </data>
 </root>

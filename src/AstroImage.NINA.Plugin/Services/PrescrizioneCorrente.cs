@@ -9,7 +9,7 @@ using AstroImage.NINA.Plugin.Localization;
 namespace AstroImage.NINA.Plugin.Services {
 
     /// <summary>Che cosa e' cambiato sotto una prescrizione ritirata.</summary>
-    public enum PercheRitirata { Profilo, Ruota, Banco, Sito }
+    public enum PercheRitirata { Profilo, Ruota, Banco, Sito, Camera }
 
     /*  QUELLO CHE IL PONTE HA IN MANO, e la guardia che impedisce di mandare la cosa
      *  sbagliata.
@@ -49,6 +49,7 @@ namespace AstroImage.NINA.Plugin.Services {
         /// </summary>
         public string? Prendi(EsitoPrescrizione? esito) {
             _ritirata = false;
+            _consegnate.Clear();
             if (esito is null || !esito.Riuscito || esito.Sequenze.Count == 0) {
                 _id = null; _esito = null; return null;
             }
@@ -58,7 +59,18 @@ namespace AstroImage.NINA.Plugin.Services {
         }
 
         /// <summary>Dimentica quello che ha in mano.</summary>
-        public void Lascia() { _id = null; _esito = null; _ritirata = false; }
+        public void Lascia() { _id = null; _esito = null; _ritirata = false; _consegnate.Clear(); }
+
+        /*  UNA NOTTE SI CONSEGNA UNA VOLTA (regia, 16 settembre 2026). Un secondo «Manda» sulla stessa riga aggiungeva un
+         *  secondo bersaglio al Sequenziatore, e il doppione si vedeva solo li'. La notte consegnata si segna qui, per la
+         *  prescrizione che l'ha consegnata; una prescrizione nuova ricomincia da capo. */
+        private readonly HashSet<int> _consegnate = new HashSet<int>();
+
+        /// <summary>Segna che la notte <paramref name="notte"/> della prescrizione <paramref name="id"/> e' nel
+        /// Sequenziatore. Un identificativo che non e' quello in mano non segna niente.</summary>
+        public void SegnaConsegnata(string? id, int notte) {
+            if (_id is not null && string.Equals(id, _id, StringComparison.Ordinal)) _consegnate.Add(notte);
+        }
 
         /*  RITIRARE NON E' LASCIARE. Una prescrizione lasciata non c'e' e basta; una ritirata c'era, ed e' stata tolta
          *  perche' e' cambiato sotto di lei quello su cui era calcolata: il profilo di N.I.N.A., oppure — dal 16 settembre
@@ -71,7 +83,7 @@ namespace AstroImage.NINA.Plugin.Services {
         public void Ritira() => Ritira(PercheRitirata.Profilo);
 
         /// <summary>Toglie la prescrizione in mano perche' e' cambiato quello che dice <paramref name="perche"/>.</summary>
-        public void Ritira(PercheRitirata perche) { _id = null; _esito = null; _ritirata = true; _perche = perche; }
+        public void Ritira(PercheRitirata perche) { _id = null; _esito = null; _ritirata = true; _perche = perche; _consegnate.Clear(); }
 
         /// <summary>
         /// Quale vetro il motore ha dichiarato di aver usato, canale per canale. Si
@@ -98,6 +110,7 @@ namespace AstroImage.NINA.Plugin.Services {
                         PercheRitirata.Ruota => Loc.T("Presc_RitirataPerRuota"),
                         PercheRitirata.Banco => Loc.T("Presc_RitirataPerBanco"),
                         PercheRitirata.Sito => Loc.T("Presc_RitirataPerSito"),
+                        PercheRitirata.Camera => Loc.T("Presc_RitirataPerCamera"),
                         _ => Loc.T("Presc_RitirataPerProfilo"),
                     };
                     return null;
@@ -109,6 +122,12 @@ namespace AstroImage.NINA.Plugin.Services {
             if (string.IsNullOrEmpty(id) || !string.Equals(id, _id, StringComparison.Ordinal)) {
                 codice = "prescrizione_scaduta";
                 motivo = Loc.T("Presc_Scaduta");
+                return null;
+            }
+
+            if (_consegnate.Contains(notte)) {
+                codice = "notte_gia_consegnata";
+                motivo = Loc.F("Presc_NotteGiaConsegnata", notte);
                 return null;
             }
 
