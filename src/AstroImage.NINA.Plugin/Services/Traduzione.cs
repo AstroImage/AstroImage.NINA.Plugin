@@ -124,6 +124,7 @@ namespace AstroImage.NINA.Plugin.Services {
                     Filtro = r.CambiaFiltro ? blocco.Filtro : null,
                     Secondi = blocco.Sec.Value,
                     Pose = blocco.N.Value,
+                    Ore = blocco.Ore,
                     /*  -1 e' la sentinella di «non specificato» del motore. Scriverla
                      *  nella camera vorrebbe dire chiedere guadagno meno uno; non
                      *  scriverla vuol dire lasciare il valore del profilo, che e' cio'
@@ -221,6 +222,8 @@ namespace AstroImage.NINA.Plugin.Services {
         public string? Filtro { get; set; }
         public double Secondi { get; set; }
         public int Pose { get; set; }
+        /// <summary>Le ore del blocco come le manda il motore, o null se non le manda: qui non si ricavano.</summary>
+        public double? Ore { get; set; }
         public int? Gain { get; set; }
         public int? Offset { get; set; }
         public int Binning { get; set; } = 1;

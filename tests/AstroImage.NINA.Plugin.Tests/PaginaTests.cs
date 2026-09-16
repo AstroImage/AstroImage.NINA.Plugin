@@ -373,19 +373,21 @@ namespace AstroImage.NINA.Plugin.Tests {
                 StringAssert.Contains(js, letto, $"il menu non legge piu' «{letto}»");
         }
 
-        /*  IL BANCO SCRITTO NELLA PAGINA SI VEDE. Finche' la richiesta porta un banco scritto a mano e non letto dal
-         *  profilo, la pagina lo dice sopra il menu, e mostra quello che parte davvero: se il banco di chi guarda e'
-         *  diverso, i riquadri e i prezzi del menu non sono i suoi. Quando il banco arrivera' dal profilo la prima
-         *  verifica cade apposta: si toglie la fascia, e questa prova con lei. */
+        /*  IL BANCO NON E' PIU' SCRITTO NELLA PAGINA (16 settembre 2026). La fascia gialla che lo diceva e' uscita con lui,
+         *  come la prova di prima prometteva. Adesso il banco si compone dalla lista dei campi che il servizio pubblica
+         *  in /v1/salute: quello che N.I.N.A. tiene, quello che dichiara chi riprende, la camera del driver. Nessun pezzo
+         *  scritto qui, e la pagina legge dal prodotto il banco usato e le sue divergenze. */
         [TestMethod]
-        public void IL_BANCO_SCRITTO_NELLA_PAGINA_LO_DICE_LA_PAGINA() {
+        public void IL_BANCO_NON_E_SCRITTO_NELLA_PAGINA_E_SI_COSTRUISCE_DALLA_LISTA_DEL_SERVIZIO() {
             var js = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.js"), @"/\*.*?\*/", "",
                 System.Text.RegularExpressions.RegexOptions.Singleline);
-            StringAssert.Contains(js, "tel: 'askar71f'",
-                "il banco non e' piu' scritto nella pagina: togli la fascia gialla e questa prova");
-            StringAssert.Contains(js, "MF('Pag_Men_BancoNonLetto'", "il banco e' scritto nella pagina e la pagina non lo dice");
-            Assert.IsTrue(System.Text.RegularExpressions.Regex.IsMatch(js, @"banco:\s*bancoMandato\b"),
-                "la fascia mostra un banco diverso da quello che parte nella richiesta");
+            foreach (var vietato in new[] { "'askar71f'", "'am5'", "'asi2600mc'", "red:", "bancoMandato" })
+                Assert.IsFalse(js.Contains(vietato), $"«{vietato}»: un pezzo del banco scritto nella pagina");
+            Assert.IsTrue(System.Text.RegularExpressions.Regex.IsMatch(js, @"banco:\s*bancoDaMandare\(\)"),
+                "la richiesta non compone il banco dalla lista");
+            foreach (var letto in new[] { "r.campiDelBanco", "r.divergenzeDelBanco", "chiedi('banco')", "chiedi('salvaBanco'",
+                                          "p.banco", "pb.divergenze", "c.provenienza === 'nina'", "c.provenienza === 'dichiarabile'" })
+                StringAssert.Contains(js, letto, $"la pagina non legge piu' «{letto}»");
         }
 
         /*  SUL CAMBIO DI PROFILO LA PRESCRIZIONE ESCE DALLO SCHERMO. Il pannello la ritira dalle mani del Ponte

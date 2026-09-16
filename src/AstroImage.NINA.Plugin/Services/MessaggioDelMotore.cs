@@ -75,6 +75,10 @@ namespace AstroImage.NINA.Plugin.Services {
                 ["setup_sconosciuto"]     = ("Motore_SetupSconosciuto",    new[] { "pezzo", "chiesto" }),
                 ["setup_incompleto"]      = ("Motore_SetupIncompleto",     new[] { "pezzo", "chiesto", "campi" }),
                 ["nessuna_prescrizione"]  = ("Motore_NessunaPrescrizione", new string[0]),
+                /*  Il contratto del banco (16 settembre 2026): una chiave che il motore non conosce, nominata col suo
+                 *  percorso, e un valore che non e' un numero del suo campo. */
+                ["banco_chiave_sconosciuta"] = ("Motore_BancoChiaveSconosciuta", new[] { "chiave" }),
+                ["banco_valore_non_valido"]  = ("Motore_BancoValoreNonValido",   new[] { "pezzo", "chiave", "ricevuto" }),
                 //  DIAGNOSTICA — se un utente la vede, il problema non e' la lingua
                 ["via_sconosciuta"]       = ("Motore_ViaSconosciuta",      new string[0]),
                 ["richiesta_incompleta"]  = ("Motore_RichiestaIncompleta", new[] { "mancano" }),

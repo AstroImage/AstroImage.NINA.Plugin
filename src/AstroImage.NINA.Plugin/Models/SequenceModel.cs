@@ -495,6 +495,16 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonPropertyName("modo")]
         public string? Modo { get; set; }
 
+        /// <summary>
+        /// Le ore del blocco, come le ha fatte il motore: il Ponte non moltiplica <c>sec × n</c>, il numero che mostra lo
+        /// manda il motore (contratto delle schede §6 ter). Il motore la scrive in fondo al blocco, e qui sta in fondo.
+        /// Annullabile, e non si riscrive quando manca: un motore piu' vecchio non la manda, e allora non si scrive,
+        /// invece di ricavarla.
+        /// </summary>
+        [JsonPropertyName("ore")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public double? Ore { get; set; }
+
         [JsonExtensionData]
         public Dictionary<string, JsonElement>? Extra { get; set; }
     }

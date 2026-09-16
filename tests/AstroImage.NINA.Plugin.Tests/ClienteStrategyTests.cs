@@ -252,6 +252,41 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsNull(m.PoliticaDiSerie);
         }
 
+        /*  I CAMPI DEL BANCO SI SCOPRONO COME I MODI: la lista la pubblica il servizio in `limiti.banco`, e il blocco del
+         *  banco si costruisce da li'. Una voce storta si salta senza far perdere il resto — ne' i modi, ne' le altre voci. */
+        [TestMethod]
+        public async Task Modalita_LeggeICampiDelBanco_ESaltaLeVociStorte() {
+            const string salute = "{\"modalita\":{\"di_serie\":\"resa\",\"elenco\":[{\"id\":\"resa\"}]}," +
+                "\"limiti\":{\"corpo_byte\":1048576,\"banco\":{\"campi\":[" +
+                "{\"chiave\":\"tel.apertura_mm\",\"pezzo\":\"ottica\",\"provenienza\":\"dichiarabile\",\"unita\":\"mm\"}," +
+                "{\"chiave\":\"tel.focale_mm\",\"pezzo\":\"ottica\",\"provenienza\":\"nina\",\"unita\":7}," +
+                "{\"pezzo\":\"senza chiave\"},7,\"testo\"]," +
+                "\"margine\":0.03,\"divergenze\":[\"apertura_diversa_da_nina\",3,\"\"]}}}";
+            var (cliente, _) = Banco(HttpStatusCode.OK, salute);
+
+            var m = await cliente.Modalita();
+
+            Assert.AreEqual(1, m.Elenco.Count, "un campo storto del banco non fa perdere i modi");
+            Assert.AreEqual(2, m.CampiDelBanco.Count, "le voci senza chiave, o che non sono oggetti, si saltano");
+            Assert.AreEqual("tel.apertura_mm", m.CampiDelBanco[0].Chiave);
+            Assert.AreEqual("dichiarabile", m.CampiDelBanco[0].Provenienza);
+            Assert.AreEqual("mm", m.CampiDelBanco[0].Unita);
+            Assert.AreEqual("nina", m.CampiDelBanco[1].Provenienza);
+            Assert.IsNull(m.CampiDelBanco[1].Unita, "un'unita' che non e' un testo non diventa un testo");
+            CollectionAssert.AreEqual(new[] { "apertura_diversa_da_nina" }, m.DivergenzeDelBanco.ToArray());
+        }
+
+        [TestMethod]
+        public async Task Modalita_UnMotoreSenzaBanco_NonNeFaInventareUno() {
+            var (cliente, _) = Banco(HttpStatusCode.OK, "{\"modalita\":{\"elenco\":[{\"id\":\"resa\"}]},\"limiti\":{\"corpo_byte\":1}}");
+
+            var m = await cliente.Modalita();
+
+            Assert.AreEqual(1, m.Elenco.Count);
+            Assert.AreEqual(0, m.CampiDelBanco.Count);
+            Assert.AreEqual(0, m.DivergenzeDelBanco.Count);
+        }
+
         // ------------------------------------------------------------------- c'e' qualcuno?
 
         [TestMethod]

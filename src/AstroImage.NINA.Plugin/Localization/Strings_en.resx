@@ -144,6 +144,9 @@
   <data name="Montaggio_FiltroNonInRuota" xml:space="preserve">
     <value>{0}: the prescription asks for filter “{1}”, which is not in the wheel. That is {2} exposures of {3:0.#} s, i.e. {4:0.00} h that would be shot through whatever filter happens to be in place.</value>
   </data>
+  <data name="Montaggio_FiltroNonInRuotaSenzaOre" xml:space="preserve">
+    <value>{0}: the prescription asks for filter “{1}”, which is not in the wheel. That is {2} exposures of {3:0.#} s that would be shot through whatever filter happens to be in place.</value>
+  </data>
   <data name="Montaggio_InRuotaCiSono" xml:space="preserve">
     <value>The wheel holds: {0}.</value>
   </data>
@@ -488,9 +491,6 @@
   </data>
   <data name="Pag_StrategyNonRisponde" xml:space="preserve">
     <value>Strategy is not answering</value>
-  </data>
-  <data name="Pag_StrumentazioneNota" xml:space="preserve">
-    <value>The *equipment* is still a Strategy configuration written into the bridge, *not* read from the N.I.N.A. profile: Askar 71F 0.75× with ASI2600MC. N.I.N.A. does not hold aperture, obstruction, throughput, QE or read noise, so wiring it up will need a declaration like the one for filters.</value>
   </data>
   <data name="Pag_TipAmbiguo" xml:space="preserve">
     <value>two slots share this name: N.I.N.A. resolves by name and takes the first</value>
@@ -852,13 +852,109 @@
   <data name="Pag_Men_LimiteStelle" xml:space="preserve">
     <value>*{0}*: {1}, so the prescription has no star colour.</value>
   </data>
-  <data name="Pag_Men_BancoNonLetto" xml:space="preserve">
-    <value>Setup: *{0}* — written into this page, not yet read from the N.I.N.A. profile: if yours is different, the panel counts and prices below are not yours.</value>
-  </data>
   <data name="Pag_ProfiloCambiato" xml:space="preserve">
     <value>The N.I.N.A. profile has changed: the previous prescription was worked out on the other profile's setup and site, and it has been withdrawn. Ask for a new one.</value>
   </data>
   <data name="Presc_RitirataPerProfilo" xml:space="preserve">
     <value>this prescription was withdrawn because the N.I.N.A. profile changed: it was worked out on the other profile's setup and site. Ask for a new one.</value>
+  </data>
+  <data name="Pag_BancoTitolo" xml:space="preserve">
+    <value>The setup</value>
+  </data>
+  <data name="Pag_BancoNota" xml:space="preserve">
+    <value>What N.I.N.A. does not know you declare here, once per profile: the *catalogue entry* recognises the part and proposes its figures, and what you write wins. The *focal length* and *focal ratio* are read from N.I.N.A., and are not changed from here.</value>
+  </data>
+  <data name="Pag_SalvaBanco" xml:space="preserve">
+    <value>Save the setup</value>
+  </data>
+  <data name="Pag_Banco_tel" xml:space="preserve">
+    <value>telescope (catalogue entry)</value>
+  </data>
+  <data name="Pag_Banco_tel_apertura_mm" xml:space="preserve">
+    <value>aperture</value>
+  </data>
+  <data name="Pag_Banco_tel_ostruzione" xml:space="preserve">
+    <value>obstruction</value>
+  </data>
+  <data name="Pag_Banco_tel_trasmissione" xml:space="preserve">
+    <value>throughput</value>
+  </data>
+  <data name="Pag_Banco_tel_focale_mm" xml:space="preserve">
+    <value>focal length</value>
+  </data>
+  <data name="Pag_Banco_tel_rapporto" xml:space="preserve">
+    <value>focal ratio</value>
+  </data>
+  <data name="Pag_Banco_red" xml:space="preserve">
+    <value>reducer</value>
+  </data>
+  <data name="Pag_Banco_mnt" xml:space="preserve">
+    <value>mount (catalogue entry)</value>
+  </data>
+  <data name="Pag_Banco_mnt_rms_caratteristico_arcsec" xml:space="preserve">
+    <value>characteristic RMS</value>
+  </data>
+  <data name="Pag_Banco_RmsNota" xml:space="preserve">
+    <value>The figure the mount usually holds with this load, not the one of a single night. It enters the decisions: if you declare it, it wins over the catalogue, and it is your responsibility.</value>
+  </data>
+  <data name="Pag_Banco_RedDaFocale" xml:space="preserve">
+    <value>recognised from the focal length</value>
+  </data>
+  <data name="Pag_Banco_Riconosciuto" xml:space="preserve">
+    <value>recognised as “{0}”</value>
+  </data>
+  <data name="Pag_Banco_CatalogoProponeva" xml:space="preserve">
+    <value>the catalogue proposed {0}</value>
+  </data>
+  <data name="Pag_Banco_Fonte_nina" xml:space="preserve">
+    <value>read from N.I.N.A.</value>
+  </data>
+  <data name="Pag_Banco_Fonte_catalogo" xml:space="preserve">
+    <value>proposed by the catalogue</value>
+  </data>
+  <data name="Pag_Banco_Fonte_dichiarato" xml:space="preserve">
+    <value>declared by you</value>
+  </data>
+  <data name="Pag_Banco_Fonte_riferimento" xml:space="preserve">
+    <value>unknown: the engine reference applies</value>
+  </data>
+  <data name="Pag_Banco_Div_dichiarato_diverso_dal_catalogo" xml:space="preserve">
+    <value>*{0}*: declared {1}{4}, the catalogue says {2}{4} for “{3}”. The declared value applies.</value>
+  </data>
+  <data name="Pag_Banco_Div_focale_diversa_dal_catalogo" xml:space="preserve">
+    <value>*Focal length*: N.I.N.A. says {0} mm, the catalogue gives {1} mm for “{2}” with the {3}× reducer. The N.I.N.A. value applies: if it is stale, fix it in the profile.</value>
+  </data>
+  <data name="Pag_Banco_Div_apertura_diversa_da_nina" xml:space="preserve">
+    <value>*Aperture*: {0} mm ({1}), but the focal length {2} mm and the f/{3} ratio in the N.I.N.A. profile make {4} mm. One of the two figures is stale: no N.I.N.A. function reads the profile focal ratio, so nobody updates it when a reducer goes on.</value>
+  </data>
+  <data name="Pag_SeeingNota" xml:space="preserve">
+    <value>*Seeing*: a declaration. It serves the sampling advice and the comparison between configurations; it does not enter the prescription, which is worked out on a reference sky.</value>
+  </data>
+  <data name="Pag_RmsNota" xml:space="preserve">
+    <value>*Guiding (RMS)*: a declaration, with the same use. What enters the decisions is the mount's characteristic RMS, declared in the setup, not this field.</value>
+  </data>
+  <data name="Banco_DichiarazioneVuota" xml:space="preserve">
+    <value>the saved setup declaration says nothing: the setup is not declared.</value>
+  </data>
+  <data name="Banco_VersioneSconosciuta" xml:space="preserve">
+    <value>the setup declaration has version {0}, which this bridge does not know: it is read as version 1.</value>
+  </data>
+  <data name="Banco_DichiarazioneIlleggibile" xml:space="preserve">
+    <value>the setup declaration could not be read ({0}): the setup is not declared, and the profile was not touched.</value>
+  </data>
+  <data name="Banco_MessaggioSenzaBanco" xml:space="preserve">
+    <value>the page asked to save the setup without sending it.</value>
+  </data>
+  <data name="Banco_ChiaveMalformata" xml:space="preserve">
+    <value>“{0}” is not a setup key.</value>
+  </data>
+  <data name="Banco_ValoreMalformato" xml:space="preserve">
+    <value>the value of “{0}” is neither a number nor an identifier.</value>
+  </data>
+  <data name="Motore_BancoChiaveSconosciuta" xml:space="preserve">
+    <value>The engine does not accept the key “{0}” in the setup. Remove it from the declaration, or update the bridge.</value>
+  </data>
+  <data name="Motore_BancoValoreNonValido" xml:space="preserve">
+    <value>The value of “{1}” ({0}) is not valid: “{2}”. Enter a number that fits the field.</value>
   </data>
 </root>
