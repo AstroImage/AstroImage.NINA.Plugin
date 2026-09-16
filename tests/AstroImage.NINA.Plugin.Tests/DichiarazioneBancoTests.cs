@@ -15,7 +15,12 @@ namespace AstroImage.NINA.Plugin.Tests {
     [TestClass]
     public class DichiarazioneBancoTests {
 
-        private static JsonNode Messaggio(string banco) => JsonNode.Parse("{\"banco\":" + banco + "}")!;
+        /*  IL MESSAGGIO NELLA FORMA IN CUI LA PAGINA LO MANDA: `chiedi(azione, corpo)` mette il carico dentro `corpo`,
+         *  come per il sito e la ruota. La prima versione di queste prove metteva `banco` in cima al messaggio, e
+         *  provava il difetto invece del contratto: sul PC in campo il salvataggio rispondeva «la pagina ha chiesto di
+         *  salvare il banco senza mandarlo» (16 settembre 2026). */
+        private static JsonNode Messaggio(string banco) =>
+            JsonNode.Parse("{\"id\":\"7\",\"azione\":\"salvaBanco\",\"corpo\":{\"banco\":" + banco + "}}")!;
 
         [TestMethod]
         public void UnMessaggioGiusto_SiSalvaComeArriva_EUnValoreVuotoToglieLaChiave() {
@@ -41,7 +46,10 @@ namespace AstroImage.NINA.Plugin.Tests {
 
         [TestMethod]
         public void UnMessaggioSenzaBanco_SiRifiuta() {
-            Assert.IsNull(DichiarazioneBanco.DalMessaggio(JsonNode.Parse("{\"sito\":{}}"), out var perCheNo));
+            Assert.IsNull(DichiarazioneBanco.DalMessaggio(JsonNode.Parse("{\"id\":\"7\",\"azione\":\"salvaBanco\",\"corpo\":{\"sito\":{}}}"), out var perCheNo));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(perCheNo));
+            /*  E il banco fuori da `corpo` non vale: non e' la forma in cui la pagina lo manda. */
+            Assert.IsNull(DichiarazioneBanco.DalMessaggio(JsonNode.Parse("{\"banco\":{\"tel.id\":\"askar71f\"}}"), out perCheNo));
             Assert.IsFalse(string.IsNullOrWhiteSpace(perCheNo));
         }
 

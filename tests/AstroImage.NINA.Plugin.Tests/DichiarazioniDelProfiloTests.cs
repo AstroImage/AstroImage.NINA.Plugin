@@ -66,7 +66,7 @@ namespace AstroImage.NINA.Plugin.Tests {
             var m = new MemoriaDiDueProfili();
             var d = new DichiarazioniDelProfilo(m);
             var banco = DichiarazioneBanco.DalMessaggio(
-                System.Text.Json.Nodes.JsonNode.Parse("{\"banco\":{\"tel.id\":\"askar71f\",\"tel.apertura_mm\":71}}"), out var perCheNo);
+                System.Text.Json.Nodes.JsonNode.Parse("{\"corpo\":{\"banco\":{\"tel.id\":\"askar71f\",\"tel.apertura_mm\":71}}}"), out var perCheNo);
             Assert.IsNotNull(banco, perCheNo);
             Assert.IsTrue(d.SalvaBanco(banco, out _));
             var p = new PrescrizioneCorrente();

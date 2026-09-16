@@ -42,13 +42,16 @@ namespace AstroImage.NINA.Plugin.Services {
         public static string Scrivi(BancoDichiarato? b) => JsonSerializer.Serialize(b ?? new BancoDichiarato());
 
         /// <summary>
-        /// Dal messaggio della pagina: <c>{ banco: { "tel.id": "askar71f", "tel.apertura_mm": 80 } }</c>. Un valore vuoto
-        /// toglie la chiave. Una chiave che non ha la forma di una chiave, o un valore che non e' ne' un numero ne' un
-        /// testo, si rifiuta e si dice: salvarlo vorrebbe dire scoprirlo solo alla prossima prescrizione.
+        /// Dal messaggio della pagina, che porta il carico dentro <c>corpo</c> come per il sito e la ruota:
+        /// <c>{ id, azione: "salvaBanco", corpo: { banco: { "tel.id": "askar71f", "tel.apertura_mm": 80 } } }</c>.
+        /// Un valore vuoto toglie la chiave. Una chiave che non ha la forma di una chiave, o un valore che non e' ne' un
+        /// numero ne' un testo, si rifiuta e si dice: salvarlo vorrebbe dire scoprirlo solo alla prossima prescrizione.
         /// </summary>
         public static BancoDichiarato? DalMessaggio(JsonNode? messaggio, out string? perCheNo) {
             perCheNo = null;
-            if (!(messaggio?["banco"] is JsonObject o)) { perCheNo = Loc.T("Banco_MessaggioSenzaBanco"); return null; }
+            /*  DENTRO `corpo`, e la prima versione non ci guardava: sul PC in campo, il 16 settembre 2026, ogni
+             *  salvataggio rispondeva «la pagina ha chiesto di salvare il banco senza mandarlo». */
+            if (!(messaggio?["corpo"]?["banco"] is JsonObject o)) { perCheNo = Loc.T("Banco_MessaggioSenzaBanco"); return null; }
             var b = new BancoDichiarato();
             foreach (var kv in o) {
                 if (!FormaChiave.IsMatch(kv.Key)) { perCheNo = Loc.F("Banco_ChiaveMalformata", kv.Key); return null; }
