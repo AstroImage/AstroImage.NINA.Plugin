@@ -975,4 +975,34 @@
   <data name="Pag_SqmNota" xml:space="preserve">
     <value>*Sky (SQM)*: the character of the site, not tonight's transparency. When in doubt, declare the brightest value of the range, that is the lowest number: a sky declared darker than it is prescribes fewer hours than it takes, and you come home short.</value>
   </data>
+  <data name="Pag_Banco_cam" xml:space="preserve">
+    <value>camera (catalogue entry)</value>
+  </data>
+  <data name="Pag_Banco_CamDalDriver" xml:space="preserve">
+    <value>from the driver’s name and geometry</value>
+  </data>
+  <data name="Pag_Banco_CamNonRiconosciuta" xml:space="preserve">
+    <value>Not recognised: the physics comes from the sensor and typical values, and the prescription says so. Enter the catalogue entry here.</value>
+  </data>
+  <data name="Pag_Banco_Buio" xml:space="preserve">
+    <value>dark current {0} e⁻/pixel/s at {1} °C, the sequence temperature — sensor {2}; model: doubles every {3} °C</value>
+  </data>
+  <data name="Pag_Banco_BuioSenzaFonte" xml:space="preserve">
+    <value>dark current {0} e⁻/pixel/s: catalogue value with no source and no temperature</value>
+  </data>
+  <data name="Pag_Banco_Div_geometria_diversa_dal_catalogo" xml:space="preserve">
+    <value>*Camera {0}*: the driver says {1}, the entry “{2}” says {3}. The driver value applies: if the entry is wrong, fix it above.</value>
+  </data>
+  <data name="Pag_Banco_Cam_pixel_um" xml:space="preserve">
+    <value>pixel size</value>
+  </data>
+  <data name="Pag_Banco_Cam_width_px" xml:space="preserve">
+    <value>width</value>
+  </data>
+  <data name="Pag_Banco_Cam_height_px" xml:space="preserve">
+    <value>height</value>
+  </data>
+  <data name="Pag_Banco_Cam_matrice" xml:space="preserve">
+    <value>colour matrix</value>
+  </data>
 </root>

@@ -975,4 +975,34 @@
   <data name="Pag_SqmNota" xml:space="preserve">
     <value>*Cielo (SQM)*: il carattere del sito, non la trasparenza di stanotte. Nel dubbio dichiara il valore più chiaro dell'intervallo, cioè il numero più basso: un cielo dichiarato più scuro del vero prescrive meno ore di quelle che servono, e a casa si torna corti.</value>
   </data>
+  <data name="Pag_Banco_cam" xml:space="preserve">
+    <value>camera (voce del catalogo)</value>
+  </data>
+  <data name="Pag_Banco_CamDalDriver" xml:space="preserve">
+    <value>dal nome e dalla geometria del driver</value>
+  </data>
+  <data name="Pag_Banco_CamNonRiconosciuta" xml:space="preserve">
+    <value>Non riconosciuta: la fisica viene dal sensore e da valori tipici, e la prescrizione lo dichiara. Scrivi qui la voce del catalogo.</value>
+  </data>
+  <data name="Pag_Banco_Buio" xml:space="preserve">
+    <value>buio {0} e⁻/pixel/s a {1} °C, la temperatura della sequenza — del sensore {2}; modello: raddoppio ogni {3} °C</value>
+  </data>
+  <data name="Pag_Banco_BuioSenzaFonte" xml:space="preserve">
+    <value>buio {0} e⁻/pixel/s: valore di catalogo senza fonte né temperatura</value>
+  </data>
+  <data name="Pag_Banco_Div_geometria_diversa_dal_catalogo" xml:space="preserve">
+    <value>*{0}* della camera: il driver dice {1}, la voce «{2}» dice {3}. Vale quello del driver: se la voce è sbagliata, correggila qui sopra.</value>
+  </data>
+  <data name="Pag_Banco_Cam_pixel_um" xml:space="preserve">
+    <value>passo del pixel</value>
+  </data>
+  <data name="Pag_Banco_Cam_width_px" xml:space="preserve">
+    <value>larghezza</value>
+  </data>
+  <data name="Pag_Banco_Cam_height_px" xml:space="preserve">
+    <value>altezza</value>
+  </data>
+  <data name="Pag_Banco_Cam_matrice" xml:space="preserve">
+    <value>matrice</value>
+  </data>
 </root>
