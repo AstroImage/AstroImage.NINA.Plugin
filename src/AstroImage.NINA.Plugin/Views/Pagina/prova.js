@@ -713,7 +713,9 @@
       '</div>' +
       /*  Seeing e guida sono dichiarazioni, e lo dicono: servono al campionamento e al confronto, e non entrano nella
        *  prescrizione. Nelle decisioni entra l'RMS caratteristico della montatura, che si dichiara nel banco. */
-      '<div style="margin-top:.5em;opacity:.7;font-size:12.5px">' + MF('Pag_SeeingNota') + '</div>' +
+      /*  E l'SQM dice che cosa vuole: il carattere del sito, e nel dubbio il valore piu' chiaro (regia, 16 settembre 2026). */
+      '<div style="margin-top:.5em;opacity:.7;font-size:12.5px">' + MF('Pag_SqmNota') + '</div>' +
+      '<div style="margin-top:.3em;opacity:.7;font-size:12.5px">' + MF('Pag_SeeingNota') + '</div>' +
       '<div style="margin-top:.3em;opacity:.7;font-size:12.5px">' + MF('Pag_RmsNota') + '</div></div>';
 
     Array.prototype.forEach.call(document.querySelectorAll('#sito input'), i => {

@@ -972,4 +972,7 @@
   <data name="Pag_RuotaOrfana" xml:space="preserve">
     <value>Hai dichiarato {0}, e in ruota non c'è più: resta fuori da questa prescrizione. Se l'hai rinominato in N.I.N.A., ripuntalo nella vista dei filtri.</value>
   </data>
+  <data name="Pag_SqmNota" xml:space="preserve">
+    <value>*Cielo (SQM)*: il carattere del sito, non la trasparenza di stanotte. Nel dubbio dichiara il valore più chiaro dell'intervallo, cioè il numero più basso: un cielo dichiarato più scuro del vero prescrive meno ore di quelle che servono, e a casa si torna corti.</value>
+  </data>
 </root>
