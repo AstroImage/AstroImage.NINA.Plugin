@@ -42,6 +42,9 @@
   /*  LA STRADA SCELTA NEL MENU. Nulla vuol dire «sceglie il motore», e la richiesta non porta la chiave. Si azzera
    *  quando cambia l'oggetto, la data o le notti: una strada e' di una scheda e di una notte. */
   let stradaScelta = null;
+  /*  Il banco: i campi che il servizio pubblica, i codici delle sue divergenze, quello che il C# ha letto e dichiarato
+   *  per il profilo attivo, e il banco che l'ultima prescrizione ha usato. */
+  let campiDelBanco = [], divergenzeDelBanco = [], bancoLetto = null, bancoUsato = null;
 
   /*  Le icone: tre segni, nessun colore proprio. Prendono il colore dal testo e
    *  diventano accento quando la card e' scelta — come in AIS, dove i tre modi
@@ -84,6 +87,7 @@
        rileggono, perche' adesso sono quelli del profilo nuovo, o nessuno. */
     if (r && r.evento === 'profilo') {
       stradaScelta = null;
+      bancoUsato = null;
       $('uscita').innerHTML = '<div class="box" style="border-color:#e0a030"><span style="color:#e0a030">' +
         esc(T('Pag_ProfiloCambiato')) + '</span></div>';
       ridisegna();
@@ -132,8 +136,12 @@
       politicaScelta = r.politicaDiSerie && politiche.some(x => x.id === r.politicaDiSerie) ? r.politicaDiSerie
         : (politiche.length ? politiche[0].id : null);
       disegnaPolitiche();
+      campiDelBanco = r.campiDelBanco || [];
+      divergenzeDelBanco = r.divergenzeDelBanco || [];
+      disegnaBanco();
     });
     chiedi('camera').then(r => { if (r.ok) camera = r.camera || null; });
+    chiedi('banco').then(r => { if (r.ok) { bancoLetto = r; disegnaBanco(); } });
     chiedi('sito').then(r => { if (r.ok) disegnaSito(r); });
     chiedi('filtri').then(r => { if (r.ok) disegnaRuota(r); });
     /*  I modi si ridisegnano soltanto: l'elenco e la scelta restano quelli, cambia
@@ -271,34 +279,163 @@
     });
   }
 
+  /* ── IL BANCO ─────────────────────────────────────────────────────────────────
+     Tre pezzi, ognuno col suo nome sopra: quello che N.I.N.A. tiene — focale e rapporto, letti ogni volta, e da qui non
+     si cambiano —, quello che il catalogo del motore propone per la voce riconosciuta, e quello che dichiari tu perche'
+     non ce l'ha nessuno dei due, e che vince. Il blocco si costruisce dalla lista che il servizio pubblica in
+     /v1/salute: un campo per cui il Ponte non ha una parola non si mostra, e la guardia del motore lo dice in rosso.
+     Le divergenze fra due sorgenti le calcola il motore; qui si scrivono coi due numeri e le due provenienze, e un
+     codice che qui non ha una parola si scrive com'e', invece di tacerlo. Le chiavi delle parole sono letterali. */
+  const PAROLA_CAMPO_BANCO = {
+    'tel': 'Pag_Banco_tel', 'tel.apertura_mm': 'Pag_Banco_tel_apertura_mm',
+    'tel.ostruzione': 'Pag_Banco_tel_ostruzione', 'tel.trasmissione': 'Pag_Banco_tel_trasmissione',
+    'tel.focale_mm': 'Pag_Banco_tel_focale_mm', 'tel.rapporto': 'Pag_Banco_tel_rapporto',
+    'red': 'Pag_Banco_red', 'mnt': 'Pag_Banco_mnt',
+    'mnt.rms_caratteristico_arcsec': 'Pag_Banco_mnt_rms_caratteristico_arcsec' };
+  const NOTA_CAMPO_BANCO = { 'mnt.rms_caratteristico_arcsec': 'Pag_Banco_RmsNota' };
+  const PAROLA_DIVERGENZA_BANCO = {
+    'dichiarato_diverso_dal_catalogo': 'Pag_Banco_Div_dichiarato_diverso_dal_catalogo',
+    'focale_diversa_dal_catalogo': 'Pag_Banco_Div_focale_diversa_dal_catalogo',
+    'apertura_diversa_da_nina': 'Pag_Banco_Div_apertura_diversa_da_nina' };
+  const PAROLA_FONTE_BANCO = { nina: 'Pag_Banco_Fonte_nina', catalogo: 'Pag_Banco_Fonte_catalogo',
+    dichiarato: 'Pag_Banco_Fonte_dichiarato', riferimento: 'Pag_Banco_Fonte_riferimento' };
+  const PEZZI_DEL_BLOCCO = ['ottica', 'riduttore', 'montatura'];
+
+  /*  LA RICHIESTA: ogni campo della lista col valore che gli spetta — dal profilo di N.I.N.A. se e' suo, dalla
+   *  dichiarazione se e' dichiarabile o e' un riconoscimento. Nessun valore di serie: quello che manca manca, e il
+   *  servizio dice che cosa. */
+  function bancoDaMandare() {
+    const b = {};
+    const metti = (chiave, valore) => {
+      const parti = chiave.split('.');
+      if (parti.length === 1) { b[parti[0]] = valore; return; }
+      if (!b[parti[0]] || typeof b[parti[0]] !== 'object') b[parti[0]] = {};
+      b[parti[0]][parti[1]] = valore;
+    };
+    const dichiarato = (bancoLetto && bancoLetto.dichiarato) || {};
+    const nina = (bancoLetto && bancoLetto.nina) || {};
+    campiDelBanco.forEach(c => {
+      if (c.provenienza === 'nina') { if (nina[c.chiave] != null) metti(c.chiave, nina[c.chiave]); }
+      else if ((c.provenienza === 'dichiarabile' || c.provenienza === 'riconoscimento') && dichiarato[c.chiave] != null)
+        metti(c.chiave, dichiarato[c.chiave]);
+    });
+    if (camera) b.cam = camera;
+    b.bin = 1;
+    return b;
+  }
+
+  /*  Il numero come lo scrivi: il servizio giudica. Un testo che non e' un numero parte come testo, e il servizio lo
+   *  rifiuta nominando il campo, invece di diventare in silenzio un'assenza. */
+  const valoreScritto = (v, numerico) => {
+    const s = String(v == null ? '' : v).trim();
+    if (s === '') return null;
+    if (!numerico) return s;
+    const n = Number(s.replace(',', '.'));
+    return isFinite(n) ? n : s;
+  };
+
+  function disegnaBanco() {
+    const box = $('banco');
+    if (!box) return;
+    if (!campiDelBanco.length) { box.innerHTML = ''; return; }
+    const dichiarato = (bancoLetto && bancoLetto.dichiarato) || {};
+    const nina = (bancoLetto && bancoLetto.nina) || {};
+    const pb = bancoUsato;
+    const campi = campiDelBanco.filter(c => PEZZI_DEL_BLOCCO.indexOf(c.pezzo) >= 0 &&
+      !/\.id$/.test(c.chiave) && PAROLA_CAMPO_BANCO[c.chiave]);
+    const delProdotto = c => {
+      const parti = c.chiave.split('.');
+      const pezzo = pb && pb[c.pezzo];
+      return (parti.length === 2 && pezzo && pezzo.campi) ? (pezzo.campi[parti[1]] || null) : null;
+    };
+    const fonte = x => {
+      if (!x) return '';
+      const parola = PAROLA_FONTE_BANCO[x.fonte];
+      return ' <span style="font-size:12px;opacity:.7">' + esc(parola ? T(parola) : x.fonte) +
+        (x.fonte === 'dichiarato' && x.catalogo != null ? ' · ' + MF('Pag_Banco_CatalogoProponeva', esc(x.catalogo)) : '') +
+        '</span>';
+    };
+    const riga = c => {
+      const etichetta = esc(T(PAROLA_CAMPO_BANCO[c.chiave]));
+      const unita = c.unita && c.unita !== 'f/' ? ' ' + esc(c.unita) : '';
+      let valore;
+      if (c.chiave === 'red') {
+        const r = pb && pb.ottica && pb.ottica.riduttore;
+        valore = r ? '<b>' + esc(r.voce || r.fattore) + '</b>'
+                   : '<span style="opacity:.7">' + esc(T('Pag_Banco_RedDaFocale')) + '</span>';
+      } else if (c.provenienza === 'riconoscimento') {
+        const id = c.chiave + '.id';
+        const pezzo = pb && pb[c.pezzo];
+        valore = '<input data-banco="' + esc(id) + '" value="' + escOVuoto(dichiarato[id]) +
+          '" style="width:130px" spellcheck="false">' +
+          (pezzo && pezzo.voce ? ' <span style="font-size:12px;opacity:.7">' + MF('Pag_Banco_Riconosciuto', esc(pezzo.voce)) + '</span>' : '');
+      } else if (c.provenienza === 'nina') {
+        const v = nina[c.chiave];
+        valore = '<b style="font-size:15px">' + (v == null ? '—' : (c.unita === 'f/' ? 'f/' : '') + esc(v)) + '</b>' + unita +
+          ' <span style="font-size:12px;opacity:.7">' + esc(T('Pag_Banco_Fonte_nina')) + '</span>';
+      } else if (c.provenienza === 'dichiarabile') {
+        valore = '<input data-banco="' + esc(c.chiave) + '" data-numero="1" value="' + escOVuoto(dichiarato[c.chiave]) +
+          '" style="width:70px" spellcheck="false">' + unita + fonte(delProdotto(c));
+      } else return '';
+      const nota = NOTA_CAMPO_BANCO[c.chiave]
+        ? '<div style="font-size:12px;opacity:.7">' + esc(T(NOTA_CAMPO_BANCO[c.chiave])) + '</div>' : '';
+      return '<tr><th>' + etichetta + '</th><td>' + valore + nota + '</td></tr>';
+    };
+    const campoDi = d => campiDelBanco.find(c => c.pezzo === d.pezzo && c.chiave.split('.')[1] === d.campo);
+    const divergenza = d => {
+      const parola = PAROLA_DIVERGENZA_BANCO[d.codice];
+      if (!parola) return '<li>' + esc(d.codice) + '</li>';
+      if (d.codice === 'dichiarato_diverso_dal_catalogo') {
+        const c = campoDi(d);
+        const nome = c && PAROLA_CAMPO_BANCO[c.chiave] ? T(PAROLA_CAMPO_BANCO[c.chiave]) : d.campo;
+        const u = c && c.unita ? ' ' + c.unita : '';
+        return '<li>' + MF(parola, esc(nome), esc(d.dichiarato), esc(d.catalogo), esc(d.voce), esc(u)) + '</li>';
+      }
+      if (d.codice === 'focale_diversa_dal_catalogo')
+        return '<li>' + MF(parola, esc(d.nina), esc(d.catalogo), esc(d.voce), esc(d.riduttore)) + '</li>';
+      const a = d.apertura || {}, n = d.nina || {};
+      const fa = PAROLA_FONTE_BANCO[a.fonte];
+      return '<li>' + MF(parola, esc(a.valore), esc(fa ? T(fa) : a.fonte), esc(n.focale_mm), esc(n.rapporto),
+        esc(n.apertura_mm)) + '</li>';
+    };
+    const divergenze = (pb && pb.divergenze) || [];
+    box.innerHTML = '<div class="box"><b>' + esc(T('Pag_BancoTitolo')) + '</b>' +
+      (bancoLetto && bancoLetto.nota ? '<div style="margin:.6em 0;opacity:.85">&#9888; ' + esc(bancoLetto.nota) + '</div>' : '') +
+      '<div style="margin:.4em 0;opacity:.7;font-size:12.5px">' + MF('Pag_BancoNota') + '</div>' +
+      '<table style="width:100%">' + campi.map(riga).join('') + '</table>' +
+      (divergenze.length ? '<ul style="margin:.6em 0 0 1.1em;padding:0;color:#e0a030">' + divergenze.map(divergenza).join('') + '</ul>' : '') +
+      '<div style="margin-top:.7em"><button id="salvaBanco">' + esc(T('Pag_SalvaBanco')) + '</button>' +
+      '<span id="esitoBanco" style="margin-left:.6em;opacity:.8"></span></div></div>';
+    const salva = $('salvaBanco');
+    if (salva) salva.addEventListener('click', () => {
+      const valori = {};
+      Array.prototype.forEach.call(box.querySelectorAll('input[data-banco]'), i => {
+        valori[i.getAttribute('data-banco')] = valoreScritto(i.value, i.hasAttribute('data-numero'));
+      });
+      $('esitoBanco').textContent = T('Pag_Salvo');
+      chiedi('salvaBanco', { banco: valori }).then(r2 => {
+        $('esitoBanco').textContent = r2.ok ? T('Pag_Salvato')
+          : T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '');
+        if (r2.ok) chiedi('banco').then(r3 => { if (r3.ok) { bancoLetto = r3; disegnaBanco(); } });
+      });
+    });
+  }
+
   async function vai() {
     $('vai').disabled = true;
     stato(T('Pag_StoChiedendo'));
     $('uscita').innerHTML = '';
 
-    /*  IL BANCO SCRITTO QUI ha un nome perche' la pagina lo deve anche MOSTRARE (il perche' e' scritto sotto, dentro la
-     *  richiesta). Un banco che non si legge dal profilo e' un banco che nessuno confronta col proprio: la fascia gialla
-     *  sopra il menu lo dice, finche' il banco non arrivera' dal profilo. Il contrario vale uguale: un campo sbagliato
-     *  nel profilo — una focale plausibile e falsa — farebbe prescrivere per un telescopio che non esiste, e lo prende
-     *  solo chi vede il banco che il Ponte ha letto. */
-    const bancoMandato = { tel: 'askar71f', red: 0.75, mnt: 'am5', bin: 1, cam: camera || 'asi2600mc' };
     const r = await chiedi('prescrizione', {
       /* IL SITO E' QUELLO DEL PROFILO, non piu' sette numeri scritti qui dentro.
          Se manca qualcosa manca davvero: nessun ripiego, nessun valore di serie. */
       sito:      sito || {},
-      /* IL BANCO NON VIENE ANCORA DAL PROFILO, ed e' scritto qui apposta finche' non
-         verra'. N.I.N.A. sa focale, rapporto focale e passo del pixel, ma il motore ha
-         bisogno di apertura, ostruzione, trasmissione, QE, rumore di lettura e pozzo:
-         cose che N.I.N.A. non possiede affatto. Dedurre «askar71f» dal nome di un
-         dispositivo sarebbe indovinare l'identita' fisica da un'etichetta — lo stesso
-         difetto dei filtri, ripetuto sull'ottica. Serve una dichiarazione, come per la
-         ruota, e finche' non c'e' la pagina lo dice invece di far finta. */
-      /*  LA CAMERA VERA QUANDO C'E'. Il motore accetta per `cam` un identificativo
-       *  di catalogo oppure la descrizione che il driver dichiara, e da quella
-       *  riconosce sensore e modo di lettura per conto suo. Il resto del banco e'
-       *  ancora scritto qui, e lo sara' finche' non arrivera' dal profilo: N.I.N.A.
-       *  sa focale e rapporto focale, ma apertura, ostruzione e trasmissione no. */
-      banco:     bancoMandato,
+      /*  IL BANCO IN TRE PEZZI (16 settembre 2026): quello che N.I.N.A. tiene — focale e rapporto, riletti ogni volta —,
+       *  quello che il catalogo del motore riconosce dall'identificativo dichiarato, e quello che chi riprende dichiara
+       *  perche' non ce l'ha nessuno dei due. Si compone dalla lista dei campi che il servizio pubblica, non da una lista
+       *  di qui; la camera e' quella che il driver dichiara. Dedurre «askar71f» dal nome di un dispositivo sarebbe
+       *  indovinare l'identita' fisica da un'etichetta: l'identificativo lo dichiara chi riprende, come per i filtri. */
+      banco:     bancoDaMandare(),
       bersaglio: { id: $('oggetto').value.trim() },
       /*  LE TRE DICHIARAZIONI, e adesso vengono dai controlli.
        *  `notti` era il letterale 3 e la data era cablata nel markup: due numeri
@@ -356,8 +493,11 @@
     let righe = '';
     for (const s of p.sequenze) {
       const m = s.modello;
-      const pose = m.blocchi.reduce((a, b) => a + (b.n || 0), 0);
-      const ore = m.blocchi.reduce((a, b) => a + (b.sec || 0) * (b.n || 0), 0) / 3600;
+      /*  Pose e ore della notte le fa il motore (`totale`), e qui si stampano: il numero che la pagina mostra lo manda
+       *  il motore (contratto delle schede §6 ter). Un motore che non le manda lascia il trattino. */
+      const tot = m.totale || {};
+      const pose = tot.pose == null ? '—' : esc(tot.pose);
+      const ore = tot.ore == null ? '—' : esc(tot.ore.toFixed(2)) + ' h';
       const tasto = r.consegnabile
         ? '<button class="manda" data-notte="' + s.notte +
           '" data-prescrizione="' + esc(r.prescrizione || '') + '">' + T('Pag_MandaANina') + '</button>'
@@ -366,7 +506,7 @@
                '<td>' + esc((m.quando && m.quando.data) || '—') + '</td>' +
                '<td class="n">' + m.blocchi.length + '</td>' +
                '<td class="n">' + pose + '</td>' +
-               '<td class="n">' + ore.toFixed(2) + ' h</td>' +
+               '<td class="n">' + ore + '</td>' +
                /*  IL NOME CHE VEDRAI IN SEQUENZA, non l'etichetta di banda del motore.
                   «HO · L» erano i nomi dei CANALI, e leggerli accanto al tasto che
                   consegna faceva credere che quelli sarebbero finiti nel Sequenziatore.
@@ -401,10 +541,6 @@
            esc(d.misura ? d.misura.ms + ' ms' : '—'),
            (r.corpo.length / 1024).toFixed(0)) + '</td></tr>' +
       '</table></div>' +
-      /*  La fascia gialla del banco scritto qui: gli identificativi cosi' come partono, nessuna parola composta. */
-      '<div class="box" style="border-color:#e0a030"><span style="color:#e0a030">' +
-        MF('Pag_Men_BancoNonLetto', [bancoMandato.tel, bancoMandato.red, bancoMandato.mnt, bancoMandato.cam].map(esc).join(' · ')) +
-        '</span></div>' +
       disegnaMenu(p.prescrizione) +
       '<div class="box"><table>' +
       '<tr><th>' + T('Pag_ColNotte') + '</th><th>' + T('Pag_ColData') + '</th><th>' +
@@ -416,6 +552,9 @@
         '<div style="margin-top:6px;opacity:.85">' +
         esc(r.perche || T('Pag_MotivoNonDichiarato')) + '</div></div>') +
       '<div id="consegna"></div>';
+    /*  Il banco che questa prescrizione ha usato, campo per campo con la sua provenienza e le divergenze. */
+    bancoUsato = p.banco || null;
+    disegnaBanco();
 
     for (const b of document.querySelectorAll('button.manda'))
       b.addEventListener('click', () => manda(b));
@@ -568,9 +707,10 @@
       '<div style="margin-top:.7em;opacity:.7;font-size:12.5px">' +
         MF('Pag_LatLonNota') +
       '</div>' +
-      '<div style="margin-top:.5em;opacity:.7;font-size:12.5px">' +
-        '&#9888; ' + MF('Pag_StrumentazioneNota') +
-      '</div></div>';
+      /*  Seeing e guida sono dichiarazioni, e lo dicono: servono al campionamento e al confronto, e non entrano nella
+       *  prescrizione. Nelle decisioni entra l'RMS caratteristico della montatura, che si dichiara nel banco. */
+      '<div style="margin-top:.5em;opacity:.7;font-size:12.5px">' + MF('Pag_SeeingNota') + '</div>' +
+      '<div style="margin-top:.3em;opacity:.7;font-size:12.5px">' + MF('Pag_RmsNota') + '</div></div>';
 
     Array.prototype.forEach.call(document.querySelectorAll('#sito input'), i => {
       i.addEventListener('input', () => { $('esitoSito').textContent = T('Pag_NonSalvato'); });

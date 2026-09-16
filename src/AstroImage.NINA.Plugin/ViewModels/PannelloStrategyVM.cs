@@ -315,6 +315,16 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         /// <summary>Che cosa non andava nei parametri salvati, se qualcosa non andava.</summary>
         public string NotaSito => Dichiarazioni.NotaSito;
 
+        /// <summary>Il banco dichiarato nel profilo attivo: quello che ne' N.I.N.A. ne' il catalogo sanno.</summary>
+        public BancoDichiarato BancoScritto => Dichiarazioni.Banco;
+
+        /// <summary>Che cosa non andava nel banco salvato, se qualcosa non andava.</summary>
+        public string NotaBanco => Dichiarazioni.NotaBanco;
+
+        /// <summary>Sostituisce il banco dichiarato e lo salva nel profilo attivo.</summary>
+        public bool SalvaBanco(BancoDichiarato nuovo, out string perCheNo) =>
+            Dichiarazioni.SalvaBanco(nuovo, out perCheNo);
+
         /// <summary>Sostituisce i parametri dichiarati del sito e li salva nel profilo attivo.</summary>
         public bool SalvaSito(SitoDichiarato nuovo, out string perCheNo) =>
             Dichiarazioni.SalvaSito(nuovo, out perCheNo);

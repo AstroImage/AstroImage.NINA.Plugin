@@ -182,9 +182,33 @@ namespace AstroImage.NINA.Plugin.Services {
                         }
                     politicaDiSerie = pol.TryGetProperty("di_serie", out var pd) ? pd.GetString() : null;
                 }
+                /*  E I CAMPI DEL BANCO, da `limiti.banco`: quali entrano nel motore, chi li scrive, e i codici con cui il
+                 *  motore dice che due sorgenti divergono. Il blocco del banco nella pagina si costruisce da qui, non da
+                 *  una lista del Ponte. Un campo senza chiave si salta; un motore che non li pubblica lascia l'elenco
+                 *  vuoto, e la pagina lo dice invece di inventarne uno. */
+                var campiDelBanco = new List<CampoDelBanco>();
+                var divergenzeDelBanco = new List<string>();
+                string? Testo(JsonElement el, string nome) =>
+                    el.TryGetProperty(nome, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
+                if (doc.RootElement.TryGetProperty("limiti", out var lim) && lim.ValueKind == JsonValueKind.Object &&
+                    lim.TryGetProperty("banco", out var lb) && lb.ValueKind == JsonValueKind.Object) {
+                    if (lb.TryGetProperty("campi", out var lc) && lc.ValueKind == JsonValueKind.Array)
+                        foreach (var c in lc.EnumerateArray()) {
+                            if (c.ValueKind != JsonValueKind.Object) continue;
+                            var chiave = Testo(c, "chiave");
+                            if (string.IsNullOrWhiteSpace(chiave)) continue;
+                            campiDelBanco.Add(new CampoDelBanco { Chiave = chiave!, Pezzo = Testo(c, "pezzo"),
+                                Provenienza = Testo(c, "provenienza"), Unita = Testo(c, "unita") });
+                        }
+                    if (lb.TryGetProperty("divergenze", out var ld) && ld.ValueKind == JsonValueKind.Array)
+                        foreach (var x in ld.EnumerateArray())
+                            if (x.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(x.GetString()))
+                                divergenzeDelBanco.Add(x.GetString()!);
+                }
                 return new ModalitaDiRipresa { Elenco = elenco,
                     DiSerie = m.TryGetProperty("di_serie", out var d) ? d.GetString() : null,
-                    Politiche = politiche, PoliticaDiSerie = politicaDiSerie };
+                    Politiche = politiche, PoliticaDiSerie = politicaDiSerie,
+                    CampiDelBanco = campiDelBanco, DivergenzeDelBanco = divergenzeDelBanco };
             } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
                 throw;
             } catch { return ModalitaDiRipresa.Vuota; }
@@ -218,7 +242,20 @@ namespace AstroImage.NINA.Plugin.Services {
         /// <summary>Le politiche di sessione, con la stessa forma dei modi. Vuote su un motore che non le dichiara.</summary>
         public IReadOnlyList<ModoDiRipresa> Politiche { get; set; } = new List<ModoDiRipresa>();
         public string? PoliticaDiSerie { get; set; }
+        /// <summary>I campi del banco che il motore accetta, da <c>limiti.banco</c>. Vuoti su un motore che non li pubblica.</summary>
+        public IReadOnlyList<CampoDelBanco> CampiDelBanco { get; set; } = new List<CampoDelBanco>();
+        /// <summary>I codici con cui il motore dice che due sorgenti del banco divergono.</summary>
+        public IReadOnlyList<string> DivergenzeDelBanco { get; set; } = new List<string>();
         public static ModalitaDiRipresa Vuota => new ModalitaDiRipresa();
+    }
+
+    /// <summary>Un campo del contratto del banco, come il servizio lo pubblica: la chiave, il pezzo, chi scrive il
+    /// valore (<c>riconoscimento</c>, <c>dichiarabile</c>, <c>nina</c>, <c>driver</c>, <c>richiesta</c>) e l'unita'.</summary>
+    public sealed class CampoDelBanco {
+        public string Chiave { get; set; } = "";
+        public string? Pezzo { get; set; }
+        public string? Provenienza { get; set; }
+        public string? Unita { get; set; }
     }
 
     /// <summary>

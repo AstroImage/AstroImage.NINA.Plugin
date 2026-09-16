@@ -97,7 +97,7 @@ namespace AstroImage.NINA.Plugin.Services {
              *  buttera' via, e cosi' la regola si puo' provare senza N.I.N.A. accesa. */
             var inRuota = NomiInRuota();
             var mancanti = ricetta.Blocchi
-                .Select(b => ScartoPerFiltro(b.Etichetta, b.Filtro, inRuota, b.Pose, b.Secondi))
+                .Select(b => ScartoPerFiltro(b.Etichetta, b.Filtro, inRuota, b.Pose, b.Secondi, b.Ore))
                 .Where(x => x is not null).ToList();
             if (mancanti.Count > 0) {
                 foreach (var m in mancanti) ricetta.Scartati.Add(m!);
@@ -374,15 +374,17 @@ namespace AstroImage.NINA.Plugin.Services {
         /// presente in ruota. Altrimenti la frase che dice che cosa manca e quanto costa.
         /// </summary>
         public static string? ScartoPerFiltro(string? etichetta, string? richiesto,
-                                              IReadOnlyList<string>? inRuota, int pose, double secondi) {
+                                              IReadOnlyList<string>? inRuota, int pose, double secondi, double? ore) {
             if (string.IsNullOrWhiteSpace(richiesto)) return null;
             var ruota = inRuota ?? new List<string>();
             if (ruota.Any(n => StessoVetro(n, richiesto))) return null;
 
-            var ore = pose * secondi / 3600.0;
-            return Loc.F("Montaggio_FiltroNonInRuota",
-                         string.IsNullOrWhiteSpace(etichetta) ? Loc.T("Montaggio_UnBlocco") : etichetta,
-                         richiesto!.Trim(), pose, secondi, ore);
+            /*  LE ORE LE MANDA IL MOTORE (16 settembre 2026): qui non si moltiplicano pose e secondi — contratto delle
+             *  schede §6 ter. Un motore che non le manda lascia la frase senza, invece di un numero ricavato. */
+            var chi = string.IsNullOrWhiteSpace(etichetta) ? Loc.T("Montaggio_UnBlocco") : etichetta;
+            return ore is null
+                ? Loc.F("Montaggio_FiltroNonInRuotaSenzaOre", chi, richiesto!.Trim(), pose, secondi)
+                : Loc.F("Montaggio_FiltroNonInRuota", chi, richiesto!.Trim(), pose, secondi, ore.Value);
         }
 
         /// <summary>

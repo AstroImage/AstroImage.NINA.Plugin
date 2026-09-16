@@ -144,6 +144,9 @@
   <data name="Montaggio_FiltroNonInRuota" xml:space="preserve">
     <value>{0}: la prescrizione chiede il filtro «{1}», che in ruota non c'e'. Sono {2} pose da {3:0.#} s, cioe' {4:0.00} h che verrebbero riprese con il filtro montato adesso, qualunque sia.</value>
   </data>
+  <data name="Montaggio_FiltroNonInRuotaSenzaOre" xml:space="preserve">
+    <value>{0}: la prescrizione chiede il filtro «{1}», che in ruota non c'e'. Sono {2} pose da {3:0.#} s, che verrebbero riprese con il filtro montato adesso, qualunque sia.</value>
+  </data>
   <data name="Montaggio_InRuotaCiSono" xml:space="preserve">
     <value>In ruota ci sono: {0}.</value>
   </data>
@@ -488,9 +491,6 @@
   </data>
   <data name="Pag_StrategyNonRisponde" xml:space="preserve">
     <value>Strategy non risponde</value>
-  </data>
-  <data name="Pag_StrumentazioneNota" xml:space="preserve">
-    <value>La *strumentazione* e' ancora una configurazione Strategy scritta nel ponte, *non* letta dal profilo di N.I.N.A.: Askar 71F 0.75× con ASI2600MC. N.I.N.A. non possiede apertura, ostruzione, trasmissione, QE ne' rumore di lettura, quindi il collegamento richiedera' una dichiarazione come quella dei filtri.</value>
   </data>
   <data name="Pag_TipAmbiguo" xml:space="preserve">
     <value>due slot hanno questo stesso nome: N.I.N.A. risolve per nome e prende il primo</value>
@@ -852,13 +852,109 @@
   <data name="Pag_Men_LimiteStelle" xml:space="preserve">
     <value>*{0}*: {1}, e la prescrizione non ha il colore delle stelle.</value>
   </data>
-  <data name="Pag_Men_BancoNonLetto" xml:space="preserve">
-    <value>Banco: *{0}* — scritto nella pagina, non ancora letto dal profilo di N.I.N.A.: se il tuo è diverso, i riquadri e i prezzi qui sotto non sono i tuoi.</value>
-  </data>
   <data name="Pag_ProfiloCambiato" xml:space="preserve">
     <value>Il profilo di N.I.N.A. è cambiato: la prescrizione di prima era calcolata sul banco e sul sito dell'altro profilo, ed è stata ritirata. Chiedine una nuova.</value>
   </data>
   <data name="Presc_RitirataPerProfilo" xml:space="preserve">
     <value>questa prescrizione è stata ritirata perché il profilo di N.I.N.A. è cambiato: era calcolata sul banco e sul sito dell'altro profilo. Chiedine una nuova.</value>
+  </data>
+  <data name="Pag_BancoTitolo" xml:space="preserve">
+    <value>Il banco</value>
+  </data>
+  <data name="Pag_BancoNota" xml:space="preserve">
+    <value>Quello che N.I.N.A. non sa lo dichiari qui, una volta per profilo: la *voce del catalogo* riconosce il pezzo e ne propone i numeri, e quello che scrivi vince. La *focale* e il *rapporto focale* li legge da N.I.N.A., e da qui non si cambiano.</value>
+  </data>
+  <data name="Pag_SalvaBanco" xml:space="preserve">
+    <value>Salva il banco</value>
+  </data>
+  <data name="Pag_Banco_tel" xml:space="preserve">
+    <value>telescopio (voce del catalogo)</value>
+  </data>
+  <data name="Pag_Banco_tel_apertura_mm" xml:space="preserve">
+    <value>apertura</value>
+  </data>
+  <data name="Pag_Banco_tel_ostruzione" xml:space="preserve">
+    <value>ostruzione</value>
+  </data>
+  <data name="Pag_Banco_tel_trasmissione" xml:space="preserve">
+    <value>trasmissione</value>
+  </data>
+  <data name="Pag_Banco_tel_focale_mm" xml:space="preserve">
+    <value>focale</value>
+  </data>
+  <data name="Pag_Banco_tel_rapporto" xml:space="preserve">
+    <value>rapporto focale</value>
+  </data>
+  <data name="Pag_Banco_red" xml:space="preserve">
+    <value>riduttore</value>
+  </data>
+  <data name="Pag_Banco_mnt" xml:space="preserve">
+    <value>montatura (voce del catalogo)</value>
+  </data>
+  <data name="Pag_Banco_mnt_rms_caratteristico_arcsec" xml:space="preserve">
+    <value>RMS caratteristico</value>
+  </data>
+  <data name="Pag_Banco_RmsNota" xml:space="preserve">
+    <value>La cifra che la montatura tiene abitualmente con questo carico, non quella di una notte. Entra nelle decisioni: se la dichiari vince sul catalogo, ed è una tua responsabilità.</value>
+  </data>
+  <data name="Pag_Banco_RedDaFocale" xml:space="preserve">
+    <value>si riconosce dalla focale</value>
+  </data>
+  <data name="Pag_Banco_Riconosciuto" xml:space="preserve">
+    <value>riconosciuto come «{0}»</value>
+  </data>
+  <data name="Pag_Banco_CatalogoProponeva" xml:space="preserve">
+    <value>il catalogo proponeva {0}</value>
+  </data>
+  <data name="Pag_Banco_Fonte_nina" xml:space="preserve">
+    <value>letto da N.I.N.A.</value>
+  </data>
+  <data name="Pag_Banco_Fonte_catalogo" xml:space="preserve">
+    <value>proposto dal catalogo</value>
+  </data>
+  <data name="Pag_Banco_Fonte_dichiarato" xml:space="preserve">
+    <value>dichiarato da te</value>
+  </data>
+  <data name="Pag_Banco_Fonte_riferimento" xml:space="preserve">
+    <value>non noto: vale il riferimento del motore</value>
+  </data>
+  <data name="Pag_Banco_Div_dichiarato_diverso_dal_catalogo" xml:space="preserve">
+    <value>*{0}*: dichiarato {1}{4}, il catalogo dice {2}{4} per «{3}». Vale il dichiarato.</value>
+  </data>
+  <data name="Pag_Banco_Div_focale_diversa_dal_catalogo" xml:space="preserve">
+    <value>*Focale*: N.I.N.A. dice {0} mm, il catalogo dà {1} mm a «{2}» col riduttore {3}×. Vale quella di N.I.N.A.: se è vecchia, correggila nel profilo.</value>
+  </data>
+  <data name="Pag_Banco_Div_apertura_diversa_da_nina" xml:space="preserve">
+    <value>*Apertura*: {0} mm ({1}), ma la focale {2} mm e il rapporto f/{3} del profilo di N.I.N.A. fanno {4} mm. Uno dei due numeri è vecchio: il rapporto focale del profilo non lo legge nessuna funzione di N.I.N.A., e nessuno lo aggiorna quando si monta un riduttore.</value>
+  </data>
+  <data name="Pag_SeeingNota" xml:space="preserve">
+    <value>*Seeing*: una dichiarazione. Serve al consiglio di campionamento e al confronto fra configurazioni; non entra nella prescrizione, che è calcolata su un cielo di riferimento.</value>
+  </data>
+  <data name="Pag_RmsNota" xml:space="preserve">
+    <value>*Guida (RMS)*: una dichiarazione, con lo stesso uso. Nelle decisioni entra l'RMS caratteristico della montatura, che si dichiara nel banco, non questo campo.</value>
+  </data>
+  <data name="Banco_DichiarazioneVuota" xml:space="preserve">
+    <value>la dichiarazione del banco salvata non dice niente: il banco non è dichiarato.</value>
+  </data>
+  <data name="Banco_VersioneSconosciuta" xml:space="preserve">
+    <value>la dichiarazione del banco ha la versione {0}, che questo ponte non conosce: si legge come la 1.</value>
+  </data>
+  <data name="Banco_DichiarazioneIlleggibile" xml:space="preserve">
+    <value>la dichiarazione del banco non si è potuta leggere ({0}): il banco non è dichiarato, e il profilo non è stato toccato.</value>
+  </data>
+  <data name="Banco_MessaggioSenzaBanco" xml:space="preserve">
+    <value>la pagina ha chiesto di salvare il banco senza mandarlo.</value>
+  </data>
+  <data name="Banco_ChiaveMalformata" xml:space="preserve">
+    <value>«{0}» non è una chiave del banco.</value>
+  </data>
+  <data name="Banco_ValoreMalformato" xml:space="preserve">
+    <value>il valore di «{0}» non è né un numero né un identificativo.</value>
+  </data>
+  <data name="Motore_BancoChiaveSconosciuta" xml:space="preserve">
+    <value>Il motore non accetta la chiave «{0}» nel banco. Toglila dalla dichiarazione, o aggiorna il ponte.</value>
+  </data>
+  <data name="Motore_BancoValoreNonValido" xml:space="preserve">
+    <value>Il valore di «{1}» ({0}) non è valido: «{2}». Scrivi un numero del suo campo.</value>
   </data>
 </root>

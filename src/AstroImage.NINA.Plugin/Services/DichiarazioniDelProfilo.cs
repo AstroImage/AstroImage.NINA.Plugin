@@ -48,12 +48,32 @@ namespace AstroImage.NINA.Plugin.Services {
         /// <summary>Che cosa non andava nei parametri salvati, se qualcosa non andava.</summary>
         public string? NotaSito { get; private set; }
 
+        /// <summary>La chiave del banco dichiarato: quello che del banco non sanno ne' N.I.N.A. ne' il catalogo.</summary>
+        public const string ChiaveBanco = "bancoDichiarato";
+
+        /// <summary>Il banco dichiarato nel profilo attivo, per chiave del contratto del banco.</summary>
+        public BancoDichiarato Banco { get; private set; } = new BancoDichiarato();
+
+        /// <summary>Che cosa non andava nel banco salvato, se qualcosa non andava.</summary>
+        public string? NotaBanco { get; private set; }
+
         /// <summary>Rilegge tutto dal profilo attivo. Quello che il profilo non ha, qui non c'e'.</summary>
         public void Ricarica() {
             Ruota = DichiarazioneRuota.Leggi(memoria.Leggi(ChiaveRuota), out var notaR);
             NotaRuota = notaR;
             Sito = DichiarazioneSito.Leggi(memoria.Leggi(ChiaveSito), out var notaS);
             NotaSito = notaS;
+            /*  Il banco si rilegge con gli altri, e per la stessa ragione: un banco ereditato da un altro profilo sono
+             *  numeri plausibili di un altro telescopio. */
+            Banco = DichiarazioneBanco.Leggi(memoria.Leggi(ChiaveBanco), out var notaB);
+            NotaBanco = notaB;
+        }
+
+        /// <summary>Sostituisce il banco dichiarato e lo scrive nel profilo attivo.</summary>
+        public bool SalvaBanco(BancoDichiarato? nuovo, out string? perCheNo) {
+            Banco = nuovo ?? new BancoDichiarato();
+            NotaBanco = null;
+            return memoria.Scrivi(ChiaveBanco, DichiarazioneBanco.Scrivi(Banco), out perCheNo);
         }
 
         /// <summary>Sostituisce la ruota dichiarata e la scrive nel profilo attivo.</summary>

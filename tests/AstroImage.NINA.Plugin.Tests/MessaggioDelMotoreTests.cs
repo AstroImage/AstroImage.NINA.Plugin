@@ -63,6 +63,8 @@ namespace AstroImage.NINA.Plugin.Tests {
         private static readonly string[] CodiciDelMotore = {
             "cielo_assente", "cielo_non_valido", "cielo_implausibile",
             "bersaglio_sconosciuto", "setup_sconosciuto", "setup_incompleto", "nessuna_prescrizione",
+            /* il contratto del banco, dal 16 settembre 2026 */
+            "banco_chiave_sconosciuta", "banco_valore_non_valido",
             "via_sconosciuta", "richiesta_incompleta", "richiesta_troppo_grande",
             "json_illeggibile", "motore_in_errore",
         };

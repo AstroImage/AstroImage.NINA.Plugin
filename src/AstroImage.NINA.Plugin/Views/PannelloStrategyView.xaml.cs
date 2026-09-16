@@ -251,6 +251,10 @@ namespace AstroImage.NINA.Plugin.Views {
 
                 if (azione == "salvaSito") { SalvaSito(id, messaggio); return; }
 
+                if (azione == "banco") { BancoLetto(id); return; }
+
+                if (azione == "salvaBanco") { SalvaBanco(id, messaggio); return; }
+
                 if (azione != "prescrizione") {
                     Rispondi(id, false, null, "azione_sconosciuta", Loc.F("Pannello_AzioneSconosciuta", azione)); return;
                 }
@@ -605,9 +609,17 @@ namespace AstroImage.NINA.Plugin.Views {
             foreach (var x in m.Politiche)
                 politiche.Add(new JsonObject { ["id"] = x.Id, ["etichetta"] = x.Etichetta,
                                                ["spiegazione"] = x.Spiegazione });
+            /*  E i campi del banco, perche' la pagina ne costruisca il blocco: la lista e' del servizio. */
+            var campi = new JsonArray();
+            foreach (var c in m.CampiDelBanco)
+                campi.Add(new JsonObject { ["chiave"] = c.Chiave, ["pezzo"] = c.Pezzo,
+                                           ["provenienza"] = c.Provenienza, ["unita"] = c.Unita });
+            var divergenze = new JsonArray();
+            foreach (var d in m.DivergenzeDelBanco) divergenze.Add(d);
             Rispondi(id, true, null, null, null, 0, null, new JsonObject {
                 ["modalita"] = elenco, ["diSerie"] = m.DiSerie,
-                ["politiche"] = politiche, ["politicaDiSerie"] = m.PoliticaDiSerie });
+                ["politiche"] = politiche, ["politicaDiSerie"] = m.PoliticaDiSerie,
+                ["campiDelBanco"] = campi, ["divergenzeDelBanco"] = divergenze });
         }
 
         /*  LA CAMERA COM'E', e nient'altro che com'e'.
@@ -703,6 +715,53 @@ namespace AstroImage.NINA.Plugin.Views {
             }
             var ok = vm.SalvaSito(nuovo, out var perCheNo);
             Logger.Info("[AstroImage] declared site saved" + (ok ? "" : " — NOT WRITTEN: " + perCheNo));
+            Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo);
+        }
+
+        /*  IL BANCO, IN TRE PEZZI.
+         *
+         *  Quello che N.I.N.A. tiene si rilegge ogni volta e non si copia: la focale e il rapporto focale del profilo.
+         *  Quello che dichiara chi riprende sta nel profilo, per chiave del contratto del banco. Il terzo pezzo — quello
+         *  che il catalogo del motore propone per la voce riconosciuta — lo dice il motore nella prescrizione.
+         *
+         *  LA MAPPA E' LA SOLA COSA DEL CONTRATTO CHE IL PONTE SA: quale campo del profilo di N.I.N.A. risponde a quale
+         *  chiave che il servizio dichiara «nina». E' conoscenza di N.I.N.A., non del motore. Una chiave «nina» che qui
+         *  non ha una lettura resta vuota, e la pagina lo mostra col trattino. */
+        private static readonly (string Chiave, Func<AstroImage.NINA.Plugin.Models.Setup.Ottica, double?> Leggi)[] LettureDiNina = {
+            ("tel.focale_mm", o => o.FocaleMm),
+            ("tel.rapporto", o => o.Rapporto),
+        };
+
+        private void BancoLetto(string id) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
+
+            var ottica = vm.Banco.Leggi().Ottica;
+            var nina = new JsonObject();
+            if (ottica is not null)
+                foreach (var (chiave, leggi) in LettureDiNina) {
+                    var v = leggi(ottica);
+                    if (v is not null) nina[chiave] = v.Value;
+                }
+            Rispondi(id, true, null, null, null, 0, null, new JsonObject {
+                ["dichiarato"] = DichiarazioneBanco.PerLaPagina(vm.BancoScritto),
+                ["nina"] = nina,
+                ["nota"] = vm.NotaBanco,
+            });
+        }
+
+        private void SalvaBanco(string id, JsonObject messaggio) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
+
+            var nuovo = DichiarazioneBanco.DalMessaggio(messaggio, out var perCheMalformato);
+            if (nuovo is null) {
+                Logger.Warning("[AstroImage] setup save refused — " + perCheMalformato);
+                Rispondi(id, false, null, "richiesta_malformata", perCheMalformato);
+                return;
+            }
+            var ok = vm.SalvaBanco(nuovo, out var perCheNo);
+            Logger.Info($"[AstroImage] declared setup saved: {nuovo.Valori.Count} values" + (ok ? "" : " — NOT WRITTEN: " + perCheNo));
             Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo);
         }
 

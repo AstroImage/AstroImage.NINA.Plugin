@@ -60,6 +60,27 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.AreEqual(20.8, d.Sito.Sqm);
         }
 
+        /*  IL BANCO DICHIARATO NON SI EREDITA: un banco di un altro profilo sono numeri plausibili di un altro telescopio. */
+        [TestMethod]
+        public void CambiandoProfilo_IlBancoDichiaratoEQuelloDelProfiloNuovo_ONiente() {
+            var m = new MemoriaDiDueProfili();
+            var d = new DichiarazioniDelProfilo(m);
+            var banco = DichiarazioneBanco.DalMessaggio(
+                System.Text.Json.Nodes.JsonNode.Parse("{\"banco\":{\"tel.id\":\"askar71f\",\"tel.apertura_mm\":71}}"), out var perCheNo);
+            Assert.IsNotNull(banco, perCheNo);
+            Assert.IsTrue(d.SalvaBanco(banco, out _));
+            var p = new PrescrizioneCorrente();
+
+            m.Attivo = "B";
+            CambioDiProfilo.Applica(d, p);
+            Assert.AreEqual(0, d.Banco.Valori.Count, "il banco di A non si eredita in B");
+
+            m.Attivo = "A";
+            CambioDiProfilo.Applica(d, p);
+            Assert.AreEqual("askar71f", d.Banco.Valori["tel.id"].GetString(), "tornati ad A, si rilegge il banco di A");
+            Assert.AreEqual(71, d.Banco.Valori["tel.apertura_mm"].GetDouble());
+        }
+
         /*  Ritirata e lasciata non sono la stessa cosa, e chi preme «manda» deve sentire la differenza. */
         [TestMethod]
         public void UnaPrescrizioneRitirata_DiceCheERitirata_EUnaNuovaLaRimette() {
