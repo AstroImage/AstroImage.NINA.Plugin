@@ -114,6 +114,31 @@ namespace AstroImage.NINA.Plugin.Services {
                 return null;
             }
 
+            /*  I BLOCCHI, PRIMA DEL CONTENITORE, e tutti o nessuno (regia, 16 settembre 2026).
+             *
+             *  Qui un blocco che non si costruiva si saltava e il bersaglio partiva con gli altri: una consegna a
+             *  meta' che in sequenza non si distingue da una conforme — la stessa ragione per cui un filtro che
+             *  manca ferma tutto, qui sopra —, e una somma di pose che contava anche il blocco saltato. Con le
+             *  orfane tenute fuori dalla domanda (`RichiestaDelPannello`) non deve succedere; se succede lo stesso
+             *  la rete ha un altro buco, e il rifiuto lo dice come un difetto, non come uno scarto fra gli altri.
+             *
+             *  Si costruiscono prima di chiedere il contenitore per la regola di sopra: non si costruisce cio' che
+             *  si buttera' via. L'ordine in cui entrano nel bersaglio non cambia: fuoco, guida, poi i blocchi. */
+            var riprese = new List<ISequenceItem>();
+            var mancati = new List<string>();
+            foreach (var b in ricetta.Blocchi) {
+                var r = Ripresa(b, ricetta.DitherOgniPose, ricetta.Note, out var perCheNoBlocco);
+                if (r is not null) riprese.Add(r);
+                else mancati.Add(Loc.F("Montaggio_BloccoScartato", b.Etichetta,
+                    perCheNoBlocco ?? Loc.T("Montaggio_SenzaRipresa")));
+            }
+            if (mancati.Count > 0) {
+                ricetta.Scartati.AddRange(mancati);
+                ricetta.Scartati.Add(Loc.F("Montaggio_BloccoMancato", mancati.Count, ricetta.Blocchi.Count));
+                ricetta.BloccoMancato = true;
+                return null;
+            }
+
             var dso = fonte.Contenitore();
             if (dso is null) {
                 ricetta.Scartati.Add(Loc.T("Montaggio_SenzaContenitore"));
@@ -155,17 +180,8 @@ namespace AstroImage.NINA.Plugin.Services {
              *  decisione gia' presa: la serie corta va in testa al suo gruppo perche'
              *  si fa il nucleo e poi si posa lungo, non il contrario. Qui non si
              *  riordina niente. */
-            var costruiti = 0;
-            foreach (var b in ricetta.Blocchi) {
-                var r = Ripresa(b, ricetta.DitherOgniPose, ricetta.Note, out var perCheNoBlocco);
-                if (r is not null) { dso.Add(r); costruiti++; }
-                else ricetta.Scartati.Add(Loc.F("Montaggio_BloccoScartato", b.Etichetta,
-                    perCheNoBlocco ?? Loc.T("Montaggio_SenzaRipresa")));
-            }
-            /*  Un contenitore senza riprese non e' un bersaglio dimezzato: e' un
-             *  bersaglio che non fa niente, e consegnarlo sarebbe peggio che dire di no. */
-            if (costruiti == 0) return null;
-            Logger.Debug($"[AstroImage] container: {costruiti} blocks added, " +
+            foreach (var r in riprese) dso.Add(r);
+            Logger.Debug($"[AstroImage] container: {riprese.Count} blocks added, " +
                          $"{dso.Items.Count} items in total");
 
             /*  QUI C'ERANO IL RISCALDAMENTO E IL RITORNO A CASA. Stessa ragione del

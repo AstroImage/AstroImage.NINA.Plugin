@@ -212,6 +212,10 @@ namespace AstroImage.NINA.Plugin.Services {
         /// <summary>Cio' che si e' costruito ma con una scelta che va detta.</summary>
         public List<string> Note { get; } = new List<string>();
 
+        /// <summary>Vero quando un blocco non si e' potuto costruire e per questo il bersaglio non e' partito:
+        /// non e' uno scarto fra gli altri, e' un difetto del Ponte, e chi consegna lo dice forte.</summary>
+        public bool BloccoMancato { get; set; }
+
         /// <summary>Vero se c'e' abbastanza per costruire qualcosa di sensato.</summary>
         public bool Costruibile => Blocchi.Count > 0 && !string.IsNullOrWhiteSpace(NomeBersaglio);
     }

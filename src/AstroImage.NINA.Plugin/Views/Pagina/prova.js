@@ -534,6 +534,10 @@
         (r.ruotaAggiunta && r.ruotaAggiunta.length
           ? MF('Pag_CalcolataTuaRuota', r.ruotaAggiunta.map(esc).join(' · '))
           : '<span style="color:#e0a030">' + MF('Pag_CalcolataDiSerie') + '</span>') +
+        /*  LE ORFANE SI DICONO QUI, alla richiesta, una per riga: un filtro dichiarato e poi rinominato o tolto in
+         *  N.I.N.A. non e' partito, e senza questa riga lo si scoprirebbe solo al rifiuto della consegna. */
+        (r.orfane || []).map(o => '<div style="color:#e0a030;margin-top:4px">' +
+          MF('Pag_RuotaOrfana', '«' + esc(o.nina) + '»' + (o.id ? ' (' + esc(o.id) + ')' : '')) + '</div>').join('') +
         '</td></tr>' +
       '<tr><th>' + T('Pag_RigaContratto') + '</th><td>' +
         MF('Pag_Contratto',
