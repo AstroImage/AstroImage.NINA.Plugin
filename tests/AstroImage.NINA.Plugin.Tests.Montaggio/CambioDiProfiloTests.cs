@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using AstroImage.NINA.Plugin.Localization;
 using AstroImage.NINA.Plugin.Models;
 using AstroImage.NINA.Plugin.Services;
 using AstroImage.NINA.Plugin.ViewModels;
@@ -87,6 +88,54 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
             foreach (var g in delPannello) g(servizio, EventArgs.Empty);
             CollectionAssert.AreEqual(new[] { "lult" }, new List<string>(DichiarazioneRuota.IdDichiarati(vm.Dichiarazione)),
                 "tornati ad A, si rilegge quello che A ha");
+        }
+
+        private static PannelloStrategyVM PannelloSuUnProfilo() {
+            var a = Profilo("A");
+            var servizio = PersistenzaDelProfiloTests.Finto.Crea<IProfileService>((m, args) =>
+                m.Name == "get_ActiveProfile" ? a : DiSerie(m.ReturnType));
+            return new PannelloStrategyVM(servizio, null!, null!, null!, null!, null!, null!, null!, null!);
+        }
+
+        /*  IL RITIRO GENERALIZZATO (regia, 16 settembre 2026). Il profilo non e' la sola cosa su cui la prescrizione e'
+         *  calcolata: anche la ruota, il banco e il sito dichiarati. Salvarne uno diverso ritira la prescrizione in mano, e
+         *  il perche' e' quello del salvataggio, non del profilo. Salvare la stessa dichiarazione non tocca niente. */
+        [TestMethod]
+        public void IlPannello_SalvandoRuotaBancoOSitoDiversi_RitiraLaPrescrizione_ColSuoPerche() {
+            var profilo = Loc.T("Presc_RitirataPerProfilo");
+            var motivi = new List<string>();
+            var banco = DichiarazioneBanco.DalMessaggio(
+                System.Text.Json.Nodes.JsonNode.Parse("{\"corpo\":{\"banco\":{\"tel.apertura_mm\":80}}}"), out var malformato);
+            Assert.IsNotNull(banco, malformato);
+            var salvataggi = new (string Nome, Func<PannelloStrategyVM, bool> Salva)[] {
+                ("ruota", vm => vm.SalvaDichiarazione(new RuotaVirtuale { Vetri = { new VoceRuota { Nina = "ULTIMATE", Motore = "lult" } } }, out _)),
+                ("banco", vm => vm.SalvaBanco(banco!, out _)),
+                ("sito", vm => vm.SalvaSito(new SitoDichiarato { Sqm = 20.5 }, out _)),
+            };
+            foreach (var (nome, salva) in salvataggi) {
+                var vm = PannelloSuUnProfilo();
+                var id = vm.InMano.Prendi(EsitoConUnaNotte());
+                Assert.IsTrue(salva(vm), nome + ": il salvataggio va a terra");
+                Assert.IsNull(vm.InMano.Notte(id, 1, out var codice, out var motivo), nome + ": la prescrizione di prima non si consegna");
+                Assert.AreEqual("prescrizione_ritirata", codice, nome + ": " + motivo);
+                Assert.AreNotEqual(profilo, motivo, nome + ": il perche' e' il salvataggio, non il profilo");
+                motivi.Add(motivo!);
+
+                /*  la stessa dichiarazione, di nuovo: una prescrizione nuova resta consegnabile */
+                var nuovo = vm.InMano.Prendi(EsitoConUnaNotte());
+                Assert.IsTrue(salva(vm), nome + ": il secondo salvataggio va a terra");
+                Assert.IsNotNull(vm.InMano.Notte(nuovo, 1, out var c2, out var m2), nome + ": riscrivere la stessa dichiarazione non ritira — " + c2 + " " + m2);
+            }
+            Assert.AreEqual(3, new HashSet<string>(motivi).Count, "tre salvataggi, tre perche': " + string.Join(" | ", motivi));
+        }
+
+        /*  Senza una prescrizione in mano un salvataggio non inventa un ritiro: chi preme «manda» sente «chiedine una». */
+        [TestMethod]
+        public void IlPannello_SenzaUnaPrescrizioneInMano_UnSalvataggioNonRitiraNiente() {
+            var vm = PannelloSuUnProfilo();
+            Assert.IsTrue(vm.SalvaSito(new SitoDichiarato { Sqm = 20.5 }, out _));
+            Assert.IsNull(vm.InMano.Notte(null, 1, out var codice, out _));
+            Assert.AreEqual("nessuna_prescrizione", codice);
         }
     }
 }

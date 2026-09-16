@@ -1104,4 +1104,22 @@
   <data name="Pag_Parziale_convenzioni_di_posa" xml:space="preserve">
     <value>Convenzioni della posa non dichiarate: scarico {0} s, assestamento {1} s, dithering ogni {2} pose.</value>
   </data>
+  <data name="Presc_RitirataPerRuota" xml:space="preserve">
+    <value>questa prescrizione è stata ritirata perché hai salvato una ruota diversa: era calcolata sui filtri di prima. Chiedine una nuova.</value>
+  </data>
+  <data name="Presc_RitirataPerBanco" xml:space="preserve">
+    <value>questa prescrizione è stata ritirata perché hai salvato un banco diverso: era calcolata sui numeri di prima. Chiedine una nuova.</value>
+  </data>
+  <data name="Presc_RitirataPerSito" xml:space="preserve">
+    <value>questa prescrizione è stata ritirata perché hai salvato un sito diverso: era calcolata sul cielo di prima. Chiedine una nuova.</value>
+  </data>
+  <data name="Pag_RitirataPerRuota" xml:space="preserve">
+    <value>Hai salvato una ruota diversa: la prescrizione di prima era calcolata sui filtri di prima, ed è stata ritirata. Chiedine una nuova.</value>
+  </data>
+  <data name="Pag_RitirataPerBanco" xml:space="preserve">
+    <value>Hai salvato un banco diverso: la prescrizione di prima era calcolata sui numeri di prima, ed è stata ritirata. Chiedine una nuova.</value>
+  </data>
+  <data name="Pag_RitirataPerSito" xml:space="preserve">
+    <value>Hai salvato un sito diverso: la prescrizione di prima era calcolata sul cielo di prima, ed è stata ritirata. Chiedine una nuova.</value>
+  </data>
 </root>
