@@ -659,39 +659,42 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "la risposta non dice che cosa ha consegnato");
         }
 
-        /*  LA LUNA TIENE FUORI, E SI DICE (regia, 16 settembre 2026). Sotto la soglia di Luna di un filtro il canale esce
-         *  dalla notte, non dal progetto; Strategy manda notte per notte i canali fuori coi numeri (`prodotto.luna.fuori`),
-         *  e la pagina li scrive in giallo: la notte, il canale, il filtro col nome della ruota, la fase, la distanza e la
-         *  soglia — e, per un filtro che porta piu' righe nello stesso frame, il perche' della soglia piu' severa.
-         *  Guardia strutturale: il Ponte non calcola la soglia, la scrive. */
+        /*  LA PENALIZZAZIONE LUNARE SI DICE IN TRE PARTI (16 settembre 2026): il moltiplicatore delle ore, la Luna con la fase
+         *  e la distanza, e — sotto la soglia del filtro — il limite inferiore, con la frase che dice che le ore non
+         *  ricomprano il contrasto. Strategy le manda notte per notte e canale per canale (`prodotto.luna.penalizzazioni`);
+         *  la pagina le scrive, col filtro col nome della ruota e, per un filtro che porta piu' righe nello stesso frame, il
+         *  perche' della soglia piu' severa. Guardia strutturale: il Ponte non calcola la penalizzazione, la scrive. */
         [TestMethod]
-        public void LA_LUNA_CHE_TIENE_FUORI_UN_CANALE_SI_SCRIVE_COI_SUOI_NUMERI() {
+        public void LA_PENALIZZAZIONE_LUNARE_SI_SCRIVE_IN_TRE_PARTI() {
             var js = PaginaSenzaCommenti();
-            var riquadro = Tratto(js, "function lunaFuori(l) {", "\n  }");
-            foreach (var pezzo in new[] { "l.fuori", "f.notte", "f.id", "vetroNellaRuota(f.filtro)", "f.fasePercento",
-                                          "f.distanza", "f.soglia", "f.congiunto", "'Pag_LunaFuori'", "'Pag_LunaFuoriCongiunto'",
-                                          "'Pag_LunaFuoriTitolo'" })
+            var riquadro = Tratto(js, "function lunaPenalizzazione(l) {", "\n  }");
+            foreach (var pezzo in new[] { "l.penalizzazioni", "f.notte", "f.id", "vetroNellaRuota(f.filtro)", "f.moltiplicatore",
+                                          "f.fasePercento", "f.distanza", "f.soglia", "f.limiteInferiore", "f.congiunto",
+                                          "'Pag_LunaPena'", "'Pag_LunaPenaMinima'", "'Pag_LunaPenaCongiunto'", "'Pag_LunaPenaTitolo'" })
                 StringAssert.Contains(riquadro, pezzo, "il riquadro della Luna non usa " + pezzo);
-            StringAssert.Contains(js, "lunaFuori(p.luna)", "il riquadro della Luna non entra nella risposta");
+            StringAssert.Contains(js, "lunaPenalizzazione(p.luna)", "il riquadro della Luna non entra nella risposta");
             foreach (var lingua in new[] { "it", "en" }) {
-                StringAssert.Contains(Tutte(lingua)["Pag_LunaFuori"], "{5}", lingua);
-                StringAssert.Contains(Tutte(lingua)["Pag_LunaFuoriCongiunto"], "{5}", lingua);
-                Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_LunaFuoriTitolo"), "Pag_LunaFuoriTitolo manca in " + lingua);
+                StringAssert.Contains(Tutte(lingua)["Pag_LunaPena"], "{5}", lingua);
+                StringAssert.Contains(Tutte(lingua)["Pag_LunaPenaMinima"], "{6}", lingua);
+                Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_LunaPenaTitolo"), "Pag_LunaPenaTitolo manca in " + lingua);
+                Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_LunaPenaCongiunto"), "Pag_LunaPenaCongiunto manca in " + lingua);
             }
-            StringAssert.Contains(Tutte("it")["Pag_LunaFuoriCongiunto"], "stesso frame");
+            StringAssert.Contains(Tutte("it")["Pag_LunaPenaMinima"], "almeno");
+            StringAssert.Contains(Tutte("it")["Pag_LunaPenaMinima"], "le ore non ricomprano il contrasto");
+            StringAssert.Contains(Tutte("it")["Pag_LunaPenaCongiunto"], "stesso frame");
         }
 
-        /*  E IL VERDETTO NON DICE UNA COPERTURA CHE LE NOTTI NON DANNO: quando la Luna tiene fuori un canale da tutte le notti
-         *  chieste, Strategy lo segna (`verdetto.lunaFuori`) e la riga dice il perche' con le notti per il minimo. */
+        /*  LA PRESCRIZIONE NON SI VIETA (decisione del 16 settembre 2026): la soglia di Luna segnala, non toglie. Nessun
+         *  canale «fuori», nessun verdetto che lo dica, nella pagina o nel dizionario. Guardia strutturale: se il divieto
+         *  tornasse, cade. */
         [TestMethod]
-        public void IL_VERDETTO_DICE_QUANDO_LA_LUNA_TIENE_FUORI_TUTTE_LE_NOTTI() {
-            var riga = Tratto(PaginaSenzaCommenti(), "T('Pag_RigaVerdetto')", "T('Pag_RigaCalcolataSu')");
-            foreach (var pezzo in new[] { "v.lunaFuori", "'Pag_Verdetto_LunaFuori'", "'Pag_Verdetto_LunaFuoriOltre'" })
-                StringAssert.Contains(riga, pezzo, "la riga del verdetto non usa " + pezzo);
-            foreach (var lingua in new[] { "it", "en" }) {
-                StringAssert.Contains(Tutte(lingua)["Pag_Verdetto_LunaFuori"], "{1}", lingua);
-                StringAssert.Contains(Tutte(lingua)["Pag_Verdetto_LunaFuoriOltre"], "{1}", lingua);
-            }
+        public void LA_SOGLIA_DI_LUNA_NON_TOGLIE_NIENTE() {
+            var js = PaginaSenzaCommenti();
+            foreach (var parola in new[] { "lunaFuori", "Pag_LunaFuori", "Pag_Verdetto_LunaFuori", "l.fuori" })
+                Assert.IsFalse(js.Contains(parola), "la pagina ha di nuovo il divieto della Luna: " + parola);
+            foreach (var lingua in new[] { "it", "en" })
+                Assert.IsFalse(Tutte(lingua).Keys.Any(k => k.IndexOf("LunaFuori", StringComparison.Ordinal) >= 0),
+                    lingua + ": il dizionario ha di nuovo la frase del divieto della Luna");
         }
 
         /*  LA DISTANZA DI RIFERIMENTO DELLA LUNA SI DICHIARA NEL BANCO (regia, 16 settembre 2026): e' quanto slavato accetta
