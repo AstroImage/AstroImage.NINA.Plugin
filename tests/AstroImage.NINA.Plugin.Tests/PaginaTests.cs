@@ -659,6 +659,55 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "la risposta non dice che cosa ha consegnato");
         }
 
+        /*  LA LUNA TIENE FUORI, E SI DICE (regia, 16 settembre 2026). Sotto la soglia di Luna di un filtro il canale esce
+         *  dalla notte, non dal progetto; Strategy manda notte per notte i canali fuori coi numeri (`prodotto.luna.fuori`),
+         *  e la pagina li scrive in giallo: la notte, il canale, il filtro col nome della ruota, la fase, la distanza e la
+         *  soglia — e, per un filtro che porta piu' righe nello stesso frame, il perche' della soglia piu' severa.
+         *  Guardia strutturale: il Ponte non calcola la soglia, la scrive. */
+        [TestMethod]
+        public void LA_LUNA_CHE_TIENE_FUORI_UN_CANALE_SI_SCRIVE_COI_SUOI_NUMERI() {
+            var js = PaginaSenzaCommenti();
+            var riquadro = Tratto(js, "function lunaFuori(l) {", "\n  }");
+            foreach (var pezzo in new[] { "l.fuori", "f.notte", "f.id", "vetroNellaRuota(f.filtro)", "f.fasePercento",
+                                          "f.distanza", "f.soglia", "f.congiunto", "'Pag_LunaFuori'", "'Pag_LunaFuoriCongiunto'",
+                                          "'Pag_LunaFuoriTitolo'" })
+                StringAssert.Contains(riquadro, pezzo, "il riquadro della Luna non usa " + pezzo);
+            StringAssert.Contains(js, "lunaFuori(p.luna)", "il riquadro della Luna non entra nella risposta");
+            foreach (var lingua in new[] { "it", "en" }) {
+                StringAssert.Contains(Tutte(lingua)["Pag_LunaFuori"], "{5}", lingua);
+                StringAssert.Contains(Tutte(lingua)["Pag_LunaFuoriCongiunto"], "{5}", lingua);
+                Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_LunaFuoriTitolo"), "Pag_LunaFuoriTitolo manca in " + lingua);
+            }
+            StringAssert.Contains(Tutte("it")["Pag_LunaFuoriCongiunto"], "stesso frame");
+        }
+
+        /*  E IL VERDETTO NON DICE UNA COPERTURA CHE LE NOTTI NON DANNO: quando la Luna tiene fuori un canale da tutte le notti
+         *  chieste, Strategy lo segna (`verdetto.lunaFuori`) e la riga dice il perche' con le notti per il minimo. */
+        [TestMethod]
+        public void IL_VERDETTO_DICE_QUANDO_LA_LUNA_TIENE_FUORI_TUTTE_LE_NOTTI() {
+            var riga = Tratto(PaginaSenzaCommenti(), "T('Pag_RigaVerdetto')", "T('Pag_RigaCalcolataSu')");
+            foreach (var pezzo in new[] { "v.lunaFuori", "'Pag_Verdetto_LunaFuori'", "'Pag_Verdetto_LunaFuoriOltre'" })
+                StringAssert.Contains(riga, pezzo, "la riga del verdetto non usa " + pezzo);
+            foreach (var lingua in new[] { "it", "en" }) {
+                StringAssert.Contains(Tutte(lingua)["Pag_Verdetto_LunaFuori"], "{1}", lingua);
+                StringAssert.Contains(Tutte(lingua)["Pag_Verdetto_LunaFuoriOltre"], "{1}", lingua);
+            }
+        }
+
+        /*  LA DISTANZA DI RIFERIMENTO DELLA LUNA SI DICHIARA NEL BANCO (regia, 16 settembre 2026): e' quanto slavato accetta
+         *  chi riprende. Il blocco del banco mostra il pezzo `luna` con la sua parola e la sua nota; la chiave e la
+         *  provenienza vengono dalla lista che Strategy pubblica, come per gli altri campi dichiarabili. */
+        [TestMethod]
+        public void IL_BANCO_MOSTRA_LA_DISTANZA_DI_RIFERIMENTO_DELLA_LUNA() {
+            var js = PaginaSenzaCommenti();
+            StringAssert.Contains(Tratto(js, "const PEZZI_DEL_BLOCCO", ";"), "'luna'", "il blocco del banco non mostra la Luna");
+            StringAssert.Contains(Tratto(js, "const PAROLA_CAMPO_BANCO", "};"), "'luna.riferimento_deg': 'Pag_Banco_luna_riferimento_deg'");
+            StringAssert.Contains(Tratto(js, "const NOTA_CAMPO_BANCO", "};"), "'luna.riferimento_deg': 'Pag_Banco_LunaNota'");
+            foreach (var lingua in new[] { "it", "en" })
+                foreach (var chiave in new[] { "Pag_Banco_luna_riferimento_deg", "Pag_Banco_LunaNota" })
+                    Assert.IsTrue(Tutte(lingua).ContainsKey(chiave), chiave + " manca in " + lingua);
+        }
+
         /*  IL RITIRO GENERALIZZATO (regia, 16 settembre 2026): salvare una ruota, un banco o un sito diversi ritira la
          *  prescrizione in mano (CambioDiProfiloTests), e la risposta del salvataggio lo dice. La pagina la toglie dallo
          *  schermo come sul cambio di profilo, con la frase del suo perche' nelle due lingue. Guardia strutturale. */
