@@ -303,7 +303,14 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         /// se non si e' potuta scrivere: chi configura deve sapere subito se il suo
         /// lavoro e' andato a terra, non scoprirlo dopo un riavvio.</summary>
         public bool SalvaDichiarazione(RuotaVirtuale nuova, out string perCheNo) =>
-            Dichiarazioni.SalvaRuota(nuova, out perCheNo);
+            SalvaDichiarazione(nuova, out perCheNo, out _);
+
+        /// <summary>Come sopra, e dice se la prescrizione in mano e' stata ritirata perche' la ruota e' cambiata.</summary>
+        public bool SalvaDichiarazione(RuotaVirtuale nuova, out string perCheNo, out bool ritirata) {
+            var ok = SalvataggioDichiarato.Ruota(Dichiarazioni, InMano, nuova, out perCheNo, out ritirata);
+            if (ritirata) Logger.Info("[AstroImage] declared wheel changed: prescription in hand withdrawn");
+            return ok;
+        }
 
         /// <summary>Dove sei, secondo N.I.N.A. Si chiede ogni volta: i profili si
         /// cambiano, e con loro la postazione.</summary>
@@ -323,10 +330,24 @@ namespace AstroImage.NINA.Plugin.ViewModels {
 
         /// <summary>Sostituisce il banco dichiarato e lo salva nel profilo attivo.</summary>
         public bool SalvaBanco(BancoDichiarato nuovo, out string perCheNo) =>
-            Dichiarazioni.SalvaBanco(nuovo, out perCheNo);
+            SalvaBanco(nuovo, out perCheNo, out _);
+
+        /// <summary>Come sopra, e dice se la prescrizione in mano e' stata ritirata perche' il banco e' cambiato.</summary>
+        public bool SalvaBanco(BancoDichiarato nuovo, out string perCheNo, out bool ritirata) {
+            var ok = SalvataggioDichiarato.Banco(Dichiarazioni, InMano, nuovo, out perCheNo, out ritirata);
+            if (ritirata) Logger.Info("[AstroImage] declared setup changed: prescription in hand withdrawn");
+            return ok;
+        }
 
         /// <summary>Sostituisce i parametri dichiarati del sito e li salva nel profilo attivo.</summary>
         public bool SalvaSito(SitoDichiarato nuovo, out string perCheNo) =>
-            Dichiarazioni.SalvaSito(nuovo, out perCheNo);
+            SalvaSito(nuovo, out perCheNo, out _);
+
+        /// <summary>Come sopra, e dice se la prescrizione in mano e' stata ritirata perche' il sito e' cambiato.</summary>
+        public bool SalvaSito(SitoDichiarato nuovo, out string perCheNo, out bool ritirata) {
+            var ok = SalvataggioDichiarato.Sito(Dichiarazioni, InMano, nuovo, out perCheNo, out ritirata);
+            if (ritirata) Logger.Info("[AstroImage] declared site changed: prescription in hand withdrawn");
+            return ok;
+        }
     }
 }

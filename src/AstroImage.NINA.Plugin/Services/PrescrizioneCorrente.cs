@@ -8,6 +8,9 @@ using AstroImage.NINA.Plugin.Localization;
 
 namespace AstroImage.NINA.Plugin.Services {
 
+    /// <summary>Che cosa e' cambiato sotto una prescrizione ritirata.</summary>
+    public enum PercheRitirata { Profilo, Ruota, Banco, Sito }
+
     /*  QUELLO CHE IL PONTE HA IN MANO, e la guardia che impedisce di mandare la cosa
      *  sbagliata.
      *
@@ -58,12 +61,17 @@ namespace AstroImage.NINA.Plugin.Services {
         public void Lascia() { _id = null; _esito = null; _ritirata = false; }
 
         /*  RITIRARE NON E' LASCIARE. Una prescrizione lasciata non c'e' e basta; una ritirata c'era, ed e' stata tolta
-         *  perche' il profilo di N.I.N.A. e' cambiato sotto di lei. Chi preme «manda» su una riga rimasta a schermo deve
-         *  sapere questo, non «chiedine una». */
+         *  perche' e' cambiato sotto di lei quello su cui era calcolata: il profilo di N.I.N.A., oppure — dal 16 settembre
+         *  2026 — la ruota, il banco o il sito dichiarati. Chi preme «manda» su una riga rimasta a schermo deve sapere
+         *  questo, e quale dei quattro, non «chiedine una». */
         private bool _ritirata;
+        private PercheRitirata _perche;
 
         /// <summary>Toglie la prescrizione in mano perche' il profilo e' cambiato, e lo ricorda per dirlo.</summary>
-        public void Ritira() { _id = null; _esito = null; _ritirata = true; }
+        public void Ritira() => Ritira(PercheRitirata.Profilo);
+
+        /// <summary>Toglie la prescrizione in mano perche' e' cambiato quello che dice <paramref name="perche"/>.</summary>
+        public void Ritira(PercheRitirata perche) { _id = null; _esito = null; _ritirata = true; _perche = perche; }
 
         /// <summary>
         /// Quale vetro il motore ha dichiarato di aver usato, canale per canale. Si
@@ -85,7 +93,13 @@ namespace AstroImage.NINA.Plugin.Services {
             if (_esito is null || _id is null) {
                 if (_ritirata) {
                     codice = "prescrizione_ritirata";
-                    motivo = Loc.T("Presc_RitirataPerProfilo");
+                    /*  le chiavi scritte per intero: una chiave composta la prova delle voci orfane non la vede */
+                    motivo = _perche switch {
+                        PercheRitirata.Ruota => Loc.T("Presc_RitirataPerRuota"),
+                        PercheRitirata.Banco => Loc.T("Presc_RitirataPerBanco"),
+                        PercheRitirata.Sito => Loc.T("Presc_RitirataPerSito"),
+                        _ => Loc.T("Presc_RitirataPerProfilo"),
+                    };
                     return null;
                 }
                 codice = "nessuna_prescrizione";

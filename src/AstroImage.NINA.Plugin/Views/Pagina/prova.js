@@ -60,6 +60,22 @@
     dinamica:   '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/>',
   };
 
+  /* LA PRESCRIZIONE A SCHERMO SI RITIRA quando cambia quello su cui era calcolata: il profilo di N.I.N.A. (l'ospite lo
+     dice da se'), oppure una ruota, un banco o un sito salvati diversi (lo dice la risposta del salvataggio — il ritiro
+     generalizzato, 16 settembre 2026). Non si rietichetta e non si richiede da sola: si toglie, si dimentica la strada
+     scelta, e si dice perche'. Le chiavi sono scritte per intero. */
+  const FRASE_DEL_RITIRO = {
+    profilo: 'Pag_ProfiloCambiato', ruota: 'Pag_RitirataPerRuota',
+    banco: 'Pag_RitirataPerBanco', sito: 'Pag_RitirataPerSito',
+  };
+  function ritiraDalloSchermo(perche) {
+    if (!perche) return;
+    stradaScelta = null;
+    bancoUsato = null;
+    $('uscita').innerHTML = '<div class="box" style="border-color:#e0a030"><span style="color:#e0a030">' +
+      esc(T(FRASE_DEL_RITIRO[perche] || 'Pag_ProfiloCambiato')) + '</span></div>';
+  }
+
   /* L'unica via verso il mondo: un messaggio all'ospite. */
   function chiedi(azione, corpo, extra) {
     const id = 'r' + (++contatore);
@@ -86,10 +102,7 @@
        profilo: si ritira — non si rietichetta e non si richiede da sola — e si dice perche'. Sito, filtri e camera si
        rileggono, perche' adesso sono quelli del profilo nuovo, o nessuno. */
     if (r && r.evento === 'profilo') {
-      stradaScelta = null;
-      bancoUsato = null;
-      $('uscita').innerHTML = '<div class="box" style="border-color:#e0a030"><span style="color:#e0a030">' +
-        esc(T('Pag_ProfiloCambiato')) + '</span></div>';
+      ritiraDalloSchermo('profilo');
       ridisegna();
       return;
     }
@@ -473,6 +486,7 @@
       chiedi('salvaBanco', { banco: valori }).then(r2 => {
         $('esitoBanco').textContent = r2.ok ? T('Pag_Salvato')
           : T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '');
+        ritiraDalloSchermo(r2.ritirata);
         if (r2.ok) chiedi('banco').then(r3 => { if (r3.ok) { bancoLetto = r3; disegnaBanco(); } });
       });
     });
@@ -790,6 +804,7 @@
       chiedi('salvaSito', { sito: s }).then(r2 => {
         $('esitoSito').textContent = r2.ok ? T('Pag_Salvato')
           : T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '');
+        ritiraDalloSchermo(r2.ritirata);
         if (r2.ok) chiedi('sito').then(disegnaSito);
       });
     });
@@ -958,6 +973,7 @@
           $('esitoFiltri').textContent = r2.ok
             ? T('Pag_FiltriDichiarati').replace('{0}', r2.dichiarati || 0)
             : T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '');
+          ritiraDalloSchermo(r2.ritirata);
           if (r2.ok) chiedi('filtri').then(disegnaRuota);
         });
     });

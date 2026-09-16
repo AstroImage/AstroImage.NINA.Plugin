@@ -574,11 +574,13 @@ namespace AstroImage.NINA.Plugin.Views {
                 return;
             }
 
-            var ok = vm.SalvaDichiarazione(nuova, out var perCheNo);
+            var ok = vm.SalvaDichiarazione(nuova, out var perCheNo, out var ritirata);
             Logger.Info("[AstroImage] virtual wheel saved: " + DichiarazioneRuota.IdDichiarati(nuova).Count +
                         " vetri dichiarati" + (ok ? "" : " — NON SCRITTA: " + perCheNo));
+            /*  `ritirata` chiede alla pagina di ritirare la prescrizione mostrata, e dice perche' (il ritiro generalizzato) */
             Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo, 0, null,
-                     new JsonObject { ["dichiarati"] = DichiarazioneRuota.IdDichiarati(nuova).Count });
+                     new JsonObject { ["dichiarati"] = DichiarazioneRuota.IdDichiarati(nuova).Count,
+                                      ["ritirata"] = ritirata ? "ruota" : null });
         }
 
         /*  I TRE MODI DI RIPRESA, chiesti al motore e passati alla pagina.
@@ -729,9 +731,10 @@ namespace AstroImage.NINA.Plugin.Views {
                 Rispondi(id, false, null, "richiesta_malformata", perCheMalformata);
                 return;
             }
-            var ok = vm.SalvaSito(nuovo, out var perCheNo);
+            var ok = vm.SalvaSito(nuovo, out var perCheNo, out var ritirata);
             Logger.Info("[AstroImage] declared site saved" + (ok ? "" : " — NOT WRITTEN: " + perCheNo));
-            Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo);
+            Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo, 0, null,
+                     new JsonObject { ["ritirata"] = ritirata ? "sito" : null });
         }
 
         /*  IL BANCO, IN TRE PEZZI.
@@ -776,9 +779,10 @@ namespace AstroImage.NINA.Plugin.Views {
                 Rispondi(id, false, null, "richiesta_malformata", perCheMalformato);
                 return;
             }
-            var ok = vm.SalvaBanco(nuovo, out var perCheNo);
+            var ok = vm.SalvaBanco(nuovo, out var perCheNo, out var ritirata);
             Logger.Info($"[AstroImage] declared setup saved: {nuovo.Valori.Count} values" + (ok ? "" : " — NOT WRITTEN: " + perCheNo));
-            Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo);
+            Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo, 0, null,
+                     new JsonObject { ["ritirata"] = ritirata ? "banco" : null });
         }
 
         private void AlRiprova(object mittente, RoutedEventArgs e) {

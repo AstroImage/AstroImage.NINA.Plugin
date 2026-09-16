@@ -106,4 +106,49 @@ namespace AstroImage.NINA.Plugin.Services {
             inMano.Ritira();
         }
     }
+
+    /*  IL RITIRO GENERALIZZATO (regia, 16 settembre 2026).
+     *
+     *  Il profilo non e' la sola cosa su cui la prescrizione e' calcolata: anche la ruota, il banco e il sito dichiarati
+     *  entrano nella richiesta. Salvarne uno diverso lasciava in mano la prescrizione di prima, e «manda» la consegnava
+     *  calcolata sulla dichiarazione vecchia — lo stesso numero che mente senza essere rosso del cambio di profilo. Adesso
+     *  lo stesso gesto, col suo perche'.
+     *
+     *  Si ritira solo se la dichiarazione e' davvero cambiata, confrontando il documento che si scrive: riscrivere la
+     *  stessa non tocca niente. E si ritira anche quando la scrittura nel profilo non riesce, perche' la dichiarazione in
+     *  memoria e' gia' la nuova e la prossima richiesta la usa. Senza una prescrizione in mano non c'e' niente da ritirare,
+     *  e chi preme «manda» deve sentire «chiedine una», non un ritiro che non e' avvenuto. */
+    public static class SalvataggioDichiarato {
+
+        public static bool Ruota(DichiarazioniDelProfilo d, PrescrizioneCorrente inMano, RuotaVirtuale? nuova,
+                                 out string? perCheNo, out bool ritirata) {
+            var prima = DichiarazioneRuota.Scrivi(d.Ruota);
+            var ok = d.SalvaRuota(nuova, out perCheNo);
+            ritirata = Ritira(inMano, prima, DichiarazioneRuota.Scrivi(d.Ruota), PercheRitirata.Ruota);
+            return ok;
+        }
+
+        public static bool Banco(DichiarazioniDelProfilo d, PrescrizioneCorrente inMano, BancoDichiarato? nuovo,
+                                 out string? perCheNo, out bool ritirata) {
+            var prima = DichiarazioneBanco.Scrivi(d.Banco);
+            var ok = d.SalvaBanco(nuovo, out perCheNo);
+            ritirata = Ritira(inMano, prima, DichiarazioneBanco.Scrivi(d.Banco), PercheRitirata.Banco);
+            return ok;
+        }
+
+        public static bool Sito(DichiarazioniDelProfilo d, PrescrizioneCorrente inMano, SitoDichiarato? nuovo,
+                                out string? perCheNo, out bool ritirata) {
+            var prima = DichiarazioneSito.Scrivi(d.Sito);
+            var ok = d.SalvaSito(nuovo, out perCheNo);
+            ritirata = Ritira(inMano, prima, DichiarazioneSito.Scrivi(d.Sito), PercheRitirata.Sito);
+            return ok;
+        }
+
+        private static bool Ritira(PrescrizioneCorrente inMano, string prima, string dopo, PercheRitirata perche) {
+            if (inMano is null) throw new ArgumentNullException(nameof(inMano));
+            if (string.Equals(prima, dopo, StringComparison.Ordinal) || inMano.Id is null) return false;
+            inMano.Ritira(perche);
+            return true;
+        }
+    }
 }

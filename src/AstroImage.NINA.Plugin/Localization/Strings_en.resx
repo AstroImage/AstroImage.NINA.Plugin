@@ -1104,4 +1104,22 @@
   <data name="Pag_Parziale_convenzioni_di_posa" xml:space="preserve">
     <value>Exposure conventions not declared: download {0} s, settle {1} s, dither every {2} frames.</value>
   </data>
+  <data name="Presc_RitirataPerRuota" xml:space="preserve">
+    <value>this prescription was withdrawn because you saved a different filter wheel: it was worked out on the previous filters. Ask for a new one.</value>
+  </data>
+  <data name="Presc_RitirataPerBanco" xml:space="preserve">
+    <value>this prescription was withdrawn because you saved a different setup: it was worked out on the previous numbers. Ask for a new one.</value>
+  </data>
+  <data name="Presc_RitirataPerSito" xml:space="preserve">
+    <value>this prescription was withdrawn because you saved a different site: it was worked out on the previous sky. Ask for a new one.</value>
+  </data>
+  <data name="Pag_RitirataPerRuota" xml:space="preserve">
+    <value>You saved a different filter wheel: the previous prescription was worked out on the previous filters, and it has been withdrawn. Ask for a new one.</value>
+  </data>
+  <data name="Pag_RitirataPerBanco" xml:space="preserve">
+    <value>You saved a different setup: the previous prescription was worked out on the previous numbers, and it has been withdrawn. Ask for a new one.</value>
+  </data>
+  <data name="Pag_RitirataPerSito" xml:space="preserve">
+    <value>You saved a different site: the previous prescription was worked out on the previous sky, and it has been withdrawn. Ask for a new one.</value>
+  </data>
 </root>

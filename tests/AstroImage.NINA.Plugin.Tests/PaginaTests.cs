@@ -424,9 +424,35 @@ namespace AstroImage.NINA.Plugin.Tests {
             var fine = js.IndexOf("return;", i, StringComparison.Ordinal);
             Assert.IsTrue(fine > i, "il ramo del cambio di profilo non si chiude");
             var ramo = js.Substring(i, fine - i);
-            StringAssert.Contains(ramo, "$('uscita').innerHTML", "la prescrizione dell'altro profilo resta a schermo");
-            StringAssert.Contains(ramo, "Pag_ProfiloCambiato", "la pagina toglie la prescrizione senza dire perche'");
-            StringAssert.Contains(ramo, "stradaScelta = null", "la strada scelta sull'altro banco resta scelta");
+            /*  Dal ritiro generalizzato il ramo chiama la funzione che toglie la prescrizione, la stessa dei salvataggi: le
+             *  tre proprieta' si leggono li'. */
+            StringAssert.Contains(ramo, "ritiraDalloSchermo('profilo')", "il cambio di profilo non ritira dallo schermo");
+            var f = js.IndexOf("function ritiraDalloSchermo(", StringComparison.Ordinal);
+            Assert.IsTrue(f >= 0, "la funzione che toglie la prescrizione non c'e'");
+            var corpo = js.Substring(f, js.IndexOf("\n  }", f, StringComparison.Ordinal) - f);
+            StringAssert.Contains(corpo, "$('uscita').innerHTML", "la prescrizione dell'altro profilo resta a schermo");
+            StringAssert.Contains(corpo, "stradaScelta = null", "la strada scelta sull'altro banco resta scelta");
+            StringAssert.Contains(js, "profilo: 'Pag_ProfiloCambiato'", "la pagina toglie la prescrizione senza dire perche'");
+        }
+
+        /*  IL RITIRO GENERALIZZATO (regia, 16 settembre 2026): salvare una ruota, un banco o un sito diversi ritira la
+         *  prescrizione in mano (CambioDiProfiloTests), e la risposta del salvataggio lo dice. La pagina la toglie dallo
+         *  schermo come sul cambio di profilo, con la frase del suo perche' nelle due lingue. Guardia strutturale. */
+        [TestMethod]
+        public void UN_SALVATAGGIO_CHE_RITIRA_TOGLIE_LA_PRESCRIZIONE_DALLO_SCHERMO() {
+            var js = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.js"), @"/\*.*?\*/", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            foreach (var azione in new[] { "salvaFiltri", "salvaBanco", "salvaSito" }) {
+                var i = js.IndexOf("chiedi('" + azione + "'", StringComparison.Ordinal);
+                Assert.IsTrue(i >= 0, "la pagina non salva piu' con " + azione);
+                var fine = js.IndexOf("});", i, StringComparison.Ordinal);
+                Assert.IsTrue(fine > i, "la risposta di " + azione + " non si chiude");
+                StringAssert.Contains(js.Substring(i, fine - i), "ritiraDalloSchermo(r2.ritirata)",
+                    azione + ": la prescrizione ritirata resta a schermo");
+            }
+            foreach (var chiave in new[] { "Pag_RitirataPerRuota", "Pag_RitirataPerBanco", "Pag_RitirataPerSito" })
+                foreach (var lingua in new[] { "it", "en" })
+                    Assert.IsTrue(Tutte(lingua).ContainsKey(chiave), chiave + " manca in " + lingua);
         }
 
         /*  IL PONTE NON RICONOSCE I SENSORI, E NON DEVE COMINCIARE.
