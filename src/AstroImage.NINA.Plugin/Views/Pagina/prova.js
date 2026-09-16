@@ -387,17 +387,19 @@
       '<ul style="margin:.4em 0 0 1.1em;padding:0">' + righe.join('') + '</ul></div>';
   }
 
-  /*  LA LUNA TIENE FUORI (regia, 16 settembre 2026): notte per notte, i canali sotto la loro soglia di Luna, coi numeri che
-   *  Strategy manda — la fase, la distanza, la soglia. Giallo: il canale esce dalla notte, non dal progetto. Il filtro si
-   *  scrive col nome della ruota, come nella sequenza; una notte in cui la Luna tiene fuori tutto non ha una riga sopra,
-   *  e resta qui. */
-  function lunaFuori(l) {
-    const fuori = (l && l.fuori) || [];
-    if (!fuori.length) return '';
-    const righe = fuori.map(f => '<li>' + MF(f.congiunto ? 'Pag_LunaFuoriCongiunto' : 'Pag_LunaFuori',
-      cifra(f.notte), esc(f.id), esc(vetroNellaRuota(f.filtro)), cifra(f.fasePercento),
-      cifra(f.distanza, 0), cifra(f.soglia, 0)) + '</li>');
-    return '<div class="box" style="color:#e0a030"><b>' + esc(T('Pag_LunaFuoriTitolo')) + '</b>' +
+  /*  LA PENALIZZAZIONE LUNARE, IN TRE PARTI (16 settembre 2026): notte per notte e canale per canale, coi numeri che
+   *  Strategy manda — il moltiplicatore delle ore, la Luna con la fase e la distanza, e se la distanza e' sotto la soglia
+   *  del filtro, dove il moltiplicatore e' un minimo e la riga si scrive in giallo. La prescrizione non si vieta mai: il
+   *  canale resta nella sequenza, e decide chi riprende. Il filtro si scrive col nome della ruota, come nella sequenza. */
+  function lunaPenalizzazione(l) {
+    const pene = (l && l.penalizzazioni) || [];
+    if (!pene.length) return '';
+    const righe = pene.map(f => '<li' + (f.limiteInferiore ? ' style="color:#e0a030"' : '') + '>' +
+      MF(f.limiteInferiore ? 'Pag_LunaPenaMinima' : 'Pag_LunaPena',
+        cifra(f.notte), esc(f.id), esc(vetroNellaRuota(f.filtro)), cifra(f.moltiplicatore, 1), cifra(f.fasePercento),
+        cifra(f.distanza, 0), cifra(f.soglia, 0)) +
+      (f.congiunto && f.limiteInferiore ? ' ' + MF('Pag_LunaPenaCongiunto') : '') + '</li>');
+    return '<div class="box"><b>' + esc(T('Pag_LunaPenaTitolo')) + '</b>' +
       '<ul style="margin:.4em 0 0 1.1em;padding:0">' + righe.join('') + '</ul></div>';
   }
 
@@ -658,12 +660,7 @@
           ne servono per il minimo. I numeri li fa Strategy; senza, la riga non c'e'. */
       ((v => (v && v.coperturaPercento != null)
         ? '<tr><th>' + T('Pag_RigaVerdetto') + '</th><td>' +
-          /*  la Luna tiene fuori un canale da tutte le notti chieste: nessuna copertura da dire, il perche' */
-          (v.lunaFuori
-            ? (v.perIlMinimo == null
-              ? MF('Pag_Verdetto_LunaFuoriOltre', cifra(v.notti), cifra(v.massimo))
-              : MF('Pag_Verdetto_LunaFuori', cifra(v.notti), cifra(v.perIlMinimo)))
-          : v.perIlMinimo == null
+          (v.perIlMinimo == null
             ? MF('Pag_Verdetto_MinimoOltre', cifra(v.notti), cifra(v.coperturaPercento), cifra(v.massimo))
             : v.perIlMinimo > v.notti
               ? MF('Pag_Verdetto_Minimo', cifra(v.notti), cifra(v.coperturaPercento), cifra(v.perIlMinimo))
@@ -695,7 +692,7 @@
         T('Pag_ColBlocchi') + '</th><th>' + T('Pag_ColPose') + '</th><th>' +
         T('Pag_ColDurata') + '</th><th>' + T('Pag_ColFiltri') + '</th><th>' + T('Pag_ColGuadagno') + '</th><th></th></tr>' +
       righe + '</table></div>' +
-      lunaFuori(p.luna) +
+      lunaPenalizzazione(p.luna) +
       (r.consegnabile ? '' :
         '<div class="box err"><b>' + T('Pag_NonSiPuoMandare') + '</b>' +
         '<div style="margin-top:6px;opacity:.85">' +

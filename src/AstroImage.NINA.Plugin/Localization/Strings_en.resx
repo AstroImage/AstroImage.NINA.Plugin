@@ -898,7 +898,7 @@
     <value>Moon: reference distance</value>
   </data>
   <data name="Pag_Banco_LunaNota" xml:space="preserve">
-    <value>The minimum distance from a full Moon for a 3 nm Hα. Strategy derives every filter's threshold from it: it grows with the bandwidth and towards the blue, and scales with the phase. It is how much wash-out you accept: if you declare it, it wins over the catalogue, and zero removes the threshold.</value>
+    <value>The minimum distance from a full Moon for a 3 nm Hα. Strategy derives every filter's threshold from it: it grows with the bandwidth and towards the blue, and scales with the phase. Below the threshold the hours multiplier becomes a minimum, and the channel stays in the sequence. It is how much wash-out you accept: if you declare it, it wins over the catalogue, and zero removes the threshold.</value>
   </data>
   <data name="Pag_Banco_RmsNota" xml:space="preserve">
     <value>The figure the mount usually holds with this load, not the one of a single night. It enters the decisions: if you declare it, it wins over the catalogue, and it is your responsibility.</value>
@@ -1164,20 +1164,17 @@
   <data name="Pag_Verdetto_Coperto" xml:space="preserve">
     <value>the requested nights ({0}) cover {1} % of the project</value>
   </data>
-  <data name="Pag_Verdetto_LunaFuori" xml:space="preserve">
-    <value>the Moon keeps a project channel out of the requested nights ({0}): the minimum needs {1}</value>
+  <data name="Pag_LunaPenaTitolo" xml:space="preserve">
+    <value>Moon penalty, night by night: how much each channel's hours are multiplied, and under which Moon. Below the filter's threshold the number is a minimum: close to the Moon the damage is a gradient across the field and scattered light in the optics, which stacking does not remove. No channel is removed: the choice is yours.</value>
   </data>
-  <data name="Pag_Verdetto_LunaFuoriOltre" xml:space="preserve">
-    <value>the Moon keeps a project channel out of the requested nights ({0}), and the minimum is not reached within {1} usable nights from here</value>
+  <data name="Pag_LunaPena" xml:space="preserve">
+    <value>Night {0}: {1} ({2}) ×{3} — Moon {4} % illuminated at {5}°.</value>
   </data>
-  <data name="Pag_LunaFuoriTitolo" xml:space="preserve">
-    <value>The Moon keeps these out: close to the Moon the background becomes a gradient across the field and scattered light in the optics, and more hours do not remove it. The channel leaves that night, not the project, and its hours move to the other nights.</value>
+  <data name="Pag_LunaPenaMinima" xml:space="preserve">
+    <value>Night {0}: {1} ({2}) at least ×{3} — Moon {4} % illuminated at {5}°, below the {6}° threshold: more hours do not buy back the contrast.</value>
   </data>
-  <data name="Pag_LunaFuori" xml:space="preserve">
-    <value>Night {0}: {1} ({2}) out, Moon {3} % illuminated at {4}°, threshold {5}°.</value>
-  </data>
-  <data name="Pag_LunaFuoriCongiunto" xml:space="preserve">
-    <value>Night {0}: {1} ({2}) out, Moon {3} % illuminated at {4}°, threshold {5}°. The filter's lines share one frame and cannot be separated: the strictest threshold applies, and for Hα+OIII it is the OIII one.</value>
+  <data name="Pag_LunaPenaCongiunto" xml:space="preserve">
+    <value>The filter's lines share one frame and cannot be separated: the strictest threshold applies, and for Hα+OIII it is the OIII one.</value>
   </data>
   <data name="Pag_Men_ImmagineDiversa" xml:space="preserve">
     <value>The {0} you get is a different image from the {1}, with another palette: not a cheaper {1}.</value>
