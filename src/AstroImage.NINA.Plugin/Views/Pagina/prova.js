@@ -290,16 +290,21 @@
     'tel': 'Pag_Banco_tel', 'tel.apertura_mm': 'Pag_Banco_tel_apertura_mm',
     'tel.ostruzione': 'Pag_Banco_tel_ostruzione', 'tel.trasmissione': 'Pag_Banco_tel_trasmissione',
     'tel.focale_mm': 'Pag_Banco_tel_focale_mm', 'tel.rapporto': 'Pag_Banco_tel_rapporto',
-    'red': 'Pag_Banco_red', 'mnt': 'Pag_Banco_mnt',
+    'red': 'Pag_Banco_red', 'mnt': 'Pag_Banco_mnt', 'cam': 'Pag_Banco_cam',
     'mnt.rms_caratteristico_arcsec': 'Pag_Banco_mnt_rms_caratteristico_arcsec' };
   const NOTA_CAMPO_BANCO = { 'mnt.rms_caratteristico_arcsec': 'Pag_Banco_RmsNota' };
   const PAROLA_DIVERGENZA_BANCO = {
     'dichiarato_diverso_dal_catalogo': 'Pag_Banco_Div_dichiarato_diverso_dal_catalogo',
     'focale_diversa_dal_catalogo': 'Pag_Banco_Div_focale_diversa_dal_catalogo',
-    'apertura_diversa_da_nina': 'Pag_Banco_Div_apertura_diversa_da_nina' };
+    'apertura_diversa_da_nina': 'Pag_Banco_Div_apertura_diversa_da_nina',
+    'geometria_diversa_dal_catalogo': 'Pag_Banco_Div_geometria_diversa_dal_catalogo' };
+  /*  I campi della geometria della camera, per la divergenza fra il driver e la voce riconosciuta. */
+  const PAROLA_CAMPO_CAMERA = { pixel_um: 'Pag_Banco_Cam_pixel_um', width_px: 'Pag_Banco_Cam_width_px',
+    height_px: 'Pag_Banco_Cam_height_px', matrice: 'Pag_Banco_Cam_matrice' };
   const PAROLA_FONTE_BANCO = { nina: 'Pag_Banco_Fonte_nina', catalogo: 'Pag_Banco_Fonte_catalogo',
     dichiarato: 'Pag_Banco_Fonte_dichiarato', riferimento: 'Pag_Banco_Fonte_riferimento' };
-  const PEZZI_DEL_BLOCCO = ['ottica', 'riduttore', 'montatura'];
+  /*  La camera c'e' dal 16 settembre 2026: la geometria la dice il driver, la voce di catalogo porta la fisica. */
+  const PEZZI_DEL_BLOCCO = ['ottica', 'riduttore', 'camera', 'montatura'];
 
   /*  LA RICHIESTA: ogni campo della lista col valore che gli spetta — dal profilo di N.I.N.A. se e' suo, dalla
    *  dichiarazione se e' dichiarabile o e' un riconoscimento. Nessun valore di serie: quello che manca manca, e il
@@ -319,7 +324,11 @@
       else if ((c.provenienza === 'dichiarabile' || c.provenienza === 'riconoscimento') && dichiarato[c.chiave] != null)
         metti(c.chiave, dichiarato[c.chiave]);
     });
-    if (camera) b.cam = camera;
+    /*  LA CAMERA IN DUE: la descrizione del driver e, accanto, la voce dichiarata. Prima la descrizione sovrascriveva
+     *  tutto; e con la camera spenta la voce dichiarata basta da sola. */
+    const idCamera = (b.cam && typeof b.cam === 'object') ? b.cam.id : null;
+    if (camera && typeof camera === 'object') b.cam = Object.assign({}, camera, idCamera ? { id: idCamera } : {});
+    else if (camera && !idCamera) b.cam = camera;
     b.bin = 1;
     return b;
   }
@@ -368,7 +377,15 @@
         const pezzo = pb && pb[c.pezzo];
         valore = '<input data-banco="' + esc(id) + '" value="' + escOVuoto(dichiarato[id]) +
           '" style="width:130px" spellcheck="false">' +
-          (pezzo && pezzo.voce ? ' <span style="font-size:12px;opacity:.7">' + MF('Pag_Banco_Riconosciuto', esc(pezzo.voce)) + '</span>' : '');
+          (pezzo && pezzo.voce && (c.pezzo !== 'camera' || pezzo.id)
+            ? ' <span style="font-size:12px;opacity:.7">' + MF('Pag_Banco_Riconosciuto', esc(pezzo.voce)) +
+              (pezzo.riconoscimento === 'nome_e_geometria' ? ' ' + MF('Pag_Banco_CamDalDriver') : '') + '</span>' : '') +
+          (c.pezzo === 'camera' && pezzo && !pezzo.id
+            ? '<div style="font-size:12px;color:#e0a030">' + MF('Pag_Banco_CamNonRiconosciuta') + '</div>' : '') +
+          (c.pezzo === 'camera' && pezzo && pezzo.buio ? '<div style="font-size:12px;opacity:.7">' + (pezzo.buio.fonte
+            ? MF('Pag_Banco_Buio', esc(pezzo.buio.e_pixel_s), esc(pezzo.buio.temperatura_c),
+                 esc(pezzo.buio.sensore || ''), esc(pezzo.buio.modello ? pezzo.buio.modello.raddoppio_c : ''))
+            : MF('Pag_Banco_BuioSenzaFonte', esc(pezzo.buio.e_pixel_s))) + '</div>' : '');
       } else if (c.provenienza === 'nina') {
         const v = nina[c.chiave];
         valore = '<b style="font-size:15px">' + (v == null ? '—' : (c.unita === 'f/' ? 'f/' : '') + esc(v)) + '</b>' + unita +
@@ -390,6 +407,10 @@
         const nome = c && PAROLA_CAMPO_BANCO[c.chiave] ? T(PAROLA_CAMPO_BANCO[c.chiave]) : d.campo;
         const u = c && c.unita ? ' ' + c.unita : '';
         return '<li>' + MF(parola, esc(nome), esc(d.dichiarato), esc(d.catalogo), esc(d.voce), esc(u)) + '</li>';
+      }
+      if (d.codice === 'geometria_diversa_dal_catalogo') {
+        const pc = PAROLA_CAMPO_CAMERA[d.campo];
+        return '<li>' + MF(parola, esc(pc ? T(pc) : d.campo), esc(d.driver), esc(d.voce), esc(d.catalogo)) + '</li>';
       }
       if (d.codice === 'focale_diversa_dal_catalogo')
         return '<li>' + MF(parola, esc(d.nina), esc(d.catalogo), esc(d.voce), esc(d.riduttore)) + '</li>';
