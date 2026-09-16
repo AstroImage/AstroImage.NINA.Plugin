@@ -462,6 +462,40 @@ namespace AstroImage.NINA.Plugin.Tests {
             }
         }
 
+        /*  L'ORIZZONTE DEL PROFILO ARRIVA ALLA RICHIESTA (prova in N.I.N.A. sul MiniX, 16 settembre 2026). Il profilo di
+         *  Borno ha il suo Orizzonte Personalizzato, `SitoDelProfilo` lo legge, e il motore diceva «orizzonte non
+         *  dichiarato nel profilo: vale il limite operativo, 15°»: la vista rispondeva alla pagina con sette campi del
+         *  sito, senza il profilo, e la pagina rimanda quel sito com'e'. OrizzonteRealeTests provava l'unione e il filo del
+         *  modello, non questo passaggio. Qui si legge la vista: il sito che da' alla pagina porta l'orizzonte, e la pagina
+         *  dice da quale file viene, o che non si e' letto. */
+        [TestMethod]
+        public void L_ORIZZONTE_DEL_PROFILO_ARRIVA_ALLA_RICHIESTA_E_SI_VEDE() {
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var i = 0; i < 8 && su is not null; i++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views",
+                "PannelloStrategyView.xaml.cs"));
+            var i0 = vista.IndexOf("private void Sito(string id)", StringComparison.Ordinal);
+            Assert.IsTrue(i0 >= 0, "la risposta del sito non si trova");
+            var metodo = vista.Substring(i0, vista.IndexOf("\n        }", i0, StringComparison.Ordinal) - i0);
+            var sito = metodo.Substring(metodo.IndexOf("[\"sito\"] = new JsonObject", StringComparison.Ordinal));
+            sito = sito.Substring(0, sito.IndexOf("},", StringComparison.Ordinal));
+            StringAssert.Contains(sito, "[\"orizzonte\"]", "il sito che la pagina rimanda non porta l'orizzonte del profilo");
+            StringAssert.Contains(metodo, "[\"orizzonteFile\"]", "la pagina non sa da quale file viene l'orizzonte");
+            var js = PaginaSenzaCommenti();
+            Assert.IsTrue(System.Text.RegularExpressions.Regex.IsMatch(js, @"sito:\s+sito \|\| \{\}"),
+                "la richiesta non rimanda il sito ricevuto");
+            var riga = Tratto(js, "function rigaOrizzonte(", "\n  }");
+            foreach (var k in new[] { "'Pag_Orizzonte'", "'Pag_OrizzonteDalProfilo'", "'Pag_OrizzonteNonLetto'" })
+                StringAssert.Contains(riga, k);
+            foreach (var lingua in new[] { "it", "en" })
+                StringAssert.Contains(Tutte(lingua)["Pag_OrizzonteDalProfilo"], "{1}", lingua);
+        }
+
         /*  I NUMERI NELLA LINGUA DI CHI GUARDA (regia, 16 settembre 2026): virgola in italiano, punto in inglese, lo spazio
          *  fine delle migliaia da cinque cifre, e il rapporto focale a due decimali — la pagina non distingueva 5,17 da
          *  5,20. Una funzione sola, `cifra`, e il separatore e' una parola del dizionario. */

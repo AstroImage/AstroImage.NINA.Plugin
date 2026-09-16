@@ -1176,4 +1176,13 @@
   <data name="Pag_SeparatoreDecimale" xml:space="preserve">
     <value>,</value>
   </data>
+  <data name="Pag_Orizzonte" xml:space="preserve">
+    <value>orizzonte</value>
+  </data>
+  <data name="Pag_OrizzonteDalProfilo" xml:space="preserve">
+    <value>dal profilo di N.I.N.A.: «{0}», {1} punti</value>
+  </data>
+  <data name="Pag_OrizzonteNonLetto" xml:space="preserve">
+    <value>il profilo di N.I.N.A. nomina «{0}», ma non si è letto: vale l'altezza minima qui sotto</value>
+  </data>
 </root>

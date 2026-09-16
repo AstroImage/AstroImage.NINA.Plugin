@@ -1176,4 +1176,13 @@
   <data name="Pag_SeparatoreDecimale" xml:space="preserve">
     <value>.</value>
   </data>
+  <data name="Pag_Orizzonte" xml:space="preserve">
+    <value>horizon</value>
+  </data>
+  <data name="Pag_OrizzonteDalProfilo" xml:space="preserve">
+    <value>from the N.I.N.A. profile: “{0}”, {1} points</value>
+  </data>
+  <data name="Pag_OrizzonteNonLetto" xml:space="preserve">
+    <value>the N.I.N.A. profile names “{0}”, but it could not be read: the minimum altitude below applies</value>
+  </data>
 </root>
