@@ -390,6 +390,28 @@ namespace AstroImage.NINA.Plugin.Tests {
                 StringAssert.Contains(js, letto, $"la pagina non legge piu' «{letto}»");
         }
 
+        /*  IL CAMPO SQM DICE CHE COSA VUOLE (regia, 16 settembre 2026): il carattere del sito, non la trasparenza di
+         *  stanotte, e nel dubbio il valore piu' chiaro dell'intervallo, perche' un cielo dichiarato troppo scuro
+         *  prescrive meno ore di quelle che servono. La frase sta nel blocco del sito, accanto a seeing e guida, e
+         *  nelle due lingue dice le due cose. Guardia strutturale: legge la pagina, non la esegue. */
+        [TestMethod]
+        public void IL_CAMPO_SQM_DICE_CHE_COSA_VUOLE() {
+            var js = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.js"), @"/\*.*?\*/", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            var i = js.IndexOf("$('sito').innerHTML", StringComparison.Ordinal);
+            Assert.IsTrue(i >= 0, "la pagina non disegna piu' il blocco del sito");
+            var fine = js.IndexOf("Array.prototype.forEach", i, StringComparison.Ordinal);
+            Assert.IsTrue(fine > i, "il blocco del sito non si chiude dove ci si aspetta");
+            StringAssert.Contains(js.Substring(i, fine - i), "MF('Pag_SqmNota')",
+                "il campo del cielo non dice che cosa vuole");
+            var it = Tutte("it")["Pag_SqmNota"];
+            StringAssert.Contains(it, "carattere del sito");
+            StringAssert.Contains(it, "più chiaro");
+            var en = Tutte("en")["Pag_SqmNota"];
+            StringAssert.Contains(en, "character of the site");
+            StringAssert.Contains(en, "brightest");
+        }
+
         /*  SUL CAMBIO DI PROFILO LA PRESCRIZIONE ESCE DALLO SCHERMO. Il pannello la ritira dalle mani del Ponte
          *  (CambioDiProfiloTests); la pagina la deve togliere da davanti agli occhi, dire perche', e dimenticare la strada
          *  scelta, che era di una scheda calcolata sull'altro banco. */

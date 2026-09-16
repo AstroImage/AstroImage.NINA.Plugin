@@ -972,4 +972,7 @@
   <data name="Pag_RuotaOrfana" xml:space="preserve">
     <value>You declared {0}, and it is no longer in the wheel: it stays out of this prescription. If you renamed it in N.I.N.A., point it again in the filter view.</value>
   </data>
+  <data name="Pag_SqmNota" xml:space="preserve">
+    <value>*Sky (SQM)*: the character of the site, not tonight's transparency. When in doubt, declare the brightest value of the range, that is the lowest number: a sky declared darker than it is prescribes fewer hours than it takes, and you come home short.</value>
+  </data>
 </root>
