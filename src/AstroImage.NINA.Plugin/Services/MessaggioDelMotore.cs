@@ -92,8 +92,34 @@ namespace AstroImage.NINA.Plugin.Services {
                 ["motore_in_errore"]      = ("Motore_InErrore",            new[] { "dettaglio" }),
             };
 
+        /*  LE FRASI DI RISERVA PER UN CAMPO CHE MANCA (16 settembre 2026). Un pezzo che il banco non ha — la camera
+         *  spenta — non ha un nome: la frase che lo cita per nome non si compone, e al suo posto va questa. */
+        private static readonly Dictionary<string, (string Manca, string Chiave, string[] Campi)> FrasiSenza =
+            new Dictionary<string, (string, string, string[])> {
+                ["setup_incompleto"] = ("chiesto", "Motore_SetupIncompletoSenzaNome", new[] { "pezzo", "campi" }),
+            };
+
+        /*  I PEZZI E I CAMPI DEL MOTORE, NELLA LINGUA DI CHI GUARDA. Prima la frase diceva «al ottica» e metteva in fila
+         *  `aperture_mm, throughput`. Un nome che qui non c'e' passa com'e': meglio un nome del motore che un buco. */
+        private static readonly Dictionary<string, string> ParolaDelPezzo = new Dictionary<string, string> {
+            ["ottica"] = "Motore_Pezzo_ottica", ["camera"] = "Motore_Pezzo_camera",
+            ["montatura"] = "Motore_Pezzo_montatura", ["riduttore"] = "Motore_Pezzo_riduttore",
+        };
+        private static readonly Dictionary<string, string> ParolaDelCampo = new Dictionary<string, string> {
+            ["voce"] = "Motore_Campo_voce", ["matrice"] = "Motore_Campo_matrice", ["fattore"] = "Motore_Campo_fattore",
+            ["pixel_um"] = "Motore_Campo_pixel_um", ["width_px"] = "Motore_Campo_width_px", ["height_px"] = "Motore_Campo_height_px",
+            ["aperture_mm"] = "Motore_Campo_aperture_mm", ["obstruction_linear"] = "Motore_Campo_obstruction_linear",
+            ["throughput"] = "Motore_Campo_throughput", ["focal_mm"] = "Motore_Campo_focal_mm",
+        };
+
         /// <summary>I codici che questa classe sa scrivere. Serve alle prove.</summary>
         public static IReadOnlyCollection<string> CodiciNoti => Frasi.Keys.ToList();
+
+        /// <summary>Le frasi di riserva per un campo che manca, codice per codice. Serve alle prove.</summary>
+        public static IReadOnlyDictionary<string, (string Manca, string Chiave, string[] Campi)> FrasiDiRiserva => FrasiSenza;
+
+        /// <summary>Le chiavi delle parole di pezzi e campi. Serve alle prove.</summary>
+        public static IEnumerable<string> ChiaviDelleParole => ParolaDelPezzo.Values.Concat(ParolaDelCampo.Values);
 
         /// <summary>La chiave di risorsa e i campi attesi per un codice, o null.</summary>
         public static (string Chiave, string[] Campi)? FraseDi(string? codice) =>
@@ -107,6 +133,8 @@ namespace AstroImage.NINA.Plugin.Services {
         public static string? Rendi(string? codice, IReadOnlyDictionary<string, string>? dati,
                                     string? dellMotore) {
             if (codice is null || !Frasi.TryGetValue(codice, out var f)) return dellMotore;
+            if (FrasiSenza.TryGetValue(codice, out var r) && (dati is null || !dati.ContainsKey(r.Manca)))
+                f = (r.Chiave, r.Campi);
 
             var valori = new object?[f.Campi.Length];
             for (var i = 0; i < f.Campi.Length; i++) {
@@ -115,7 +143,7 @@ namespace AstroImage.NINA.Plugin.Services {
                      *  uscirebbe monca proprio nel punto che serve a correggere
                      *  l'errore. Meglio quella italiana, che almeno e' intera. */
                     return dellMotore;
-                valori[i] = v;
+                valori[i] = f.Campi[i] == "pezzo" && ParolaDelPezzo.TryGetValue(v, out var kp) ? Loc.T(kp) : v;
             }
             return Loc.F(f.Chiave, valori);
         }
@@ -135,6 +163,10 @@ namespace AstroImage.NINA.Plugin.Services {
             if (dati is null) return fuori;
             foreach (var kv in dati) {
                 var v = kv.Value;
+                /*  UN NULLO O UN VUOTO NON E' UN VALORE (16 settembre 2026): se entrasse, `Rendi` comporrebbe la frase
+                 *  con un buco — «camera «»» — invece di ripiegare. */
+                if (v.ValueKind == JsonValueKind.Null || v.ValueKind == JsonValueKind.Undefined) continue;
+                if (v.ValueKind == JsonValueKind.String && string.IsNullOrWhiteSpace(v.GetString())) continue;
                 fuori[kv.Key] = v.ValueKind switch {
                     JsonValueKind.String => v.GetString() ?? string.Empty,
                     JsonValueKind.Number => v.GetDouble().ToString("0.####", CultureInfo.InvariantCulture),
@@ -146,12 +178,15 @@ namespace AstroImage.NINA.Plugin.Services {
                     JsonValueKind.Array  => string.Join(Loc.T("Motore_Separatore"),
                                                 v.EnumerateArray().Select(x =>
                                                     x.ValueKind == JsonValueKind.String
-                                                        ? x.GetString() ?? string.Empty
+                                                        ? ParolaDi(x.GetString() ?? string.Empty)
                                                         : x.ToString())),
                     _ => v.ToString(),
                 };
             }
             return fuori;
         }
+
+        /*  Un nome di campo del motore dentro una lista diventa la sua parola; un testo che non e' un nome noto resta com'e'. */
+        private static string ParolaDi(string s) => ParolaDelCampo.TryGetValue(s, out var k) ? Loc.T(k) : s;
     }
 }

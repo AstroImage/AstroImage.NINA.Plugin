@@ -306,6 +306,42 @@
   /*  La camera c'e' dal 16 settembre 2026: la geometria la dice il driver, la voce di catalogo porta la fisica. */
   const PEZZI_DEL_BLOCCO = ['ottica', 'riduttore', 'camera', 'montatura'];
 
+  /*  QUELLO CHE IL BANCO NON DICEVA (regia, 16 settembre 2026): `parziale` del prodotto, in giallo, una parola per tipo
+   *  coi numeri che il motore manda. Un tipo senza parola si scrive col suo nome: si vede e non si perde, anche prima che
+   *  il dizionario impari a dirlo. Le chiavi sono letterali; i campi, nell'ordine dei segnaposto. */
+  const PAROLA_PARZIALE = {
+    'rumore_di_lettura_non_noto': ['Pag_Parziale_rumore_di_lettura_non_noto', ['assunto']],
+    'posa_massima_non_nota': ['Pag_Parziale_posa_massima_non_nota', ['tettoUsato']],
+    'rumore_sotto_il_pavimento': ['Pag_Parziale_rumore_sotto_il_pavimento', ['dichiarato', 'dove', 'pavimento']],
+    'rms_caratteristico_non_noto': ['Pag_Parziale_rms_caratteristico_non_noto', ['rmsUsato']],
+    'buio_non_noto': ['Pag_Parziale_buio_non_noto', ['assunto', 'temperatura_c']],
+    'buio_senza_fonte': ['Pag_Parziale_buio_senza_fonte', ['voce', 'valore']],
+    'camera_non_riconosciuta': ['Pag_Parziale_camera_non_riconosciuta', ['nome', 'pozzo']],
+    'coppia_pozzo_rumore_incerta': ['Pag_Parziale_coppia_pozzo_rumore_incerta', ['voce', 'rumore', 'pozzo']],
+    'pozzo_non_noto': ['Pag_Parziale_pozzo_non_noto', ['assunto']],
+    'filtro_davanti_non_dichiarato': ['Pag_Parziale_filtro_davanti_non_dichiarato', ['voce']],
+    'bin_non_dichiarato': ['Pag_Parziale_bin_non_dichiarato', []],
+    'orizzonte_non_dichiarato': ['Pag_Parziale_orizzonte_non_dichiarato', ['assunto']],
+    'seeing_non_dichiarato': ['Pag_Parziale_seeing_non_dichiarato', ['assunto']],
+    'guida_non_dichiarata': ['Pag_Parziale_guida_non_dichiarata', ['assunto']],
+    'notti_serene_non_dichiarate': ['Pag_Parziale_notti_serene_non_dichiarate', ['assunto']],
+    'ruota_non_dichiarata': ['Pag_Parziale_ruota_non_dichiarata', ['usata']],
+    'convenzioni_di_posa': ['Pag_Parziale_convenzioni_di_posa', ['assunte.download', 'assunte.settle', 'assunte.ditherEvery']],
+  };
+  const campoDelDato = (d, via) => { let o = d; for (const k of via.split('.')) o = (o == null ? o : o[k]); return o; };
+  function parzialeDelProdotto(lista) {
+    if (!lista || !lista.length) return '';
+    const righe = lista.map(p => {
+      const w = PAROLA_PARZIALE[p.tipo];
+      if (!w) return '<li>' + esc(p.tipo + ' — ' + p.effetto) + '</li>';
+      const valori = w[1].map(via => { const v = campoDelDato(p.dati || {}, via);
+        return esc(v == null ? '—' : (Array.isArray(v) ? v.join(', ') : v)); });
+      return '<li>' + MF(w[0], ...valori) + '</li>';
+    });
+    return '<div class="box" style="color:#e0a030"><b>' + esc(T('Pag_ParzialeTitolo')) + '</b>' +
+      '<ul style="margin:.4em 0 0 1.1em;padding:0">' + righe.join('') + '</ul></div>';
+  }
+
   /*  LA RICHIESTA: ogni campo della lista col valore che gli spetta — dal profilo di N.I.N.A. se e' suo, dalla
    *  dichiarazione se e' dichiarabile o e' un riconoscimento. Nessun valore di serie: quello che manca manca, e il
    *  servizio dice che cosa. */
@@ -566,6 +602,7 @@
            esc(d.misura ? d.misura.ms + ' ms' : '—'),
            (r.corpo.length / 1024).toFixed(0)) + '</td></tr>' +
       '</table></div>' +
+      parzialeDelProdotto(p.parziale) +
       disegnaMenu(p.prescrizione) +
       '<div class="box"><table>' +
       '<tr><th>' + T('Pag_ColNotte') + '</th><th>' + T('Pag_ColData') + '</th><th>' +

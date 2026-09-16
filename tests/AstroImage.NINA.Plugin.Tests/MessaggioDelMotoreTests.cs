@@ -222,6 +222,55 @@ namespace AstroImage.NINA.Plugin.Tests {
             }
         }
 
+        /*  L'ASSENZA NON SI TRAVESTE DA PRESENZA (regia, 16 settembre 2026). Con la camera spenta il motore mandava
+         *  `chiesto: ""`, e la frase usciva «camera «»»: un nullo o un vuoto diventava una parola, e il ripiego non
+         *  scattava. Un nullo o un vuoto nei dati non e' un valore. */
+        [TestMethod]
+        public void UnNulloOUnVuotoNeiDati_NonDiventaUnaParola() {
+            var d = Dati(@"{""pezzo"":""camera"",""chiesto"":"""",""altro"":null,""spazi"":""  ""}");
+            Assert.IsFalse(d.ContainsKey("chiesto"), "un vuoto e' diventato un valore");
+            Assert.IsFalse(d.ContainsKey("altro"), "un nullo e' diventato un valore");
+            Assert.IsFalse(d.ContainsKey("spazi"), "degli spazi sono diventati un valore");
+            foreach (var lingua in new[] { "it", "en" }) {
+                Loc.Instance.ForzaLingua(lingua);
+                var s = MessaggioDelMotore.Rendi("setup_sconosciuto", d, "la frase del motore");
+                Assert.AreEqual("la frase del motore", s, lingua + ": senza il nome chiesto la frase non si compone");
+            }
+        }
+
+        /*  UN PEZZO CHE MANCA SI DICE SENZA UN NOME CHE NON C'E', e coi pezzi e i campi nella lingua di chi guarda: prima
+         *  la frase diceva «al ottica» e metteva in fila i nomi dei campi del motore. */
+        [TestMethod]
+        public void UnPezzoCheManca_SiDiceConLeSueParole() {
+            foreach (var lingua in new[] { "it", "en" }) {
+                Loc.Instance.ForzaLingua(lingua);
+                var s = MessaggioDelMotore.Rendi("setup_incompleto", Dati(@"{""pezzo"":""camera"",""campi"":[""voce""]}"), "ripiego");
+                Assert.AreNotEqual("ripiego", s, lingua + ": un pezzo senza nome deve avere la sua frase");
+                Assert.IsFalse(s!.Contains("«»") || s.Contains("“”") || s.Contains("voce,") || s.EndsWith("voce"), lingua + ": " + s);
+                var o = MessaggioDelMotore.Rendi("setup_incompleto",
+                    Dati(@"{""pezzo"":""ottica"",""chiesto"":""ottica dichiarata"",""campi"":[""aperture_mm"",""throughput""]}"), "ripiego");
+                Assert.IsFalse(o!.Contains("al ottica"), lingua + ": " + o);
+                Assert.IsFalse(o.Contains("aperture_mm") || o.Contains("throughput"), lingua + ": i nomi dei campi del motore restano in chiaro: " + o);
+            }
+        }
+
+        /*  ASSICURAZIONE, scritta dopo il codice: le frasi di riserva e le parole di pezzi e campi esistono nelle due
+         *  lingue, e le frasi hanno i segnaposto dei campi che dichiarano. */
+        [TestMethod]
+        public void LeFrasiDiRiservaELeParole_CiSonoNelleDueLingue() {
+            foreach (var lingua in new[] { "it", "en" }) {
+                var res = Risorse(lingua);
+                foreach (var kv in MessaggioDelMotore.FrasiDiRiserva) {
+                    Assert.IsTrue(res.ContainsKey(kv.Value.Chiave), lingua + ": manca " + kv.Value.Chiave);
+                    var indici = Regex.Matches(res[kv.Value.Chiave], @"\{(\d)\}").Cast<Match>()
+                        .Select(m => int.Parse(m.Groups[1].Value)).Distinct().OrderBy(x => x).ToList();
+                    CollectionAssert.AreEqual(Enumerable.Range(0, kv.Value.Campi.Length).ToList(), indici, lingua + "/" + kv.Value.Chiave);
+                }
+                foreach (var k in MessaggioDelMotore.ChiaviDelleParole)
+                    Assert.IsTrue(res.ContainsKey(k) && res[k].Trim().Length > 0, lingua + ": manca la parola " + k);
+            }
+        }
+
         [TestMethod]
         public void UnaListaDiventaUnaRigaSola() {
             Loc.Instance.ForzaLingua("it");
