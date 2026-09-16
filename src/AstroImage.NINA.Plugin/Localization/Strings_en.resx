@@ -1134,4 +1134,46 @@
   <data name="Pag_Prov_assunto" xml:space="preserve">
     <value>not declared: the engine assumes {0}{1}</value>
   </data>
+  <data name="Pag_ColGuadagno" xml:space="preserve">
+    <value>gain</value>
+  </data>
+  <data name="Pag_GuadagnoMotore" xml:space="preserve">
+    <value>{0} ({1}, chosen by the engine)</value>
+  </data>
+  <data name="Pag_GuadagnoDichiarato" xml:space="preserve">
+    <value>{0} (declared)</value>
+  </data>
+  <data name="Pag_GuadagnoDellaCamera" xml:space="preserve">
+    <value>the camera's own</value>
+  </data>
+  <data name="Pag_RigaVerdetto" xml:space="preserve">
+    <value>verdict</value>
+  </data>
+  <data name="Pag_Verdetto_Minimo" xml:space="preserve">
+    <value>the requested nights ({0}) cover {1} % of the project: the minimum needs {2}</value>
+  </data>
+  <data name="Pag_Verdetto_MinimoOltre" xml:space="preserve">
+    <value>the requested nights ({0}) cover {1} % of the project, and the minimum is not reached within {2} usable nights from here</value>
+  </data>
+  <data name="Pag_Verdetto_Coperto" xml:space="preserve">
+    <value>the requested nights ({0}) cover {1} % of the project</value>
+  </data>
+  <data name="Pag_Men_ImmagineDiversa" xml:space="preserve">
+    <value>The {0} you get is a different image from the {1}, with another palette: not a cheaper {1}.</value>
+  </data>
+  <data name="Pag_Men_Motivo_sensore_incompatibile_suggerito" xml:space="preserve">
+    <value>for {0} you chose {1}, which does not work on {2}: you need a filter such as {3}</value>
+  </data>
+  <data name="Presc_RitirataPerCamera" xml:space="preserve">
+    <value>this prescription was withdrawn because the camera was connected or disconnected: it was worked out on the previous setup. Ask for a new one.</value>
+  </data>
+  <data name="Pag_RitirataPerCamera" xml:space="preserve">
+    <value>The camera was connected or disconnected: the previous prescription was worked out on the previous setup, and it has been withdrawn. Ask for a new one.</value>
+  </data>
+  <data name="Presc_NotteGiaConsegnata" xml:space="preserve">
+    <value>night {0} of this prescription is already in the Advanced Sequencer: sending it again would duplicate it. If you want it again, remove it from the Sequencer and ask for a new prescription.</value>
+  </data>
+  <data name="Pag_SeparatoreDecimale" xml:space="preserve">
+    <value>.</value>
+  </data>
 </root>

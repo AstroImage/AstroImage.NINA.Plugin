@@ -240,6 +240,14 @@ namespace AstroImage.NINA.Plugin.ViewModels {
              *  in mano si ritira. CambioDiProfiloTests toglie questa riga e cade. */
             profileService.ProfileChanged += AlCambioDiProfilo;
 
+            /*  E LA CAMERA (regia, 16 settembre 2026): collegarne o scollegarne una cambia il banco — la geometria dal
+             *  driver, la voce riconosciuta — senza un salvataggio, e la prescrizione in mano era calcolata sull'altro.
+             *  Si ritira come per il profilo. CambioDiProfiloTests toglie queste righe e cade. */
+            if (camera is not null) {
+                camera.Connected += AlCambioDellaCamera;
+                camera.Disconnected += AlCambioDellaCamera;
+            }
+
             /*  IL SITO. La geometria viene dal profilo — latitudine e longitudine, che
              *  ogni utente ha inserito per forza — e il resto da uno strumento se c'e',
              *  dalla dichiarazione se no. Fino a ieri erano sette numeri scritti a mano
@@ -290,6 +298,25 @@ namespace AstroImage.NINA.Plugin.ViewModels {
             CambiDiProfilo++;
             Logger.Info($"[AstroImage] profile changed: declarations re-read ({DichiarazioneRuota.IdDichiarati(Dichiarazione).Count} filters declared), prescription in hand withdrawn");
             ProfiloCambiato?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>Quante prescrizioni sono state ritirate perche' la camera si e' collegata o scollegata: la vista lo
+        /// confronta con quello che la pagina ha gia' saputo.</summary>
+        public int CambiDiCamera { get; private set; }
+
+        /// <summary>La camera si e' collegata o scollegata, e la prescrizione in mano e' stata ritirata.</summary>
+        public event EventHandler CameraCambiata;
+
+        /*  Senza una prescrizione in mano non c'e' niente da ritirare, e la pagina non si disturba: collegare la camera
+         *  prima di chiedere e' il gesto normale. */
+        private System.Threading.Tasks.Task AlCambioDellaCamera(object mittente, EventArgs e) {
+            if (InMano.Id is not null) {
+                InMano.Ritira(PercheRitirata.Camera);
+                CambiDiCamera++;
+                Logger.Info("[AstroImage] camera connected or disconnected: prescription in hand withdrawn");
+                CameraCambiata?.Invoke(this, EventArgs.Empty);
+            }
+            return System.Threading.Tasks.Task.CompletedTask;
         }
 
         /// <summary>

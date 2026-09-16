@@ -462,6 +462,79 @@ namespace AstroImage.NINA.Plugin.Tests {
             }
         }
 
+        /*  I NUMERI NELLA LINGUA DI CHI GUARDA (regia, 16 settembre 2026): virgola in italiano, punto in inglese, lo spazio
+         *  fine delle migliaia da cinque cifre, e il rapporto focale a due decimali — la pagina non distingueva 5,17 da
+         *  5,20. Una funzione sola, `cifra`, e il separatore e' una parola del dizionario. */
+        [TestMethod]
+        public void I_NUMERI_SI_SCRIVONO_NELLA_LINGUA_DI_CHI_GUARDA() {
+            var js = PaginaSenzaCommenti();
+            var cifra = Tratto(js, "const cifra = (", "\n  };");
+            StringAssert.Contains(cifra, "T('Pag_SeparatoreDecimale')", "il separatore decimale non viene dalla lingua");
+            StringAssert.Contains(cifra, @"\u202f", "le migliaia non hanno lo spazio fine");
+            Assert.AreEqual(",", Tutte("it")["Pag_SeparatoreDecimale"]);
+            Assert.AreEqual(".", Tutte("en")["Pag_SeparatoreDecimale"]);
+            StringAssert.Contains(js, "cifra(v, c.unita === 'f/' ? 2 : undefined)", "il rapporto focale non ha due decimali");
+            var toFixed = System.Text.RegularExpressions.Regex.Matches(js, @"\.toFixed\(").Count;
+            Assert.IsTrue(toFixed <= 2, "fuori da cifra un numero a schermo si scrive col punto: " + toFixed + " toFixed");
+        }
+
+        /*  IL GUADAGNO SI VEDE (regia, 16 settembre 2026): il motore sceglie il modo, il pannello lo mostra, la sequenza
+         *  lo imposta. Nella tabella delle notti ogni blocco dice il suo guadagno, il modo e chi l'ha deciso; un blocco
+         *  senza guadagno dice che resta quello della camera. */
+        [TestMethod]
+        public void LA_TABELLA_DELLE_NOTTI_DICE_IL_GUADAGNO_DI_OGNI_BLOCCO() {
+            var js = PaginaSenzaCommenti();
+            var righe = Tratto(js, "for (const s of p.sequenze) {", "$('uscita').innerHTML");
+            StringAssert.Contains(righe, "guadagnoDelBlocco(", "la riga della notte non dice il guadagno dei blocchi");
+            var f = Tratto(js, "function guadagnoDelBlocco(", "\n  }");
+            StringAssert.Contains(f, "b.gainFonte", "il guadagno non dice chi l'ha deciso");
+            foreach (var k in new[] { "'Pag_GuadagnoMotore'", "'Pag_GuadagnoDichiarato'", "'Pag_GuadagnoDellaCamera'" })
+                StringAssert.Contains(f, k);
+            StringAssert.Contains(js, "T('Pag_ColGuadagno')", "la tabella non ha la colonna del guadagno");
+            foreach (var lingua in new[] { "it", "en" }) {
+                StringAssert.Contains(Tutte(lingua)["Pag_GuadagnoMotore"], "{1}", lingua + ": il modo non entra nella frase");
+                Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_GuadagnoDellaCamera"), lingua);
+            }
+        }
+
+        /*  IL VERDETTO CON LE SUE NOTTI (regia, 16 settembre 2026): quanto del progetto coprono le notti chieste, e quante
+         *  ne servono per il minimo. I numeri li manda Strategy (`prescrizione.verdetto`); qui si mettono le parole. */
+        [TestMethod]
+        public void IL_VERDETTO_DICE_LA_COPERTURA_E_LE_NOTTI_PER_IL_MINIMO() {
+            var js = PaginaSenzaCommenti();
+            var riga = Tratto(js, "T('Pag_RigaVerdetto')", "T('Pag_RigaCalcolataSu')");
+            foreach (var pezzo in new[] { "p.prescrizione.verdetto", "coperturaPercento", "perIlMinimo",
+                                          "'Pag_Verdetto_Minimo'", "'Pag_Verdetto_MinimoOltre'", "'Pag_Verdetto_Coperto'" })
+                StringAssert.Contains(riga, pezzo, "la riga del verdetto non usa " + pezzo);
+            foreach (var lingua in new[] { "it", "en" }) {
+                StringAssert.Contains(Tutte(lingua)["Pag_Verdetto_Minimo"], "{2}", lingua);
+                StringAssert.Contains(Tutte(lingua)["Pag_Verdetto_MinimoOltre"], "{2}", lingua);
+                StringAssert.Contains(Tutte(lingua)["Pag_Verdetto_Coperto"], "{1}", lingua);
+            }
+        }
+
+        /*  UN'IMMAGINE DIVERSA SI DICE DIVERSA (decisione del 16 settembre 2026): la HOO consegnata perche' manca il SII non
+         *  e' una SHO piu' economica. Strategy lo dichiara sulla bloccata (`immagineDiversa`). */
+        [TestMethod]
+        public void LA_HOO_AL_POSTO_DELLA_SHO_SI_DICE_IMMAGINE_DIVERSA() {
+            var menu = Tratto(PaginaSenzaCommenti(), "function disegnaMenu(pr) {", "\n  }");
+            StringAssert.Contains(menu, "immagineDiversa", "il menu non legge la dichiarazione dell'immagine diversa");
+            StringAssert.Contains(menu, "'Pag_Men_ImmagineDiversa'");
+            StringAssert.Contains(Tutte("it")["Pag_Men_ImmagineDiversa"], "non una {1} più economica");
+            StringAssert.Contains(Tutte("en")["Pag_Men_ImmagineDiversa"], "{1}");
+        }
+
+        /*  IL SENSORE PRIMA DELLA RUOTA (decisione del 16 settembre 2026): un filtro che sulla camera non va si dice cosi', col
+         *  filtro compatibile che Strategy suggerisce. */
+        [TestMethod]
+        public void IL_MOTIVO_DEL_SENSORE_SUGGERISCE_IL_FILTRO_COMPATIBILE() {
+            var motivo = Tratto(PaginaSenzaCommenti(), "function testoDelMotivo(x) {", "\n  }");
+            StringAssert.Contains(motivo, "'Pag_Men_Motivo_sensore_incompatibile_suggerito'",
+                "il motivo del sensore non dice quale filtro serve");
+            foreach (var lingua in new[] { "it", "en" })
+                StringAssert.Contains(Tutte(lingua)["Pag_Men_Motivo_sensore_incompatibile_suggerito"], "{3}", lingua);
+        }
+
         /*  «mm proposto dal catalogo» senza il numero: la voce riconosciuta propone un valore, e il valore non si vedeva. */
         [TestMethod]
         public void LA_PROPOSTA_DEL_CATALOGO_SI_VEDE_COL_SUO_NUMERO() {
@@ -512,6 +585,20 @@ namespace AstroImage.NINA.Plugin.Tests {
                         sbagliate.Add(v.Key + ": " + m.Groups[1].Value + "'");
             Assert.AreEqual(0, sbagliate.Count, sbagliate.Count + " accenti scritti con l'apostrofo: " +
                 string.Join(" · ", sbagliate.GetRange(0, Math.Min(12, sbagliate.Count))));
+        }
+
+        /*  E LA CAMERA (regia, 16 settembre 2026): collegata o scollegata, ritira la prescrizione in mano; l'ospite lo dice
+         *  alla pagina come per il profilo, e la pagina la toglie con la frase della camera. */
+        [TestMethod]
+        public void SUL_CAMBIO_DELLA_CAMERA_LA_PRESCRIZIONE_SI_TOGLIE_DALLO_SCHERMO() {
+            var js = PaginaSenzaCommenti();
+            StringAssert.Contains(Tratto(js, "r.evento === 'camera'", "return;"), "ritiraDalloSchermo('camera')",
+                "la pagina non ascolta il cambio della camera");
+            StringAssert.Contains(js, "camera: 'Pag_RitirataPerCamera'", "il ritiro della camera non ha la sua frase");
+            foreach (var lingua in new[] { "it", "en" }) {
+                Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_RitirataPerCamera"), lingua);
+                Assert.IsTrue(Tutte(lingua).ContainsKey("Presc_NotteGiaConsegnata"), lingua);
+            }
         }
 
         /*  IL RITIRO GENERALIZZATO (regia, 16 settembre 2026): salvare una ruota, un banco o un sito diversi ritira la

@@ -69,6 +69,7 @@
   const FRASE_DEL_RITIRO = {
     profilo: 'Pag_ProfiloCambiato', ruota: 'Pag_RitirataPerRuota',
     banco: 'Pag_RitirataPerBanco', sito: 'Pag_RitirataPerSito',
+    camera: 'Pag_RitirataPerCamera',
   };
   function ritiraDalloSchermo(perche) {
     if (!perche) return;
@@ -107,6 +108,13 @@
        rileggono, perche' adesso sono quelli del profilo nuovo, o nessuno. */
     if (r && r.evento === 'profilo') {
       ritiraDalloSchermo('profilo');
+      ridisegna();
+      return;
+    }
+    /* LA CAMERA SI E' COLLEGATA O SCOLLEGATA (16 settembre 2026): il banco e' cambiato, e il pannello ha ritirato la
+       prescrizione in mano. Si toglie dallo schermo e si rilegge il banco. */
+    if (r && r.evento === 'camera') {
+      ritiraDalloSchermo('camera');
       ridisegna();
       return;
     }
@@ -177,6 +185,21 @@
    *  normale &quot; si vede come una virgoletta, quindi non costa niente. */
   const esc = s => String(s).replace(/[&<>"]/g,
     c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  /*  IL NUMERO DA LEGGERE (regia, 16 settembre 2026): il separatore decimale della lingua di chi guarda — una parola del
+   *  dizionario, virgola o punto — e, da cinque cifre intere in su, lo spazio fine delle migliaia, come la pagina del
+   *  motore. `decimali` fissa le cifre dopo il separatore; senza, il numero resta come e' arrivato. Non si ricava
+   *  niente: si scrive. Quello che non e' un numero si scrive com'e', protetto. */
+  const MIGLIAIA = new RegExp(String.raw`\B(?=(\d{3})+(?!\d))`, 'g');
+  const cifra = (v, decimali) => {
+    if (v === null || v === undefined || v === '') return '—';
+    if (typeof v !== 'number' || !isFinite(v)) return esc(v);
+    const s = decimali == null ? String(v) : v.toFixed(decimali);
+    if (s.toLowerCase().indexOf('e') >= 0) return esc(s);
+    const parti = s.split('.');
+    const intere = parti[0].replace('-', '');
+    return (parti[0].charAt(0) === '-' ? '-' : '') + (intere.length >= 5 ? intere.replace(MIGLIAIA, '\u202f') : intere) +
+      (parti.length > 1 ? esc(T('Pag_SeparatoreDecimale')) + parti[1] : '');
+  };
   /*  Un campo che il motore non ha mandato si scrive come niente, non come «undefined»: e' un ripiego sul vuoto, non
    *  su un valore. */
   const escOVuoto = s => s == null ? '' : esc(s);
@@ -354,7 +377,7 @@
       const w = PAROLA_PARZIALE[p.tipo];
       if (!w) return '<li>' + esc(p.tipo + ' — ' + p.effetto) + '</li>';
       const valori = w[1].map(via => { const v = campoDelDato(p.dati || {}, via);
-        return esc(v == null ? '—' : (Array.isArray(v) ? v.join(', ') : v)); });
+        return v == null ? '—' : Array.isArray(v) ? esc(v.join(', ')) : cifra(v); });
       return '<li>' + MF(w[0], ...valori) + '</li>';
     });
     return '<div class="box" style="color:#e0a030"><b>' + esc(T('Pag_ParzialeTitolo')) + '</b>' +
@@ -416,10 +439,10 @@
       if (!x) return '';
       /*  La voce riconosciuta propone un numero, e il numero si vede: «proposto dal catalogo» da solo non diceva quale. */
       if (x.fonte === 'catalogo' && x.valore != null)
-        return ' <span style="font-size:12px;opacity:.7">' + MF('Pag_Banco_CatalogoPropone', esc(x.valore)) + '</span>';
+        return ' <span style="font-size:12px;opacity:.7">' + MF('Pag_Banco_CatalogoPropone', cifra(x.valore)) + '</span>';
       const parola = PAROLA_FONTE_BANCO[x.fonte];
       return ' <span style="font-size:12px;opacity:.7">' + esc(parola ? T(parola) : x.fonte) +
-        (x.fonte === 'dichiarato' && x.catalogo != null ? ' · ' + MF('Pag_Banco_CatalogoProponeva', esc(x.catalogo)) : '') +
+        (x.fonte === 'dichiarato' && x.catalogo != null ? ' · ' + MF('Pag_Banco_CatalogoProponeva', cifra(x.catalogo)) : '') +
         '</span>';
     };
     const riga = c => {
@@ -441,12 +464,12 @@
           (c.pezzo === 'camera' && pezzo && !pezzo.id
             ? '<div style="font-size:12px;color:#e0a030">' + MF('Pag_Banco_CamNonRiconosciuta') + '</div>' : '') +
           (c.pezzo === 'camera' && pezzo && pezzo.buio ? '<div style="font-size:12px;opacity:.7">' + (pezzo.buio.fonte
-            ? MF('Pag_Banco_Buio', esc(pezzo.buio.e_pixel_s), esc(pezzo.buio.temperatura_c),
-                 esc(pezzo.buio.sensore || ''), esc(pezzo.buio.modello ? pezzo.buio.modello.raddoppio_c : ''))
-            : MF('Pag_Banco_BuioSenzaFonte', esc(pezzo.buio.e_pixel_s))) + '</div>' : '');
+            ? MF('Pag_Banco_Buio', cifra(pezzo.buio.e_pixel_s), cifra(pezzo.buio.temperatura_c),
+                 esc(pezzo.buio.sensore || ''), pezzo.buio.modello ? cifra(pezzo.buio.modello.raddoppio_c) : '')
+            : MF('Pag_Banco_BuioSenzaFonte', cifra(pezzo.buio.e_pixel_s))) + '</div>' : '');
       } else if (c.provenienza === 'nina') {
         const v = nina[c.chiave];
-        valore = '<b style="font-size:15px">' + (v == null ? '—' : (c.unita === 'f/' ? 'f/' : '') + esc(v)) + '</b>' + unita +
+        valore = '<b style="font-size:15px">' + (v == null ? '—' : (c.unita === 'f/' ? 'f/' : '') + cifra(v, c.unita === 'f/' ? 2 : undefined)) + '</b>' + unita +
           ' <span style="font-size:12px;opacity:.7">' + esc(T('Pag_Banco_Fonte_nina')) + '</span>';
       } else if (c.provenienza === 'dichiarabile') {
         valore = '<input data-banco="' + esc(c.chiave) + '" data-numero="1" value="' + escOVuoto(dichiarato[c.chiave]) +
@@ -464,17 +487,17 @@
         const c = campoDi(d);
         const nome = c && PAROLA_CAMPO_BANCO[c.chiave] ? T(PAROLA_CAMPO_BANCO[c.chiave]) : d.campo;
         const u = c && c.unita ? ' ' + c.unita : '';
-        return '<li>' + MF(parola, esc(nome), esc(d.dichiarato), esc(d.catalogo), esc(d.voce), esc(u)) + '</li>';
+        return '<li>' + MF(parola, esc(nome), cifra(d.dichiarato), cifra(d.catalogo), esc(d.voce), esc(u)) + '</li>';
       }
       if (d.codice === 'geometria_diversa_dal_catalogo') {
         const pc = PAROLA_CAMPO_CAMERA[d.campo];
-        return '<li>' + MF(parola, esc(pc ? T(pc) : d.campo), esc(d.driver), esc(d.voce), esc(d.catalogo)) + '</li>';
+        return '<li>' + MF(parola, esc(pc ? T(pc) : d.campo), cifra(d.driver), esc(d.voce), cifra(d.catalogo)) + '</li>';
       }
       if (d.codice === 'focale_diversa_dal_catalogo')
-        return '<li>' + MF(parola, esc(d.nina), esc(d.catalogo), esc(d.voce), esc(d.riduttore)) + '</li>';
+        return '<li>' + MF(parola, cifra(d.nina), cifra(d.catalogo), esc(d.voce), cifra(d.riduttore)) + '</li>';
       const a = d.apertura || {}, n = d.nina || {};
       const fa = PAROLA_FONTE_BANCO[a.fonte];
-      return '<li>' + MF(parola, esc(a.valore), esc(fa ? T(fa) : a.fonte), esc(n.focale_mm), esc(n.rapporto),
+      return '<li>' + MF(parola, cifra(a.valore), esc(fa ? T(fa) : a.fonte), cifra(n.focale_mm), cifra(n.rapporto, 2),
         esc(n.apertura_mm)) + '</li>';
     };
     const divergenze = (pb && pb.divergenze) || [];
@@ -578,8 +601,8 @@
       /*  Pose e ore della notte le fa il motore (`totale`), e qui si stampano: il numero che la pagina mostra lo manda
        *  il motore (contratto delle schede §6 ter). Un motore che non le manda lascia il trattino. */
       const tot = m.totale || {};
-      const pose = tot.pose == null ? '—' : esc(tot.pose);
-      const ore = tot.ore == null ? '—' : esc(tot.ore.toFixed(2)) + ' h';
+      const pose = cifra(tot.pose);
+      const ore = tot.ore == null ? '—' : cifra(tot.ore, 2) + ' h';
       const tasto = r.consegnabile
         ? '<button class="manda" data-notte="' + s.notte +
           '" data-prescrizione="' + esc(r.prescrizione || '') + '">' + T('Pag_MandaANina') + '</button>'
@@ -595,6 +618,7 @@
                   Il vetro vero e' in `posa.<canale>.ex.spec.filter.id`, e la
                   dichiarazione dice come si chiama sulla tua ruota. */
                '<td>' + esc(m.blocchi.map(b => vetroDelBlocco(p, b)).join(' · ')) + '</td>' +
+               '<td>' + m.blocchi.map(b => guadagnoDelBlocco(b)).join(' · ') + '</td>' +
                '<td>' + tasto + '</td></tr>';
     }
 
@@ -610,9 +634,19 @@
       /*  Le ore utili sono la somma delle notti chieste, e il numero delle notti lo dice il servizio: senza, accanto
           alla notte chiesta, sembravano le ore di una notte sola. */
       '<tr><th>' + T('Pag_RigaOreUtili') + '</th><td>' + (p.notte.nottiDisponibili == null
-        ? esc(p.notte.oreDisponibili.toFixed(2)) + ' h'
+        ? cifra(p.notte.oreDisponibili, 2) + ' h'
         : MF(p.notte.nottiDisponibili === 1 ? 'Pag_OreUtiliInUnaNotte' : 'Pag_OreUtiliInNotti',
-             esc(p.notte.oreDisponibili.toFixed(2)), esc(p.notte.nottiDisponibili))) + '</td></tr>' +
+             cifra(p.notte.oreDisponibili, 2), cifra(p.notte.nottiDisponibili))) + '</td></tr>' +
+      /*  IL VERDETTO CON LE SUE NOTTI (regia, 16 settembre 2026): quanto del progetto coprono le notti chieste, e quante
+          ne servono per il minimo. I numeri li fa Strategy; senza, la riga non c'e'. */
+      ((v => (v && v.coperturaPercento != null)
+        ? '<tr><th>' + T('Pag_RigaVerdetto') + '</th><td>' +
+          (v.perIlMinimo == null
+            ? MF('Pag_Verdetto_MinimoOltre', cifra(v.notti), cifra(v.coperturaPercento), cifra(v.massimo))
+            : v.perIlMinimo > v.notti
+              ? MF('Pag_Verdetto_Minimo', cifra(v.notti), cifra(v.coperturaPercento), cifra(v.perIlMinimo))
+              : MF('Pag_Verdetto_Coperto', cifra(v.notti), cifra(v.coperturaPercento))) + '</td></tr>'
+        : '')(p.prescrizione && p.prescrizione.verdetto)) +
       /*  SU QUALI VETRI E' STATA CALCOLATA, e non e' un dettaglio da nascondere.
          Senza questa riga «non e' cambiato niente perche' il motore avrebbe scelto
          gli stessi vetri» e «non e' cambiato niente perche' la ruota non e' partita»
@@ -629,7 +663,7 @@
       '<tr><th>' + T('Pag_RigaContratto') + '</th><td>' +
         MF('Pag_Contratto',
            '<code>' + esc(d.contratto) + '</code>',
-           esc(d.misura ? d.misura.ms + ' ms' : '—'),
+           d.misura ? cifra(d.misura.ms) + ' ms' : '—',
            (r.corpo.length / 1024).toFixed(0)) + '</td></tr>' +
       '</table></div>' +
       parzialeDelProdotto(p.parziale) +
@@ -637,7 +671,7 @@
       '<div class="box"><table>' +
       '<tr><th>' + T('Pag_ColNotte') + '</th><th>' + T('Pag_ColData') + '</th><th>' +
         T('Pag_ColBlocchi') + '</th><th>' + T('Pag_ColPose') + '</th><th>' +
-        T('Pag_ColDurata') + '</th><th>' + T('Pag_ColFiltri') + '</th><th></th></tr>' +
+        T('Pag_ColDurata') + '</th><th>' + T('Pag_ColFiltri') + '</th><th>' + T('Pag_ColGuadagno') + '</th><th></th></tr>' +
       righe + '</table></div>' +
       (r.consegnabile ? '' :
         '<div class="box err"><b>' + T('Pag_NonSiPuoMandare') + '</b>' +
@@ -690,7 +724,7 @@
     u.innerHTML = '<div class="box fatto">' +
       '<b>' + MF('Pag_NotteAggiunta', notte) + '</b>' +
       '<div style="margin-top:6px;opacity:.85">' + esc(r.bersaglio || '') + ' — ' +
-      MF('Pag_BlocchiPose', r.blocchi, r.pose) + ' ' +
+      MF('Pag_BlocchiPose', cifra(r.blocchi), cifra(r.pose)) + ' ' +
       '<span style="opacity:.7">' + T('Pag_NienteAvviato') + '</span></div>' +
       elenco(T('Pag_Scartato'), r.scartati) + elenco(T('Pag_DaSapere'), r.note) + '</div>';
   }
@@ -733,6 +767,16 @@
      `posa.<canale>.ex.spec.filter.id`, e la dichiarazione lo traduce nel nome che hai
      scritto tu sulla ruota. Se non e' dichiarato lo si dice qui, invece di lasciare
      credere che andra' bene: e' lo stesso rifiuto che poi farebbe la consegna. */
+  /*  IL GUADAGNO DEL BLOCCO, come la sequenza lo imposta (regia, 16 settembre 2026): il motore sceglie il modo, il
+   *  pannello lo mostra, la sequenza lo imposta. Col guadagno, il modo e chi l'ha deciso; un blocco a -1 lascia il
+   *  guadagno che la camera ha. I numeri sono quelli del modello, scritti come arrivano. */
+  function guadagnoDelBlocco(b) {
+    if (b.gain == null || b.gain < 0) return T('Pag_GuadagnoDellaCamera');
+    return b.gainFonte === 'dichiarato'
+      ? MF('Pag_GuadagnoDichiarato', cifra(b.gain))
+      : MF('Pag_GuadagnoMotore', cifra(b.gain), esc(b.modo || '—'));
+  }
+
   function vetroDelBlocco(p, b) {
     const canali = b.canali || [];
     let id = null;
@@ -748,7 +792,7 @@
     return v ? v.nina : T('Pag_FiltroNonDichiarato').replace('{0}', id);
   }
 
-  const num = v => (v === null || v === undefined) ? '—' : v;
+  const num = v => cifra(v);
 
   /*  LA PROVENIENZA DI UN CAMPO DEL SITO. E' un codice, e la parola la mette il dizionario: qui si confrontava la
    *  frase italiana («non disponibile», «dichiarato»), che tradotta avrebbe sbagliato il colore in silenzio e non
@@ -1046,8 +1090,8 @@
   function margineDellaClasse(m) {
     if (!m || m.conteggio === null || m.conteggio === undefined) return '';
     const base = m.seconda
-      ? MF('Pag_Men_Margine', esc(m.tecnica), esc(m.conteggio), esc(m.seconda.tecnica), esc(m.seconda.conteggio))
-      : MF('Pag_Men_MargineSolo', esc(m.tecnica), esc(m.conteggio));
+      ? MF('Pag_Men_Margine', esc(m.tecnica), cifra(m.conteggio), esc(m.seconda.tecnica), cifra(m.seconda.conteggio))
+      : MF('Pag_Men_MargineSolo', esc(m.tecnica), cifra(m.conteggio));
     const d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(m.conteggiDel || '');
     if (!d) return base;
     let quando = m.conteggiDel;
@@ -1100,12 +1144,14 @@
       case 'sensore_incompatibile':
         if (Array.isArray(x.nomi) && x.nomi.length)
           return MF('Pag_Men_Motivo_sensore_incompatibile_ruota', nomeDellaBanda, x.nomi.map(esc).join(', '), dove, suggerito);
+        /*  il ruolo rifiutato dal sensore porta il filtro compatibile (decisione del 16 settembre 2026) */
+        if (suggerito) return MF('Pag_Men_Motivo_sensore_incompatibile_suggerito', nomeDellaBanda, scelto, dove, suggerito);
         return MF('Pag_Men_Motivo_sensore_incompatibile', nomeDellaBanda, scelto, dove);
       case 'non_in_ruota': return MF('Pag_Men_Motivo_non_in_ruota', nomeDellaBanda, scelto);
       case 'vetro_sconosciuto': return MF('Pag_Men_Motivo_vetro_sconosciuto', nomeDellaBanda, scelto);
       case 'classe_incompatibile': return MF('Pag_Men_Motivo_classe_incompatibile', nomeDellaBanda, scelto);
       case 'sotto_soglia_continuo':
-        return MF('Pag_Men_Motivo_sotto_soglia_continuo', nomeDellaBanda, scelto, esc(x.larghezza_nm), esc(x.soglia_nm));
+        return MF('Pag_Men_Motivo_sotto_soglia_continuo', nomeDellaBanda, scelto, cifra(x.larghezza_nm), cifra(x.soglia_nm));
       case 'escluso_per_decisione': return MF('Pag_Men_Motivo_escluso_per_decisione', nomeDellaBanda, scelto);
       default: return MF('Pag_Men_Motivo_generico', nomeDellaBanda);
     }
@@ -1141,7 +1187,7 @@
     const prezzo = c => {
       const ore = c.progetto && c.progetto.ideal;
       if (ore === null || ore === undefined) return '<span class="p-bad">' + esc(T('Pag_Men_CostoNonCalcolabile')) + '</span>';
-      return MF(pr.panels > 1 ? 'Pag_Men_PrezzoProgetto' : 'Pag_Men_Prezzo', esc(ore.toFixed(1)));
+      return MF(pr.panels > 1 ? 'Pag_Men_PrezzoProgetto' : 'Pag_Men_Prezzo', cifra(ore, 1));
     };
     const carta = c => {
       const scelta = !!(pr.roadPicked && pr.road && pr.road.id === c.id);
@@ -1173,6 +1219,11 @@
     const perche = racc ? testoDellaRaccomandata(racc) : '';
     if (perche) righe.push('<div class="sc-s">' + MF('Pag_Men_RaccomandataPerche', esc(racc.name), perche) + '.</div>');
     if (assenza) righe.push('<div class="sc-s"><span class="p-warn">' + assenza + '.</span></div>');
+    /*  UN'IMMAGINE DIVERSA SI DICE DIVERSA (decisione del 16 settembre 2026): la HOO consegnata perche' manca il SII non e'
+     *  una SHO piu' economica. Lo dichiara Strategy sulla bloccata; qui si scrive. */
+    const diverse = [...new Set(chiuse.filter(b => b.immagineDiversa && b.tecnica).map(b => b.tecnica))];
+    if (diverse.length && pr.road && pr.road.tecnica)
+      righe.push('<div class="sc-s">' + MF('Pag_Men_ImmagineDiversa', esc(pr.road.tecnica), esc(diverse.join(' / '))) + '</div>');
     const chiesta = pr.roadRequestedBlocked, rs = pr.roadRequestedStessaRipresa, sost = pr.roadRequestedSostituita;
     const presaOra = pr.road ? pr.road.name : '';
     if (chiesta)
