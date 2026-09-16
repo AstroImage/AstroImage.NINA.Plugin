@@ -45,6 +45,8 @@
   /*  Il banco: i campi che il servizio pubblica, i codici delle sue divergenze, quello che il C# ha letto e dichiarato
    *  per il profilo attivo, e il banco che l'ultima prescrizione ha usato. */
   let campiDelBanco = [], divergenzeDelBanco = [], bancoLetto = null, bancoUsato = null;
+  /*  I dati che l'ultima prescrizione ha assunto: il blocco del sito li scrive accanto ai suoi campi. */
+  let parzialeUsato = null;
 
   /*  Le icone: tre segni, nessun colore proprio. Prendono il colore dal testo e
    *  diventano accento quando la card e' scelta — come in AIS, dove i tre modi
@@ -72,8 +74,10 @@
     if (!perche) return;
     stradaScelta = null;
     bancoUsato = null;
+    parzialeUsato = null;
     $('uscita').innerHTML = '<div class="box" style="border-color:#e0a030"><span style="color:#e0a030">' +
       esc(T(FRASE_DEL_RITIRO[perche] || 'Pag_ProfiloCambiato')) + '</span></div>';
+    aggiornaProvenienzeDelSito();
   }
 
   /* L'unica via verso il mondo: un messaggio all'ospite. */
@@ -164,7 +168,9 @@
     if (politiche.length) disegnaPolitiche();
   }
 
-  const stato = (t, c) => { const s = $('stato'); s.textContent = t; s.className = 'stato ' + (c || ''); };
+  /*  Uno stato scritto e' il resoconto di una cosa avvenuta: resta nella lingua in cui e' avvenuta, e il cambio lingua
+      non lo riporta al testo iniziale (lo faceva, e lasciava il colore di prima: «in attesa» in verde). */
+  const stato = (t, c) => { const s = $('stato'); s.removeAttribute('data-loc'); s.textContent = t; s.className = 'stato ' + (c || ''); };
   /*  Le virgolette si proteggono come gli angoli, e non e' pedanteria: `esc` finisce
    *  dentro un attributo ventisei volte in questo file, e li' una virgoletta nel
    *  testo chiuderebbe l'attributo e trasformerebbe il resto in markup. Nel testo
@@ -408,6 +414,9 @@
     };
     const fonte = x => {
       if (!x) return '';
+      /*  La voce riconosciuta propone un numero, e il numero si vede: «proposto dal catalogo» da solo non diceva quale. */
+      if (x.fonte === 'catalogo' && x.valore != null)
+        return ' <span style="font-size:12px;opacity:.7">' + MF('Pag_Banco_CatalogoPropone', esc(x.valore)) + '</span>';
       const parola = PAROLA_FONTE_BANCO[x.fonte];
       return ' <span style="font-size:12px;opacity:.7">' + esc(parola ? T(parola) : x.fonte) +
         (x.fonte === 'dichiarato' && x.catalogo != null ? ' · ' + MF('Pag_Banco_CatalogoProponeva', esc(x.catalogo)) : '') +
@@ -496,6 +505,8 @@
     $('vai').disabled = true;
     stato(T('Pag_StoChiedendo'));
     $('uscita').innerHTML = '';
+    parzialeUsato = null;
+    aggiornaProvenienzeDelSito();
 
     const r = await chiedi('prescrizione', {
       /* IL SITO E' QUELLO DEL PROFILO, non piu' sette numeri scritti qui dentro.
@@ -596,7 +607,12 @@
         (p.notte.spostataDi ? ' <span style="opacity:.55">' +
           MF('Pag_NotteSpostata', p.notte.spostataDi) + '</span>' : '') +
         '</td></tr>' +
-      '<tr><th>' + T('Pag_RigaOreUtili') + '</th><td>' + p.notte.oreDisponibili.toFixed(2) + ' h</td></tr>' +
+      /*  Le ore utili sono la somma delle notti chieste, e il numero delle notti lo dice il servizio: senza, accanto
+          alla notte chiesta, sembravano le ore di una notte sola. */
+      '<tr><th>' + T('Pag_RigaOreUtili') + '</th><td>' + (p.notte.nottiDisponibili == null
+        ? esc(p.notte.oreDisponibili.toFixed(2)) + ' h'
+        : MF(p.notte.nottiDisponibili === 1 ? 'Pag_OreUtiliInUnaNotte' : 'Pag_OreUtiliInNotti',
+             esc(p.notte.oreDisponibili.toFixed(2)), esc(p.notte.nottiDisponibili))) + '</td></tr>' +
       /*  SU QUALI VETRI E' STATA CALCOLATA, e non e' un dettaglio da nascondere.
          Senza questa riga «non e' cambiato niente perche' il motore avrebbe scelto
          gli stessi vetri» e «non e' cambiato niente perche' la ruota non e' partita»
@@ -631,6 +647,8 @@
     /*  Il banco che questa prescrizione ha usato, campo per campo con la sua provenienza e le divergenze. */
     bancoUsato = p.banco || null;
     disegnaBanco();
+    parzialeUsato = p.parziale || null;
+    aggiornaProvenienzeDelSito();
 
     for (const b of document.querySelectorAll('button.manda'))
       b.addEventListener('click', () => manda(b));
@@ -732,6 +750,29 @@
 
   const num = v => (v === null || v === undefined) ? '—' : v;
 
+  /*  LA PROVENIENZA DI UN CAMPO DEL SITO. E' un codice, e la parola la mette il dizionario: qui si confrontava la
+   *  frase italiana («non disponibile», «dichiarato»), che tradotta avrebbe sbagliato il colore in silenzio e non
+   *  tradotta in inglese si leggeva in italiano.
+   *  E QUANDO NESSUNO LO DICHIARA, l'assunzione del motore sta accanto al campo (16 settembre 2026): il blocco diceva
+   *  «non disponibile» mentre il riquadro dei dati assunti, sotto, diceva il valore. Il campo lo nomina il motore
+   *  (`campo` in `parziale`); la pagina non sa che cosa si assume finche' una prescrizione non lo dice. */
+  const unitaDelSito = {};
+  function provenienzaDelSito(campo) {
+    const p = sitoProv[campo] || 'non_disponibile';
+    const colore = p === 'non_disponibile' ? 'color:#e0a030' : p === 'dichiarato' ? 'opacity:.75' : 'opacity:.6';
+    const parola = { profilo: 'Pag_Prov_profilo', misurato: 'Pag_Prov_misurato',
+                     dichiarato: 'Pag_Prov_dichiarato', non_disponibile: 'Pag_Prov_non_disponibile' }[p];
+    const assunto = (p === 'non_disponibile' && parzialeUsato)
+      ? parzialeUsato.find(x => x.pezzo === 'sito' && x.campo === campo && x.dati && x.dati.assunto != null) : null;
+    return '<span data-prov-sito="' + esc(campo) + '" style="font-size:12px;' + colore + '">' +
+      (assunto ? MF('Pag_Prov_assunto', esc(assunto.dati.assunto), unitaDelSito[campo] || '')
+               : esc(parola ? T(parola) : p)) + '</span>';
+  }
+  function aggiornaProvenienzeDelSito() {
+    for (const s of document.querySelectorAll('[data-prov-sito]'))
+      s.outerHTML = provenienzaDelSito(s.getAttribute('data-prov-sito'));
+  }
+
   function disegnaSito(r) {
     sito = r.sito || null;
     sitoScritto = r.dichiarato || {};
@@ -742,13 +783,7 @@
        valgono lo stesso per il motore, ma non per chi guarda. */
     const riga = (etichetta, campo, unita, scrivibile) => {
       const v = sito ? sito[campo] : null;
-      /*  LA PROVENIENZA E' UN CODICE, e la parola la mette il dizionario. Qui si confrontava la frase italiana
-       *  («non disponibile», «dichiarato»): tradotta, il colore sarebbe stato sbagliato in silenzio; non tradotta,
-       *  in inglese si leggeva in italiano. */
-      const p = sitoProv[campo] || 'non_disponibile';
-      const colore = p === 'non_disponibile' ? 'color:#e0a030' : p === 'dichiarato' ? 'opacity:.75' : 'opacity:.6';
-      const parola = { profilo: 'Pag_Prov_profilo', misurato: 'Pag_Prov_misurato',
-                       dichiarato: 'Pag_Prov_dichiarato', non_disponibile: 'Pag_Prov_non_disponibile' }[p];
+      unitaDelSito[campo] = unita;
       return '<tr><th>' + etichetta + '</th><td>' +
         (scrivibile
           ? '<input data-sito="' + campo + '" value="' + (sitoScritto[campo] === null ||
@@ -756,7 +791,7 @@
             '" style="width:70px" spellcheck="false"> ' +
             (v === null || v === undefined ? '' : '<b>' + num(v) + '</b> ' + unita)
           : '<b>' + num(v) + '</b> ' + unita) +
-        ' <span style="font-size:12px;' + colore + '">' + esc(parola ? T(parola) : p) + '</span></td></tr>';
+        ' ' + provenienzaDelSito(campo) + '</td></tr>';
     };
 
     $('sito').innerHTML =

@@ -1122,4 +1122,16 @@
   <data name="Pag_RitirataPerSito" xml:space="preserve">
     <value>You saved a different site: the previous prescription was worked out on the previous sky, and it has been withdrawn. Ask for a new one.</value>
   </data>
+  <data name="Pag_OreUtiliInNotti" xml:space="preserve">
+    <value>{0} h over {1} nights</value>
+  </data>
+  <data name="Pag_OreUtiliInUnaNotte" xml:space="preserve">
+    <value>{0} h in one night</value>
+  </data>
+  <data name="Pag_Banco_CatalogoPropone" xml:space="preserve">
+    <value>the catalogue proposes {0}</value>
+  </data>
+  <data name="Pag_Prov_assunto" xml:space="preserve">
+    <value>not declared: the engine assumes {0}{1}</value>
+  </data>
 </root>

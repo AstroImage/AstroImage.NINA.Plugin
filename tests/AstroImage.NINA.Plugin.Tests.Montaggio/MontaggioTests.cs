@@ -190,7 +190,7 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
             var c = b.Costruisci(Modello("mono"), out var ricetta);
 
             Assert.IsNull(c, "un bersaglio che non rispetta la prescrizione non si consegna");
-            Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("NON e' stato consegnato")),
+            Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("NON è stato consegnato")),
                 "e si dice a chiare lettere, non fra le righe");
             foreach (var vetro in new[] { "O", "H", "R", "G", "B" })
                 Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("«" + vetro + "»")),
@@ -228,7 +228,7 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
             var c = b.Costruisci(ModelloSenzaFiltri(), out var ricetta);
 
             Assert.IsNull(c, "un bersaglio a cui manca un blocco non si consegna");
-            Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("NON e' stato consegnato") && s.Contains("difetto del Ponte")),
+            Assert.IsTrue(ricetta.Scartati.Any(s => s.Contains("NON è stato consegnato") && s.Contains("difetto del Ponte")),
                 "e lo si dice come un difetto, non come uno scarto fra gli altri: " + string.Join(" | ", ricetta.Scartati));
             CollectionAssert.DoesNotContain(fonte.Chieste, nameof(FonteFinta.Contenitore),
                 "il contenitore non si chiede per un bersaglio che non partira'");

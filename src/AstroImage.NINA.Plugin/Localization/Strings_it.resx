@@ -52,7 +52,7 @@
     <value>Nessun corpo da spedire.</value>
   </data>
   <data name="Cliente_RispostaSenzaMotivo" xml:space="preserve">
-    <value>Il servizio ha risposto {0} senza dire perche'.</value>
+    <value>Il servizio ha risposto {0} senza dire perché.</value>
   </data>
   <data name="Cosa_Filtro" xml:space="preserve">
     <value>il filtro</value>
@@ -64,7 +64,7 @@
     <value>la posa</value>
   </data>
   <data name="Filtri_CanaliDiscordi" xml:space="preserve">
-    <value>I canali di questo blocco dichiarano filtri diversi ({0}): non ce n'e' uno solo che li copra, e sceglierne uno a caso vorrebbe dire riprendere col filtro sbagliato senza dirlo.</value>
+    <value>I canali di questo blocco dichiarano filtri diversi ({0}): non ce n'è uno solo che li copra, e sceglierne uno a caso vorrebbe dire riprendere col filtro sbagliato senza dirlo.</value>
   </data>
   <data name="Filtri_NonDichiarato" xml:space="preserve">
     <value>La risposta non dice quale filtro sia stato usato per {0}.</value>
@@ -76,7 +76,7 @@
     <value>Nessuno dei {0} modelli di bersaglio contiene una ripresa da cui copiare la posa. Aggiungi uno Smart Exposure a un modello.</value>
   </data>
   <data name="Fonte_NessunModello" xml:space="preserve">
-    <value>Non c'e' nessun modello di bersaglio. Di solito ce n'e' almeno uno di serie: se manca anche quello, apri il Sequenziatore Avanzato, vai in Modelli e salvane uno.</value>
+    <value>Non c'è nessun modello di bersaglio. Di solito ce n'è almeno uno di serie: se manca anche quello, apri il Sequenziatore Avanzato, vai in Modelli e salvane uno.</value>
   </data>
   <data name="Fonte_SenzaMediatore" xml:space="preserve">
     <value>N.I.N.A. non ha fornito il mediatore delle sequenze.</value>
@@ -85,10 +85,10 @@
     <value>(niente)</value>
   </data>
   <data name="Garanzia_NonNumero" xml:space="preserve">
-    <value>{0}: «{1}» non e' un numero ({2}).</value>
+    <value>{0}: «{1}» non è un numero ({2}).</value>
   </data>
   <data name="Garanzia_NonRiletto" xml:space="preserve">
-    <value>{0}: non si e' potuto rileggere «{1}» dopo averlo scritto, quindi non si puo' garantire che il valore sia arrivato.</value>
+    <value>{0}: non si è potuto rileggere «{1}» dopo averlo scritto, quindi non si può garantire che il valore sia arrivato.</value>
   </data>
   <data name="Garanzia_NumeroNonAttecchito" xml:space="preserve">
     <value>{0}: chiesto {1}, l'oggetto dice {2}. Il valore non ha attecchito e il blocco non si consegna: una sequenza che dice un numero diverso dalla prescrizione, guardandola, non si distingue da una conforme.</value>
@@ -97,43 +97,43 @@
     <value>{0}: chiesto «{1}», l'oggetto dice «{2}». Il blocco non si consegna: riprendere col filtro sbagliato non si recupera.</value>
   </data>
   <data name="Iter_NienteSuCuiScrivere" xml:space="preserve">
-    <value>non c'e' niente su cui scrivere.</value>
+    <value>non c'è niente su cui scrivere.</value>
   </data>
   <data name="Iter_NonAttecchito" xml:space="preserve">
-    <value>il numero di pose non ha attecchito: chieste {0}, l'oggetto dice {1}. Su N.I.N.A. 3.3 il valore che comanda e' `{2}` dello SmartExposure, e questa versione del ponte non e' riuscita a scriverlo.</value>
+    <value>il numero di pose non ha attecchito: chieste {0}, l'oggetto dice {1}. Su N.I.N.A. 3.3 il valore che comanda è `{2}` dello SmartExposure, e questa versione del ponte non è riuscita a scriverlo.</value>
   </data>
   <data name="Iter_NonRiletto" xml:space="preserve">
-    <value>non si e' potuto rileggere il numero di pose dopo averlo scritto.</value>
+    <value>non si è potuto rileggere il numero di pose dopo averlo scritto.</value>
   </data>
   <data name="Iter_PoseNonPositive" xml:space="preserve">
     <value>un numero di pose non positivo non si scrive.</value>
   </data>
   <data name="Manda_FiltroNonDichiarato" xml:space="preserve">
-    <value>«{0}» e' stato calcolato sul filtro «{1}», che nella tua ruota non e' dichiarato</value>
+    <value>«{0}» è stato calcolato sul filtro «{1}», che nella tua ruota non è dichiarato</value>
   </data>
   <data name="Manda_FiltroNonRisolto" xml:space="preserve">
-    <value>{0}. Il bersaglio NON e' stato consegnato: dichiara quel filtro nella configurazione, oppure chiedi di nuovo la prescrizione con la ruota che hai davvero.</value>
+    <value>{0}. Il bersaglio NON è stato consegnato: dichiara quel filtro nella configurazione, oppure chiedi di nuovo la prescrizione con la ruota che hai davvero.</value>
   </data>
   <data name="Manda_NessunFiltroDaDichiarare" xml:space="preserve">
     <value>per «{0}» il motore dice di non mettere NESSUN filtro davanti (il colore lo fa la matrice di Bayer). Se hai uno slot vuoto o un filtro trasparente, dichiaralo come «nessun filtro» nella configurazione</value>
   </data>
   <data name="Mappa_FileVuoto" xml:space="preserve">
-    <value>{0} c'e' ma non dice niente.</value>
+    <value>{0} c'è ma non dice niente.</value>
   </data>
   <data name="Mappa_LetturaFallita" xml:space="preserve">
-    <value>{0} non si e' potuto leggere: {1}</value>
+    <value>{0} non si è potuto leggere: {1}</value>
   </data>
   <data name="Mappa_VociVuote" xml:space="preserve">
     <value>{0}: {1} voci vuote ignorate.</value>
   </data>
   <data name="Memoria_NienteDoveSalvare" xml:space="preserve">
-    <value>Non c'e' dove salvare: N.I.N.A. non ha fornito le impostazioni del plugin.</value>
+    <value>Non c'è dove salvare: N.I.N.A. non ha fornito le impostazioni del plugin.</value>
   </data>
   <data name="Memoria_SalvataggioFallito" xml:space="preserve">
-    <value>La configurazione non si e' potuta salvare: {0}</value>
+    <value>La configurazione non si è potuta salvare: {0}</value>
   </data>
   <data name="Memoria_SenzaSpazio" xml:space="preserve">
-    <value>N.I.N.A. non ha fornito lo spazio dove salvare le impostazioni del plugin: la configurazione non e' stata scritta.</value>
+    <value>N.I.N.A. non ha fornito lo spazio dove salvare le impostazioni del plugin: la configurazione non è stata scritta.</value>
   </data>
   <data name="Montaggio_BloccoScartato" xml:space="preserve">
     <value>{0}: {1}</value>
@@ -142,10 +142,10 @@
     <value>Riscaldamento e ritorno a casa non entrano nel bersaglio: appartengono alla chiusura della sequenza, che resta tua.</value>
   </data>
   <data name="Montaggio_FiltroNonInRuota" xml:space="preserve">
-    <value>{0}: la prescrizione chiede il filtro «{1}», che in ruota non c'e'. Sono {2} pose da {3:0.#} s, cioe' {4:0.00} h che verrebbero riprese con il filtro montato adesso, qualunque sia.</value>
+    <value>{0}: la prescrizione chiede il filtro «{1}», che in ruota non c'è. Sono {2} pose da {3:0.#} s, cioè {4:0.00} h che verrebbero riprese con il filtro montato adesso, qualunque sia.</value>
   </data>
   <data name="Montaggio_FiltroNonInRuotaSenzaOre" xml:space="preserve">
-    <value>{0}: la prescrizione chiede il filtro «{1}», che in ruota non c'e'. Sono {2} pose da {3:0.#} s, che verrebbero riprese con il filtro montato adesso, qualunque sia.</value>
+    <value>{0}: la prescrizione chiede il filtro «{1}», che in ruota non c'è. Sono {2} pose da {3:0.#} s, che verrebbero riprese con il filtro montato adesso, qualunque sia.</value>
   </data>
   <data name="Montaggio_InRuotaCiSono" xml:space="preserve">
     <value>In ruota ci sono: {0}.</value>
@@ -154,7 +154,7 @@
     <value>motivo non dichiarato</value>
   </data>
   <data name="Montaggio_NonConsegnato" xml:space="preserve">
-    <value>Il bersaglio NON e' stato consegnato: una sequenza che non rispetta la prescrizione, in sequenza, non si distingue da una che la rispetta.</value>
+    <value>Il bersaglio NON è stato consegnato: una sequenza che non rispetta la prescrizione, in sequenza, non si distingue da una che la rispetta.</value>
   </data>
   <data name="Montaggio_Raffreddamento" xml:space="preserve">
     <value>Il raffreddamento non entra nel bersaglio: appartiene all'avvio della sequenza, che resta tuo. Mettilo nell'area di Start.</value>
@@ -166,10 +166,10 @@
     <value>Messa a fuoco automatica: nessun blocco disponibile da cui copiarla.</value>
   </data>
   <data name="Montaggio_SenzaContenitore" xml:space="preserve">
-    <value>Il contenitore del bersaglio non si e' potuto ottenere.</value>
+    <value>Il contenitore del bersaglio non si è potuto ottenere.</value>
   </data>
   <data name="Montaggio_SenzaFonte" xml:space="preserve">
-    <value>Non c'e' da dove prendere i pezzi: {0}.</value>
+    <value>Non c'è da dove prendere i pezzi: {0}.</value>
   </data>
   <data name="Montaggio_SenzaGuida" xml:space="preserve">
     <value>Avvio della guida: nessun blocco disponibile da cui copiarlo.</value>
@@ -184,28 +184,28 @@
     <value>Nessun oggetto si chiama *{0}*. Serve l'identificativo o il nome esatto: NGC 6888, M 31, IC 434.</value>
   </data>
   <data name="Motore_CieloAssente" xml:space="preserve">
-    <value>Manca la qualita' del cielo (SQM). Senza, il motore non sa quanto fondo cielo stai raccogliendo e non calcola niente, ne' le ore ne' la posa: il fondo cielo e' meta' del rapporto segnale-rumore. Dichiaralo qui sopra, fra *{0}* e *{1}* mag/arcsec².</value>
+    <value>Manca la qualità del cielo (SQM). Senza, il motore non sa quanto fondo cielo stai raccogliendo e non calcola niente, né le ore né la posa: il fondo cielo è metà del rapporto segnale-rumore. Dichiaralo qui sopra, fra *{0}* e *{1}* mag/arcsec².</value>
   </data>
   <data name="Motore_CieloImplausibile" xml:space="preserve">
-    <value>SQM *{0}* non e' la brillanza di un sito di ripresa: sono attesi valori fra *{1}* e *{2}* mag/arcsec². {2} e' il cielo naturale senza luce artificiale, {1} e' oltre il centro di una grande citta'.</value>
+    <value>SQM *{0}* non è la brillanza di un sito di ripresa: sono attesi valori fra *{1}* e *{2}* mag/arcsec². {2} è il cielo naturale senza luce artificiale, {1} è oltre il centro di una grande città.</value>
   </data>
   <data name="Motore_CieloNonValido" xml:space="preserve">
-    <value>SQM *{0}* non e' una brillanza di cielo. Quasi sempre e' il punto decimale: 20.8 battuto 208, oppure 2.08.</value>
+    <value>SQM *{0}* non è una brillanza di cielo. Quasi sempre è il punto decimale: 20.8 battuto 208, oppure 2.08.</value>
   </data>
   <data name="Motore_InErrore" xml:space="preserve">
-    <value>Il motore si e' fermato durante il calcolo. Non e' colpa di quello che hai scritto: e' un guasto, e va segnalato. Il motore dice: {0}</value>
+    <value>Il motore si è fermato durante il calcolo. Non è colpa di quello che hai scritto: è un guasto, e va segnalato. Il motore dice: {0}</value>
   </data>
   <data name="Motore_JsonIlleggibile" xml:space="preserve">
-    <value>Il motore non ha capito la richiesta che gli ha mandato il plugin. E' un guasto del plugin, non un errore tuo. Il motore dice: {0}</value>
+    <value>Il motore non ha capito la richiesta che gli ha mandato il plugin. È un guasto del plugin, non un errore tuo. Il motore dice: {0}</value>
   </data>
   <data name="Motore_NessunaPrescrizione" xml:space="preserve">
-    <value>Con i filtri che hai dichiarato non c'e' nessuna strada percorribile per questo soggetto. Prova a dichiarare piu' filtri in ruota, oppure scegli un oggetto che le righe che possiedi sappiano tracciare.</value>
+    <value>Con i filtri che hai dichiarato non c'è nessuna strada percorribile per questo soggetto. Prova a dichiarare più filtri in ruota, oppure scegli un oggetto che le righe che possiedi sappiano tracciare.</value>
   </data>
   <data name="Motore_RichiestaIncompleta" xml:space="preserve">
-    <value>Il plugin ha mandato una richiesta senza {0}. E' un guasto del plugin, non un errore tuo.</value>
+    <value>Il plugin ha mandato una richiesta senza {0}. È un guasto del plugin, non un errore tuo.</value>
   </data>
   <data name="Motore_RichiestaTroppoGrande" xml:space="preserve">
-    <value>La richiesta supera i {0} byte che il motore accetta. E' un guasto del plugin, non un errore tuo.</value>
+    <value>La richiesta supera i {0} byte che il motore accetta. È un guasto del plugin, non un errore tuo.</value>
   </data>
   <data name="Motore_Separatore" xml:space="preserve">
     <value>, </value>
@@ -214,10 +214,10 @@
     <value>Il setup è incompleto: per {0} «{1}» mancano dati senza i quali non c'è niente da prescrivere — {2}. Riempili e riprova.</value>
   </data>
   <data name="Motore_SetupSconosciuto" xml:space="preserve">
-    <value>Il setup non e' riconosciuto: {0} «{1}» non risulta fra le voci che il motore conosce. Scegline una dall'elenco, oppure descrivila.</value>
+    <value>Il setup non è riconosciuto: {0} «{1}» non risulta fra le voci che il motore conosce. Scegline una dall'elenco, oppure descrivila.</value>
   </data>
   <data name="Motore_ViaSconosciuta" xml:space="preserve">
-    <value>Il plugin ha bussato a una porta che il motore non ha. Succede quando plugin e motore sono di due versioni diverse: aggiorna quello piu' vecchio dei due.</value>
+    <value>Il plugin ha bussato a una porta che il motore non ha. Succede quando plugin e motore sono di due versioni diverse: aggiorna quello più vecchio dei due.</value>
   </data>
   <data name="Opzioni_CheCosEe" xml:space="preserve">
     <value>Porta dentro N.I.N.A. la prescrizione decisa da AstroImage-Strategy: quali canali riprendere, con quante pose, quale posa e quale modo di guadagno. Il ponte non decide niente — riceve una prescrizione già presa e la costruisce nel Sequenziatore Avanzato. Non avvia mai niente: a premere Riproduci sei tu.</value>
@@ -268,7 +268,7 @@
     <value>durata</value>
   </data>
   <data name="Pag_ColEQuestoFiltro" xml:space="preserve">
-    <value>e' questo filtro</value>
+    <value>è questo filtro</value>
   </data>
   <data name="Pag_ColFiltri" xml:space="preserve">
     <value>filtri</value>
@@ -331,7 +331,7 @@
     <value>Prova del ponte</value>
   </data>
   <data name="Pag_LatLonNota" xml:space="preserve">
-    <value>Latitudine e longitudine vengono dal profilo di N.I.N.A. e non si scrivono qui. Anche l'Orizzonte Personalizzato, se l'hai configurato: arriva intero, azimut per azimut, e comanda lui. L'altezza minima qui sotto e' il ripiego per chi non ce l'ha.</value>
+    <value>Latitudine e longitudine vengono dal profilo di N.I.N.A. e non si scrivono qui. Anche l'Orizzonte Personalizzato, se l'hai configurato: arriva intero, azimut per azimut, e comanda lui. L'altezza minima qui sotto è il ripiego per chi non ce l'ha.</value>
   </data>
   <data name="Pag_Latitudine" xml:space="preserve">
     <value>latitudine</value>
@@ -364,16 +364,16 @@
     <value>motivo non dichiarato</value>
   </data>
   <data name="Pag_MotoreZitto" xml:space="preserve">
-    <value>Il motore non ha risposto: senza il suo elenco non si puo' dichiarare niente. Accendi il servizio e ricarica.</value>
+    <value>Il motore non ha risposto: senza il suo elenco non si può dichiarare niente. Accendi il servizio e ricarica.</value>
   </data>
   <data name="Pag_NessunFiltroBayer" xml:space="preserve">
     <value>nessun filtro (Bayer)</value>
   </data>
   <data name="Pag_NessunFiltroDichiarato" xml:space="preserve">
-    <value>*Nessun filtro dichiarato.* Finche' e' cosi', il motore calcola sui suoi filtri di serie ({0}), non sui tuoi: la prescrizione che leggi non e' fatta sul tuo equipaggiamento.</value>
+    <value>*Nessun filtro dichiarato.* Finché è così, il motore calcola sui suoi filtri di serie ({0}), non sui tuoi: la prescrizione che leggi non è fatta sul tuo equipaggiamento.</value>
   </data>
   <data name="Pag_NienteAvviato" xml:space="preserve">
-    <value>Non e' stato avviato niente: a premere Riproduci sei tu.</value>
+    <value>Non è stato avviato niente: a premere Riproduci sei tu.</value>
   </data>
   <data name="Pag_NonDisponibile" xml:space="preserve">
     <value>non disponibile</value>
@@ -388,7 +388,7 @@
     <value>NON salvato: {0}</value>
   </data>
   <data name="Pag_NonSiPuoMandare" xml:space="preserve">
-    <value>Non si puo' mandare a N.I.N.A.</value>
+    <value>Non si può mandare a N.I.N.A.</value>
   </data>
   <data name="Pag_NotteAggiunta" xml:space="preserve">
     <value>Notte {0} aggiunta al Sequenziatore Avanzato.</value>
@@ -409,7 +409,7 @@
     <value>(non dichiarato)</value>
   </data>
   <data name="Pag_PercioNienteModi" xml:space="preserve">
-    <value>I tre modi di ripresa li dichiara Strategy: finche' non risponde il pannello non li inventa. Accendi il motore e riapri il pannello.</value>
+    <value>I tre modi di ripresa li dichiara Strategy: finché non risponde il pannello non li inventa. Accendi il motore e riapri il pannello.</value>
   </data>
   <data name="Pag_RigaCalcolataSu" xml:space="preserve">
     <value>calcolata su</value>
@@ -442,7 +442,7 @@
     <value>Scartato:</value>
   </data>
   <data name="Pag_ScriviloQuiSotto" xml:space="preserve">
-    <value>Scrivilo qui sotto: senza, il motore non calcola niente, ne' le ore ne' la posa.</value>
+    <value>Scrivilo qui sotto: senza, il motore non calcola niente, né le ore né la posa.</value>
   </data>
   <data name="Pag_Seeing" xml:space="preserve">
     <value>seeing</value>
@@ -463,7 +463,7 @@
     <value>Tutto l'oggetto — a mosaico se serve</value>
   </data>
   <data name="Pag_Sottotitolo" xml:space="preserve">
-    <value>La pagina chiede all'ospite, l'ospite chiede a Strategy. Qui dentro non c'e' nessun indirizzo.</value>
+    <value>La pagina chiede all'ospite, l'ospite chiede a Strategy. Qui dentro non c'è nessun indirizzo.</value>
   </data>
   <data name="Pag_Sqm" xml:space="preserve">
     <value>cielo (SQM)</value>
@@ -481,7 +481,7 @@
     <value>dichiarato, ma il motore non conosce questo identificativo</value>
   </data>
   <data name="Pag_StatoOrfano" xml:space="preserve">
-    <value>non e' piu' in ruota: rinominato o tolto. Ripuntalo o lascialo perdere.</value>
+    <value>non è più in ruota: rinominato o tolto. Ripuntalo o lascialo perdere.</value>
   </data>
   <data name="Pag_StoChiedendo" xml:space="preserve">
     <value>sto chiedendo…</value>
@@ -496,7 +496,7 @@
     <value>due slot hanno questo stesso nome: N.I.N.A. risolve per nome e prende il primo</value>
   </data>
   <data name="Pag_TipNonAdatto" xml:space="preserve">
-    <value>il catalogo non dichiara questo filtro per la camera di questo profilo — non e' un divieto, e' un dubbio</value>
+    <value>il catalogo non dichiara questo filtro per la camera di questo profilo — non è un divieto, è un dubbio</value>
   </data>
   <data name="Pag_UnFiltroDueRighe" xml:space="preserve">
     <value>un filtro, due righe</value>
@@ -511,10 +511,10 @@
     <value>Nessuno risponde a {0}</value>
   </data>
   <data name="Pannello_NienteDaCostruire" xml:space="preserve">
-    <value>Dal modello non e' uscito niente di riprendibile</value>
+    <value>Dal modello non è uscito niente di riprendibile</value>
   </data>
   <data name="Pannello_PaginaNonCaricata" xml:space="preserve">
-    <value>La pagina non si e' caricata</value>
+    <value>La pagina non si è caricata</value>
   </data>
   <data name="Pannello_Riprova" xml:space="preserve">
     <value>Riprova</value>
@@ -526,34 +526,34 @@
     <value>Il pannello non ha un ViewModel.</value>
   </data>
   <data name="Pannello_WebViewNonPartito" xml:space="preserve">
-    <value>WebView2 non e' partito</value>
+    <value>WebView2 non è partito</value>
   </data>
   <data name="Presc_Nessuna" xml:space="preserve">
-    <value>Non c'e' nessuna prescrizione da mandare: chiedine una prima.</value>
+    <value>Non c'è nessuna prescrizione da mandare: chiedine una prima.</value>
   </data>
   <data name="Presc_NotteAssente" xml:space="preserve">
     <value>La prescrizione non ha una notte {0}: ne ha {1}.</value>
   </data>
   <data name="Presc_NotteSenzaModello" xml:space="preserve">
-    <value>La notte {0} e' arrivata senza modello: non c'e' niente da costruire.</value>
+    <value>La notte {0} è arrivata senza modello: non c'è niente da costruire.</value>
   </data>
   <data name="Presc_Scaduta" xml:space="preserve">
     <value>Quella riga viene da una prescrizione precedente. Il ponte non manda l'oggetto sbagliato con il nome giusto: chiedi di nuovo e riprova.</value>
   </data>
   <data name="Ruota_ConfigNonLetta" xml:space="preserve">
-    <value>La configurazione dei filtri non si e' potuta leggere ({0}). Riparto da vuoto: nessun filtro e' stato inventato, e la configurazione salvata non e' stata cancellata.</value>
+    <value>La configurazione dei filtri non si è potuta leggere ({0}). Riparto da vuoto: nessun filtro è stato inventato, e la configurazione salvata non è stata cancellata.</value>
   </data>
   <data name="Ruota_ConfigVuota" xml:space="preserve">
-    <value>La configurazione dei filtri e' vuota o malformata. Riparto da vuoto.</value>
+    <value>La configurazione dei filtri è vuota o malformata. Riparto da vuoto.</value>
   </data>
   <data name="Ruota_ElencoNonElenco" xml:space="preserve">
-    <value>L'elenco dei filtri non e' un elenco.</value>
+    <value>L'elenco dei filtri non è un elenco.</value>
   </data>
   <data name="Ruota_ElencoNonRiuscito" xml:space="preserve">
     <value>N.I.N.A. non ha saputo elencare i filtri del profilo.</value>
   </data>
   <data name="Ruota_LetturaFallita" xml:space="preserve">
-    <value>La ruota del profilo non si e' potuta leggere: {0}</value>
+    <value>La ruota del profilo non si è potuta leggere: {0}</value>
   </data>
   <data name="Ruota_ProfiloSenzaFiltri" xml:space="preserve">
     <value>La ruota del profilo attivo non contiene filtri. Aggiungili in N.I.N.A. sotto Opzioni → Equipaggiamento → Ruota portafiltri.</value>
@@ -562,13 +562,13 @@
     <value>Il profilo attivo non dichiara una ruota portafiltri.</value>
   </data>
   <data name="Ruota_SenzaElenco" xml:space="preserve">
-    <value>La richiesta non dichiara nessun elenco di filtri. Non la interpreto come «togli tutto»: la configurazione precedente resta dov'e'.</value>
+    <value>La richiesta non dichiara nessun elenco di filtri. Non la interpreto come «togli tutto»: la configurazione precedente resta dov'è.</value>
   </data>
   <data name="Ruota_VersioneAvanti" xml:space="preserve">
-    <value>La configurazione dei filtri e' in versione {0}, e questo ponte ne conosce fino alla {1}. Non la interpreto: aggiorna il plugin, oppure riconfigura i filtri qui.</value>
+    <value>La configurazione dei filtri è in versione {0}, e questo ponte ne conosce fino alla {1}. Non la interpreto: aggiorna il plugin, oppure riconfigura i filtri qui.</value>
   </data>
   <data name="Ruota_VociDoppie" xml:space="preserve">
-    <value>Nella configurazione c'erano piu' voci per lo stesso filtro ({0}). Ho tenuto la prima di ognuna.</value>
+    <value>Nella configurazione c'erano più voci per lo stesso filtro ({0}). Ho tenuto la prima di ognuna.</value>
   </data>
   <data name="Sito_Manca" xml:space="preserve">
     <value>Manca {0}.</value>
@@ -577,10 +577,10 @@
     <value>le coordinate del sito, che vengono dal profilo di N.I.N.A.</value>
   </data>
   <data name="Sito_MancaSqm" xml:space="preserve">
-    <value>la qualita' del cielo (SQM): senza, il motore non sa quanto fondo cielo stai raccogliendo e non calcola niente, ne' le ore ne' la posa</value>
+    <value>la qualità del cielo (SQM): senza, il motore non sa quanto fondo cielo stai raccogliendo e non calcola niente, né le ore né la posa</value>
   </data>
   <data name="Sito_ParametriNonLetti" xml:space="preserve">
-    <value>I parametri del sito non si sono potuti leggere ({0}). Riparto da vuoto: nessun valore e' stato inventato.</value>
+    <value>I parametri del sito non si sono potuti leggere ({0}). Riparto da vuoto: nessun valore è stato inventato.</value>
   </data>
   <data name="Sito_ParametriVuoti" xml:space="preserve">
     <value>I parametri del sito sono vuoti o malformati.</value>
@@ -595,10 +595,10 @@
     <value>I parametri del sito sono in versione {0}, e questo ponte ne conosce fino alla {1}. Non li interpreto.</value>
   </data>
   <data name="Sito_ZeroZero" xml:space="preserve">
-    <value>Il profilo di N.I.N.A. dice latitudine 0 e longitudine 0, che e' il valore di un profilo mai configurato — non una posizione. Impostala in Opzioni → Generale, altrimenti la notte verrebbe calcolata per il Golfo di Guinea.</value>
+    <value>Il profilo di N.I.N.A. dice latitudine 0 e longitudine 0, che è il valore di un profilo mai configurato — non una posizione. Impostala in Opzioni → Generale, altrimenti la notte verrebbe calcolata per il Golfo di Guinea.</value>
   </data>
   <data name="Trad_BancoNonDichiarato" xml:space="preserve">
-    <value>capacita' del banco non dichiarate: si costruiscono le sole riprese</value>
+    <value>capacità del banco non dichiarate: si costruiscono le sole riprese</value>
   </data>
   <data name="Trad_BinningNonDichiarato" xml:space="preserve">
     <value>binning non dichiarato: si riprende 1x1</value>
@@ -607,7 +607,7 @@
     <value>dithering ogni {0} pose arrotondato a {1}</value>
   </data>
   <data name="Trad_DitherNonNumero" xml:space="preserve">
-    <value>dithering ogni {0} pose: non e' un numero di pose, non si applica</value>
+    <value>dithering ogni {0} pose: non è un numero di pose, non si applica</value>
   </data>
   <data name="Trad_NessunModello" xml:space="preserve">
     <value>nessun modello da tradurre</value>
@@ -634,7 +634,7 @@
     <value>N.I.N.A. non ha fornito il mediatore delle sequenze.</value>
   </data>
   <data name="Vm_SenzaMontatore" xml:space="preserve">
-    <value>Il montatore non e' stato costruito.</value>
+    <value>Il montatore non è stato costruito.</value>
   </data>
   <data name="Pag_ComePianificare" xml:space="preserve">
     <value>Come distribuire le notti</value>
@@ -967,7 +967,7 @@
     <value>Nessuno dei filtri che hai dichiarato è in ruota adesso: {0}. Senza filtri non c'è una strada da prescrivere, e la ruota di serie del motore non è la tua: la domanda non è partita. Se li hai rinominati in N.I.N.A., ripuntali nella vista dei filtri.</value>
   </data>
   <data name="Montaggio_BloccoMancato" xml:space="preserve">
-    <value>Il bersaglio NON e' stato consegnato: {0} blocchi su {1} non si sono potuti costruire, e un bersaglio a meta' in sequenza non si distingue da uno conforme. Non deve succedere: e' un difetto del Ponte, riportalo col log di N.I.N.A.</value>
+    <value>Il bersaglio NON è stato consegnato: {0} blocchi su {1} non si sono potuti costruire, e un bersaglio a metà in sequenza non si distingue da uno conforme. Non deve succedere: è un difetto del Ponte, riportalo col log di N.I.N.A.</value>
   </data>
   <data name="Pag_RuotaOrfana" xml:space="preserve">
     <value>Hai dichiarato {0}, e in ruota non c'è più: resta fuori da questa prescrizione. Se l'hai rinominato in N.I.N.A., ripuntalo nella vista dei filtri.</value>
@@ -1121,5 +1121,17 @@
   </data>
   <data name="Pag_RitirataPerSito" xml:space="preserve">
     <value>Hai salvato un sito diverso: la prescrizione di prima era calcolata sul cielo di prima, ed è stata ritirata. Chiedine una nuova.</value>
+  </data>
+  <data name="Pag_OreUtiliInNotti" xml:space="preserve">
+    <value>{0} h in {1} notti</value>
+  </data>
+  <data name="Pag_OreUtiliInUnaNotte" xml:space="preserve">
+    <value>{0} h in una notte</value>
+  </data>
+  <data name="Pag_Banco_CatalogoPropone" xml:space="preserve">
+    <value>il catalogo propone {0}</value>
+  </data>
+  <data name="Pag_Prov_assunto" xml:space="preserve">
+    <value>non dichiarato: il motore assume {0}{1}</value>
   </data>
 </root>
