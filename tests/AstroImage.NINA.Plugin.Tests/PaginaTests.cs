@@ -629,10 +629,34 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(Tratto(js, "r.evento === 'camera'", "return;"), "ritiraDalloSchermo('camera')",
                 "la pagina non ascolta il cambio della camera");
             StringAssert.Contains(js, "camera: 'Pag_RitirataPerCamera'", "il ritiro della camera non ha la sua frase");
-            foreach (var lingua in new[] { "it", "en" }) {
+            foreach (var lingua in new[] { "it", "en" })
                 Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_RitirataPerCamera"), lingua);
-                Assert.IsTrue(Tutte(lingua).ContainsKey("Presc_NotteGiaConsegnata"), lingua);
-            }
+        }
+
+        /*  IL PONTE CONSEGNA, NON AMMINISTRA (decisione del 16 settembre 2026). Un secondo «Manda» sulla stessa notte, o il
+         *  ventesimo, produce un altro contenitore: il Sequenziatore e' di chi riprende. Nessun codice di rifiuto per una
+         *  notte gia' consegnata, nella vista, nei servizi o nel dizionario; e la risposta dice ogni volta che cosa ha
+         *  consegnato, come al primo invio. Guardia strutturale: se il divieto tornasse, cade. */
+        [TestMethod]
+        public void IL_PONTE_NON_RIFIUTA_UNA_NOTTE_GIA_CONSEGNATA() {
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var i = 0; i < 8 && su is not null; i++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var trovati = System.IO.Directory.GetFiles(radice!, "*.cs", System.IO.SearchOption.AllDirectories)
+                .Where(f => f.IndexOf(System.IO.Path.DirectorySeparatorChar + "obj" + System.IO.Path.DirectorySeparatorChar, StringComparison.Ordinal) < 0)
+                .Where(f => System.Text.RegularExpressions.Regex.IsMatch(System.IO.File.ReadAllText(f),
+                    @"gia_consegnata|SegnaConsegnata|Consegnate\b"))
+                .Select(System.IO.Path.GetFileName).ToList();
+            Assert.AreEqual(0, trovati.Count, "il divieto della consegna ripetuta e' tornato: " + string.Join(", ", trovati));
+            foreach (var lingua in new[] { "it", "en" })
+                Assert.IsFalse(Tutte(lingua).Keys.Any(k => k.IndexOf("GiaConsegnata", StringComparison.Ordinal) >= 0),
+                    lingua + ": il dizionario ha di nuovo la frase del rifiuto");
+            StringAssert.Contains(Tratto(PaginaSenzaCommenti(), "async function manda(tasto)", "\n  }"), "'Pag_NotteAggiunta'",
+                "la risposta non dice che cosa ha consegnato");
         }
 
         /*  IL RITIRO GENERALIZZATO (regia, 16 settembre 2026): salvare una ruota, un banco o un sito diversi ritira la

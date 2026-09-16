@@ -481,8 +481,6 @@ namespace AstroImage.NINA.Plugin.Views {
             try {
                 SequenceBuilder.Consegna(vm.Mediatore, contenitore);
                 Logger.Info(IO + "send: AddAdvancedTarget called, no exception");
-                /*  la notte e' nel Sequenziatore: un secondo «Manda» sulla stessa riga si rifiuta (16 settembre 2026) */
-                vm.InMano.SegnaConsegnata(idPrescrizione, notte);
             } catch (Exception ex) {
                 Logger.Error(IO + "send: AddAdvancedTarget threw", ex);
                 Rispondi(id, false, null, "consegna_fallita", ex.Message);

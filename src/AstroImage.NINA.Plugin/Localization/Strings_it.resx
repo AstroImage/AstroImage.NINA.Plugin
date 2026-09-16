@@ -1170,9 +1170,6 @@
   <data name="Pag_RitirataPerCamera" xml:space="preserve">
     <value>La camera si è collegata o scollegata: la prescrizione di prima era calcolata sul banco di prima, ed è stata ritirata. Chiedine una nuova.</value>
   </data>
-  <data name="Presc_NotteGiaConsegnata" xml:space="preserve">
-    <value>la notte {0} di questa prescrizione è già nel Sequenziatore Avanzato: mandarla di nuovo la raddoppierebbe. Se la vuoi di nuovo, toglila dal Sequenziatore e chiedi una prescrizione nuova.</value>
-  </data>
   <data name="Pag_SeparatoreDecimale" xml:space="preserve">
     <value>,</value>
   </data>

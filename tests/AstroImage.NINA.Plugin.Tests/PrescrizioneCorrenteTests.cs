@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -87,25 +88,24 @@ namespace AstroImage.NINA.Plugin.Tests {
 
         // ------------------------------------------------------------------- la guardia
 
-        /*  UNA NOTTE SI CONSEGNA UNA VOLTA (regia, 16 settembre 2026). Un secondo «Manda» sulla stessa riga aggiungeva un
-         *  secondo bersaglio al Sequenziatore: un doppione che si vedeva solo li'. Adesso la notte consegnata si segna, e
-         *  la seconda richiesta si rifiuta dicendolo; le altre notti restano consegnabili, e una prescrizione nuova
-         *  ricomincia da capo. Il metodo si cerca per nome: la prova nasce prima di lui. */
+        /*  UNA NOTTE SI CONSEGNA QUANTE VOLTE SI VUOLE (decisione del 16 settembre 2026, che ritira il divieto dello stesso
+         *  giorno). Il Sequenziatore e' di N.I.N.A. e il suo contenuto e' di chi riprende: dieci sequenze identiche,
+         *  cancellate e rimesse quando e come vuole. Rifiutare una consegna e' una decisione, e il Ponte consegna, non
+         *  amministra. La prova e' l'opposta di quella che c'era: la stessa notte, chiesta di nuovo dopo una consegna,
+         *  si ottiene ancora. Se un metodo che segna le notti consegnate tornasse, qui si usa come la vista lo userebbe, e
+         *  la prova cade. */
         [TestMethod]
-        public void UnaNotteConsegnata_NonSiConsegnaUnaSecondaVolta_ELoDice() {
+        public void LaStessaNotte_SiConsegnaQuanteVolteSiVuole() {
             var p = new PrescrizioneCorrente();
             var id = p.Prendi(ConNotti(1, 2, 3));
-            var segna = typeof(PrescrizioneCorrente).GetMethod("SegnaConsegnata");
-            Assert.IsNotNull(segna, "la prescrizione in mano non sa segnare una notte consegnata");
-            segna!.Invoke(p, new object?[] { id, 1 });
-
-            Assert.IsNull(p.Notte(id, 1, out var codice, out var motivo), "la stessa notte non si consegna due volte");
-            Assert.AreEqual("notte_gia_consegnata", codice, motivo);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(motivo), "e si dice perche'");
-            Assert.IsNotNull(p.Notte(id, 2, out var c2, out _), "la notte 2 resta consegnabile: " + c2);
-
-            var nuovo = p.Prendi(ConNotti(1, 2, 3));
-            Assert.IsNotNull(p.Notte(nuovo, 1, out var c3, out _), "una prescrizione nuova ricomincia da capo: " + c3);
+            var segna = typeof(PrescrizioneCorrente).GetMethods()
+                .FirstOrDefault(m => m.Name.IndexOf("Consegnat", StringComparison.OrdinalIgnoreCase) >= 0);
+            for (var volta = 1; volta <= 20; volta++) {
+                var s = p.Notte(id, 1, out var codice, out var motivo);
+                Assert.IsNotNull(s, $"alla consegna {volta} la notte 1 non si ottiene: {codice} {motivo}");
+                segna?.Invoke(p, new object?[] { id, 1 });
+            }
+            Assert.IsNull(segna, "la prescrizione in mano ha di nuovo un modo di segnare le notti consegnate: " + segna?.Name);
         }
 
         /*  IL CASO PER CUI TUTTO QUESTO ESISTE. */

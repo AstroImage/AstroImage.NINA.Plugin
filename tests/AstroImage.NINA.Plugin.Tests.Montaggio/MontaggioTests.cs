@@ -260,6 +260,26 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
          *
          *  Il conteggio delle chiamate e' la prova diretta. Se restasse a uno, la fonte
          *  si sarebbe fidata di una fotografia scattata nel momento sbagliato. */
+        /*  DUE «MANDA», DUE CONTENITORI (decisione del 16 settembre 2026). Il Sequenziatore e' di chi riprende: la stessa
+         *  notte consegnata due volte, o venti, arriva due o venti volte, e la consegna non guarda che cosa c'e' gia'.
+         *  Assicurazione: la consegna non ha mai contato niente; il divieto stava nella prescrizione in mano, e la sua prova
+         *  e' in PrescrizioneCorrenteTests. Qui si tiene fermo che nemmeno la consegna cominci a farlo. */
+        [TestMethod]
+        public void LaStessaNotteConsegnataDueVolte_DaDueContenitori() {
+            var arrivati = new System.Collections.Generic.List<object?>();
+            var mediatore = PersistenzaDelProfiloTests.Finto.Crea<global::NINA.Sequencer.Interfaces.Mediator.ISequenceMediator>((m, a) => {
+                if (m.Name == nameof(global::NINA.Sequencer.Interfaces.Mediator.ISequenceMediator.AddAdvancedTarget)) { arrivati.Add(a![0]); return null; }
+                if (m.Name == nameof(global::NINA.Sequencer.Interfaces.Mediator.ISequenceMediator.GetAllTargetsInAdvancedSequence))
+                    throw new AssertFailedException("la consegna ha guardato che cosa c'e' gia' nel Sequenziatore");
+                return m.ReturnType.IsValueType && m.ReturnType != typeof(void) ? Activator.CreateInstance(m.ReturnType) : null;
+            });
+            var notte1 = PersistenzaDelProfiloTests.Finto.Crea<global::NINA.Sequencer.Container.IDeepSkyObjectContainer>((m, a) =>
+                m.ReturnType.IsValueType && m.ReturnType != typeof(void) ? Activator.CreateInstance(m.ReturnType) : null);
+            SequenceBuilder.Consegna(mediatore, notte1);
+            SequenceBuilder.Consegna(mediatore, notte1);
+            Assert.AreEqual(2, arrivati.Count, "la seconda consegna della stessa notte non e' arrivata");
+        }
+
         [TestMethod]
         public void LaFonte_ChiedeIModelliOgniVolta_NonSoloAllAvvio() {
             var mediatore = new MediatoreFinto();

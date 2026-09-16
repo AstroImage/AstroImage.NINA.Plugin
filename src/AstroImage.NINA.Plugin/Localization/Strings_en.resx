@@ -1170,9 +1170,6 @@
   <data name="Pag_RitirataPerCamera" xml:space="preserve">
     <value>The camera was connected or disconnected: the previous prescription was worked out on the previous setup, and it has been withdrawn. Ask for a new one.</value>
   </data>
-  <data name="Presc_NotteGiaConsegnata" xml:space="preserve">
-    <value>night {0} of this prescription is already in the Advanced Sequencer: sending it again would duplicate it. If you want it again, remove it from the Sequencer and ask for a new prescription.</value>
-  </data>
   <data name="Pag_SeparatoreDecimale" xml:space="preserve">
     <value>.</value>
   </data>
