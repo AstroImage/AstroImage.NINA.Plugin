@@ -435,6 +435,85 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(js, "profilo: 'Pag_ProfiloCambiato'", "la pagina toglie la prescrizione senza dire perche'");
         }
 
+        /*  LA FEDELTA' VISIVA SUL MINIX (16 settembre 2026): cinque difetti visti a schermo, cinque guardie strutturali —
+         *  leggono la pagina, non la eseguono; la prova vera e' lo schermo di N.I.N.A. dopo l'installazione. */
+        private static string PaginaSenzaCommenti() =>
+            System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.js"), @"/\*.*?\*/", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+
+        private static string Tratto(string js, string da, string a) {
+            var i = js.IndexOf(da, StringComparison.Ordinal);
+            Assert.IsTrue(i >= 0, "nella pagina non c'e' «" + da + "»");
+            var fine = js.IndexOf(a, i + da.Length, StringComparison.Ordinal);
+            Assert.IsTrue(fine > i, "dopo «" + da + "» non c'e' «" + a + "»");
+            return js.Substring(i, fine - i);
+        }
+
+        /*  «Ore utili 21.95 h» accanto a «notte chiesta 2026-09-16» sembrava una notte da ventidue ore: erano tre notti. */
+        [TestMethod]
+        public void LE_ORE_UTILI_DICONO_IN_QUANTE_NOTTI_SONO_SOMMATE() {
+            var riga = Tratto(PaginaSenzaCommenti(), "T('Pag_RigaOreUtili')", "</tr>");
+            StringAssert.Contains(riga, "p.notte.nottiDisponibili", "le ore utili non dicono in quante notti");
+            StringAssert.Contains(riga, "'Pag_OreUtiliInNotti'");
+            StringAssert.Contains(riga, "'Pag_OreUtiliInUnaNotte'");
+            foreach (var lingua in new[] { "it", "en" }) {
+                StringAssert.Contains(Tutte(lingua)["Pag_OreUtiliInNotti"], "{1}", lingua + ": le notti non entrano nella frase");
+                StringAssert.Contains(Tutte(lingua)["Pag_OreUtiliInUnaNotte"], "{0}", lingua);
+            }
+        }
+
+        /*  «mm proposto dal catalogo» senza il numero: la voce riconosciuta propone un valore, e il valore non si vedeva. */
+        [TestMethod]
+        public void LA_PROPOSTA_DEL_CATALOGO_SI_VEDE_COL_SUO_NUMERO() {
+            var fonte = Tratto(PaginaSenzaCommenti(), "const fonte = x =>", "const riga = c =>");
+            StringAssert.Contains(fonte, "x.fonte === 'catalogo'", "la proposta del catalogo non ha un ramo suo");
+            StringAssert.Contains(fonte, "'Pag_Banco_CatalogoPropone'");
+            StringAssert.Contains(fonte, "x.valore", "la proposta del catalogo si scrive senza il suo numero");
+            foreach (var lingua in new[] { "it", "en" })
+                StringAssert.Contains(Tutte(lingua)["Pag_Banco_CatalogoPropone"], "{0}", lingua);
+        }
+
+        /*  «in attesa» in verde con una prescrizione a schermo: il cambio lingua riscriveva il testo iniziale dello stato e
+         *  lasciava il colore. Uno stato scritto e' il resoconto di una cosa avvenuta: non torna indietro. */
+        [TestMethod]
+        public void LO_STATO_SCRITTO_NON_TORNA_IN_ATTESA() {
+            var stato = Tratto(PaginaSenzaCommenti(), "const stato = (t, c) =>", "};");
+            StringAssert.Contains(stato, "removeAttribute('data-loc')",
+                "il cambio lingua riscrive lo stato col testo iniziale e lascia il colore di prima");
+        }
+
+        /*  Il blocco del sito diceva «non disponibile» accanto a seeing, altezza minima e notti serene, e il riquadro giallo
+         *  sotto diceva il valore assunto: la stessa assenza in due frasi. Il motore nomina il campo (`campo` in `parziale`),
+         *  e la pagina scrive l'assunzione accanto al campo; ritirata la prescrizione, l'assunzione se ne va con lei. */
+        [TestMethod]
+        public void IL_SITO_DICE_ACCANTO_AL_CAMPO_IL_VALORE_ASSUNTO() {
+            var js = PaginaSenzaCommenti();
+            var prov = Tratto(js, "function provenienzaDelSito(", "\n  }");
+            StringAssert.Contains(prov, "parzialeUsato", "il sito non guarda che cosa il motore ha assunto");
+            StringAssert.Contains(prov, ".campo === campo", "l'assunzione non si lega al suo campo");
+            StringAssert.Contains(prov, "'Pag_Prov_assunto'");
+            StringAssert.Contains(js, "parzialeUsato = p.parziale", "la pagina non tiene l'elenco dei dati assunti");
+            StringAssert.Contains(Tratto(js, "function ritiraDalloSchermo(", "\n  }"), "parzialeUsato = null",
+                "ritirata la prescrizione, le sue assunzioni restano accanto al sito");
+            foreach (var lingua in new[] { "it", "en" })
+                StringAssert.Contains(Tutte(lingua)["Pag_Prov_assunto"], "{0}", lingua);
+        }
+
+        /*  «Qui dentro non c'e' nessun indirizzo», «e' il ripiego»: l'italiano che si legge ha gli accenti. L'apostrofo
+         *  resta per le elisioni e per «po'», che e' un troncamento. */
+        [TestMethod]
+        public void LE_VOCI_ITALIANE_SCRIVONO_GLI_ACCENTI() {
+            var accento = new System.Text.RegularExpressions.Regex(
+                @"(?:^|[^\p{L}])(\p{L}*[aeiouAEIOU])'(?=$|[\s.,;:!?)»—-])");
+            var sbagliate = new System.Collections.Generic.List<string>();
+            foreach (var v in Tutte("it"))
+                foreach (System.Text.RegularExpressions.Match m in accento.Matches(v.Value))
+                    if (!string.Equals(m.Groups[1].Value, "po", StringComparison.OrdinalIgnoreCase))
+                        sbagliate.Add(v.Key + ": " + m.Groups[1].Value + "'");
+            Assert.AreEqual(0, sbagliate.Count, sbagliate.Count + " accenti scritti con l'apostrofo: " +
+                string.Join(" · ", sbagliate.GetRange(0, Math.Min(12, sbagliate.Count))));
+        }
+
         /*  IL RITIRO GENERALIZZATO (regia, 16 settembre 2026): salvare una ruota, un banco o un sito diversi ritira la
          *  prescrizione in mano (CambioDiProfiloTests), e la risposta del salvataggio lo dice. La pagina la toglie dallo
          *  schermo come sul cambio di profilo, con la frase del suo perche' nelle due lingue. Guardia strutturale. */
