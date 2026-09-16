@@ -42,6 +42,33 @@
   code { font:12px ui-monospace, Consolas, monospace; opacity:.8; }
   button.manda { background:#2f855a; padding:4px 11px; font-size:12.5px; }
   button.manda:hover { background:#38a169; }
+  /*  IL TASTO DELLA DOMANDA E' IL ROSSO DI AIS (17 settembre 2026), valore per valore — il
+   *  rosso `--go`, il filo interno chiaro, l'anello e l'alone. Le misure no: il Ponte ha meno spazio. Mentre la domanda
+   *  e' in corso resta rosso, spento, come in AIS. */
+  :root { --go:#e5261a; --go-rgb:229,38,26; --go-fg:#ffffff;
+          --elev:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.28); --elev-lo:0 1px 2px rgba(0,0,0,.35); }
+  #vai { background:var(--go); color:var(--go-fg); font-weight:700; letter-spacing:.02em; padding:8px 18px;
+         box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 0 0 3px rgba(var(--go-rgb),.30),
+                    0 6px 22px rgba(var(--go-rgb),.34), var(--elev); }
+  #vai:hover { background:var(--go); filter:brightness(1.08);
+               box-shadow:inset 0 1px 0 rgba(255,255,255,.26), 0 0 0 4px rgba(var(--go-rgb),.38),
+                          0 8px 26px rgba(var(--go-rgb),.44), var(--elev); }
+  #vai:active { filter:brightness(.94);
+                box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 0 0 2px rgba(var(--go-rgb),.34), var(--elev-lo); }
+  #vai:focus-visible { outline:2px solid #fff; outline-offset:2px; }
+  #vai:disabled { background:var(--go); color:var(--go-fg); opacity:.55; box-shadow:none; filter:none; }
+  /*  LA DATA DAL CALENDARIO, come in AIS: un campo `date`, e il tasto del calendario con l'icona lineare di AIS nel
+   *  colore dell'azione — il glifo di Chromium e' scuro e su questo fondo non si vede. In AIS l'icona e' un'immagine
+   *  incorporata; qui la pagina non porta indirizzi, nemmeno quello dello spazio dei nomi di un SVG, e l'icona e' nel
+   *  markup: sta sopra il tasto nativo, che resta trasparente e riceve il clic. */
+  .data-cal { position:relative; display:inline-flex; align-items:center; }
+  input[type=date] { width:auto; }
+  input[type=date]::-webkit-calendar-picker-indicator {
+    width:17px; height:17px; padding:0; margin-left:7px; cursor:pointer; opacity:0; }
+  .data-cal svg { position:absolute; right:9px; top:50%; width:17px; height:17px; margin-top:-8.5px;
+    pointer-events:none; fill:none; stroke:var(--acc); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    opacity:.85; transition:opacity .12s; }
+  .data-cal:hover svg, .data-cal:focus-within svg { opacity:1; }
   /* ── I TRE MODI ────────────────────────────────────────────────
      Ogni valore qui sotto e' copiato dal riquadro «Come riprendere» di AIS —
      `.goalbox` / `.goalgrid` / `.goalcard` / `.gc` — e NON dalle `.stratcard`,
