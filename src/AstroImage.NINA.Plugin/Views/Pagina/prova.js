@@ -169,6 +169,7 @@
     });
     chiedi('camera').then(r => { if (r.ok) camera = r.camera || null; });
     chiedi('banco').then(r => { if (r.ok) { bancoLetto = r; disegnaBanco(); } });
+    chiedi('voci').then(r => { if (r.ok) riempiVoci(r); });
     chiedi('sito').then(r => { if (r.ok) disegnaSito(r); });
     chiedi('filtri').then(r => { if (r.ok) disegnaRuota(r); });
     /*  I modi si ridisegnano soltanto: l'elenco e la scelta restano quelli, cambia
@@ -442,6 +443,19 @@
     return isFinite(n) ? n : s;
   };
 
+  /*  LE VOCI DEL BANCO, sotto i campi dove si scrivono (17 settembre 2026): le prescrizioni si preparano giorni prima, col
+   *  pezzo scollegato, e la voce si sceglie. L'elenco e' quello del servizio: il valore e' l'identificativo, accanto il
+   *  nome. Scritta a mano, la voce la riconosce il motore anche senza l'identificativo esatto. */
+  function riempiVoci(r) {
+    let voci;
+    try { voci = JSON.parse(r.corpo); } catch (e) { return; }
+    for (const pezzo of ['ottica', 'camera', 'montatura']) {
+      const dl = $('voci-' + pezzo);
+      if (dl) dl.innerHTML = (voci[pezzo] || []).map(x =>
+        '<option value="' + esc(x.id) + '">' + esc(x.nome) + '</option>').join('');
+    }
+  }
+
   function disegnaBanco() {
     const box = $('banco');
     if (!box) return;
@@ -478,7 +492,7 @@
         const id = c.chiave + '.id';
         const pezzo = pb && pb[c.pezzo];
         valore = '<input data-banco="' + esc(id) + '" value="' + escOVuoto(dichiarato[id]) +
-          '" style="width:130px" spellcheck="false">' +
+          '" list="voci-' + esc(c.pezzo) + '" autocomplete="off" style="width:170px" spellcheck="false">' +
           (pezzo && pezzo.voce && (c.pezzo !== 'camera' || pezzo.id)
             ? ' <span style="font-size:12px;opacity:.7">' + MF('Pag_Banco_Riconosciuto', esc(pezzo.voce)) +
               (pezzo.riconoscimento === 'nome_e_geometria' ? ' ' + MF('Pag_Banco_CamDalDriver') : '') + '</span>' : '') +

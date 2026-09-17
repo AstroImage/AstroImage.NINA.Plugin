@@ -220,7 +220,10 @@
     <value>The setup is incomplete: {0} “{1}” is missing data without which nothing can be prescribed — {2}. Fill them in and try again.</value>
   </data>
   <data name="Motore_SetupSconosciuto" xml:space="preserve">
-    <value>The setup is not recognised: {0} “{1}” is not among the entries the engine knows. Pick one from the list, or describe it.</value>
+    <value>The setup is not recognised: {0} “{1}” is not among the entries the engine knows. Pick one from the list that opens under the field, in the bench block, or describe it.</value>
+  </data>
+  <data name="Motore_SetupSconosciutoForse" xml:space="preserve">
+    <value>Similar entries: *{0}*.</value>
   </data>
   <data name="Motore_ViaSconosciuta" xml:space="preserve">
     <value>The plugin knocked on a door the engine does not have. This happens when plugin and engine are different versions: update whichever is older.</value>
@@ -994,7 +997,7 @@
     <value>from the driver’s name and geometry</value>
   </data>
   <data name="Pag_Banco_CamNonRiconosciuta" xml:space="preserve">
-    <value>Not recognised: the physics comes from the sensor and typical values, and the prescription says so. Enter the catalogue entry here.</value>
+    <value>Not recognised: the physics comes from the sensor and typical values, and the prescription says so. Pick the catalogue entry here.</value>
   </data>
   <data name="Pag_Banco_Buio" xml:space="preserve">
     <value>dark current {0} e⁻/pixel/s at {1} °C, the sequence temperature — sensor {2}; model: doubles every {3} °C</value>
@@ -1018,7 +1021,7 @@
     <value>colour matrix</value>
   </data>
   <data name="Motore_SetupIncompletoSenzaNome" xml:space="preserve">
-    <value>The bench is missing {0}: it needs {1}. Enter it in the bench block; for the camera, connecting it in N.I.N.A. is also enough.</value>
+    <value>The bench is missing {0}: it needs {1}. Pick it in the bench block, from the list under the field, even with the device disconnected; for the camera, connecting it in N.I.N.A. is also enough.</value>
   </data>
   <data name="Motore_Pezzo_ottica" xml:space="preserve">
     <value>the optics</value>

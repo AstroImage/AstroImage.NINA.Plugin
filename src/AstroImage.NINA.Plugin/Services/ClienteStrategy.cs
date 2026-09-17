@@ -47,6 +47,7 @@ namespace AstroImage.NINA.Plugin.Services {
         private readonly Uri _salute;
         private readonly Uri _filtri;
         private readonly Uri _cerca;
+        private readonly Uri _voci;
 
         /// <param name="http">Il cliente HTTP. Lo costruisce chi sa quanto deve durare
         /// una connessione e quante ne servono: non e' una decisione di questo file.</param>
@@ -59,6 +60,7 @@ namespace AstroImage.NINA.Plugin.Services {
             _salute = new Uri(baseUri, "v1/salute");
             _filtri = new Uri(baseUri, "v1/filtri");
             _cerca = new Uri(baseUri, "v1/cerca");
+            _voci = new Uri(baseUri, "v1/voci");
         }
 
         /*  IL CATALOGO DEI VETRI, per far dichiarare all'utente che cosa ha in ruota.
@@ -223,6 +225,18 @@ namespace AstroImage.NINA.Plugin.Services {
             try {
                 var indirizzo = new Uri(_cerca.AbsoluteUri + "?q=" + Uri.EscapeDataString(q ?? string.Empty) + "&n=" + n);
                 using var r = await _http.GetAsync(indirizzo, ct).ConfigureAwait(false);
+                if (!r.IsSuccessStatusCode) return null;
+                return await r.Content.ReadAsStringAsync().ConfigureAwait(false);
+            } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
+                throw;
+            } catch { return null; }
+        }
+
+        /*  LE VOCI DEL BANCO (17 settembre 2026): l'ottica, la camera e la montatura che il motore conosce, per sceglierle
+         *  col pezzo scollegato. La risposta torna come testo, e la legge la pagina. Null quando non si e' potuta avere. */
+        public async Task<string?> Voci(CancellationToken ct = default) {
+            try {
+                using var r = await _http.GetAsync(_voci, ct).ConfigureAwait(false);
                 if (!r.IsSuccessStatusCode) return null;
                 return await r.Content.ReadAsStringAsync().ConfigureAwait(false);
             } catch (OperationCanceledException) when (ct.IsCancellationRequested) {

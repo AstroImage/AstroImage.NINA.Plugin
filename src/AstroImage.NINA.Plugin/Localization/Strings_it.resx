@@ -220,7 +220,10 @@
     <value>Il setup è incompleto: per {0} «{1}» mancano dati senza i quali non c'è niente da prescrivere — {2}. Riempili e riprova.</value>
   </data>
   <data name="Motore_SetupSconosciuto" xml:space="preserve">
-    <value>Il setup non è riconosciuto: {0} «{1}» non risulta fra le voci che il motore conosce. Scegline una dall'elenco, oppure descrivila.</value>
+    <value>Il setup non è riconosciuto: {0} «{1}» non risulta fra le voci che il motore conosce. Scegline una dall'elenco che si apre sotto il campo, nel blocco del banco, oppure descrivila.</value>
+  </data>
+  <data name="Motore_SetupSconosciutoForse" xml:space="preserve">
+    <value>Voci simili: *{0}*.</value>
   </data>
   <data name="Motore_ViaSconosciuta" xml:space="preserve">
     <value>Il plugin ha bussato a una porta che il motore non ha. Succede quando plugin e motore sono di due versioni diverse: aggiorna quello più vecchio dei due.</value>
@@ -994,7 +997,7 @@
     <value>dal nome e dalla geometria del driver</value>
   </data>
   <data name="Pag_Banco_CamNonRiconosciuta" xml:space="preserve">
-    <value>Non riconosciuta: la fisica viene dal sensore e da valori tipici, e la prescrizione lo dichiara. Scrivi qui la voce del catalogo.</value>
+    <value>Non riconosciuta: la fisica viene dal sensore e da valori tipici, e la prescrizione lo dichiara. Scegli qui la voce del catalogo.</value>
   </data>
   <data name="Pag_Banco_Buio" xml:space="preserve">
     <value>buio {0} e⁻/pixel/s a {1} °C, la temperatura della sequenza — del sensore {2}; modello: raddoppio ogni {3} °C</value>
@@ -1018,7 +1021,7 @@
     <value>matrice</value>
   </data>
   <data name="Motore_SetupIncompletoSenzaNome" xml:space="preserve">
-    <value>Nel banco manca {0}: serve {1}. Scrivila nel blocco del banco; per la camera basta anche collegarla in N.I.N.A.</value>
+    <value>Nel banco manca {0}: serve {1}. Si sceglie nel blocco del banco, dall'elenco sotto il campo, anche col pezzo scollegato; per la camera basta anche collegarla in N.I.N.A.</value>
   </data>
   <data name="Motore_Pezzo_ottica" xml:space="preserve">
     <value>l'ottica</value>
