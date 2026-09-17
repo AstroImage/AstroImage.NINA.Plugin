@@ -336,9 +336,7 @@
   <data name="Pag_InquadraturaLibera" xml:space="preserve">
     <value>Un riquadro solo</value>
   </data>
-  <data name="Pag_Intestazione" xml:space="preserve">
-    <value>Prova del ponte</value>
-  </data>
+
   <data name="Pag_LatLonNota" xml:space="preserve">
     <value>Latitudine e longitudine vengono dal profilo di N.I.N.A. e non si scrivono qui. Anche l'Orizzonte Personalizzato, se l'hai configurato: arriva intero, azimut per azimut, e comanda lui. L'altezza minima qui sotto è il ripiego per chi non ce l'ha.</value>
   </data>
@@ -471,9 +469,7 @@
   <data name="Pag_SoggettoCompleto" xml:space="preserve">
     <value>Tutto l'oggetto — a mosaico se serve</value>
   </data>
-  <data name="Pag_Sottotitolo" xml:space="preserve">
-    <value>La pagina chiede all'ospite, l'ospite chiede a Strategy. Qui dentro non c'è nessun indirizzo.</value>
-  </data>
+
   <data name="Pag_Sqm" xml:space="preserve">
     <value>cielo (SQM)</value>
   </data>
@@ -1217,6 +1213,39 @@
   </data>
   <data name="Pag_Verdetto_Coperto" xml:space="preserve">
     <value>le notti chieste ({0}) coprono il {1} % del progetto</value>
+  </data>
+  <data name="Pag_CosaVuoiRiprendere" xml:space="preserve">
+    <value>Cosa vuoi riprendere</value>
+  </data>
+  <data name="Pag_CosaVuoiRiprendereNota" xml:space="preserve">
+    <value>Scrivi un oggetto e ti dico con quale tecnica riprenderlo, quante ore per canale, in quali notti, e le sequenze da mandare a N.I.N.A. Se le ore non bastano te lo dico, invece di darti una ripartizione che non sta in piedi.</value>
+  </data>
+  <data name="Pag_OggettoEsempio" xml:space="preserve">
+    <value>NGC 6888, Crescent, M27…</value>
+  </data>
+  <data name="Pag_Pulisci" xml:space="preserve">
+    <value>Pulisci</value>
+  </data>
+  <data name="Pag_PulisciNota" xml:space="preserve">
+    <value>Svuota il campo e torna all'elenco delle schede complete. Anche con Esc.</value>
+  </data>
+  <data name="Pag_NotteDiRiferimento" xml:space="preserve">
+    <value>Notte di riferimento</value>
+  </data>
+  <data name="Pag_NotteDiRiferimentoNota" xml:space="preserve">
+    <value>La notte da cui parte il piano. La Luna è quella della notte, a metà del buio astronomico, dal sito del profilo di N.I.N.A.</value>
+  </data>
+  <data name="Pag_LunaAlta" xml:space="preserve">
+    <value>Luna {0}%, alta {1}°</value>
+  </data>
+  <data name="Pag_LunaSotto" xml:space="preserve">
+    <value>Luna {0}%, sotto l'orizzonte</value>
+  </data>
+  <data name="Pag_NotteUsata" xml:space="preserve">
+    <value>→ {0}</value>
+  </data>
+  <data name="Pag_ScriviOggetto" xml:space="preserve">
+    <value>scrivi l'oggetto</value>
   </data>
   <data name="Pag_LunaRiga" xml:space="preserve">
     <value>{0}: Luna *×{1}* al {2} % a {3}°</value>

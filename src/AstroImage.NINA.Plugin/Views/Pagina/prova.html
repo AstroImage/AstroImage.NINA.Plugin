@@ -15,22 +15,38 @@
   markup. Il testo sta nel dizionario, la struttura qui.
 -->
 
-<h1 data-loc="Pag_Intestazione"></h1>
-<div class="sotto" data-loc="Pag_Sottotitolo"></div>
-
-<div class="riga">
-  <!-- L'oggetto si trova mentre si scrive, come in AIS: l'elenco sotto il campo lo riempie prova.js con le
-       corrispondenze del servizio. Niente completamento del browser: i nomi scritti in passato coprirebbero il catalogo. -->
-  <input id="oggetto" value="ngc6888" spellcheck="false" list="elencoOggetti" autocomplete="off">
-  <datalist id="elencoOggetti"></datalist>
-  <!-- La data NON ha un valore qui dentro: lo mette prova.js, ed e' oggi. Una data
-       cablata nel markup e' una data che mente il giorno dopo, e la Luna si calcola
-       su quella. -->
-  <!-- Il calendario come in AIS: l'icona e' disegnata qui, perche' nella pagina non entra nessun indirizzo, nemmeno
-       quello di un'icona incorporata; il tasto nativo le sta sotto, trasparente, e il clic arriva a lui. -->
-  <span class="data-cal"><input id="data" type="date"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
-  <button id="vai" data-loc="Pag_ChiediPrescrizione"></button>
-  <span id="stato" class="stato" data-loc="Pag_InAttesa"></span>
+<!--  LA DOMANDA, COME IN AIS (17 settembre 2026): «Cosa vuoi riprendere» con la lente e «Pulisci», la notte
+      di riferimento con la Luna sotto la data, e il tasto — su una riga sola, con le stesse didascalie. Le parole, i
+      suggerimenti e il segnaposto li mette prova.js dal dizionario; la Luna la calcola Strategy. -->
+<div class="domanda">
+  <div class="campo-oggetto">
+    <label class="didascalia" for="oggetto" data-loc-title="Pag_CosaVuoiRiprendereNota">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      <span data-loc="Pag_CosaVuoiRiprendere"></span> <span class="ico">i</span></label>
+    <!-- L'oggetto si trova mentre si scrive, come in AIS: l'elenco sotto il campo lo riempie prova.js con le
+         corrispondenze del servizio. Niente completamento del browser: i nomi scritti in passato coprirebbero il
+         catalogo. Il campo parte vuoto, come in AIS. -->
+    <div class="cerca">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.6" cy="10.6" r="6.6"/><path d="m15.4 15.4 4.6 4.6"/></svg>
+      <input id="oggetto" spellcheck="false" list="elencoOggetti" autocomplete="off" data-loc-placeholder="Pag_OggettoEsempio">
+      <button type="button" id="pulisci" hidden data-loc="Pag_Pulisci" data-loc-title="Pag_PulisciNota"></button>
+    </div>
+    <datalist id="elencoOggetti"></datalist>
+  </div>
+  <div class="notte-rif">
+    <label class="didascalia" for="data" data-loc-title="Pag_NotteDiRiferimentoNota"><span data-loc="Pag_NotteDiRiferimento"></span></label>
+    <!-- La data NON ha un valore qui dentro: lo mette prova.js, ed e' oggi. Una data
+         cablata nel markup e' una data che mente il giorno dopo, e la Luna si calcola
+         su quella. -->
+    <!-- Il calendario come in AIS: l'icona e' disegnata qui, perche' nella pagina non entra nessun indirizzo, nemmeno
+         quello di un'icona incorporata; il tasto nativo le sta sotto, trasparente, e il clic arriva a lui. -->
+    <span class="data-cal"><input id="data" type="date"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></span>
+    <div class="luna-notte" id="lunaNotte"></div>
+  </div>
+  <div class="azione">
+    <button id="vai" data-loc="Pag_ChiediPrescrizione"></button>
+    <span id="stato" class="stato" data-loc="Pag_InAttesa"></span>
+  </div>
 </div>
 
 <!--  LA DOMANDA — le tre cose che decide chi riprende, non il programma.

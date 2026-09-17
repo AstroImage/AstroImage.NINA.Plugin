@@ -326,6 +326,27 @@ namespace AstroImage.NINA.Plugin.Tests {
 
         /*  LE VOCI DEL BANCO (17 settembre 2026): la domanda va a `v1/voci`, sotto la radice come le altre, senza corpo; la
          *  risposta torna come testo, identica, perche' la legge la pagina. Servizio spento o risposta non riuscita: null. */
+        /*  LA LUNA DELLA NOTTE (17 settembre 2026): la data e il sito nell'indirizzo, coi numeri scritti col punto qualunque
+         *  sia la lingua di Windows — una virgola farebbe una latitudine che il servizio non legge. */
+        [TestMethod]
+        public async Task Luna_VaAV1Luna_ColPuntoDecimale() {
+            const string corpo = "{\"contratto\":\"1\",\"luna\":{\"fasePercento\":96,\"altezza_deg\":32.7,\"sopra\":true}}";
+            var (cliente, t) = Banco(HttpStatusCode.OK, corpo, "http://127.0.0.1:8791/strategy/");
+            var prima = System.Globalization.CultureInfo.CurrentCulture;
+            try {
+                System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo("it-IT");
+                Assert.AreEqual(corpo, await cliente.Luna("2026-09-24", 45.95, -10.2), "il corpo non torna identico");
+            } finally { System.Globalization.CultureInfo.CurrentCulture = prima; }
+            Assert.AreEqual("/strategy/v1/luna", t.Indirizzo!.AbsolutePath);
+            var q = System.Web.HttpUtility.ParseQueryString(t.Indirizzo.Query);
+            Assert.AreEqual("2026-09-24", q["data"]);
+            Assert.AreEqual("45.95", q["lat"], "la latitudine non e' scritta col punto");
+            Assert.AreEqual("-10.2", q["lon"], "la longitudine non e' scritta col punto");
+
+            var (rifiuta, _) = Banco((HttpStatusCode)422, "{\"errore\":{\"codice\":\"richiesta_incompleta\"}}");
+            Assert.IsNull(await rifiuta.Luna("2026-13-40", 45, 10));
+        }
+
         [TestMethod]
         public async Task Voci_VaAV1Voci_ETornaIlCorpoComeE() {
             const string corpo = "{\"contratto\":\"1\",\"camera\":[{\"id\":\"asi2600mc\",\"nome\":\"ZWO ASI 2600MC Pro\"}]}";

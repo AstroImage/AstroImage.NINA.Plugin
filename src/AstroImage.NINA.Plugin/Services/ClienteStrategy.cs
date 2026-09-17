@@ -48,6 +48,7 @@ namespace AstroImage.NINA.Plugin.Services {
         private readonly Uri _filtri;
         private readonly Uri _cerca;
         private readonly Uri _voci;
+        private readonly Uri _luna;
 
         /// <param name="http">Il cliente HTTP. Lo costruisce chi sa quanto deve durare
         /// una connessione e quante ne servono: non e' una decisione di questo file.</param>
@@ -61,6 +62,7 @@ namespace AstroImage.NINA.Plugin.Services {
             _filtri = new Uri(baseUri, "v1/filtri");
             _cerca = new Uri(baseUri, "v1/cerca");
             _voci = new Uri(baseUri, "v1/voci");
+            _luna = new Uri(baseUri, "v1/luna");
         }
 
         /*  IL CATALOGO DEI VETRI, per far dichiarare all'utente che cosa ha in ruota.
@@ -237,6 +239,21 @@ namespace AstroImage.NINA.Plugin.Services {
         public async Task<string?> Voci(CancellationToken ct = default) {
             try {
                 using var r = await _http.GetAsync(_voci, ct).ConfigureAwait(false);
+                if (!r.IsSuccessStatusCode) return null;
+                return await r.Content.ReadAsStringAsync().ConfigureAwait(false);
+            } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
+                throw;
+            } catch { return null; }
+        }
+
+        /*  LA LUNA DELLA NOTTE (17 settembre 2026): la data e il sito nell'indirizzo, coi numeri scritti col punto qualunque
+         *  sia la lingua di Windows. La risposta torna come testo, e la legge la pagina. Null quando non si e' potuta avere. */
+        public async Task<string?> Luna(string data, double lat, double lon, CancellationToken ct = default) {
+            try {
+                var ci = System.Globalization.CultureInfo.InvariantCulture;
+                var indirizzo = new Uri(_luna.AbsoluteUri + "?data=" + Uri.EscapeDataString(data ?? string.Empty) +
+                                        "&lat=" + lat.ToString("R", ci) + "&lon=" + lon.ToString("R", ci));
+                using var r = await _http.GetAsync(indirizzo, ct).ConfigureAwait(false);
                 if (!r.IsSuccessStatusCode) return null;
                 return await r.Content.ReadAsStringAsync().ConfigureAwait(false);
             } catch (OperationCanceledException) when (ct.IsCancellationRequested) {

@@ -336,9 +336,7 @@
   <data name="Pag_InquadraturaLibera" xml:space="preserve">
     <value>A single frame</value>
   </data>
-  <data name="Pag_Intestazione" xml:space="preserve">
-    <value>Bridge test</value>
-  </data>
+
   <data name="Pag_LatLonNota" xml:space="preserve">
     <value>Latitude and longitude come from the N.I.N.A. profile and are not written here. So does the Custom Horizon, if you have configured one: it travels whole, azimuth by azimuth, and it is what decides. The minimum altitude below is the fallback for those who have none.</value>
   </data>
@@ -471,9 +469,7 @@
   <data name="Pag_SoggettoCompleto" xml:space="preserve">
     <value>The whole object — as a mosaic if needed</value>
   </data>
-  <data name="Pag_Sottotitolo" xml:space="preserve">
-    <value>The page asks its host, the host asks Strategy. There is no address in here.</value>
-  </data>
+
   <data name="Pag_Sqm" xml:space="preserve">
     <value>sky (SQM)</value>
   </data>
@@ -1217,6 +1213,39 @@
   </data>
   <data name="Pag_Verdetto_Coperto" xml:space="preserve">
     <value>the requested nights ({0}) cover {1} % of the project</value>
+  </data>
+  <data name="Pag_CosaVuoiRiprendere" xml:space="preserve">
+    <value>What do you want to shoot</value>
+  </data>
+  <data name="Pag_CosaVuoiRiprendereNota" xml:space="preserve">
+    <value>Type an object and I tell you which technique to use, how many hours per channel, on which nights, and the sequences to send to N.I.N.A. If the hours are not enough I say so, instead of giving you a split that does not hold up.</value>
+  </data>
+  <data name="Pag_OggettoEsempio" xml:space="preserve">
+    <value>NGC 6888, Crescent, M27…</value>
+  </data>
+  <data name="Pag_Pulisci" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Pag_PulisciNota" xml:space="preserve">
+    <value>Clears the field and goes back to the list of full profiles. Esc works too.</value>
+  </data>
+  <data name="Pag_NotteDiRiferimento" xml:space="preserve">
+    <value>Reference night</value>
+  </data>
+  <data name="Pag_NotteDiRiferimentoNota" xml:space="preserve">
+    <value>The night the plan starts from. The Moon is that night's, at the middle of astronomical darkness, from the site in the N.I.N.A. profile.</value>
+  </data>
+  <data name="Pag_LunaAlta" xml:space="preserve">
+    <value>Moon {0}%, {1}° high</value>
+  </data>
+  <data name="Pag_LunaSotto" xml:space="preserve">
+    <value>Moon {0}%, below the horizon</value>
+  </data>
+  <data name="Pag_NotteUsata" xml:space="preserve">
+    <value>→ {0}</value>
+  </data>
+  <data name="Pag_ScriviOggetto" xml:space="preserve">
+    <value>type the object</value>
   </data>
   <data name="Pag_LunaRiga" xml:space="preserve">
     <value>{0}: Moon *×{1}*, {2} % illuminated, {3}° away</value>
