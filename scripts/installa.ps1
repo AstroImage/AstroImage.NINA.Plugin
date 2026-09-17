@@ -203,6 +203,11 @@ foreach ($d in $destinazioni) {
             if ((Test-Path -LiteralPath $vecchioUrl) -and -not (Test-Path -LiteralPath $nuovoUrl)) {
                 Move-Item -LiteralPath $vecchioUrl -Destination $nuovoUrl
                 Riga 'ok' "$($d.Nome): strategy.url portato nella cartella nuova"
+            } elseif (Test-Path -LiteralPath $vecchioUrl) {
+                # Nella cartella nuova ce n'e' gia' uno — l'ha appena scritto questo script: il vecchio e' nostro e va via,
+                # altrimenti resterebbe li' una cartella col solo indirizzo dentro, che il prossimo che guarda non capisce.
+                Remove-Item -LiteralPath $vecchioUrl -Force
+                Riga 'ok' "$($d.Nome): tolto lo strategy.url della cartella vecchia, quello nuovo c'e' gia'"
             }
             Remove-Item -LiteralPath (Join-Path $d.Vecchia "$nome.dll") -Force -ErrorAction SilentlyContinue
             $rimasti = @(Get-ChildItem -LiteralPath $d.Vecchia -Force -ErrorAction SilentlyContinue)
