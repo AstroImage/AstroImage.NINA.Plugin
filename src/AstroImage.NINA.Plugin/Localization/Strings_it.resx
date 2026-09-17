@@ -220,7 +220,7 @@
     <value>Il setup è incompleto: per {0} «{1}» mancano dati senza i quali non c'è niente da prescrivere — {2}. Riempili e riprova.</value>
   </data>
   <data name="Motore_SetupSconosciuto" xml:space="preserve">
-    <value>Il setup non è riconosciuto: {0} «{1}» non risulta fra le voci che il motore conosce. Scegline una dall'elenco che si apre sotto il campo, nel blocco del banco, oppure descrivila.</value>
+    <value>Il setup non è riconosciuto: {0} «{1}» non risulta fra le voci che il motore conosce. Scegline una dall'elenco che si apre sotto il campo, nel blocco del banco; se non c'è, lascia vuota la voce e descrivila nei campi del banco.</value>
   </data>
   <data name="Motore_SetupSconosciutoForse" xml:space="preserve">
     <value>Voci simili: *{0}*.</value>
@@ -903,6 +903,45 @@
   <data name="Pag_Banco_mnt_rms_caratteristico_arcsec" xml:space="preserve">
     <value>RMS caratteristico</value>
   </data>
+  <data name="Pag_Banco_mnt_posa_massima_s" xml:space="preserve">
+    <value>Posa massima</value>
+  </data>
+  <data name="Pag_Banco_CamDescrittaTitolo" xml:space="preserve">
+    <value>Camera fuori catalogo</value>
+  </data>
+  <data name="Pag_Banco_CamDescrittaNota" xml:space="preserve">
+    <value>Per una camera che l'elenco non ha, scollegata e con la voce vuota: *nome, matrice, pixel, larghezza e altezza* bastano a prescrivere; *rumore, QE e pozzo* — i numeri che il costruttore stampa — tolgono le assunzioni. Con la camera collegata la geometria la dice il driver.</value>
+  </data>
+  <data name="Pag_Banco_Descritta_nome" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="Pag_Banco_Descritta_matrice" xml:space="preserve">
+    <value>Sensore</value>
+  </data>
+  <data name="Pag_Banco_Matrice_colore" xml:space="preserve">
+    <value>a colori (OSC)</value>
+  </data>
+  <data name="Pag_Banco_Matrice_mono" xml:space="preserve">
+    <value>monocromatico</value>
+  </data>
+  <data name="Pag_Banco_Descritta_pixel_um" xml:space="preserve">
+    <value>Pixel</value>
+  </data>
+  <data name="Pag_Banco_Descritta_width_px" xml:space="preserve">
+    <value>Larghezza</value>
+  </data>
+  <data name="Pag_Banco_Descritta_height_px" xml:space="preserve">
+    <value>Altezza</value>
+  </data>
+  <data name="Pag_Banco_Descritta_rumore_lettura_e" xml:space="preserve">
+    <value>Rumore di lettura</value>
+  </data>
+  <data name="Pag_Banco_Descritta_qe_picco_pct" xml:space="preserve">
+    <value>QE di picco</value>
+  </data>
+  <data name="Pag_Banco_Descritta_pozzo_e" xml:space="preserve">
+    <value>Pozzo pieno</value>
+  </data>
   <data name="Pag_Banco_luna_riferimento_deg" xml:space="preserve">
     <value>Luna: distanza di riferimento</value>
   </data>
@@ -1005,6 +1044,9 @@
   <data name="Pag_Banco_BuioSenzaFonte" xml:space="preserve">
     <value>buio {0} e⁻/pixel/s: valore di catalogo senza fonte né temperatura</value>
   </data>
+  <data name="Pag_Banco_Div_descrizione_non_usata" xml:space="preserve">
+    <value>La voce «{0}» è riconosciuta: la fisica è quella del catalogo, e {1} della camera fuori catalogo non si usano.</value>
+  </data>
   <data name="Pag_Banco_Div_geometria_diversa_dal_catalogo" xml:space="preserve">
     <value>*{0}* della camera: il driver dice {1}, la voce «{2}» dice {3}. Vale quello del driver: se la voce è sbagliata, correggila qui sopra.</value>
   </data>
@@ -1021,7 +1063,7 @@
     <value>matrice</value>
   </data>
   <data name="Motore_SetupIncompletoSenzaNome" xml:space="preserve">
-    <value>Nel banco manca {0}: serve {1}. Si sceglie nel blocco del banco, dall'elenco sotto il campo, anche col pezzo scollegato; per la camera basta anche collegarla in N.I.N.A.</value>
+    <value>Nel banco manca {0}: serve {1}. Si sceglie nel blocco del banco, dall'elenco sotto il campo, anche col pezzo scollegato; una camera che l'elenco non ha si descrive nella camera fuori catalogo, oppure si collega in N.I.N.A.</value>
   </data>
   <data name="Motore_Pezzo_ottica" xml:space="preserve">
     <value>l'ottica</value>
@@ -1067,6 +1109,9 @@
   </data>
   <data name="Pag_ParzialeTitolo" xml:space="preserve">
     <value>Dati assunti, non dichiarati</value>
+  </data>
+  <data name="Pag_Parziale_qe_non_nota" xml:space="preserve">
+    <value>QE di picco non nota («{0}»): assunto il {1} %, sulla forma tipica di un CMOS. Scrivila nella camera fuori catalogo, se la sai.</value>
   </data>
   <data name="Pag_Parziale_rumore_di_lettura_non_noto" xml:space="preserve">
     <value>Rumore di lettura non noto: assunti {0} e⁻.</value>

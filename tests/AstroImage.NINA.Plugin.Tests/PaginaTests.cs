@@ -824,6 +824,45 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(gestore, "Pannello_NessunoRisponde", "col servizio spento non dice dove guardare");
         }
 
+        /*  LA CAMERA FUORI CATALOGO SI DESCRIVE NEL BANCO (17 settembre 2026). Di camere ce ne sono mille e il catalogo ne
+         *  ha una piccola parte: con la camera scollegata, chi riprende scrive nome, matrice, pixel, larghezza e altezza, e se li
+         *  sa rumore, QE e pozzo — il modulo «su misura» della pagina di AIS. I campi vengono dalla lista del servizio
+         *  (provenienza `descrizione`), la matrice si sceglie, e la richiesta li manda come camera dichiarata; con la camera
+         *  collegata la geometria la dice il driver, e della descrizione parte solo la fisica. E la montatura dichiara la
+         *  sua posa massima. Guardia strutturale. */
+        [TestMethod]
+        public void IL_BANCO_DESCRIVE_LA_CAMERA_FUORI_CATALOGO() {
+            var js = PaginaSenzaCommenti();
+            var parole = Tratto(js, "const PAROLA_CAMPO_BANCO", "};");
+            var chiavi = new[] { "cam.nome", "cam.matrice", "cam.pixel_um", "cam.width_px", "cam.height_px", "cam.rumore_lettura_e",
+                                 "cam.qe_picco_pct", "cam.pozzo_e", "mnt.posa_massima_s" };
+            foreach (var k in chiavi) {
+                var m = System.Text.RegularExpressions.Regex.Match(parole, "'" + System.Text.RegularExpressions.Regex.Escape(k) + @"':\s*'(Pag_[A-Za-z_]+)'");
+                Assert.IsTrue(m.Success, "il campo " + k + " non ha la sua parola");
+                foreach (var lingua in new[] { "it", "en" })
+                    Assert.IsTrue(Tutte(lingua).TryGetValue(m.Groups[1].Value, out var v) && !string.IsNullOrWhiteSpace(v),
+                        lingua + ": manca " + m.Groups[1].Value);
+            }
+            var riga = Tratto(js, "c.provenienza === 'descrizione'", "} else return '';");
+            foreach (var pezzo in new[] { "'<select data-banco=\"cam.matrice\"", "PAROLA_MATRICE[m]", "'Pag_Banco_CamDescrittaTitolo'",
+                                          "'Pag_Banco_CamDescrittaNota'", "data-numero=\"1\"" })
+                StringAssert.Contains(riga, pezzo, "i campi della camera descritta non usano «" + pezzo + "»");
+            StringAssert.Contains(js, "box.querySelectorAll('input[data-banco], select[data-banco]')", "la matrice scelta non si salva");
+            var manda = Tratto(js, "function bancoDaMandare() {", "\n  }");
+            foreach (var pezzo in new[] { "c.provenienza === 'descrizione'", "origine: 'dichiarata'", "['rumore_lettura_e', 'qe_picco_pct', 'pozzo_e']" })
+                StringAssert.Contains(manda, pezzo, "la richiesta non manda la camera descritta: «" + pezzo + "»");
+            StringAssert.Contains(Tratto(js, "const PAROLA_DIVERGENZA_BANCO", "};"), "'descrizione_non_usata': 'Pag_Banco_Div_descrizione_non_usata'");
+            StringAssert.Contains(Tratto(js, "const PAROLA_PARZIALE", "};"), "'qe_non_nota': ['Pag_Parziale_qe_non_nota', ['voce', 'assunto']]");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in new[] { "Pag_Banco_CamDescrittaTitolo", "Pag_Banco_CamDescrittaNota", "Pag_Banco_Matrice_colore",
+                                          "Pag_Banco_Matrice_mono", "Pag_Banco_Div_descrizione_non_usata", "Pag_Parziale_qe_non_nota" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+                StringAssert.Contains(t["Pag_Banco_Div_descrizione_non_usata"], "{1}", lingua);
+                StringAssert.Contains(t["Pag_Parziale_qe_non_nota"], "{1}", lingua);
+            }
+        }
+
         /*  LA DISTANZA DI RIFERIMENTO DELLA LUNA SI DICHIARA NEL BANCO (regia, 16 settembre 2026): e' quanto slavato accetta
          *  chi riprende. Il blocco del banco mostra il pezzo `luna` con la sua parola e la sua nota; la chiave e la
          *  provenienza vengono dalla lista che Strategy pubblica, come per gli altri campi dichiarabili. */
