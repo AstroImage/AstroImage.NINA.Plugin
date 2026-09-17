@@ -55,7 +55,12 @@ namespace AstroImage.NINA.Plugin.Services {
 
         private readonly string _percorso;
         private string _lingua = LinguaDiSerie;
+        private string _indirizzo = "";
         private bool _zitto;
+
+        /*  LE IMPOSTAZIONI CHE VALGONO ADESSO, per chi non le riceve da nessuno. Le carica il plugin all'avvio, e il
+         *  pannello nasce dopo: gli serve l'indirizzo del motore, e MEF non gliele passa. Un oggetto solo, come Loc. */
+        public static ImpostazioniPonte? Corrente { get; private set; }
 
         /// <summary>
         /// Che cosa e' andato storto leggendo o scrivendo, in chiaro. Null se tutto bene.
@@ -83,6 +88,22 @@ namespace AstroImage.NINA.Plugin.Services {
                 _lingua = v;
                 Loc.Instance.ForzaLingua(v);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Lingua)));
+                if (!_zitto) { Salva(); }
+            }
+        }
+
+        /*  DOVE STA IL MOTORE, e questa e' la casa definitiva di un indirizzo che stava in un file accanto al DLL.
+         *  Vuoto NON vuol dire «nessun motore»: vuol dire che valgono il file e poi l'indirizzo di serie, e chi ha gia'
+         *  configurato un PC in campo non deve rifare niente. Si scrive come si vuole — con o senza la barra finale —
+         *  e chi lo usa lo normalizza; quello che non e' un indirizzo http non si butta via qui, cosi' chi ha sbagliato
+         *  a scrivere lo rivede e lo corregge invece di trovare il campo vuoto. */
+        public string Indirizzo {
+            get => _indirizzo;
+            set {
+                var v = (value ?? "").Trim();
+                if (_indirizzo == v && !_zitto) { return; }
+                _indirizzo = v;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indirizzo)));
                 if (!_zitto) { Salva(); }
             }
         }
@@ -116,6 +137,7 @@ namespace AstroImage.NINA.Plugin.Services {
                             i.Nota = $"lingua «{d.Lingua}» sconosciuta: vale «{letta}».";
                         }
                         i.Lingua = letta;
+                        i.Indirizzo = d.Indirizzo ?? "";
                     }
                 }
             } catch (Exception e) {
@@ -130,6 +152,7 @@ namespace AstroImage.NINA.Plugin.Services {
             /*  Si applica SEMPRE, anche senza file: altrimenti alla prima installazione
              *  Loc resterebbe su «segui N.I.N.A.» invece che sull'inglese di serie. */
             Loc.Instance.ForzaLingua(i._lingua);
+            Corrente = i;
             return i;
         }
 
@@ -140,7 +163,7 @@ namespace AstroImage.NINA.Plugin.Services {
                 var cartella = Path.GetDirectoryName(_percorso);
                 if (!string.IsNullOrEmpty(cartella)) { Directory.CreateDirectory(cartella!); }
                 File.WriteAllText(_percorso, JsonSerializer.Serialize(
-                    new Documento { Lingua = _lingua },
+                    new Documento { Lingua = _lingua, Indirizzo = _indirizzo },
                     new JsonSerializerOptions { WriteIndented = true }));
                 return true;
             } catch (Exception e) {
@@ -154,6 +177,9 @@ namespace AstroImage.NINA.Plugin.Services {
         private sealed class Documento {
             [JsonPropertyName("lingua")]
             public string? Lingua { get; set; }
+
+            [JsonPropertyName("indirizzo")]
+            public string? Indirizzo { get; set; }
         }
     }
 }

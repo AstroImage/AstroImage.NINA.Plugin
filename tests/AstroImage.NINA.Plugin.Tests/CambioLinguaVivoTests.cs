@@ -85,9 +85,11 @@ namespace AstroImage.NINA.Plugin.Tests {
             /*  Dal 16 settembre 2026 le chiamate sono tre: il cambio di profilo di N.I.N.A. rilegge sito, filtri e
                 camera dallo STESSO punto, e ridisegna resta l'unica strada. E lo stesso giorno quattro: la camera
                 collegata o scollegata ritira la prescrizione e rilegge il banco, dallo stesso punto. */
-            Assert.AreEqual(4, Regex.Matches(p, @"(?<!function )\bridisegna\(\)").Count,
-                "ridisegna va chiamata quattro volte: all'apertura, al cambio lingua, al cambio di profilo e al cambio " +
-                "della camera. Se sono di piu' o di meno, l'avvio e i cambi hanno preso strade diverse");
+            /*  E il 17 settembre 2026 cinque: il tasto «Riprova» dell'avviso «il motore non risponde» e' una porta in
+                piu' — chi ha appena acceso il motore non deve chiudere e riaprire il pannello — e passa dalla stessa. */
+            Assert.AreEqual(5, Regex.Matches(p, @"(?<!function )\bridisegna\(\)").Count,
+                "ridisegna va chiamata cinque volte: all'apertura, al cambio lingua, al cambio di profilo, al cambio " +
+                "della camera e dal tasto «Riprova». Se sono di piu' o di meno, l'avvio e i cambi hanno preso strade diverse");
         }
 
         /// <summary>Il corpo di una funzione JavaScript, contando le graffe.</summary>

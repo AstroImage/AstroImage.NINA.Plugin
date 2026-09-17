@@ -662,6 +662,30 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "la risposta non dice che cosa ha consegnato");
         }
 
+        /*  IL MOTORE CHE NON RISPONDE SI DICE IN CIMA, E SI PUO' RIPROVARE (17 settembre 2026). Chi installa il plugin per
+         *  la prima volta vede questo pannello prima di qualunque altra cosa: se resta muto pensa che sia rotto, e non
+         *  che il motore sia spento o l'indirizzo sbagliato. L'avviso sta in cima alla pagina, nomina l'indirizzo che il
+         *  ponte sta interrogando, dice dove si cambia, e ha un tasto per riprovare senza chiudere niente. Sparisce da
+         *  se' appena il motore risponde. Guardia strutturale. */
+        [TestMethod]
+        public void IL_MOTORE_CHE_NON_RISPONDE_SI_DICE_IN_CIMA() {
+            var js = PaginaSenzaCommenti();
+            var giu = Tratto(js, "function motoreGiu(r) {", "\n  }");
+            foreach (var pezzo in new[] { "$('avviso')", "r.messaggio", "'Pag_DoveSiScriveIndirizzo'", "'Pag_Riprova'" })
+                StringAssert.Contains(giu, pezzo, "l'avviso del motore spento non usa " + pezzo);
+            StringAssert.Contains(js, "riprovaIlMotore", "non c'e' il tasto che riprova");
+            StringAssert.Contains(Tratto(js, "function riprovaIlMotore(", "\n  }"), "ridisegna()",
+                "riprovare non richiede niente al motore");
+            StringAssert.Contains(Risorsa("prova.html"), "id=\"avviso\"", "la pagina non ha il posto dell'avviso, in cima");
+            StringAssert.Contains(Tratto(js, "function ridisegna() {", "\n  }"), "$('avviso').innerHTML = ''",
+                "l'avviso non sparisce quando il motore risponde");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in new[] { "Pag_DoveSiScriveIndirizzo", "Pag_Riprova" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+            }
+        }
+
         /*  L'ESITO DI UN SALVATAGGIO RESTA SCRITTO (17 settembre 2026). Dopo un salvataggio riuscito il banco e il sito si
          *  ridisegnano, e «salvato» spariva insieme al riquadro: chi salvava non vedeva niente. L'esito sta in uno stato
          *  della pagina che il disegno rilegge: verde con l'ora quando e' salvato, rosso col perche' quando no, e «non
