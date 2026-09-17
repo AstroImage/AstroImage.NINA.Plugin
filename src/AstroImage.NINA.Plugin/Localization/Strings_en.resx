@@ -1214,6 +1214,15 @@
   <data name="Pag_Verdetto_Coperto" xml:space="preserve">
     <value>the requested nights ({0}) cover {1} % of the project</value>
   </data>
+  <data name="Pag_Banco_CamCollegata" xml:space="preserve">
+    <value>connected ({0}): recognised as “{1}”</value>
+  </data>
+  <data name="Pag_Banco_CamVoceSconosciuta" xml:space="preserve">
+    <value>“{0}” is not among the catalogue entries, and while it stays written the connected camera is not recognised on its own. Pick one from the list, or empty the field and save; a camera the list does not have is described below.</value>
+  </data>
+  <data name="Pag_Banco_CamDescrittaSpenta" xml:space="preserve">
+    <value>The camera is recognised: below are its data, as Strategy uses them. These fields are for a camera the list does not have.</value>
+  </data>
   <data name="Pag_CosaVuoiRiprendere" xml:space="preserve">
     <value>What do you want to shoot</value>
   </data>

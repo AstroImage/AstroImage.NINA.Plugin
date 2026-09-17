@@ -50,6 +50,9 @@ namespace AstroImage.NINA.Plugin.Views {
      *      luna          { id, azione: "luna", data: "AAAA-MM-GG", lat, lon }
      *                 -> { id, ok, corpo: "<il JSON di v1/luna>" }
      *
+     *      riconosciCamera  { id, azione: "riconosciCamera", cam: { … } }
+     *                 -> { id, ok, corpo: "<il JSON di v1/camera>" }
+     *
      *      manda         { id, azione: "manda", prescrizione: "<identificativo>", notte: n }
      *                 -> { id, ok, nome, bersaglio, blocchi, pose, note[], scartati[] }
      *
@@ -293,6 +296,8 @@ namespace AstroImage.NINA.Plugin.Views {
                 if (azione == "voci") { await Voci(id); return; }
 
                 if (azione == "luna") { await Luna(id, messaggio); return; }
+
+                if (azione == "riconosciCamera") { await RiconosciCamera(id, messaggio); return; }
 
                 if (azione != "prescrizione") {
                     Rispondi(id, false, null, "azione_sconosciuta", Loc.F("Pannello_AzioneSconosciuta", azione)); return;
@@ -637,6 +642,24 @@ namespace AstroImage.NINA.Plugin.Views {
                          Loc.F("Pannello_NessunoRisponde", (DataContext as PannelloStrategyVM)?.Radice));
                 return;
             }
+            Rispondi(id, true, corpo, null, null);
+        }
+
+        /*  LA CAMERA DEL BANCO RICONOSCIUTA (17 settembre 2026): la pagina manda la camera che la domanda manderebbe, e
+         *  l'ospite la porta a `v1/camera` campo per campo, senza guardarci dentro: i testi come testi, i numeri come numeri.
+         *  Il corpo torna com'e'. Una domanda storta o il servizio spento: `ok: false`, e il banco resta com'era. */
+        private async Task RiconosciCamera(string id, JsonObject messaggio) {
+            var cliente = (DataContext as PannelloStrategyVM)?.Cliente;
+            if (cliente is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaCorriere")); return; }
+            var campi = new List<(string, object)>();
+            if (messaggio["cam"] is JsonObject cam)
+                foreach (var kv in cam) {
+                    if (kv.Value is not JsonValue v) continue;
+                    if (v.TryGetValue<double>(out var numero)) campi.Add((kv.Key, numero));
+                    else if (v.TryGetValue<string>(out var testo)) campi.Add((kv.Key, testo));
+                }
+            var corpo = await cliente.RiconosciCamera(campi);
+            if (corpo is null) { Rispondi(id, false, null, "servizio_irraggiungibile", null); return; }
             Rispondi(id, true, corpo, null, null);
         }
 

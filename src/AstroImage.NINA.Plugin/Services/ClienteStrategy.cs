@@ -49,6 +49,7 @@ namespace AstroImage.NINA.Plugin.Services {
         private readonly Uri _cerca;
         private readonly Uri _voci;
         private readonly Uri _luna;
+        private readonly Uri _camera;
 
         /// <param name="http">Il cliente HTTP. Lo costruisce chi sa quanto deve durare
         /// una connessione e quante ne servono: non e' una decisione di questo file.</param>
@@ -63,6 +64,7 @@ namespace AstroImage.NINA.Plugin.Services {
             _cerca = new Uri(baseUri, "v1/cerca");
             _voci = new Uri(baseUri, "v1/voci");
             _luna = new Uri(baseUri, "v1/luna");
+            _camera = new Uri(baseUri, "v1/camera");
         }
 
         /*  IL CATALOGO DEI VETRI, per far dichiarare all'utente che cosa ha in ruota.
@@ -253,6 +255,32 @@ namespace AstroImage.NINA.Plugin.Services {
                 var ci = System.Globalization.CultureInfo.InvariantCulture;
                 var indirizzo = new Uri(_luna.AbsoluteUri + "?data=" + Uri.EscapeDataString(data ?? string.Empty) +
                                         "&lat=" + lat.ToString("R", ci) + "&lon=" + lon.ToString("R", ci));
+                using var r = await _http.GetAsync(indirizzo, ct).ConfigureAwait(false);
+                if (!r.IsSuccessStatusCode) return null;
+                return await r.Content.ReadAsStringAsync().ConfigureAwait(false);
+            } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
+                throw;
+            } catch { return null; }
+        }
+
+        /*  LA CAMERA DEL BANCO RICONOSCIUTA (17 settembre 2026): i campi della camera come la pagina li manderebbe nella
+         *  domanda, nell'indirizzo; i numeri col punto qualunque sia la lingua di Windows, e un campo senza valore non parte.
+         *  La risposta torna come testo, e la legge la pagina. Null quando non si e' potuta avere. */
+        public async Task<string?> RiconosciCamera(IEnumerable<(string Chiave, object? Valore)> campi, CancellationToken ct = default) {
+            try {
+                var ci = System.Globalization.CultureInfo.InvariantCulture;
+                var parti = new List<string>();
+                foreach (var (chiave, valore) in campi ?? Array.Empty<(string, object?)>()) {
+                    if (string.IsNullOrWhiteSpace(chiave) || valore is null) continue;
+                    var testo = valore switch {
+                        double d => d.ToString("R", ci),
+                        float f => f.ToString("R", ci),
+                        IFormattable n => n.ToString(null, ci),
+                        _ => valore.ToString() ?? string.Empty,
+                    };
+                    parti.Add(Uri.EscapeDataString(chiave) + "=" + Uri.EscapeDataString(testo));
+                }
+                var indirizzo = new Uri(_camera.AbsoluteUri + (parti.Count > 0 ? "?" + string.Join("&", parti) : string.Empty));
                 using var r = await _http.GetAsync(indirizzo, ct).ConfigureAwait(false);
                 if (!r.IsSuccessStatusCode) return null;
                 return await r.Content.ReadAsStringAsync().ConfigureAwait(false);

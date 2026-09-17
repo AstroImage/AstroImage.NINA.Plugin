@@ -166,9 +166,10 @@
       campiDelBanco = r.campiDelBanco || [];
       divergenzeDelBanco = r.divergenzeDelBanco || [];
       disegnaBanco();
+      riconosciLaCamera();
     });
-    chiedi('camera').then(r => { if (r.ok) camera = r.camera || null; });
-    chiedi('banco').then(r => { if (r.ok) { bancoLetto = r; disegnaBanco(); } });
+    chiedi('camera').then(r => { if (r.ok) { camera = r.camera || null; riconosciLaCamera(); } });
+    chiedi('banco').then(r => { if (r.ok) { bancoLetto = r; disegnaBanco(); riconosciLaCamera(); } });
     chiedi('voci').then(r => { if (r.ok) riempiVoci(r); });
     chiedi('sito').then(r => { if (r.ok) disegnaSito(r); });
     chiedi('filtri').then(r => { if (r.ok) disegnaRuota(r); });
@@ -548,6 +549,24 @@
     }
   }
 
+  /*  LA CAMERA DEL BANCO, RICONOSCIUTA SUBITO (17 settembre 2026). Il riconoscimento c'era solo nella prescrizione, e
+   *  prima di chiederne una il banco non sapeva quale camera avesse davanti. Adesso si chiede a Strategy con la camera
+   *  che la domanda manderebbe — il driver, la voce scritta, o la camera descritta — appena ci sono la camera, il banco e
+   *  i suoi campi, e dopo ogni salvataggio. Vince l'ultima domanda. */
+  let ultimoRiconoscimento = 0, cameraDelBanco = null;
+  function riconosciLaCamera() {
+    const mia = ++ultimoRiconoscimento;
+    const cam = bancoDaMandare().cam;
+    if (!cam || typeof cam !== 'object' || !Object.keys(cam).length) { cameraDelBanco = null; disegnaBanco(); return; }
+    chiedi('riconosciCamera', null, { cam: cam }).then(r => {
+      if (mia !== ultimoRiconoscimento) return;
+      let c = null;
+      try { c = r.ok ? JSON.parse(r.corpo).camera : null; } catch (e) { c = null; }
+      cameraDelBanco = c || null;
+      disegnaBanco();
+    });
+  }
+
   function disegnaBanco() {
     const box = $('banco');
     if (!box) return;
@@ -558,6 +577,9 @@
     const campi = campiDelBanco.filter(c => PEZZI_DEL_BLOCCO.indexOf(c.pezzo) >= 0 &&
       !/\.id$/.test(c.chiave) && PAROLA_CAMPO_BANCO[c.chiave]);
     const primaDescritta = (campi.find(c => c.provenienza === 'descrizione') || {}).chiave;
+    /*  una camera riconosciuta spegne i campi della camera fuori catalogo, e ci mostra i suoi dati */
+    const spenta = !!(cameraDelBanco && cameraDelBanco.id);
+    const datiCamera = (spenta && cameraDelBanco.dati) || {};
     const delProdotto = c => {
       const parti = c.chiave.split('.');
       const pezzo = pb && pb[c.pezzo];
@@ -584,12 +606,25 @@
       } else if (c.provenienza === 'riconoscimento') {
         const id = c.chiave + '.id';
         const pezzo = pb && pb[c.pezzo];
-        valore = '<input data-banco="' + esc(id) + '" value="' + escOVuoto(dichiarato[id]) +
-          '" list="voci-' + esc(c.pezzo) + '" autocomplete="off" style="width:170px" spellcheck="false">' +
-          (pezzo && pezzo.voce && (c.pezzo !== 'camera' || pezzo.id)
+        /*  LA CAMERA RICONOSCIUTA PRIMA DELLA DOMANDA: la voce nel campo, in grigio quando nessuno l'ha scritta; la camera
+         *  collegata col nome del driver; la voce scritta che non esiste, che impedisce alla camera collegata di farsi
+         *  riconoscere. Senza questo, il riconoscimento si vedeva solo dopo una prescrizione. */
+        const rc = c.pezzo === 'camera' ? cameraDelBanco : null;
+        const segnaposto = rc && rc.id && dichiarato[id] == null ? ' placeholder="' + esc(rc.voce || rc.id) + '"' : '';
+        const notaCamera = !rc ? ''
+          : rc.id && rc.collegata
+            ? ' <span style="font-size:12px;opacity:.75">' + MF('Pag_Banco_CamCollegata', esc(rc.nomeDriver || ''), esc(rc.voce || rc.id)) + '</span>'
+          : rc.id
+            ? ' <span style="font-size:12px;opacity:.75">' + MF('Pag_Banco_Riconosciuto', esc(rc.voce || rc.id)) + '</span>'
+          : rc.chiesto
+            ? '<div style="font-size:12px;color:#e0a030">' + MF('Pag_Banco_CamVoceSconosciuta', esc(rc.chiesto)) + '</div>'
+          : '';
+        valore = '<input data-banco="' + esc(id) + '" value="' + escOVuoto(dichiarato[id]) + '"' + segnaposto +
+          ' list="voci-' + esc(c.pezzo) + '" autocomplete="off" style="width:170px" spellcheck="false">' + notaCamera +
+          (!rc && pezzo && pezzo.voce && (c.pezzo !== 'camera' || pezzo.id)
             ? ' <span style="font-size:12px;opacity:.7">' + MF('Pag_Banco_Riconosciuto', esc(pezzo.voce)) +
               (pezzo.riconoscimento === 'nome_e_geometria' ? ' ' + MF('Pag_Banco_CamDalDriver') : '') + '</span>' : '') +
-          (c.pezzo === 'camera' && pezzo && !pezzo.id
+          (c.pezzo === 'camera' && pezzo && !pezzo.id && !(rc && rc.chiesto)
             ? '<div style="font-size:12px;color:#e0a030">' + MF('Pag_Banco_CamNonRiconosciuta') + '</div>' : '') +
           (c.pezzo === 'camera' && pezzo && pezzo.buio ? '<div style="font-size:12px;opacity:.7">' + (pezzo.buio.fonte
             ? MF('Pag_Banco_Buio', cifra(pezzo.buio.e_pixel_s), cifra(pezzo.buio.temperatura_c),
@@ -607,17 +642,25 @@
          *  titolo davanti al primo. La matrice si sceglie; il resto si scrive, e i numeri li giudica il servizio. */
         const titolo = (c.chiave === primaDescritta
           ? '<tr><td colspan="2" style="padding-top:.8em"><b>' + esc(T('Pag_Banco_CamDescrittaTitolo')) + '</b>' +
-            '<div style="font-size:12px;opacity:.7">' + MF('Pag_Banco_CamDescrittaNota') + '</div></td></tr>' : '') +
+            '<div style="font-size:12px;opacity:.7">' + MF(spenta ? 'Pag_Banco_CamDescrittaSpenta' : 'Pag_Banco_CamDescrittaNota') +
+            '</div></td></tr>' : '') +
           /*  i campi facoltativi dicono che cosa costano, col numero misurato (regia, 17 settembre 2026) */
-          (c.chiave === 'cam.rumore_lettura_e'
+          (c.chiave === 'cam.rumore_lettura_e' && !spenta
             ? '<tr><td colspan="2"><div style="font-size:12px;color:#e0a030">' + MF('Pag_Banco_CamDescrittaCosto') + '</div></td></tr>' : '');
+        /*  SPENTA, CON I DATI DELLA CAMERA RICONOSCIUTA (17 settembre 2026): i campi non si scrivono, e mostrano quello che
+         *  Strategy usa; salvando tengono quello che era dichiarato. */
+        const k = c.chiave.split('.')[1];
+        const mostrato = spenta ? (datiCamera[k] == null ? '' : typeof datiCamera[k] === 'number' ? cifra(datiCamera[k]) : esc(datiCamera[k]))
+          : escOVuoto(dichiarato[c.chiave]);
+        const scelta = spenta ? datiCamera[k] : dichiarato[c.chiave];
+        const spento = spenta ? ' disabled class="spento"' : '';
         if (c.chiave === 'cam.matrice')
-          valore = '<select data-banco="cam.matrice"><option value=""></option>' + ['colore', 'mono'].map(m =>
-            '<option value="' + m + '"' + (dichiarato[c.chiave] === m ? ' selected' : '') + '>' + esc(T(PAROLA_MATRICE[m])) +
+          valore = '<select data-banco="cam.matrice"' + spento + '><option value=""></option>' + ['colore', 'mono'].map(m =>
+            '<option value="' + m + '"' + (scelta === m ? ' selected' : '') + '>' + esc(T(PAROLA_MATRICE[m])) +
             '</option>').join('') + '</select>';
         else
-          valore = '<input data-banco="' + esc(c.chiave) + '"' + (c.unita ? ' data-numero="1"' : '') +
-            ' value="' + escOVuoto(dichiarato[c.chiave]) + '" style="width:' + (c.unita ? '70' : '170') + 'px" spellcheck="false">' + unita;
+          valore = '<input data-banco="' + esc(c.chiave) + '"' + (c.unita ? ' data-numero="1"' : '') + spento +
+            ' value="' + mostrato + '" style="width:' + (c.unita ? '70' : '170') + 'px" spellcheck="false">' + unita;
         return titolo + '<tr><th>' + etichetta + '</th><td>' + valore + '</td></tr>';
       } else return '';
       const nota = NOTA_CAMPO_BANCO[c.chiave]
@@ -661,14 +704,17 @@
     if (salva) salva.addEventListener('click', () => {
       const valori = {};
       Array.prototype.forEach.call(box.querySelectorAll('input[data-banco], select[data-banco]'), i => {
-        valori[i.getAttribute('data-banco')] = valoreScritto(i.value, i.hasAttribute('data-numero'));
+        const chiave = i.getAttribute('data-banco');
+        /*  un campo spento mostra la camera riconosciuta: si salva quello che era dichiarato, non quello che si vede */
+        valori[chiave] = i.disabled ? (dichiarato[chiave] != null ? dichiarato[chiave] : null)
+          : valoreScritto(i.value, i.hasAttribute('data-numero'));
       });
       $('esitoBanco').textContent = T('Pag_Salvo');
       chiedi('salvaBanco', { banco: valori }).then(r2 => {
         $('esitoBanco').textContent = r2.ok ? T('Pag_Salvato')
           : T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '');
         ritiraDalloSchermo(r2.ritirata);
-        if (r2.ok) chiedi('banco').then(r3 => { if (r3.ok) { bancoLetto = r3; disegnaBanco(); } });
+        if (r2.ok) chiedi('banco').then(r3 => { if (r3.ok) { bancoLetto = r3; disegnaBanco(); riconosciLaCamera(); } });
       });
     });
   }
@@ -922,6 +968,16 @@
     $(campo).addEventListener('input', () => { stradaScelta = null; });
   /*  una data nuova e' una notte nuova: la Luna si richiede, e la notte usata della risposta di prima non vale piu' */
   $('data').addEventListener('input', () => { notteUsata = null; lunaDellaData(); });
+
+  /*  IL CALENDARIO SI APRE DALL'ICONA (17 settembre 2026): nella riga della domanda il tasto nativo non stava piu' sotto
+   *  l'icona, e il clic andava a vuoto. L'icona apre la scelta della data da se'; dove il browser non sa farlo, il campo
+   *  prende il fuoco. */
+  const iconaData = document.querySelector('.data-cal svg');
+  if (iconaData) {
+    iconaData.addEventListener('click', () => {
+      try { $('data').showPicker(); } catch (e) { $('data').focus(); }
+    });
+  }
 
   /*  LA LUNA SOTTO LA DATA, come in AIS (17 settembre 2026): la fase e l'altezza a meta' del buio astronomico, dal sito
    *  del profilo. Il conto e' di Strategy, e la pagina lo chiede all'ospite quando cambiano la data o il sito. Dopo una

@@ -64,7 +64,7 @@
   input[type=date]::-webkit-calendar-picker-indicator {
     width:17px; height:17px; padding:0; margin-left:7px; cursor:pointer; opacity:0; }
   .data-cal svg { position:absolute; right:9px; top:50%; width:17px; height:17px; margin-top:-8.5px;
-    pointer-events:none; fill:none; stroke:var(--acc); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    cursor:pointer; fill:none; stroke:var(--acc); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
     opacity:.85; transition:opacity .12s; }
   .data-cal:hover svg, .data-cal:focus-within svg { opacity:1; }
   /*  LA DOMANDA COME IN AIS (17 settembre 2026): «Cosa vuoi riprendere» con la lente e «Pulisci», la notte di riferimento
@@ -98,8 +98,12 @@
                background:var(--bg3); border:1px solid var(--line); border-radius:var(--radius); padding:8px 14px; }
   .notte-rif .didascalia { color:var(--dim2); font-size:10.5px; letter-spacing:.09em; font-weight:400; margin:0; }
   .notte-rif .data-cal { align-self:flex-start; }
+  .notte-rif .data-cal svg { right:0; }
   .notte-rif input[type=date] { font:inherit; font-size:17px; font-weight:700; color:var(--fg); background:transparent;
-                                border:none; border-bottom:1px dotted var(--dim2); border-radius:0; padding:0 30px 0 0; }
+                                border:none; border-bottom:1px dotted var(--dim2); border-radius:0; padding:0; }
+  /*  I campi spenti della camera fuori catalogo, quando una camera e' riconosciuta (17 settembre 2026). */
+  input.spento, select.spento, input:disabled, select:disabled { color:var(--dim); background:#16191e; border-color:#2a2f36;
+                                                                  cursor:not-allowed; opacity:.85; }
   .notte-rif input[type=date]:focus { outline:none; border-bottom-color:var(--acc); }
   .luna-notte { font-size:12px; color:var(--dim); min-height:1.3em; }
   .notte-usata { color:var(--warn); font-weight:600; }
