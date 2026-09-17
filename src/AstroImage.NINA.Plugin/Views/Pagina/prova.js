@@ -399,20 +399,87 @@
       '<ul style="margin:.4em 0 0 1.1em;padding:0">' + righe.join('') + '</ul></div>';
   }
 
-  /*  LA PENALIZZAZIONE LUNARE, IN TRE PARTI (16 settembre 2026): notte per notte e canale per canale, coi numeri che
-   *  Strategy manda — il moltiplicatore delle ore, la Luna con la fase e la distanza, e se la distanza e' sotto la soglia
-   *  del filtro, dove il moltiplicatore e' un minimo e la riga si scrive in giallo. La prescrizione non si vieta mai: il
-   *  canale resta nella sequenza, e decide chi riprende. Il filtro si scrive col nome della ruota, come nella sequenza. */
-  function lunaPenalizzazione(l) {
-    const pene = (l && l.penalizzazioni) || [];
-    if (!pene.length) return '';
-    const righe = pene.map(f => '<li' + (f.limiteInferiore ? ' style="color:#e0a030"' : '') + '>' +
-      MF(f.limiteInferiore ? 'Pag_LunaPenaMinima' : 'Pag_LunaPena',
-        cifra(f.notte), esc(f.id), esc(vetroNellaRuota(f.filtro)), cifra(f.moltiplicatore, 1), cifra(f.fasePercento),
-        cifra(f.distanza, 0), cifra(f.soglia, 0)) +
-      (f.congiunto && f.limiteInferiore ? ' ' + MF('Pag_LunaPenaCongiunto') : '') + '</li>');
-    return '<div class="box"><b>' + esc(T('Pag_LunaPenaTitolo')) + '</b>' +
-      '<ul style="margin:.4em 0 0 1.1em;padding:0">' + righe.join('') + '</ul></div>';
+  /*  LA LUNA DENTRO LA NOTTE (regia, 17 settembre 2026). Il riquadro di prima aveva cinque righe di spiegazione e pallini
+   *  che dicevano tutti ×1,0: un avviso che compare sempre non si legge il giorno che conta. Adesso una riga per canale,
+   *  nella notte a cui si riferisce e nella forma della pagina del motore, solo quando Strategy non la dice trascurabile
+   *  — la regola e' sua, e qui non si ripete. Le tre parti restano, col moltiplicatore in evidenza; il perche'
+   *  sta al passaggio del mouse, e si spiega a chi chiede. La prescrizione non si vieta: il canale resta nella notte. */
+  function righeDellaLuna(luna, notte) {
+    const righe = ((luna && luna.penalizzazioni) || []).filter(f => f.notte === notte && !f.trascurabile && f.moltiplicatore != null);
+    return righe.map(f => {
+      const perche = T(f.limiteInferiore ? 'Pag_LunaPercheSotto' : 'Pag_LunaPercheSopra').replace('{0}', cifra(f.soglia, 0)) +
+        (f.congiunto ? ' ' + T('Pag_LunaPenaCongiunto') : '');
+      const testo = f.limiteInferiore
+        ? MF('Pag_LunaRigaMinima', esc(f.id), cifra(f.moltiplicatore, 1), cifra(f.fasePercento), cifra(f.distanza, 0), cifra(f.soglia, 0))
+        : MF('Pag_LunaRiga', esc(f.id), cifra(f.moltiplicatore, 1), cifra(f.fasePercento), cifra(f.distanza, 0));
+      return '<div class="luna-riga' + (f.limiteInferiore ? ' sotto' : '') + '" title="' + esc(perche) + '">' + testo + '</div>';
+    }).join('');
+  }
+
+  /*  UNA DATA DEI DATI, SCRITTA NELLA LINGUA DI CHI GUARDA. Una lingua che il browser non conosce lascia la data com'e'. */
+  const dataScritta = (iso, forma) => {
+    const d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    if (!d) return iso || '';
+    try {
+      return new Date(Date.UTC(+d[1], +d[2] - 1, +d[3])).toLocaleDateString(T('Pag_Men_FormatoData'),
+        Object.assign({ timeZone: 'UTC' }, forma));
+    } catch (e) { return iso; }
+  };
+
+  /*  LE NOTTI GIUSTE NON SONO QUESTE (regia, 17 settembre 2026): la cosa piu' utile che il motore sa, perche' dice
+   *  quando smettere di pagare invece di quanto si paga. Strategy manda la data da cui le stesse notti rendono di piu',
+   *  e niente quando spostarsi non conviene; il tasto mette la data e rifa' la domanda. */
+  function nottiGiuste(p) {
+    const g = p.notte && p.notte.meglio;
+    if (!g) return '';
+    return '<div class="box avviso">' +
+      MF(p.notte.nottiUsate === 1 ? 'Pag_NottiGiusteUna' : 'Pag_NottiGiuste', esc(dataScritta(g.data, { day: 'numeric', month: 'long' })),
+        cifra(g.spostataDi), cifra(p.notte.nottiUsate), cifra(g.resa, 1), esc(g.canale)) +
+      ' <button id="spostaData" data-data="' + esc(g.data) + '">' +
+      MF('Pag_SpostaAl', esc(dataScritta(g.data, { day: 'numeric', month: 'short' }))) + '</button></div>';
+  }
+
+  /*  L'IDENTITA' DELL'OGGETTO (regia, 17 settembre 2026): il nome, la pastiglia che dice quanto fidarsi della classe, e
+   *  la classe, dove sta, quanto e' grande e quanto e' luminoso. La classe si scrive con la parola del Ponte quando la
+   *  conosce, altrimenti con quella del motore. Le chiavi sono letterali. */
+  const PAROLA_AFFIDABILITA = { scheda: 'Pag_Affidabilita_scheda', curato_senza_scheda: 'Pag_Affidabilita_curato_senza_scheda',
+    certo: 'Pag_Affidabilita_certo', dedotto: 'Pag_Affidabilita_dedotto', da_collaudare: 'Pag_Affidabilita_da_collaudare' };
+  const PAROLA_CLASSE = { hii_classic: 'Pag_Classe_hii_classic', hii_faint_he: 'Pag_Classe_hii_faint_he',
+    wr_bubble: 'Pag_Classe_wr_bubble', snr: 'Pag_Classe_snr', pn_bright: 'Pag_Classe_pn_bright', pn_faint: 'Pag_Classe_pn_faint',
+    reflection: 'Pag_Classe_reflection', dark_molecular: 'Pag_Classe_dark_molecular', spiral_hii: 'Pag_Classe_spiral_hii',
+    elliptical_group: 'Pag_Classe_elliptical_group', tidal_ifn: 'Pag_Classe_tidal_ifn',
+    cluster_globular: 'Pag_Classe_cluster_globular', cluster_open: 'Pag_Classe_cluster_open' };
+  function identita(b, s) {
+    s = s || {};
+    const nome = esc((b.nomi || [b.id])[0]);
+    const pa = PAROLA_AFFIDABILITA[s.affidabilita];
+    const pastiglia = pa ? ' <span class="pastiglia ' + esc(s.affidabilita) + '">' + esc(T(pa)) + '</span>' : '';
+    const classe = s.classe && PAROLA_CLASSE[s.classe] ? T(PAROLA_CLASSE[s.classe]) : (s.etichetta || s.classe);
+    const dimensioni = Array.isArray(s.dimensioni_arcmin) && s.dimensioni_arcmin.length === 2
+      ? cifra(s.dimensioni_arcmin[0], 1) + '′ × ' + cifra(s.dimensioni_arcmin[1], 1) + '′' : null;
+    const parti = [classe ? esc(classe) : null, s.costellazione ? esc(s.costellazione) : null, dimensioni,
+      s.magnitudine != null ? MF('Pag_Magnitudine', cifra(s.magnitudine, 1)) : null].filter(Boolean);
+    return '<b>' + nome + '</b>' + pastiglia + (parti.length ? '<div class="identita">' + parti.join(' · ') + '</div>' : '');
+  }
+
+  /*  IL VERDETTO INTERO (regia, 16 e 17 settembre 2026): quanto del progetto coprono le notti chieste e quante ne
+   *  servono per il minimo; le ore prescritte contro il costo intero, al minimo e al livello-obiettivo, e quante ne
+   *  mancano; e il canale che decide l'immagine. I numeri li fa Strategy; senza, la parte non c'e'. */
+  function verdettoIntero(pr) {
+    const v = pr && pr.verdetto;
+    if (!v || v.coperturaPercento == null) return '';
+    const notti = v.perIlMinimo == null
+      ? MF('Pag_Verdetto_MinimoOltre', cifra(v.notti), cifra(v.coperturaPercento), cifra(v.massimo))
+      : v.perIlMinimo > v.notti
+        ? MF('Pag_Verdetto_Minimo', cifra(v.notti), cifra(v.coperturaPercento), cifra(v.perIlMinimo))
+        : MF('Pag_Verdetto_Coperto', cifra(v.notti), cifra(v.coperturaPercento));
+    const o = pr.ore_di_progetto || {};
+    const ore = o.soglie == null ? ''
+      : '<div>' + (o.mancano > 0
+        ? MF('Pag_Verdetto_Ore', cifra(o.spese, 1), cifra(o.soglie, 1), cifra(o.pieno, 1), cifra(o.mancano, 1))
+        : MF('Pag_Verdetto_OreCoperte', cifra(o.spese, 1), cifra(o.soglie, 1), cifra(o.pieno, 1))) + '</div>';
+    const canale = pr.critGroup ? '<div>' + MF('Pag_Verdetto_Canale', esc(pr.critGroup)) + '</div>' : '';
+    return notti + ore + canale;
   }
 
   /*  LA RICHIESTA: ogni campo della lista col valore che gli spetta — dal profilo di N.I.N.A. se e' suo, dalla
@@ -533,9 +600,12 @@
       } else if (c.provenienza === 'descrizione') {
         /*  LA CAMERA FUORI CATALOGO (17 settembre 2026): i campi del modulo «su misura» di AIS, sotto la voce, col loro
          *  titolo davanti al primo. La matrice si sceglie; il resto si scrive, e i numeri li giudica il servizio. */
-        const titolo = c.chiave === primaDescritta
+        const titolo = (c.chiave === primaDescritta
           ? '<tr><td colspan="2" style="padding-top:.8em"><b>' + esc(T('Pag_Banco_CamDescrittaTitolo')) + '</b>' +
-            '<div style="font-size:12px;opacity:.7">' + MF('Pag_Banco_CamDescrittaNota') + '</div></td></tr>' : '';
+            '<div style="font-size:12px;opacity:.7">' + MF('Pag_Banco_CamDescrittaNota') + '</div></td></tr>' : '') +
+          /*  i campi facoltativi dicono che cosa costano, col numero misurato (regia, 17 settembre 2026) */
+          (c.chiave === 'cam.rumore_lettura_e'
+            ? '<tr><td colspan="2"><div style="font-size:12px;color:#e0a030">' + MF('Pag_Banco_CamDescrittaCosto') + '</div></td></tr>' : '');
         if (c.chiave === 'cam.matrice')
           valore = '<select data-banco="cam.matrice"><option value=""></option>' + ['colore', 'mono'].map(m =>
             '<option value="' + m + '"' + (dichiarato[c.chiave] === m ? ' selected' : '') + '>' + esc(T(PAROLA_MATRICE[m])) +
@@ -696,6 +766,8 @@
                '<td>' + esc(m.blocchi.map(b => vetroDelBlocco(p, b)).join(' · ')) + '</td>' +
                '<td>' + m.blocchi.map(b => guadagnoDelBlocco(b)).join(' · ') + '</td>' +
                '<td>' + tasto + '</td></tr>';
+      const luna = righeDellaLuna(p.luna, s.notte);
+      if (luna) righe += '<tr class="luna"><td></td><td colspan="7">' + luna + '</td></tr>';
     }
 
     /*  IL CUORE IN ALTO (17 settembre 2026): sotto la domanda, subito, la tecnica di ripresa e le notti da mandare a
@@ -703,8 +775,7 @@
      *  sotto, in `dettagli`, e sopra sito, banco e filtri. */
     $('dettagli').innerHTML =
       '<div class="box"><table>' +
-      '<tr><th>' + T('Pag_ColOggetto') + '</th><td>' + esc((p.bersaglio.nomi || [p.bersaglio.id])[0]) +
-        ' <span style="opacity:.55">(' + esc(p.bersaglio.via) + ')</span></td></tr>' +
+      '<tr><th>' + T('Pag_ColOggetto') + '</th><td>' + identita(p.bersaglio, p.bersaglio.scheda) + '</td></tr>' +
       '<tr><th>' + T('Pag_ColNotte') + '</th><td>' +
         MF('Pag_NotteChiestaUsata', esc(p.notte.chiesta), esc(p.notte.usata)) +
         (p.notte.spostataDi ? ' <span style="opacity:.55">' +
@@ -718,14 +789,7 @@
              cifra(p.notte.oreDisponibili, 2), cifra(p.notte.nottiDisponibili))) + '</td></tr>' +
       /*  IL VERDETTO CON LE SUE NOTTI (regia, 16 settembre 2026): quanto del progetto coprono le notti chieste, e quante
           ne servono per il minimo. I numeri li fa Strategy; senza, la riga non c'e'. */
-      ((v => (v && v.coperturaPercento != null)
-        ? '<tr><th>' + T('Pag_RigaVerdetto') + '</th><td>' +
-          (v.perIlMinimo == null
-            ? MF('Pag_Verdetto_MinimoOltre', cifra(v.notti), cifra(v.coperturaPercento), cifra(v.massimo))
-            : v.perIlMinimo > v.notti
-              ? MF('Pag_Verdetto_Minimo', cifra(v.notti), cifra(v.coperturaPercento), cifra(v.perIlMinimo))
-              : MF('Pag_Verdetto_Coperto', cifra(v.notti), cifra(v.coperturaPercento))) + '</td></tr>'
-        : '')(p.prescrizione && p.prescrizione.verdetto)) +
+      (x => x ? '<tr><th>' + T('Pag_RigaVerdetto') + '</th><td>' + x + '</td></tr>' : '')(verdettoIntero(p.prescrizione)) +
       /*  SU QUALI VETRI E' STATA CALCOLATA, e non e' un dettaglio da nascondere.
          Senza questa riga «non e' cambiato niente perche' il motore avrebbe scelto
          gli stessi vetri» e «non e' cambiato niente perche' la ruota non e' partita»
@@ -748,6 +812,7 @@
       parzialeDelProdotto(p.parziale);
     $('uscita').innerHTML =
       disegnaMenu(p.prescrizione) +
+      nottiGiuste(p) +
       '<div class="box"><table>' +
       '<tr><th>' + T('Pag_ColNotte') + '</th><th>' + T('Pag_ColData') + '</th><th>' +
         T('Pag_ColBlocchi') + '</th><th>' + T('Pag_ColPose') + '</th><th>' +
@@ -757,8 +822,7 @@
         '<div class="box err"><b>' + T('Pag_NonSiPuoMandare') + '</b>' +
         '<div style="margin-top:6px;opacity:.85">' +
         esc(r.perche || T('Pag_MotivoNonDichiarato')) + '</div></div>') +
-      '<div id="consegna"></div>' +
-      lunaPenalizzazione(p.luna);
+      '<div id="consegna"></div>';
     /*  Il banco che questa prescrizione ha usato, campo per campo con la sua provenienza e le divergenze. */
     bancoUsato = p.banco || null;
     disegnaBanco();
@@ -767,6 +831,16 @@
 
     for (const b of document.querySelectorAll('button.manda'))
       b.addEventListener('click', () => manda(b));
+    /*  LE NOTTI GIUSTE: il tasto mette la data proposta e rifa' la domanda. La strada scelta non vale piu', come quando
+     *  la data la cambia chi scrive. */
+    const sposta = $('spostaData');
+    if (sposta) {
+      sposta.addEventListener('click', () => {
+        $('data').value = sposta.getAttribute('data-data');
+        stradaScelta = null;
+        vai();
+      });
+    }
     /*  IL CLIC SU UNA STRADA RIFA' LA DOMANDA con quella strada, e basta: ore, pose e sequenze le ricalcola
      *  Strategy. Qui non si sposta niente da una carta all'altra. */
     for (const c of document.querySelectorAll('#menu [data-strada]'))

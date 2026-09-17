@@ -1218,14 +1218,95 @@
   <data name="Pag_Verdetto_Coperto" xml:space="preserve">
     <value>the requested nights ({0}) cover {1} % of the project</value>
   </data>
-  <data name="Pag_LunaPenaTitolo" xml:space="preserve">
-    <value>Moon penalty, night by night: how much each channel's hours are multiplied, and under which Moon. Below the filter's threshold the number is a minimum: close to the Moon the damage is a gradient across the field and scattered light in the optics, which stacking does not remove. No channel is removed: the choice is yours.</value>
+  <data name="Pag_LunaRiga" xml:space="preserve">
+    <value>{0}: Moon *×{1}*, {2} % illuminated, {3}° away</value>
   </data>
-  <data name="Pag_LunaPena" xml:space="preserve">
-    <value>Night {0}: {1} ({2}) *×{3}* — Moon {4} % illuminated at {5}°.</value>
+  <data name="Pag_LunaRigaMinima" xml:space="preserve">
+    <value>{0}: Moon *at least ×{1}*, {2} % illuminated, {3}° away — below the {4}° threshold: more hours do not buy back the contrast</value>
   </data>
-  <data name="Pag_LunaPenaMinima" xml:space="preserve">
-    <value>Night {0}: {1} ({2}) *at least ×{3}* — Moon {4} % illuminated at {5}°, below the {6}° threshold: more hours do not buy back the contrast.</value>
+  <data name="Pag_LunaPercheSopra" xml:space="preserve">
+    <value>This channel's hours, on this night, are multiplied by this number: the estimate with the background the Moon raises, above the filter's {0}° threshold. The channel stays in the plan: the choice is yours.</value>
+  </data>
+  <data name="Pag_LunaPercheSotto" xml:space="preserve">
+    <value>Below the filter's {0}° threshold the damage is a gradient across the field and scattered light in the optics, which stacking does not remove: the number is a minimum, and more hours do not buy back the contrast. The channel stays in the plan: the choice is yours.</value>
+  </data>
+  <data name="Pag_NottiGiuste" xml:space="preserve">
+    <value>*These are not the right nights.* Starting on {0} — {1} days later — the same {2} nights yield *{3}×* in {4}: the Moon has gone. The prescribed hours do not change; what they give you does.</value>
+  </data>
+  <data name="Pag_NottiGiusteUna" xml:space="preserve">
+    <value>*This is not the right night.* Starting on {0} — {1} days later — the same night yields *{3}×* in {4}: the Moon has gone. The prescribed hours do not change; what they give you does.</value>
+  </data>
+  <data name="Pag_SpostaAl" xml:space="preserve">
+    <value>move to {0}</value>
+  </data>
+  <data name="Pag_Affidabilita_scheda" xml:space="preserve">
+    <value>full profile</value>
+  </data>
+  <data name="Pag_Affidabilita_curato_senza_scheda" xml:space="preserve">
+    <value>hand-picked class, no profile</value>
+  </data>
+  <data name="Pag_Affidabilita_certo" xml:space="preserve">
+    <value>class certain</value>
+  </data>
+  <data name="Pag_Affidabilita_dedotto" xml:space="preserve">
+    <value>class deduced</value>
+  </data>
+  <data name="Pag_Affidabilita_da_collaudare" xml:space="preserve">
+    <value>classification to be verified</value>
+  </data>
+  <data name="Pag_Classe_hii_classic" xml:space="preserve">
+    <value>Classic photoionised HII region</value>
+  </data>
+  <data name="Pag_Classe_hii_faint_he" xml:space="preserve">
+    <value>Faint high-excitation HII region</value>
+  </data>
+  <data name="Pag_Classe_wr_bubble" xml:space="preserve">
+    <value>Stellar-wind bubble / shocked gas</value>
+  </data>
+  <data name="Pag_Classe_snr" xml:space="preserve">
+    <value>Supernova remnant</value>
+  </data>
+  <data name="Pag_Classe_pn_bright" xml:space="preserve">
+    <value>Compact bright planetary nebula</value>
+  </data>
+  <data name="Pag_Classe_pn_faint" xml:space="preserve">
+    <value>Extended faint planetary nebula</value>
+  </data>
+  <data name="Pag_Classe_reflection" xml:space="preserve">
+    <value>Reflection nebula</value>
+  </data>
+  <data name="Pag_Classe_dark_molecular" xml:space="preserve">
+    <value>Dark / molecular nebula</value>
+  </data>
+  <data name="Pag_Classe_spiral_hii" xml:space="preserve">
+    <value>Spiral galaxy with HII regions</value>
+  </data>
+  <data name="Pag_Classe_elliptical_group" xml:space="preserve">
+    <value>Elliptical or compact group</value>
+  </data>
+  <data name="Pag_Classe_tidal_ifn" xml:space="preserve">
+    <value>Tidal streams / galactic cirrus (IFN)</value>
+  </data>
+  <data name="Pag_Classe_cluster_globular" xml:space="preserve">
+    <value>Globular cluster</value>
+  </data>
+  <data name="Pag_Classe_cluster_open" xml:space="preserve">
+    <value>Open cluster</value>
+  </data>
+  <data name="Pag_Magnitudine" xml:space="preserve">
+    <value>mag {0}</value>
+  </data>
+  <data name="Pag_Verdetto_Ore" xml:space="preserve">
+    <value>{0} h prescribed; the project costs {1} h at the minimum and {2} h for the target level: *{3} h* are still missing for the minimum.</value>
+  </data>
+  <data name="Pag_Verdetto_OreCoperte" xml:space="preserve">
+    <value>{0} h prescribed; the project costs {1} h at the minimum and {2} h for the target level.</value>
+  </data>
+  <data name="Pag_Verdetto_Canale" xml:space="preserve">
+    <value>The channel that decides the image is *{0}*.</value>
+  </data>
+  <data name="Pag_Banco_CamDescrittaCosto" xml:space="preserve">
+    <value>*Read noise, QE and full well are not a detail.* Left empty, the typical values of a modern CMOS apply, optimistic for an older camera: NGC 6888 on the Askar 71F at 369 mm, with a 7.8 µm colour camera and a QE of 45 % instead of the typical one, goes from 49 to 95 hours of project.</value>
   </data>
   <data name="Pag_CercaScheda" xml:space="preserve">
     <value>full profile</value>

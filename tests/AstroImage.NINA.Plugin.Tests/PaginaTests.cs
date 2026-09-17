@@ -536,8 +536,11 @@ namespace AstroImage.NINA.Plugin.Tests {
         [TestMethod]
         public void IL_VERDETTO_DICE_LA_COPERTURA_E_LE_NOTTI_PER_IL_MINIMO() {
             var js = PaginaSenzaCommenti();
-            var riga = Tratto(js, "T('Pag_RigaVerdetto')", "T('Pag_RigaCalcolataSu')");
-            foreach (var pezzo in new[] { "p.prescrizione.verdetto", "coperturaPercento", "perIlMinimo",
+            /*  dal 17 settembre 2026 il verdetto intero sta in `verdettoIntero`, e la riga della tabella lo chiama */
+            StringAssert.Contains(Tratto(js, "T('Pag_RigaVerdetto')", "T('Pag_RigaCalcolataSu')"), "verdettoIntero(p.prescrizione)",
+                "la riga del verdetto non scrive il verdetto");
+            var riga = Tratto(js, "function verdettoIntero(pr) {", "\n  }");
+            foreach (var pezzo in new[] { "pr.verdetto", "coperturaPercento", "perIlMinimo",
                                           "'Pag_Verdetto_Minimo'", "'Pag_Verdetto_MinimoOltre'", "'Pag_Verdetto_Coperto'" })
                 StringAssert.Contains(riga, pezzo, "la riga del verdetto non usa " + pezzo);
             foreach (var lingua in new[] { "it", "en" }) {
@@ -659,37 +662,97 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "la risposta non dice che cosa ha consegnato");
         }
 
-        /*  LA PENALIZZAZIONE LUNARE SI DICE IN TRE PARTI (16 settembre 2026): il moltiplicatore delle ore, la Luna con la fase
-         *  e la distanza, e — sotto la soglia del filtro — il limite inferiore, con la frase che dice che le ore non
-         *  ricomprano il contrasto. Strategy le manda notte per notte e canale per canale (`prodotto.luna.penalizzazioni`);
-         *  la pagina le scrive, col filtro col nome della ruota e, per un filtro che porta piu' righe nello stesso frame, il
-         *  perche' della soglia piu' severa. Guardia strutturale: il Ponte non calcola la penalizzazione, la scrive. */
+        /*  LA LUNA STA NELLA NOTTE, E TACE QUANDO NON COSTA (regia, 17 settembre 2026). Il riquadro della penalizzazione
+         *  aveva cinque righe di spiegazione e pallini che dicevano tutti ×1,0: un avviso che compare sempre non si legge il
+         *  giorno che conta. Adesso una riga per canale dentro la notte a cui si riferisce, nella forma della pagina del
+         *  motore, solo quando Strategy non la dice trascurabile; il perche' sta al passaggio del mouse. Restano le tre
+         *  parti del 16 settembre e il moltiplicatore in evidenza. Guardia strutturale: il Ponte scrive, non calcola. */
         [TestMethod]
-        public void LA_PENALIZZAZIONE_LUNARE_SI_SCRIVE_IN_TRE_PARTI() {
+        public void LA_LUNA_STA_NELLA_NOTTE_E_TACE_QUANDO_NON_COSTA() {
             var js = PaginaSenzaCommenti();
-            var riquadro = Tratto(js, "function lunaPenalizzazione(l) {", "\n  }");
-            foreach (var pezzo in new[] { "l.penalizzazioni", "f.notte", "f.id", "vetroNellaRuota(f.filtro)", "f.moltiplicatore",
-                                          "f.fasePercento", "f.distanza", "f.soglia", "f.limiteInferiore", "f.congiunto",
-                                          "'Pag_LunaPena'", "'Pag_LunaPenaMinima'", "'Pag_LunaPenaCongiunto'", "'Pag_LunaPenaTitolo'" })
-                StringAssert.Contains(riquadro, pezzo, "il riquadro della Luna non usa " + pezzo);
-            StringAssert.Contains(js, "lunaPenalizzazione(p.luna)", "il riquadro della Luna non entra nella risposta");
+            Assert.IsFalse(js.Contains("lunaPenalizzazione") || js.Contains("Pag_LunaPenaTitolo"), "il riquadro della Luna c'e' ancora");
+            var righe = Tratto(js, "function righeDellaLuna(luna, notte) {", "\n  }");
+            foreach (var pezzo in new[] { "luna.penalizzazioni", "f.notte === notte", "!f.trascurabile", "f.id", "f.moltiplicatore",
+                                          "f.fasePercento", "f.distanza", "f.soglia", "f.limiteInferiore", "f.congiunto", "title=\"",
+                                          "'Pag_LunaRiga'", "'Pag_LunaRigaMinima'", "'Pag_LunaPercheSopra'", "'Pag_LunaPercheSotto'",
+                                          "'Pag_LunaPenaCongiunto'" })
+                StringAssert.Contains(righe, pezzo, "le righe della Luna non usano " + pezzo);
+            StringAssert.Contains(Tratto(js, "for (const s of p.sequenze) {", "\n    }"), "righeDellaLuna(p.luna, s.notte)",
+                "le righe della Luna non stanno nella notte");
             foreach (var lingua in new[] { "it", "en" }) {
-                StringAssert.Contains(Tutte(lingua)["Pag_LunaPena"], "{5}", lingua);
-                StringAssert.Contains(Tutte(lingua)["Pag_LunaPenaMinima"], "{6}", lingua);
-                Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_LunaPenaTitolo"), "Pag_LunaPenaTitolo manca in " + lingua);
-                Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_LunaPenaCongiunto"), "Pag_LunaPenaCongiunto manca in " + lingua);
+                var t = Tutte(lingua);
+                foreach (var via in new[] { "Pag_LunaPenaTitolo", "Pag_LunaPena", "Pag_LunaPenaMinima" })
+                    Assert.IsFalse(t.ContainsKey(via), lingua + ": il dizionario ha ancora " + via);
+                StringAssert.Contains(t["Pag_LunaRiga"], "{3}", lingua);
+                StringAssert.Contains(t["Pag_LunaRigaMinima"], "{4}", lingua);
+                StringAssert.Contains(t["Pag_LunaPercheSopra"], "{0}", lingua);
+                StringAssert.Contains(t["Pag_LunaPercheSotto"], "{0}", lingua);
+                Assert.IsFalse(t["Pag_LunaPercheSopra"].Contains("*") || t["Pag_LunaPercheSotto"].Contains("*") ||
+                               t["Pag_LunaPenaCongiunto"].Contains("*"), lingua + ": un suggerimento non ha il grassetto");
             }
-            StringAssert.Contains(Tutte("it")["Pag_LunaPenaMinima"], "almeno");
-            StringAssert.Contains(Tutte("it")["Pag_LunaPenaMinima"], "le ore non ricomprano il contrasto");
+            StringAssert.Contains(Tutte("it")["Pag_LunaRigaMinima"], "le ore non ricomprano il contrasto");
             StringAssert.Contains(Tutte("it")["Pag_LunaPenaCongiunto"], "stesso frame");
-            /*  IL MOLTIPLICATORE IN EVIDENZA (regia, 17 settembre 2026): la soglia la manda il motore
-             *  filtro per filtro; per i filtri larghi il numero che distingue e' il moltiplicatore, e si legge per primo. */
-            StringAssert.Contains(Tutte("it")["Pag_LunaPena"], "*×{3}*", "it: il moltiplicatore non e' in evidenza");
-            StringAssert.Contains(Tutte("it")["Pag_LunaPenaMinima"], "*almeno ×{3}*", "it: il minimo non e' in evidenza");
-            StringAssert.Contains(Tutte("en")["Pag_LunaPena"], "*×{3}*", "en: il moltiplicatore non e' in evidenza");
-            StringAssert.Contains(Tutte("en")["Pag_LunaPenaMinima"], "*at least ×{3}*", "en: il minimo non e' in evidenza");
-            foreach (var lingua in new[] { "it", "en" })
-                Assert.IsFalse(Tutte(lingua)["Pag_LunaPenaMinima"].Contains("*{6}"), lingua + ": la soglia e' piu' in evidenza del moltiplicatore");
+            StringAssert.Contains(Tutte("it")["Pag_LunaRiga"], "*×{1}*", "it: il moltiplicatore non e' in evidenza");
+            StringAssert.Contains(Tutte("it")["Pag_LunaRigaMinima"], "*almeno ×{1}*", "it: il minimo non e' in evidenza");
+            StringAssert.Contains(Tutte("en")["Pag_LunaRiga"], "*×{1}*", "en: il moltiplicatore non e' in evidenza");
+            StringAssert.Contains(Tutte("en")["Pag_LunaRigaMinima"], "*at least ×{1}*", "en: il minimo non e' in evidenza");
+            StringAssert.Contains(Risorsa("prova.css"), ".luna-riga", "le righe della Luna non hanno il loro stile");
+        }
+
+        /*  LA RISPOSTA PORTA QUELLO CHE CAMBIA UNA DECISIONE (regia, 17 settembre 2026), in quest'ordine: le notti giuste col
+         *  tasto che sposta la data — dice quando smettere di pagare —; l'identita' dell'oggetto con la pastiglia che dice
+         *  quanto fidarsi; il verdetto intero, con le ore, il costo intero e il canale che decide. E i campi facoltativi
+         *  della camera fuori catalogo dicono che cosa costano, col numero misurato. Guardia strutturale. */
+        [TestMethod]
+        public void LA_RISPOSTA_PORTA_LE_NOTTI_GIUSTE_L_IDENTITA_E_IL_VERDETTO() {
+            var js = PaginaSenzaCommenti();
+            var cuore = Tratto(js, "disegnaMenu(p.prescrizione) +", "bancoUsato = p.banco");
+            Assert.IsTrue(cuore.IndexOf("nottiGiuste(p)", StringComparison.Ordinal) >= 0 &&
+                cuore.IndexOf("nottiGiuste(p)", StringComparison.Ordinal) < cuore.IndexOf("'Pag_ColPose'", StringComparison.Ordinal),
+                "le notti giuste non stanno sopra le notti");
+            var giuste = Tratto(js, "function nottiGiuste(p) {", "\n  }");
+            foreach (var pezzo in new[] { "p.notte.meglio", "g.data", "g.spostataDi", "g.resa", "g.canale", "'Pag_NottiGiuste'",
+                                          "'Pag_SpostaAl'", "id=\"spostaData\"", "data-data=" })
+                StringAssert.Contains(giuste, pezzo, "le notti giuste non usano " + pezzo);
+            var clic = Tratto(js, "const sposta = $('spostaData');", "\n    }");
+            foreach (var pezzo in new[] { "$('data').value = sposta.getAttribute('data-data')", "stradaScelta = null", "vai()" })
+                StringAssert.Contains(clic, pezzo, "il tasto delle notti giuste non usa " + pezzo);
+
+            StringAssert.Contains(js, "identita(p.bersaglio, p.bersaglio.scheda)", "l'oggetto non ha la sua identita'");
+            var identita = Tratto(js, "function identita(b, s) {", "\n  }");
+            foreach (var pezzo in new[] { "PAROLA_AFFIDABILITA[", "PAROLA_CLASSE[", "s.etichetta", "s.costellazione", "s.dimensioni_arcmin",
+                                          "s.magnitudine", "'Pag_Magnitudine'", "class=\"pastiglia " })
+                StringAssert.Contains(identita, pezzo, "l'identita' non usa " + pezzo);
+            var affidabilita = Tratto(js, "const PAROLA_AFFIDABILITA", "};");
+            var classi = Tratto(js, "const PAROLA_CLASSE", "};");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var a in new[] { "scheda", "curato_senza_scheda", "certo", "dedotto", "da_collaudare" }) {
+                    StringAssert.Contains(affidabilita, a + ": 'Pag_Affidabilita_" + a + "'");
+                    Assert.IsTrue(t.ContainsKey("Pag_Affidabilita_" + a), lingua + ": manca Pag_Affidabilita_" + a);
+                }
+                foreach (var c in new[] { "hii_classic", "hii_faint_he", "wr_bubble", "snr", "pn_bright", "pn_faint", "reflection",
+                                          "dark_molecular", "spiral_hii", "elliptical_group", "tidal_ifn", "cluster_globular", "cluster_open" }) {
+                    StringAssert.Contains(classi, c + ": 'Pag_Classe_" + c + "'");
+                    Assert.IsTrue(t.TryGetValue("Pag_Classe_" + c, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca Pag_Classe_" + c);
+                }
+                foreach (var k in new[] { "Pag_NottiGiuste", "Pag_SpostaAl", "Pag_Magnitudine", "Pag_Verdetto_Ore", "Pag_Verdetto_OreCoperte",
+                                          "Pag_Verdetto_Canale", "Pag_Banco_CamDescrittaCosto" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+                StringAssert.Contains(t["Pag_NottiGiuste"], "{4}", lingua);
+                StringAssert.Contains(t["Pag_Verdetto_Ore"], "{3}", lingua);
+                StringAssert.Contains(t["Pag_Banco_CamDescrittaCosto"], "49", lingua + ": il costo non ha il numero misurato");
+                StringAssert.Contains(t["Pag_Banco_CamDescrittaCosto"], "95", lingua + ": il costo non ha il numero misurato");
+            }
+            StringAssert.Contains(Risorsa("prova.css"), ".pastiglia", "la pastiglia non ha il suo stile");
+
+            var verdetto = Tratto(js, "function verdettoIntero(pr) {", "\n  }");
+            foreach (var pezzo in new[] { "pr.verdetto", "pr.ore_di_progetto", "o.spese", "o.soglie", "o.pieno", "o.mancano", "pr.critGroup",
+                                          "'Pag_Verdetto_Ore'", "'Pag_Verdetto_OreCoperte'", "'Pag_Verdetto_Canale'" })
+                StringAssert.Contains(verdetto, pezzo, "il verdetto non usa " + pezzo);
+            StringAssert.Contains(js, "verdettoIntero(p.prescrizione)", "il verdetto intero non entra nella risposta");
+            StringAssert.Contains(Tratto(js, "c.provenienza === 'descrizione'", "} else return '';"), "'Pag_Banco_CamDescrittaCosto'",
+                "i campi facoltativi non dicono che cosa costano");
         }
 
         /*  IL CUORE DEL PONTE STA SOTTO LA DOMANDA, COL ROSSO DI AIS (decisione del 17 settembre 2026). Subito sotto le icone
@@ -710,7 +773,7 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(html, "id=\"data\" type=\"date\"", "la data non si sceglie dal calendario");
 
             var js = PaginaSenzaCommenti();
-            var cuore = Tratto(js, "disegnaMenu(p.prescrizione) +", "lunaPenalizzazione(p.luna);");
+            var cuore = Tratto(js, "disegnaMenu(p.prescrizione) +", "bancoUsato = p.banco");
             foreach (var pezzo in new[] { "'Pag_ColPose'", "righe", "'Pag_NonSiPuoMandare'", "id=\"consegna\"" })
                 StringAssert.Contains(cuore, pezzo, "sotto la domanda manca " + pezzo);
             Assert.IsFalse(cuore.Contains("Pag_RigaVerdetto"), "il resto della risposta sta fra la domanda e le notti");

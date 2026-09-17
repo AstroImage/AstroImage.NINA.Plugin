@@ -1218,14 +1218,95 @@
   <data name="Pag_Verdetto_Coperto" xml:space="preserve">
     <value>le notti chieste ({0}) coprono il {1} % del progetto</value>
   </data>
-  <data name="Pag_LunaPenaTitolo" xml:space="preserve">
-    <value>Penalizzazione lunare, notte per notte: di quanto si moltiplicano le ore di ogni canale, e con quale Luna. Sotto la soglia del filtro il numero è un minimo: vicino alla Luna il danno è un gradiente sul campo e luce diffusa nell'ottica, che impilando non si tolgono. Nessun canale si toglie: decidi tu.</value>
+  <data name="Pag_LunaRiga" xml:space="preserve">
+    <value>{0}: Luna *×{1}* al {2} % a {3}°</value>
   </data>
-  <data name="Pag_LunaPena" xml:space="preserve">
-    <value>Notte {0}: {1} ({2}) *×{3}* — Luna al {4} % a {5}°.</value>
+  <data name="Pag_LunaRigaMinima" xml:space="preserve">
+    <value>{0}: Luna *almeno ×{1}* al {2} % a {3}° — sotto la soglia di {4}°: le ore non ricomprano il contrasto</value>
   </data>
-  <data name="Pag_LunaPenaMinima" xml:space="preserve">
-    <value>Notte {0}: {1} ({2}) *almeno ×{3}* — Luna al {4} % a {5}°, sotto la soglia di {6}°: le ore non ricomprano il contrasto.</value>
+  <data name="Pag_LunaPercheSopra" xml:space="preserve">
+    <value>Le ore di questo canale, questa notte, si moltiplicano per questo numero: è la stima col fondo che la Luna alza, sopra la soglia di {0}° del filtro. Il canale resta nel piano: decidi tu.</value>
+  </data>
+  <data name="Pag_LunaPercheSotto" xml:space="preserve">
+    <value>Sotto la soglia di {0}° del filtro il danno è un gradiente sul campo e luce diffusa nell'ottica, che impilando non si tolgono: il numero è un minimo, e le ore non ricomprano il contrasto. Il canale resta nel piano: decidi tu.</value>
+  </data>
+  <data name="Pag_NottiGiuste" xml:space="preserve">
+    <value>*Le notti giuste non sono queste.* Partendo dal {0} — {1} giorni più in là — le stesse {2} notti rendono *{3}×* in {4}: la Luna se ne è andata. Le ore prescritte non cambiano, cambia quanto ti rendono.</value>
+  </data>
+  <data name="Pag_NottiGiusteUna" xml:space="preserve">
+    <value>*La notte giusta non è questa.* Partendo dal {0} — {1} giorni più in là — la stessa notte rende *{3}×* in {4}: la Luna se ne è andata. Le ore prescritte non cambiano, cambia quanto ti rendono.</value>
+  </data>
+  <data name="Pag_SpostaAl" xml:space="preserve">
+    <value>sposta al {0}</value>
+  </data>
+  <data name="Pag_Affidabilita_scheda" xml:space="preserve">
+    <value>scheda completa</value>
+  </data>
+  <data name="Pag_Affidabilita_curato_senza_scheda" xml:space="preserve">
+    <value>archetipo curato, senza scheda</value>
+  </data>
+  <data name="Pag_Affidabilita_certo" xml:space="preserve">
+    <value>archetipo certo</value>
+  </data>
+  <data name="Pag_Affidabilita_dedotto" xml:space="preserve">
+    <value>archetipo dedotto</value>
+  </data>
+  <data name="Pag_Affidabilita_da_collaudare" xml:space="preserve">
+    <value>classificazione da collaudare</value>
+  </data>
+  <data name="Pag_Classe_hii_classic" xml:space="preserve">
+    <value>Regione HII fotoionizzata classica</value>
+  </data>
+  <data name="Pag_Classe_hii_faint_he" xml:space="preserve">
+    <value>Regione HII debole ad alta eccitazione</value>
+  </data>
+  <data name="Pag_Classe_wr_bubble" xml:space="preserve">
+    <value>Bolla di vento stellare / gas shockato</value>
+  </data>
+  <data name="Pag_Classe_snr" xml:space="preserve">
+    <value>Resto di supernova</value>
+  </data>
+  <data name="Pag_Classe_pn_bright" xml:space="preserve">
+    <value>Nebulosa planetaria compatta luminosa</value>
+  </data>
+  <data name="Pag_Classe_pn_faint" xml:space="preserve">
+    <value>Nebulosa planetaria estesa debole</value>
+  </data>
+  <data name="Pag_Classe_reflection" xml:space="preserve">
+    <value>Nebulosa a riflessione</value>
+  </data>
+  <data name="Pag_Classe_dark_molecular" xml:space="preserve">
+    <value>Nebulosa oscura / molecolare</value>
+  </data>
+  <data name="Pag_Classe_spiral_hii" xml:space="preserve">
+    <value>Galassia a spirale con regioni HII</value>
+  </data>
+  <data name="Pag_Classe_elliptical_group" xml:space="preserve">
+    <value>Ellittica o gruppo compatto</value>
+  </data>
+  <data name="Pag_Classe_tidal_ifn" xml:space="preserve">
+    <value>Maree stellari / cirri galattici (IFN)</value>
+  </data>
+  <data name="Pag_Classe_cluster_globular" xml:space="preserve">
+    <value>Ammasso globulare</value>
+  </data>
+  <data name="Pag_Classe_cluster_open" xml:space="preserve">
+    <value>Ammasso aperto</value>
+  </data>
+  <data name="Pag_Magnitudine" xml:space="preserve">
+    <value>mag {0}</value>
+  </data>
+  <data name="Pag_Verdetto_Ore" xml:space="preserve">
+    <value>{0} h prescritte; il progetto costa {1} h al minimo e {2} h per il livello-obiettivo: per il minimo ne mancano *{3} h*.</value>
+  </data>
+  <data name="Pag_Verdetto_OreCoperte" xml:space="preserve">
+    <value>{0} h prescritte; il progetto costa {1} h al minimo e {2} h per il livello-obiettivo.</value>
+  </data>
+  <data name="Pag_Verdetto_Canale" xml:space="preserve">
+    <value>Il canale che decide l'immagine è *{0}*.</value>
+  </data>
+  <data name="Pag_Banco_CamDescrittaCosto" xml:space="preserve">
+    <value>*Rumore, QE e pozzo non sono un dettaglio.* Lasciati vuoti valgono i valori tipici di un CMOS moderno, ottimisti per una camera vecchia: NGC 6888 all'Askar 71F a 369 mm, con una camera a colori da 7,8 µm e una QE del 45 % invece di quella tipica, passa da 49 a 95 ore di progetto.</value>
   </data>
   <data name="Pag_CercaScheda" xml:space="preserve">
     <value>scheda completa</value>
