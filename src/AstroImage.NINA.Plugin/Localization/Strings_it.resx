@@ -237,6 +237,12 @@
   <data name="Opzioni_DoveSiComanda" xml:space="preserve">
     <value>Tutto si comanda dal pannello «AstroImage Strategy», sotto Imaging: lì si chiede la prescrizione, si dichiara quali filtri hai davvero in ruota — una volta per profilo — e si consegna il bersaglio. Qui c'è solo la lingua, che invece vale per tutti i profili.</value>
   </data>
+  <data name="Opzioni_Indirizzo" xml:space="preserve">
+    <value>Indirizzo del motore</value>
+  </data>
+  <data name="Opzioni_IndirizzoAiuto" xml:space="preserve">
+    <value>Dove risponde AstroImage-Strategy, per esempio http://127.0.0.1:8791/ se gira su questo computer, oppure l'indirizzo che ti è stato dato. Vuoto: vale il file strategy.url accanto al plugin, e poi http://127.0.0.1:8791/. Cambiandolo, premi «Riprova» nel pannello.</value>
+  </data>
   <data name="Opzioni_Lingua" xml:space="preserve">
     <value>Lingua</value>
   </data>
@@ -416,7 +422,13 @@
     <value>(non dichiarato)</value>
   </data>
   <data name="Pag_PercioNienteModi" xml:space="preserve">
-    <value>I tre modi di ripresa li dichiara Strategy: finché non risponde il pannello non li inventa. Accendi il motore e riapri il pannello.</value>
+    <value>I tre modi di ripresa li dichiara Strategy: finché non risponde il pannello non li inventa. Accendi il motore e premi «Riprova».</value>
+  </data>
+  <data name="Pag_DoveSiScriveIndirizzo" xml:space="preserve">
+    <value>L'indirizzo si scrive in Opzioni → Plugin → AstroImage Strategy Bridge, oppure nel file strategy.url accanto al plugin.</value>
+  </data>
+  <data name="Pag_Riprova" xml:space="preserve">
+    <value>Riprova</value>
   </data>
   <data name="Pag_RigaCalcolataSu" xml:space="preserve">
     <value>calcolata su</value>

@@ -38,6 +38,13 @@ $ErrorActionPreference = 'Stop'
 $radice = Split-Path -Parent $PSScriptRoot
 $nome   = 'AstroImage.NINA.Plugin'
 $dll    = Join-Path $radice "src\$nome\bin\x64\Release\$nome.dll"
+<#  LA CARTELLA E' QUELLA CHE USEREBBE N.I.N.A. (17 settembre 2026).
+    Installando il plugin da un repository, N.I.N.A. lo mette in Plugins\3.0.0\<Nome del manifest>, che e'
+    l'AssemblyTitle. Finche' lo mettevamo noi in una cartella col nome dell'assembly la differenza non si vedeva; il
+    giorno che il plugin si installa anche dall'elenco di N.I.N.A., le due cartelle conterrebbero lo stesso GUID e
+    N.I.N.A. caricherebbe due volte lo stesso plugin. Quella vecchia si sposta e si toglie — ma solo se dentro c'e'
+    soltanto roba nostra: quello che non abbiamo messo noi non lo togliamo. #>
+$cartellaNina = 'AstroImage Strategy Bridge'
 
 $ko = 0
 function Riga([string]$esito, [string]$testo) {
@@ -73,18 +80,25 @@ function Bloccato([string]$file) {
 
 # La cartella in cui va il plugin sotto una radice 3.0.0: quella che lo contiene gia', se
 # e' una sola. Controlla anche che accanto non ci siano altri DLL e che il file sia libero.
-function Destinazione([string]$chi, [string]$radicePlugin) {
+function Destinazione([string]$chi, [string]$radicePlugin, [ref]$vecchia) {
     # @() anche qui, e non e' ridondante: una funzione che restituisce un elenco di UN
     # elemento lo srotola in una stringa, e $trovate[0] diventa la prima lettera del
     # percorso. Alla prima prova il controllo dei DLL estranei guardava cosi' la cartella
     # «C» e «\», e diceva verde sul PC in campo che ne ha tre.
     $trovate = @(CartelleDelPlugin $radicePlugin)
-    if ($trovate.Count -gt 1) {
+    $cartella = Join-Path $radicePlugin $cartellaNina
+    $altrove  = @($trovate | Where-Object { $_ -ne $cartella })
+    if ($altrove.Count -gt 1) {
         Riga 'FALLITO' ("il plugin sta in {0} cartelle, N.I.N.A. ne caricherebbe piu' di uno: {1}" -f $trovate.Count, ($trovate -join ' ; '))
         return $null
     }
-    if ($trovate.Count -eq 1) { $cartella = $trovate[0]; Riga 'ok' "un plugin solo, in $cartella" }
-    else { $cartella = Join-Path $radicePlugin $nome; Riga '--' "mai installato qui: va in $cartella" }
+    if ($altrove.Count -eq 1) {
+        $vecchia.Value = $altrove[0]
+        Riga 'attento' "il plugin sta ancora in $($altrove[0]): lo script lo porta in $cartella e toglie la vecchia cartella"
+        if (Bloccato (Join-Path $altrove[0] "$nome.dll")) { Riga 'FALLITO' "il DLL nella cartella vecchia e' bloccato: N.I.N.A. e' aperto, chiudilo" }
+    }
+    if ($trovate -contains $cartella) { Riga 'ok' "un plugin solo, in $cartella" }
+    elseif ($altrove.Count -eq 0) { Riga '--' "mai installato qui: va in $cartella" }
 
     $estranei = @(Get-ChildItem -LiteralPath $cartella -File -ErrorAction SilentlyContinue |
         Where-Object { $_.Name -match '\.(dll|exe)$' -and $_.Name -ne "$nome.dll" } | ForEach-Object { $_.Name })
@@ -128,12 +142,13 @@ if ($vuoiLocale) {
     if ($null -ne (Get-Process NINA -ErrorAction SilentlyContinue)) { Riga 'FALLITO' "N.I.N.A. e' aperto: chiudilo" }
     else { Riga 'ok' "N.I.N.A. chiuso" }
     $r = Join-Path $env:LOCALAPPDATA 'NINA\Plugins\3.0.0'
-    $cartella = Destinazione 'questa macchina' $r
+    $vecchiaLocale = $null
+    $cartella = Destinazione 'questa macchina' $r ([ref]$vecchiaLocale)
     # Qui il motore e' in casa: un strategy.url dimenticato manderebbe il pannello altrove.
     if ($cartella -and (Test-Path -LiteralPath (Join-Path $cartella 'strategy.url'))) {
         Riga 'attento' ("c'e' uno strategy.url anche qui, e dice " + (Get-Content -LiteralPath (Join-Path $cartella 'strategy.url') -Raw))
     }
-    if ($cartella) { $destinazioni += @{ Nome = 'questa macchina'; Cartella = $cartella; Url = $null } }
+    if ($cartella) { $destinazioni += @{ Nome = 'questa macchina'; Cartella = $cartella; Url = $null; Vecchia = $vecchiaLocale } }
 }
 
 if ($vuoiCampo) {
@@ -146,7 +161,8 @@ if ($vuoiCampo) {
         try { $null = Invoke-RestMethod -Uri "http://${macchina}:1888/v2/api/version" -TimeoutSec 4; $api = $true } catch { }
         if ($api) { Riga 'FALLITO' "l'Advanced API risponde su ${macchina}:1888: N.I.N.A. e' aperto, chiudilo" }
         else { Riga 'ok' "l'Advanced API non risponde su ${macchina}:1888 (un indizio; la prova e' il file)" }
-        $cartella = Destinazione 'PC in campo' $Campo
+        $vecchiaCampo = $null
+        $cartella = Destinazione 'PC in campo' $Campo ([ref]$vecchiaCampo)
 
         $url = $Motore.Trim()
         if (-not $url.EndsWith('/')) { $url += '/' }
@@ -162,7 +178,7 @@ if ($vuoiCampo) {
                 Riga 'ok' "da qui il motore risponde a quell'indirizzo (HTTP $($s.StatusCode))"
             } catch { Riga 'attento' "da qui il motore non risponde a quell'indirizzo: va acceso prima della prova" }
         }
-        if ($cartella) { $destinazioni += @{ Nome = 'PC in campo'; Cartella = $cartella; Url = $url } }
+        if ($cartella) { $destinazioni += @{ Nome = 'PC in campo'; Cartella = $cartella; Url = $url; Vecchia = $vecchiaCampo } }
     }
 }
 
@@ -179,6 +195,24 @@ foreach ($d in $destinazioni) {
             [System.IO.File]::WriteAllText((Join-Path $d.Cartella 'strategy.url'), $d.Url, (New-Object System.Text.UTF8Encoding $false))
         }
         Riga 'ok' "$($d.Nome): copiato"
+        # LA CARTELLA VECCHIA: si porta via strategy.url se qui non ce n'e' uno, si toglie il nostro DLL, e la cartella
+        # si cancella solo se resta vuota. Quello che non abbiamo messo noi resta dov'e', e lo script lo dice.
+        if ($d.Vecchia) {
+            $vecchioUrl = Join-Path $d.Vecchia 'strategy.url'
+            $nuovoUrl   = Join-Path $d.Cartella 'strategy.url'
+            if ((Test-Path -LiteralPath $vecchioUrl) -and -not (Test-Path -LiteralPath $nuovoUrl)) {
+                Move-Item -LiteralPath $vecchioUrl -Destination $nuovoUrl
+                Riga 'ok' "$($d.Nome): strategy.url portato nella cartella nuova"
+            }
+            Remove-Item -LiteralPath (Join-Path $d.Vecchia "$nome.dll") -Force -ErrorAction SilentlyContinue
+            $rimasti = @(Get-ChildItem -LiteralPath $d.Vecchia -Force -ErrorAction SilentlyContinue)
+            if ($rimasti.Count -eq 0) {
+                Remove-Item -LiteralPath $d.Vecchia -Force -Recurse
+                Riga 'ok' "$($d.Nome): tolta la cartella vecchia $($d.Vecchia)"
+            } else {
+                Riga 'attento' ("$($d.Nome): la cartella vecchia $($d.Vecchia) non si tocca, dentro c'e' dell'altro: {0}" -f (($rimasti | ForEach-Object { $_.Name }) -join ', '))
+            }
+        }
     } catch { Riga 'FALLITO' "$($d.Nome): $($_.Exception.Message)" }
 }
 

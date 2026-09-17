@@ -143,12 +143,26 @@
    *  pagina dice che non risponde invece di mostrare tre riquadri suoi.         */
   function motoreGiu(r) {
     modi = []; modoScelto = null;
+    $('modi').innerHTML = '';
+    /*  IN CIMA, E CON UN TASTO (17 settembre 2026): l'avviso e' la prima cosa che vede chi ha appena installato il
+     *  plugin, quindi sta sopra la domanda e non sotto; dice dove si scrive l'indirizzo, perche' «non risponde» senza
+     *  dire dove si cambia lascia fermi; e si riprova senza chiudere il pannello, che era l'unico modo. */
     const dove = (r && r.messaggio) ? '<div class="mg-dove">' + esc(r.messaggio) + '</div>' : '';
-    $('modi').innerHTML =
+    $('avviso').innerHTML =
       '<div class="box err motore-giu">' +
       '<b>' + esc(T('Pag_StrategyNonRisponde')) + '</b>' + dove +
-      '<div class="mg-perche">' + esc(T('Pag_PercioNienteModi')) + '</div></div>';
+      '<div class="mg-perche">' + esc(T('Pag_PercioNienteModi')) + '</div>' +
+      '<div class="mg-perche">' + esc(T('Pag_DoveSiScriveIndirizzo')) + '</div>' +
+      '<div style="margin-top:10px"><button id="riprova">' + esc(T('Pag_Riprova')) + '</button></div></div>';
+    const b = $('riprova');
+    if (b) b.addEventListener('click', riprovaIlMotore);
     stato((r && r.messaggio) ? r.messaggio : T('Pag_ServizioGiu'), 'no');
+  }
+
+  function riprovaIlMotore() {
+    stato(T('Pag_InAttesa'));
+    ridisegna();
+    chiedi('salute').then(r => stato(r.ok ? T('Pag_ServizioSu') : (r.messaggio || T('Pag_ServizioGiu')), r.ok ? 'ok' : 'no'));
   }
 
   function ridisegna() {
@@ -156,6 +170,7 @@
       /*  Qui c'era `return`, e basta: senza modi la pagina non disegnava i riquadri
           e non diceva niente. Adesso lo dice, con l'indirizzo. */
       if (!r.ok || !r.modalita || !r.modalita.length) { motoreGiu(r); return; }
+      $('avviso').innerHTML = '';
       modi = r.modalita;
       modoScelto = r.diSerie && modi.some(m => m.id === r.diSerie) ? r.diSerie : modi[0].id;
       disegnaModi();

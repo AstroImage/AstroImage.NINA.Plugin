@@ -146,7 +146,13 @@
          vivono i plugin gia' installati su questa macchina: Astro PM, Advanced API,
          Target Scheduler e Touch 'N' Stars stanno tutti sotto Plugins\3.0.0. Scrivere
          3.2.0 avrebbe prodotto una copia in una cartella che N.I.N.A. non guarda mai. -->
-    <NinaPluginsFolder Condition="'$(NinaPluginsFolder)' == ''">$(LOCALAPPDATA)\NINA\Plugins\3.0.0\$(AssemblyName)</NinaPluginsFolder>
+    <!-- LA CARTELLA E' QUELLA CHE USEREBBE N.I.N.A., cioe' il NOME del plugin e non
+         quello dell'assembly (17 settembre 2026). Installando il plugin da un
+         repository, N.I.N.A. lo mette in Plugins\3.0.0\<Nome del manifest>: se noi ne
+         usassimo un'altra, la stessa versione finirebbe in due cartelle con lo stesso
+         GUID, e ne caricherebbe due. Il nome viene da AssemblyTitle. -->
+    <NinaPluginFolderName Condition="'$(NinaPluginFolderName)' == ''">AstroImage Strategy Bridge</NinaPluginFolderName>
+    <NinaPluginsFolder Condition="'$(NinaPluginsFolder)' == ''">$(LOCALAPPDATA)\NINA\Plugins\3.0.0\$(NinaPluginFolderName)</NinaPluginsFolder>
   </PropertyGroup>
 
   <Target Name="DeployPluginToNina" AfterTargets="Build"

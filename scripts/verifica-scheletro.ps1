@@ -112,7 +112,9 @@ Write-Host "`n--- che cosa viene DISTRIBUITO ---"
 # conflitto sarebbe reale. Finche' si copia il solo $(TargetPath), non puo' succedere —
 # e questa riga e' cio' che se ne accorgerebbe se un giorno il passo di installazione
 # diventasse «copia tutta la cartella».
-$cartellaNina = Join-Path $env:LOCALAPPDATA 'NINA\Plugins\3.0.0\AstroImage.NINA.Plugin'
+# La cartella e' quella che userebbe N.I.N.A. installando il plugin da un repository, cioe' il NOME del plugin: dal
+# 17 settembre 2026 ci installiamo li' anche noi, per non avere due cartelle con lo stesso GUID.
+$cartellaNina = Join-Path $env:LOCALAPPDATA 'NINA\Plugins\3.0.0\AstroImage Strategy Bridge'
 if (Test-Path $cartellaNina) {
     $spediti = @(Get-ChildItem $cartellaNina -Recurse -File |
         Where-Object { $_.Name -match '\.(dll|exe)$' -and $_.Name -ne 'AstroImage.NINA.Plugin.dll' } |

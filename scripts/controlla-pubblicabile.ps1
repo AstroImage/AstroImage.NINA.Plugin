@@ -71,7 +71,13 @@ $ELENCO_ATTESI = @(
     @{ Re = '(?<![\d.])0\.0\.0\.0(?![\d.])'; Perche = 'indirizzo generico, non di una macchina' },
     @{ Re = '(?<=Version=)\d+\.\d+\.\d+\.\d+(?![\d.])'; Perche = "la versione di un assembly .NET, non un indirizzo (le intestazioni dei resx: Version=4.0.0.0)" },
     @{ Re = 'Alessandro Curci'; Perche = "il credito d'autore, gia' pubblico" },
-    @{ Re = '%LOCAL' + $APP.ToUpper() + '%|\$env:LOCAL' + $APP.ToUpper(); Perche = "la variabile d'ambiente, non il percorso di qualcuno" }
+    @{ Re = '%LOCAL' + $APP.ToUpper() + '%|\$env:LOCAL' + $APP.ToUpper(); Perche = "la variabile d'ambiente, non il percorso di qualcuno" },
+    # La stessa variabile scritta come la scrive MSBuild. Il .csproj entra in questo controllo solo quando lo si
+    # modifica, e la prima volta che e' successo — 17 settembre 2026 — la riga era li' da mesi.
+    @{ Re = '\$\(LOCAL' + $APP.ToUpper() + '\)'; Perche = "la proprieta' di MSBuild, non il percorso di qualcuno" },
+    # La versione dell'assembly e' fatta di quattro numeri e sembra un indirizzo. Solo dentro gli attributi, e solo
+    # fra virgolette: una vera 0.2.0.0 scritta altrove resta un colpo.
+    @{ Re = '(?<=Assembly(?:File)?Version\(")\d+\.\d+\.\d+\.\d+(?=")'; Perche = "la versione dell'assembly, non un indirizzo" }
 )
 
 $ELENCO_CONTROLLI = @()

@@ -40,49 +40,33 @@ namespace AstroImage.NINA.Plugin.ViewModels {
     public class PannelloStrategyVM : DockableVM {
 
         /// <summary>Dove sta il motore quando nessuno dice altrimenti.</summary>
-        public const string RadiceDiProva = "http://127.0.0.1:8791/";
+        public const string RadiceDiProva = IndirizzoDelMotore.DiSerie;
 
         /// <summary>Il file, accanto al DLL, in cui si puo' scrivere un altro indirizzo.</summary>
-        public const string FileIndirizzo = "strategy.url";
+        public const string FileIndirizzo = IndirizzoDelMotore.FileIndirizzo;
 
-        /*  L'INDIRIZZO SI PUO' SCRIVERE ACCANTO AL DLL, e questa e' la versione
-         *  provvisoria di un'impostazione vera.
+        /*  L'INDIRIZZO STA NELLE OPZIONI, e il file accanto al DLL resta come ripiego.
          *
-         *  Serve perche' il banco di prova con i filtri veri e' un ALTRO computer: il
-         *  mini PC in campo, dove il plugin gira e il motore no. Un indirizzo cablato
-         *  nel codice funziona solo sulla macchina di chi l'ha scritto — e' lo stesso
-         *  difetto per cui, in ASTROFOTO, due strumenti di misura leggevano da /tmp e
-         *  non avevano mai funzionato per nessun altro.
+         *  Per un anno e' stato solo il file: il banco di prova con i filtri veri e' un ALTRO computer — il mini PC in
+         *  campo, dove il plugin gira e il motore no — e un indirizzo cablato nel codice funziona solo sulla macchina
+         *  di chi l'ha scritto. Ma chi installa il plugin per la prima volta la cartella dei plugin non sa dove sia:
+         *  l'indirizzo deve stare dove si cercano le impostazioni, cioe' nelle Opzioni. Il file continua a valere,
+         *  perche' su un PC in campo si corregge anche senza aprire N.I.N.A., e perche' i due gia' configurati cosi'
+         *  non devono rifare niente.
          *
-         *  Un file di testo di una riga, non una variabile d'ambiente: su un PC da campo
-         *  si vede accanto al DLL, si legge e si corregge senza riavviare niente di
-         *  sistema. La casa definitiva sara' la pagina delle Opzioni; questo e' il
-         *  ponteggio, e si comporta come un ponteggio — se non c'e', si torna a casa. */
+         *  L'ordine e la validazione stanno in IndirizzoDelMotore, che di N.I.N.A. non sa niente e si prova senza. */
         private static string RadiceInUso(out string da) {
-            da = "built-in default";
+            string dalFile = null;
             try {
                 var accanto = Path.GetDirectoryName(typeof(PannelloStrategyVM).Assembly.Location);
-                if (accanto is null) return RadiceDiProva;
-                var file = Path.Combine(accanto, FileIndirizzo);
-                if (!File.Exists(file)) return RadiceDiProva;
-
-                var scritto = File.ReadAllText(file).Trim();
-                if (scritto.Length == 0) return RadiceDiProva;
-                /*  Uno slash finale mancante cambierebbe il significato di Uri relativo:
-                 *  «…:8791» + «v1/salute» diventerebbe «…/v1/salute» al posto giusto solo
-                 *  per caso. Si aggiunge invece di sperare. */
-                if (!scritto.EndsWith("/")) scritto += "/";
-                if (!Uri.TryCreate(scritto, UriKind.Absolute, out var u)
-                        || (u.Scheme != Uri.UriSchemeHttp && u.Scheme != Uri.UriSchemeHttps)) {
-                    da = $"file {FileIndirizzo} says «{scritto}», which is not an http address: ignored";
-                    return RadiceDiProva;
+                if (accanto is not null) {
+                    var file = Path.Combine(accanto, FileIndirizzo);
+                    if (File.Exists(file)) { dalFile = File.ReadAllText(file); }
                 }
-                da = FileIndirizzo;
-                return u.ToString();
             } catch (Exception e) {
-                da = $"file {FileIndirizzo} could not be read ({e.Message}): ignored";
-                return RadiceDiProva;
+                Logger.Warning($"[AstroImage] file {FileIndirizzo} could not be read ({e.Message}): ignored");
             }
+            return IndirizzoDelMotore.Scegli(ImpostazioniPonte.Corrente?.Indirizzo, dalFile, out da);
         }
 
         private static readonly HttpClient Trasporto = new HttpClient {
@@ -92,12 +76,14 @@ namespace AstroImage.NINA.Plugin.ViewModels {
             Timeout = TimeSpan.FromSeconds(60)
         };
 
-        /// <summary>Il corriere verso Strategy. La vista lo usa e non ne costruisce altri.</summary>
-        public ClienteStrategy Cliente { get; }
+        /// <summary>Il corriere verso Strategy. La vista lo usa e non ne costruisce altri, e lo richiede a ogni
+        /// domanda: cambiando l'indirizzo nelle Opzioni qui ne nasce un altro, e la domanda dopo va nel posto
+        /// nuovo senza chiudere niente.</summary>
+        public ClienteStrategy Cliente { get; private set; }
 
         /// <summary>La radice in uso, mostrata nel pannello: chi guarda deve poter
-        /// vedere con chi sta parlando.</summary>
-        public string Radice { get; }
+        /// vedere con chi sta parlando. Cambia se si cambia l'indirizzo nelle Opzioni.</summary>
+        public string Radice { get; private set; }
 
         /// <summary>La prescrizione che il ponte ha in mano, con la guardia che
         /// impedisce di consegnare una riga di una risposta precedente.</summary>
@@ -184,6 +170,21 @@ namespace AstroImage.NINA.Plugin.ViewModels {
             Radice = RadiceInUso(out var daDove);
             Logger.Info($"[AstroImage] engine at {Radice} (from {daDove})");
             Cliente = new ClienteStrategy(Trasporto, new Uri(Radice));
+
+            /*  CAMBIARE L'INDIRIZZO NELLE OPZIONI NON DEVE COSTARE UN RIAVVIO: il pannello si accorge, rifa' il
+             *  corriere e lo dice nel registro. La pagina riprende da se' col tasto «Riprova». */
+            if (ImpostazioniPonte.Corrente is not null) {
+                ImpostazioniPonte.Corrente.PropertyChanged += (_, e) => {
+                    if (e.PropertyName != nameof(ImpostazioniPonte.Indirizzo)) { return; }
+                    var nuova = RadiceInUso(out var ora);
+                    if (nuova == Radice) { return; }
+                    Radice = nuova;
+                    Cliente = new ClienteStrategy(Trasporto, new Uri(Radice));
+                    Logger.Info($"[AstroImage] engine now at {Radice} (from {ora})");
+                    RaisePropertyChanged(nameof(Radice));
+                    RaisePropertyChanged(nameof(Cliente));
+                };
+            }
 
             Mediatore = mediatore;
             /*  I pezzi si prendono clonando un modello di bersaglio di N.I.N.A.: la

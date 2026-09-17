@@ -237,6 +237,12 @@
   <data name="Opzioni_DoveSiComanda" xml:space="preserve">
     <value>Everything is driven from the “AstroImage Strategy” panel, under Imaging: that is where you ask for a prescription, declare which filters you really have in the wheel — once per profile — and deliver the target. This page only holds the language, which instead applies to every profile.</value>
   </data>
+  <data name="Opzioni_Indirizzo" xml:space="preserve">
+    <value>Engine address</value>
+  </data>
+  <data name="Opzioni_IndirizzoAiuto" xml:space="preserve">
+    <value>Where AstroImage-Strategy answers, for example http://127.0.0.1:8791/ when it runs on this computer, or the address you were given. Empty: the strategy.url file next to the plugin is used, then http://127.0.0.1:8791/. After changing it, press “Retry” in the panel.</value>
+  </data>
   <data name="Opzioni_Lingua" xml:space="preserve">
     <value>Language</value>
   </data>
@@ -415,8 +421,14 @@
   <data name="Pag_OpzNonDichiarato" xml:space="preserve">
     <value>(not declared)</value>
   </data>
+  <data name="Pag_DoveSiScriveIndirizzo" xml:space="preserve">
+    <value>The address is set in Options → Plugin → AstroImage Strategy Bridge, or in the strategy.url file next to the plugin.</value>
+  </data>
+  <data name="Pag_Riprova" xml:space="preserve">
+    <value>Retry</value>
+  </data>
   <data name="Pag_PercioNienteModi" xml:space="preserve">
-    <value>The three capture modes are declared by Strategy: until it answers, this panel will not invent them. Start the engine and reopen the panel.</value>
+    <value>The three capture modes are declared by Strategy: until it answers, this panel will not invent them. Start the engine and press “Retry”.</value>
   </data>
   <data name="Pag_RigaCalcolataSu" xml:space="preserve">
     <value>computed on</value>

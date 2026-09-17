@@ -33,6 +33,19 @@
                    Text="{Binding [Opzioni_DoveSiComanda], Source={x:Static loc:Loc.Instance}}" />
 
         <!--
+            DOVE STA IL MOTORE. E' la prima cosa che serve a chi installa il plugin: senza motore il pannello non ha
+            niente da mostrare, e lo dice nominando proprio questo indirizzo. Vuoto vale come «quello di casa».
+        -->
+        <TextBlock FontWeight="SemiBold" Margin="0,6,0,2"
+                   Text="{Binding [Opzioni_Indirizzo], Source={x:Static loc:Loc.Instance}}" />
+
+        <TextBlock TextWrapping="Wrap" FontSize="10" Opacity="0.7" Margin="0,0,0,4"
+                   Text="{Binding [Opzioni_IndirizzoAiuto], Source={x:Static loc:Loc.Instance}}" />
+
+        <TextBox Width="420" HorizontalAlignment="Left" Margin="0,0,0,12"
+                 Text="{Binding Indirizzo, UpdateSourceTrigger=LostFocus}" />
+
+        <!--
             LA LINGUA, E NON E' PER FORZA QUELLA DI N.I.N.A.
             Serve a chi sviluppa quanto a chi usa: tenere N.I.N.A. in inglese per
             provare come si comporta il plugin per gli altri, e leggere intanto in
