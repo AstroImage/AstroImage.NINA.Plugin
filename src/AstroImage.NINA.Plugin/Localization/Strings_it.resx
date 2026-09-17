@@ -1214,6 +1214,15 @@
   <data name="Pag_Verdetto_Coperto" xml:space="preserve">
     <value>le notti chieste ({0}) coprono il {1} % del progetto</value>
   </data>
+  <data name="Pag_Banco_CamCollegata" xml:space="preserve">
+    <value>collegata ({0}): riconosciuta come «{1}»</value>
+  </data>
+  <data name="Pag_Banco_CamVoceSconosciuta" xml:space="preserve">
+    <value>«{0}» non è fra le voci del catalogo, e finché resta scritta la camera collegata non si riconosce da sola. Scegline una dall'elenco, oppure svuota il campo e salva; una camera che l'elenco non ha si descrive qui sotto.</value>
+  </data>
+  <data name="Pag_Banco_CamDescrittaSpenta" xml:space="preserve">
+    <value>La camera è riconosciuta: qui sotto i suoi dati, come Strategy li usa. Questi campi servono a una camera che l'elenco non ha.</value>
+  </data>
   <data name="Pag_CosaVuoiRiprendere" xml:space="preserve">
     <value>Cosa vuoi riprendere</value>
   </data>

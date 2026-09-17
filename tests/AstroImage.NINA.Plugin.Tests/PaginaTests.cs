@@ -662,6 +662,63 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "la risposta non dice che cosa ha consegnato");
         }
 
+        /*  IL BANCO RICONOSCE LA CAMERA SUBITO, E SPEGNE I CAMPI FUORI CATALOGO (17 settembre 2026). Il riconoscimento c'era
+         *  solo nella prescrizione: prima di chiederne una, il banco non sapeva quale camera avesse davanti. Adesso la pagina
+         *  lo chiede a Strategy appena ha la camera, il banco e i suoi campi, e dopo ogni salvataggio: scrive la voce
+         *  riconosciuta nel campo, dice la voce scritta che non esiste, e spegne i campi della camera fuori catalogo
+         *  mostrandoci i dati della camera riconosciuta — salvando, quei campi tengono quello che era dichiarato. E il
+         *  calendario si apre dall'icona. Guardia strutturale. */
+        [TestMethod]
+        public void IL_BANCO_RICONOSCE_LA_CAMERA_SUBITO_E_SPEGNE_I_CAMPI() {
+            var js = PaginaSenzaCommenti();
+            var riconosci = Tratto(js, "function riconosciLaCamera() {", "\n  }");
+            foreach (var pezzo in new[] { "bancoDaMandare().cam", "chiedi('riconosciCamera', null, { cam: cam })", "mia !== ultimoRiconoscimento",
+                                          "JSON.parse(r.corpo).camera", "cameraDelBanco = ", "disegnaBanco()" })
+                StringAssert.Contains(riconosci, pezzo, "il riconoscimento della camera non usa " + pezzo);
+            var ridisegna = Tratto(js, "function ridisegna() {", "\n  }");
+            foreach (var chi in new[] { "chiedi('modalita')", "chiedi('camera')", "chiedi('banco')" }) {
+                var i = ridisegna.IndexOf(chi, StringComparison.Ordinal);
+                Assert.IsTrue(i >= 0 && ridisegna.IndexOf("riconosciLaCamera()", i, StringComparison.Ordinal) > i,
+                    "dopo " + chi + " la camera non si riconosce");
+            }
+            var voce = Tratto(js, "c.provenienza === 'riconoscimento'", "} else if (c.provenienza === 'nina')");
+            foreach (var pezzo in new[] { "cameraDelBanco", "placeholder=\"' + esc(", "'Pag_Banco_CamCollegata'", "'Pag_Banco_CamVoceSconosciuta'" })
+                StringAssert.Contains(voce, pezzo, "il campo della camera non usa " + pezzo);
+            var descritta = Tratto(js, "c.provenienza === 'descrizione'", "} else return '';");
+            foreach (var pezzo in new[] { "spenta", " disabled", "class=\"spento\"", "datiCamera[", "'Pag_Banco_CamDescrittaSpenta'" })
+                StringAssert.Contains(descritta, pezzo, "i campi della camera fuori catalogo non usano " + pezzo);
+            var salva = Tratto(js, "salva.addEventListener('click', () => {", "chiedi('salvaBanco'");
+            StringAssert.Contains(salva, "i.disabled", "salvando, i campi spenti scriverebbero i dati della camera riconosciuta");
+            StringAssert.Contains(Tratto(js, "chiedi('salvaBanco'", "\n    });"), "riconosciLaCamera()", "dopo il salvataggio la camera non si riconosce");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in new[] { "Pag_Banco_CamCollegata", "Pag_Banco_CamVoceSconosciuta", "Pag_Banco_CamDescrittaSpenta" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+                StringAssert.Contains(t["Pag_Banco_CamCollegata"], "{1}", lingua);
+                StringAssert.Contains(t["Pag_Banco_CamVoceSconosciuta"], "{0}", lingua);
+            }
+            var css = Risorsa("prova.css");
+            StringAssert.Contains(css, ".spento", "i campi spenti non hanno il loro stile");
+
+            /*  il calendario: l'icona apre la scelta della data, e il tasto nativo non resta scostato da lei */
+            StringAssert.Contains(Tratto(js, "const iconaData = ", "\n  }"), "showPicker()", "l'icona del calendario non apre la scelta");
+            Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(css, @"\.notte-rif input\[type=date\][^}]*padding:0 30px"),
+                "il margine a destra sposta il tasto nativo del calendario lontano dall'icona");
+            StringAssert.Contains(css, "cursor:pointer", "l'icona del calendario non si presenta come un tasto");
+
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var n = 0; n < 8 && su is not null; n++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views",
+                "PannelloStrategyView.xaml.cs"));
+            StringAssert.Contains(vista, "if (azione == \"riconosciCamera\") { await RiconosciCamera(id, messaggio); return; }",
+                "l'ospite non porta la domanda del riconoscimento");
+        }
+
         /*  LA DOMANDA E' QUELLA DI AIS, SU UNA RIGA (17 settembre 2026): «Cosa vuoi riprendere» con la lente e
          *  «Pulisci», «Notte di riferimento» con la Luna sotto la data, e il tasto — oggetto, data e tasto sulla stessa riga;
          *  e l'intestazione di prova se ne va. Le didascalie e i suggerimenti sono parole del dizionario, il segnaposto

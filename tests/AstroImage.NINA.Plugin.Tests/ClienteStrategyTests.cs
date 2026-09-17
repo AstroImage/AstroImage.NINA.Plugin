@@ -347,6 +347,31 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsNull(await rifiuta.Luna("2026-13-40", 45, 10));
         }
 
+        /*  LA CAMERA DEL BANCO RICONOSCIUTA (17 settembre 2026): i campi nell'indirizzo, codificati, coi numeri scritti col
+         *  punto qualunque sia la lingua di Windows; un campo senza valore non parte. */
+        [TestMethod]
+        public async Task RiconosciCamera_VaAV1Camera_CoiCampiNellIndirizzo() {
+            const string corpo = "{\"contratto\":\"1\",\"camera\":{\"id\":\"asi2600mc\"}}";
+            var (cliente, t) = Banco(HttpStatusCode.OK, corpo, "http://127.0.0.1:8791/strategy/");
+            var prima = System.Globalization.CultureInfo.CurrentCulture;
+            try {
+                System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo("it-IT");
+                var campi = new System.Collections.Generic.List<(string, object?)> {
+                    ("nome", "ZWO ASI2600MC Pro"), ("pixel_um", 3.76), ("width_px", 6248L), ("matrice", "RGGB"), ("id", null) };
+                Assert.AreEqual(corpo, await cliente.RiconosciCamera(campi), "il corpo non torna identico");
+            } finally { System.Globalization.CultureInfo.CurrentCulture = prima; }
+            Assert.AreEqual("/strategy/v1/camera", t.Indirizzo!.AbsolutePath);
+            var q = System.Web.HttpUtility.ParseQueryString(t.Indirizzo.Query);
+            Assert.AreEqual("ZWO ASI2600MC Pro", q["nome"]);
+            Assert.AreEqual("3.76", q["pixel_um"], "il passo del pixel non e' scritto col punto");
+            Assert.AreEqual("6248", q["width_px"]);
+            Assert.AreEqual("RGGB", q["matrice"]);
+            Assert.IsNull(q["id"], "un campo senza valore e' partito");
+
+            var (rifiuta, _) = Banco((HttpStatusCode)422, "{\"errore\":{\"codice\":\"banco_chiave_sconosciuta\"}}");
+            Assert.IsNull(await rifiuta.RiconosciCamera(new System.Collections.Generic.List<(string, object?)> { ("x", "y") }));
+        }
+
         [TestMethod]
         public async Task Voci_VaAV1Voci_ETornaIlCorpoComeE() {
             const string corpo = "{\"contratto\":\"1\",\"camera\":[{\"id\":\"asi2600mc\",\"nome\":\"ZWO ASI 2600MC Pro\"}]}";
