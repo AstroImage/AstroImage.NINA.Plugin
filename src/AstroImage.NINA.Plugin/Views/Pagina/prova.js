@@ -549,6 +549,27 @@
     }
   }
 
+  /*  L'ESITO DI UN SALVATAGGIO RESTA SCRITTO (17 settembre 2026). Dopo un salvataggio riuscito il banco e il sito si
+   *  ridisegnano, e l'esito scritto dentro il riquadro spariva con lui: chi salvava non vedeva niente. Adesso e' uno
+   *  stato della pagina che il disegno rilegge: «corso» mentre si salva, «ok» in verde con l'ora, «no» in rosso col
+   *  perche', «attesa» appena si tocca un campo dopo. Resta nella lingua in cui e' avvenuto, come gli altri stati
+   *  scritti. */
+  const esiti = {};
+  function esito(id) {
+    const e = esiti[id];
+    return '<span id="' + id + '" class="esito' + (e ? ' ' + e.tipo : '') + '">' +
+      (e ? (e.tipo === 'ok' ? '&#10003; ' : '') + esc(e.testo) : '') + '</span>';
+  }
+  function segnaEsito(id, tipo, testo) {
+    esiti[id] = testo ? { tipo: tipo, testo: testo } : null;
+    const s = $(id);
+    if (s) s.outerHTML = esito(id);
+  }
+  const oraDiAdesso = () => {
+    const d = new Date(), due = n => (n < 10 ? '0' : '') + n;
+    return due(d.getHours()) + ':' + due(d.getMinutes());
+  };
+
   /*  LA CAMERA DEL BANCO, RICONOSCIUTA SUBITO (17 settembre 2026). Il riconoscimento c'era solo nella prescrizione, e
    *  prima di chiederne una il banco non sapeva quale camera avesse davanti. Adesso si chiede a Strategy con la camera
    *  che la domanda manderebbe — il driver, la voce scritta, o la camera descritta — appena ci sono la camera, il banco e
@@ -699,7 +720,12 @@
       '<table style="width:100%">' + campi.map(riga).join('') + '</table>' +
       (divergenze.length ? '<ul style="margin:.6em 0 0 1.1em;padding:0;color:#e0a030">' + divergenze.map(divergenza).join('') + '</ul>' : '') +
       '<div style="margin-top:.7em"><button id="salvaBanco">' + esc(T('Pag_SalvaBanco')) + '</button>' +
-      '<span id="esitoBanco" style="margin-left:.6em;opacity:.8"></span></div></div>';
+      esito('esitoBanco') + '</div></div>';
+    /*  un campo toccato dopo il salvataggio: quello che si vede non e' piu' quello salvato */
+    box.oninput = box.onchange = ev => {
+      if (ev.target && ev.target.hasAttribute && ev.target.hasAttribute('data-banco'))
+        segnaEsito('esitoBanco', 'attesa', T('Pag_NonSalvato'));
+    };
     const salva = $('salvaBanco');
     if (salva) salva.addEventListener('click', () => {
       const valori = {};
@@ -709,10 +735,10 @@
         valori[chiave] = i.disabled ? (dichiarato[chiave] != null ? dichiarato[chiave] : null)
           : valoreScritto(i.value, i.hasAttribute('data-numero'));
       });
-      $('esitoBanco').textContent = T('Pag_Salvo');
+      segnaEsito('esitoBanco', 'corso', T('Pag_Salvo'));
       chiedi('salvaBanco', { banco: valori }).then(r2 => {
-        $('esitoBanco').textContent = r2.ok ? T('Pag_Salvato')
-          : T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '');
+        if (r2.ok) segnaEsito('esitoBanco', 'ok', T('Pag_SalvatoAlle').replace('{0}', oraDiAdesso()));
+        else segnaEsito('esitoBanco', 'no', T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || ''));
         ritiraDalloSchermo(r2.ritirata);
         if (r2.ok) chiedi('banco').then(r3 => { if (r3.ok) { bancoLetto = r3; disegnaBanco(); riconosciLaCamera(); } });
       });
@@ -1175,7 +1201,7 @@
       '</table>' +
       '<div style="margin-top:.7em">' +
         '<button id="salvaSito">' + T('Pag_SalvaSito') + '</button> ' +
-        '<span id="esitoSito" style="margin-left:.6em;opacity:.8"></span>' +
+        esito('esitoSito') +
       '</div>' +
       '<div style="margin-top:.7em;opacity:.7;font-size:12.5px">' +
         MF('Pag_LatLonNota') +
@@ -1188,7 +1214,7 @@
       '<div style="margin-top:.3em;opacity:.7;font-size:12.5px">' + MF('Pag_RmsNota') + '</div></div>';
 
     Array.prototype.forEach.call(document.querySelectorAll('#sito input'), i => {
-      i.addEventListener('input', () => { $('esitoSito').textContent = T('Pag_NonSalvato'); });
+      i.addEventListener('input', () => { segnaEsito('esitoSito', 'attesa', T('Pag_NonSalvato')); });
     });
     const b = $('salvaSito');
     if (b) b.addEventListener('click', () => {
@@ -1197,10 +1223,10 @@
         const v = i.value.trim().replace(',', '.');
         s[i.getAttribute('data-sito')] = v === '' ? null : Number(v);
       });
-      $('esitoSito').textContent = T('Pag_Salvo');
+      segnaEsito('esitoSito', 'corso', T('Pag_Salvo'));
       chiedi('salvaSito', { sito: s }).then(r2 => {
-        $('esitoSito').textContent = r2.ok ? T('Pag_Salvato')
-          : T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '');
+        if (r2.ok) segnaEsito('esitoSito', 'ok', T('Pag_SalvatoAlle').replace('{0}', oraDiAdesso()));
+        else segnaEsito('esitoSito', 'no', T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || ''));
         ritiraDalloSchermo(r2.ritirata);
         if (r2.ok) chiedi('sito').then(disegnaSito);
       });
