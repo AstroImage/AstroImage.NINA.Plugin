@@ -662,6 +662,35 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "la risposta non dice che cosa ha consegnato");
         }
 
+        /*  L'ESITO DI UN SALVATAGGIO RESTA SCRITTO (17 settembre 2026). Dopo un salvataggio riuscito il banco e il sito si
+         *  ridisegnano, e «salvato» spariva insieme al riquadro: chi salvava non vedeva niente. L'esito sta in uno stato
+         *  della pagina che il disegno rilegge: verde con l'ora quando e' salvato, rosso col perche' quando no, e «non
+         *  salvato» appena si tocca un campo. Nessuno scrive piu' dentro lo span a mano. Guardia strutturale. */
+        [TestMethod]
+        public void L_ESITO_DEL_SALVATAGGIO_RESTA_SCRITTO() {
+            var js = PaginaSenzaCommenti();
+            StringAssert.Contains(js, "function esito(id) {", "manca il disegno dell'esito");
+            StringAssert.Contains(Tratto(js, "function segnaEsito(", "\n  }"), "esiti[id] = ", "l'esito non entra nello stato della pagina");
+            foreach (var (id, disegno, salvataggio) in new[] {
+                ("esitoBanco", Tratto(js, "function disegnaBanco() {", "\n  }"), Tratto(js, "salva.addEventListener('click', () => {", "\n    });")),
+                ("esitoSito", Tratto(js, "function disegnaSito(r) {", "\n  }"), Tratto(js, "b.addEventListener('click', () => {", "\n    });")) }) {
+                StringAssert.Contains(disegno, "esito('" + id + "')", id + ": il disegno non rilegge l'esito");
+                Assert.IsFalse(disegno.Contains("<span id=\"" + id + "\""), id + ": il disegno scrive ancora uno span vuoto");
+                foreach (var tipo in new[] { "corso", "ok", "no" })
+                    StringAssert.Contains(salvataggio, "segnaEsito('" + id + "', '" + tipo + "'", id + ": il salvataggio non segna " + tipo);
+                StringAssert.Contains(salvataggio, "'Pag_SalvatoAlle'", id + ": il salvataggio riuscito non dice l'ora");
+                StringAssert.Contains(disegno, "segnaEsito('" + id + "', 'attesa'", id + ": toccare un campo non dice «non salvato»");
+                Assert.IsFalse(js.Contains("$('" + id + "').textContent"), id + ": qualcuno scrive ancora nello span a mano");
+            }
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                Assert.IsTrue(t.TryGetValue("Pag_SalvatoAlle", out var v) && v.Contains("{0}"), lingua + ": manca Pag_SalvatoAlle con l'ora");
+            }
+            var css = Risorsa("prova.css");
+            foreach (var c in new[] { ".esito.ok", ".esito.no", ".esito.attesa" })
+                StringAssert.Contains(css, c, "manca lo stile " + c);
+        }
+
         /*  IL BANCO RICONOSCE LA CAMERA SUBITO, E SPEGNE I CAMPI FUORI CATALOGO (17 settembre 2026). Il riconoscimento c'era
          *  solo nella prescrizione: prima di chiederne una, il banco non sapeva quale camera avesse davanti. Adesso la pagina
          *  lo chiede a Strategy appena ha la camera, il banco e i suoi campi, e dopo ogni salvataggio: scrive la voce

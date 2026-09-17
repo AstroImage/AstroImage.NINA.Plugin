@@ -439,8 +439,9 @@
   <data name="Pag_SalvaSito" xml:space="preserve">
     <value>Save the site data</value>
   </data>
-  <data name="Pag_Salvato" xml:space="preserve">
-    <value>saved</value>
+
+  <data name="Pag_SalvatoAlle" xml:space="preserve">
+    <value>saved at {0}</value>
   </data>
   <data name="Pag_Salvo" xml:space="preserve">
     <value>saving…</value>
