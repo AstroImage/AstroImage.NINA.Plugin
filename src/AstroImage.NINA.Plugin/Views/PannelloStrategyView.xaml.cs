@@ -44,6 +44,9 @@ namespace AstroImage.NINA.Plugin.Views {
      *      cerca         { id, azione: "cerca", q: "<il testo del campo dell'oggetto>" }
      *                 -> { id, ok, corpo: "<il JSON di v1/cerca>" }
      *
+     *      voci          { id, azione: "voci" }
+     *                 -> { id, ok, corpo: "<il JSON di v1/voci>" }
+     *
      *      manda         { id, azione: "manda", prescrizione: "<identificativo>", notte: n }
      *                 -> { id, ok, nome, bersaglio, blocchi, pose, note[], scartati[] }
      *
@@ -283,6 +286,8 @@ namespace AstroImage.NINA.Plugin.Views {
                 if (azione == "salvaBanco") { SalvaBanco(id, messaggio); return; }
 
                 if (azione == "cerca") { await Cerca(id, messaggio); return; }
+
+                if (azione == "voci") { await Voci(id); return; }
 
                 if (azione != "prescrizione") {
                     Rispondi(id, false, null, "azione_sconosciuta", Loc.F("Pannello_AzioneSconosciuta", azione)); return;
@@ -622,6 +627,21 @@ namespace AstroImage.NINA.Plugin.Views {
             string q;
             try { q = messaggio["q"]?.GetValue<string>(); } catch { q = null; }
             var corpo = await cliente.Cerca(q ?? string.Empty);
+            if (corpo is null) {
+                Rispondi(id, false, null, "servizio_irraggiungibile",
+                         Loc.F("Pannello_NessunoRisponde", (DataContext as PannelloStrategyVM)?.Radice));
+                return;
+            }
+            Rispondi(id, true, corpo, null, null);
+        }
+
+        /*  LE VOCI DEL BANCO (17 settembre 2026): le prescrizioni si preparano giorni prima, col pezzo scollegato, e la voce
+         *  si sceglie da un elenco. L'ospite lo chiede a `v1/voci` e lo rimanda com'e'. Servizio spento: `ok: false` con la
+         *  frase che nomina l'indirizzo. */
+        private async Task Voci(string id) {
+            var cliente = (DataContext as PannelloStrategyVM)?.Cliente;
+            if (cliente is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaCorriere")); return; }
+            var corpo = await cliente.Voci();
             if (corpo is null) {
                 Rispondi(id, false, null, "servizio_irraggiungibile",
                          Loc.F("Pannello_NessunoRisponde", (DataContext as PannelloStrategyVM)?.Radice));

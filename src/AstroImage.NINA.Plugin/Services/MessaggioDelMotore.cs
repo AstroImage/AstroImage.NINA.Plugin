@@ -103,6 +103,13 @@ namespace AstroImage.NINA.Plugin.Services {
                 ["setup_incompleto"] = ("chiesto", "Motore_SetupIncompletoSenzaNome", new[] { "pezzo", "campi" }),
             };
 
+        /*  LE CODE, quando i dati portano qualcosa in piu' (17 settembre 2026): una voce del banco che il motore non
+         *  riconosce arriva con le voci che le somigliano, e la frase le aggiunge. Senza quel campo resta com'era. */
+        private static readonly Dictionary<string, (string Campo, string Chiave)> Code =
+            new Dictionary<string, (string, string)> {
+                ["setup_sconosciuto"] = ("candidati", "Motore_SetupSconosciutoForse"),
+            };
+
         /*  I PEZZI E I CAMPI DEL MOTORE, NELLA LINGUA DI CHI GUARDA. Prima la frase diceva «al ottica» e metteva in fila
          *  `aperture_mm, throughput`. Un nome che qui non c'e' passa com'e': meglio un nome del motore che un buco. */
         private static readonly Dictionary<string, string> ParolaDelPezzo = new Dictionary<string, string> {
@@ -121,6 +128,9 @@ namespace AstroImage.NINA.Plugin.Services {
 
         /// <summary>Le frasi di riserva per un campo che manca, codice per codice. Serve alle prove.</summary>
         public static IReadOnlyDictionary<string, (string Manca, string Chiave, string[] Campi)> FrasiDiRiserva => FrasiSenza;
+
+        /// <summary>Le code delle frasi, codice per codice. Serve alle prove.</summary>
+        public static IReadOnlyDictionary<string, (string Campo, string Chiave)> CodeDelleFrasi => Code;
 
         /// <summary>Le chiavi delle parole di pezzi e campi. Serve alle prove.</summary>
         public static IEnumerable<string> ChiaviDelleParole => ParolaDelPezzo.Values.Concat(ParolaDelCampo.Values);
@@ -149,7 +159,11 @@ namespace AstroImage.NINA.Plugin.Services {
                     return dellMotore;
                 valori[i] = f.Campi[i] == "pezzo" && ParolaDelPezzo.TryGetValue(v, out var kp) ? Loc.T(kp) : v;
             }
-            return Loc.F(f.Chiave, valori);
+            var frase = Loc.F(f.Chiave, valori);
+            if (Code.TryGetValue(codice, out var coda) && dati != null && dati.TryGetValue(coda.Campo, out var altro) &&
+                !string.IsNullOrWhiteSpace(altro))
+                frase += " " + Loc.F(coda.Chiave, altro);
+            return frase;
         }
 
         /*  I DATI ARRIVANO COME JSON e vanno resi testo una volta sola, qui.

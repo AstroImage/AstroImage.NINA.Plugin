@@ -786,6 +786,44 @@ namespace AstroImage.NINA.Plugin.Tests {
                     lingua + ": il dizionario ha di nuovo la frase del divieto della Luna");
         }
 
+        /*  IL BANCO PROPONE LE VOCI, COL PEZZO SCOLLEGATO (17 settembre 2026). Le prescrizioni si preparano giorni prima,
+         *  senza le periferiche: la voce dell'ottica, della camera e della montatura si sceglie dall'elenco che il servizio
+         *  pubblica in `v1/voci`, sotto il campo dove si scrive. La pagina non ha un elenco suo. Guardia strutturale. */
+        [TestMethod]
+        public void IL_BANCO_PROPONE_LE_VOCI_COL_PEZZO_SCOLLEGATO() {
+            var html = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.html"), "<!--.*?-->", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            foreach (var pezzo in new[] { "ottica", "camera", "montatura" })
+                StringAssert.Contains(html, "<datalist id=\"voci-" + pezzo + "\">", "manca l'elenco delle voci: " + pezzo);
+
+            var js = PaginaSenzaCommenti();
+            var riga = Tratto(js, "c.provenienza === 'riconoscimento'", "} else if (c.provenienza === 'nina')");
+            StringAssert.Contains(riga, "list=\"voci-' + esc(c.pezzo) + '\"", "il campo della voce non ha l'elenco sotto");
+            StringAssert.Contains(riga, "autocomplete=\"off\"", "i nomi scritti in passato coprirebbero le voci del catalogo");
+            var riempi = Tratto(js, "function riempiVoci(r) {", "\n  }");
+            foreach (var pezzo in new[] { "JSON.parse(r.corpo)", "['ottica', 'camera', 'montatura']", "$('voci-' + pezzo)",
+                                          "x.id", "x.nome" })
+                StringAssert.Contains(riempi, pezzo, "l'elenco delle voci non usa «" + pezzo + "»");
+            StringAssert.Contains(Tratto(js, "function ridisegna() {", "\n  }"), "chiedi('voci').then(r => { if (r.ok) riempiVoci(r); });",
+                "la pagina non chiede le voci");
+
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var i = 0; i < 8 && su is not null; i++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views",
+                "PannelloStrategyView.xaml.cs"));
+            StringAssert.Contains(vista, "if (azione == \"voci\") { await Voci(id); return; }", "l'ospite non porta la domanda delle voci");
+            var i0 = vista.IndexOf("private async Task Voci(string id)", StringComparison.Ordinal);
+            Assert.IsTrue(i0 >= 0, "il gestore delle voci non si trova");
+            var gestore = vista.Substring(i0, vista.IndexOf("\n        }", i0, StringComparison.Ordinal) - i0);
+            StringAssert.Contains(gestore, "Rispondi(id, true, corpo, null, null)", "le voci non tornano come il servizio le manda");
+            StringAssert.Contains(gestore, "Pannello_NessunoRisponde", "col servizio spento non dice dove guardare");
+        }
+
         /*  LA DISTANZA DI RIFERIMENTO DELLA LUNA SI DICHIARA NEL BANCO (regia, 16 settembre 2026): e' quanto slavato accetta
          *  chi riprende. Il blocco del banco mostra il pezzo `luna` con la sua parola e la sua nota; la chiave e la
          *  provenienza vengono dalla lista che Strategy pubblica, come per gli altri campi dichiarabili. */

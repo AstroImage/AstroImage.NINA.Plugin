@@ -273,6 +273,33 @@ namespace AstroImage.NINA.Plugin.Tests {
             }
         }
 
+        /*  UNA VOCE DEL BANCO NON RICONOSCIUTA DICE QUELLE SIMILI (17 settembre 2026): il motore le manda in `candidati`, e
+         *  la frase le aggiunge in coda. Senza il campo la frase resta com'era. La coda esiste nelle due lingue, con il
+         *  suo segnaposto. */
+        [TestMethod]
+        public void UnaVoceNonRiconosciuta_DiceQuelleSimili() {
+            Loc.Instance.ForzaLingua("it");
+            var con = MessaggioDelMotore.Rendi("setup_sconosciuto",
+                Dati(@"{""pezzo"":""camera"",""chiesto"":""2600"",""candidati"":[""asi2600mm"",""asi2600mc""]}"), "ripiego");
+            StringAssert.Contains(con!, "«2600»");
+            StringAssert.Contains(con!, "asi2600mm, asi2600mc", "le voci simili non ci sono: " + con);
+            var senza = MessaggioDelMotore.Rendi("setup_sconosciuto",
+                Dati(@"{""pezzo"":""camera"",""chiesto"":""nessuna""}"), "ripiego");
+            Assert.AreEqual(Loc.F("Motore_SetupSconosciuto", Loc.T("Motore_Pezzo_camera"), "nessuna"), senza,
+                "senza voci simili la frase non e' quella di sempre");
+
+            Assert.IsTrue(MessaggioDelMotore.CodeDelleFrasi.ContainsKey("setup_sconosciuto"), "la coda non e' dichiarata");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var res = Risorse(lingua);
+                foreach (var kv in MessaggioDelMotore.CodeDelleFrasi) {
+                    Assert.IsTrue(res.ContainsKey(kv.Value.Chiave), lingua + ": manca " + kv.Value.Chiave);
+                    var indici = Regex.Matches(res[kv.Value.Chiave], @"\{(\d)\}").Cast<Match>()
+                        .Select(m => int.Parse(m.Groups[1].Value)).Distinct().ToList();
+                    CollectionAssert.AreEqual(new[] { 0 }, indici, lingua + "/" + kv.Value.Chiave);
+                }
+            }
+        }
+
         [TestMethod]
         public void UnaListaDiventaUnaRigaSola() {
             Loc.Instance.ForzaLingua("it");

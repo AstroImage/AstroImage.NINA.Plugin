@@ -322,6 +322,26 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "un testo assente parte vuoto, non come «null»");
         }
 
+        // ------------------------------------------------------------------- le voci del banco
+
+        /*  LE VOCI DEL BANCO (17 settembre 2026): la domanda va a `v1/voci`, sotto la radice come le altre, senza corpo; la
+         *  risposta torna come testo, identica, perche' la legge la pagina. Servizio spento o risposta non riuscita: null. */
+        [TestMethod]
+        public async Task Voci_VaAV1Voci_ETornaIlCorpoComeE() {
+            const string corpo = "{\"contratto\":\"1\",\"camera\":[{\"id\":\"asi2600mc\",\"nome\":\"ZWO ASI 2600MC Pro\"}]}";
+            var (cliente, t) = Banco(HttpStatusCode.OK, corpo, "http://127.0.0.1:8791/strategy/");
+
+            Assert.AreEqual(corpo, await cliente.Voci(), "il corpo non torna identico");
+            Assert.AreEqual("/strategy/v1/voci", t.Indirizzo!.AbsolutePath, "le voci non si chiedono sotto la radice");
+            Assert.IsNull(t.Corpo, "e' una GET: niente corpo");
+
+            var (rifiuta, _) = Banco(HttpStatusCode.NotFound, "{\"errore\":{\"codice\":\"via_sconosciuta\"}}");
+            Assert.IsNull(await rifiuta.Voci());
+            var spento = new ClienteStrategy(new HttpClient(new Trasporto(_ => throw new HttpRequestException("niente"))),
+                                             new Uri("http://127.0.0.1:1/"));
+            Assert.IsNull(await spento.Voci());
+        }
+
         // ------------------------------------------------------------------- c'e' qualcuno?
 
         [TestMethod]
