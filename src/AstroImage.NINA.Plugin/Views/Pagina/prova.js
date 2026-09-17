@@ -337,14 +337,22 @@
     'tel.focale_mm': 'Pag_Banco_tel_focale_mm', 'tel.rapporto': 'Pag_Banco_tel_rapporto',
     'red': 'Pag_Banco_red', 'mnt': 'Pag_Banco_mnt', 'cam': 'Pag_Banco_cam',
     'mnt.rms_caratteristico_arcsec': 'Pag_Banco_mnt_rms_caratteristico_arcsec',
-    'luna.riferimento_deg': 'Pag_Banco_luna_riferimento_deg' };
+    'mnt.posa_massima_s': 'Pag_Banco_mnt_posa_massima_s',
+    'luna.riferimento_deg': 'Pag_Banco_luna_riferimento_deg',
+    /* la camera fuori catalogo, descritta a mano (17 settembre 2026) */
+    'cam.nome': 'Pag_Banco_Descritta_nome', 'cam.matrice': 'Pag_Banco_Descritta_matrice', 'cam.pixel_um': 'Pag_Banco_Descritta_pixel_um',
+    'cam.width_px': 'Pag_Banco_Descritta_width_px', 'cam.height_px': 'Pag_Banco_Descritta_height_px',
+    'cam.rumore_lettura_e': 'Pag_Banco_Descritta_rumore_lettura_e', 'cam.qe_picco_pct': 'Pag_Banco_Descritta_qe_picco_pct',
+    'cam.pozzo_e': 'Pag_Banco_Descritta_pozzo_e' };
+  const PAROLA_MATRICE = { colore: 'Pag_Banco_Matrice_colore', mono: 'Pag_Banco_Matrice_mono' };
   const NOTA_CAMPO_BANCO = { 'mnt.rms_caratteristico_arcsec': 'Pag_Banco_RmsNota',
     'luna.riferimento_deg': 'Pag_Banco_LunaNota' };
   const PAROLA_DIVERGENZA_BANCO = {
     'dichiarato_diverso_dal_catalogo': 'Pag_Banco_Div_dichiarato_diverso_dal_catalogo',
     'focale_diversa_dal_catalogo': 'Pag_Banco_Div_focale_diversa_dal_catalogo',
     'apertura_diversa_da_nina': 'Pag_Banco_Div_apertura_diversa_da_nina',
-    'geometria_diversa_dal_catalogo': 'Pag_Banco_Div_geometria_diversa_dal_catalogo' };
+    'geometria_diversa_dal_catalogo': 'Pag_Banco_Div_geometria_diversa_dal_catalogo',
+    'descrizione_non_usata': 'Pag_Banco_Div_descrizione_non_usata' };
   /*  I campi della geometria della camera, per la divergenza fra il driver e la voce riconosciuta. */
   const PAROLA_CAMPO_CAMERA = { pixel_um: 'Pag_Banco_Cam_pixel_um', width_px: 'Pag_Banco_Cam_width_px',
     height_px: 'Pag_Banco_Cam_height_px', matrice: 'Pag_Banco_Cam_matrice' };
@@ -359,6 +367,7 @@
    *  rosso (tools/gate-parziale.js). Le chiavi sono letterali; i campi, nell'ordine dei segnaposto. */
   const PAROLA_PARZIALE = {
     'rumore_di_lettura_non_noto': ['Pag_Parziale_rumore_di_lettura_non_noto', ['assunto']],
+    'qe_non_nota': ['Pag_Parziale_qe_non_nota', ['voce', 'assunto']],
     'posa_massima_non_nota': ['Pag_Parziale_posa_massima_non_nota', ['tettoUsato']],
     'rumore_sotto_il_pavimento': ['Pag_Parziale_rumore_sotto_il_pavimento', ['dichiarato', 'dove', 'pavimento']],
     'rms_caratteristico_non_noto': ['Pag_Parziale_rms_caratteristico_non_noto', ['rmsUsato']],
@@ -426,9 +435,20 @@
     });
     /*  LA CAMERA IN DUE: la descrizione del driver e, accanto, la voce dichiarata. Prima la descrizione sovrascriveva
      *  tutto; e con la camera spenta la voce dichiarata basta da sola. */
+    /*  LA CAMERA FUORI CATALOGO (17 settembre 2026): con la camera scollegata parte la descrizione scritta a mano, come
+     *  camera dichiarata; con la camera collegata la geometria la dice il driver, e della descrizione parte solo la
+     *  fisica, che il driver non sa. Se accanto c'e' una voce, decide il motore: riconosciuta, la fisica e' la sua. */
+    const descritta = {};
+    campiDelBanco.forEach(c => {
+      if (c.provenienza === 'descrizione' && dichiarato[c.chiave] != null) descritta[c.chiave.split('.')[1]] = dichiarato[c.chiave];
+    });
     const idCamera = (b.cam && typeof b.cam === 'object') ? b.cam.id : null;
-    if (camera && typeof camera === 'object') b.cam = Object.assign({}, camera, idCamera ? { id: idCamera } : {});
+    if (camera && typeof camera === 'object') {
+      b.cam = Object.assign({}, camera, idCamera ? { id: idCamera } : {});
+      ['rumore_lettura_e', 'qe_picco_pct', 'pozzo_e'].forEach(k => { if (descritta[k] != null) b.cam[k] = descritta[k]; });
+    }
     else if (camera && !idCamera) b.cam = camera;
+    else if (Object.keys(descritta).length) b.cam = Object.assign({}, b.cam || {}, descritta, { origine: 'dichiarata' });
     b.bin = 1;
     return b;
   }
@@ -465,6 +485,7 @@
     const pb = bancoUsato;
     const campi = campiDelBanco.filter(c => PEZZI_DEL_BLOCCO.indexOf(c.pezzo) >= 0 &&
       !/\.id$/.test(c.chiave) && PAROLA_CAMPO_BANCO[c.chiave]);
+    const primaDescritta = (campi.find(c => c.provenienza === 'descrizione') || {}).chiave;
     const delProdotto = c => {
       const parti = c.chiave.split('.');
       const pezzo = pb && pb[c.pezzo];
@@ -509,6 +530,20 @@
       } else if (c.provenienza === 'dichiarabile') {
         valore = '<input data-banco="' + esc(c.chiave) + '" data-numero="1" value="' + escOVuoto(dichiarato[c.chiave]) +
           '" style="width:70px" spellcheck="false">' + unita + fonte(delProdotto(c));
+      } else if (c.provenienza === 'descrizione') {
+        /*  LA CAMERA FUORI CATALOGO (17 settembre 2026): i campi del modulo «su misura» di AIS, sotto la voce, col loro
+         *  titolo davanti al primo. La matrice si sceglie; il resto si scrive, e i numeri li giudica il servizio. */
+        const titolo = c.chiave === primaDescritta
+          ? '<tr><td colspan="2" style="padding-top:.8em"><b>' + esc(T('Pag_Banco_CamDescrittaTitolo')) + '</b>' +
+            '<div style="font-size:12px;opacity:.7">' + MF('Pag_Banco_CamDescrittaNota') + '</div></td></tr>' : '';
+        if (c.chiave === 'cam.matrice')
+          valore = '<select data-banco="cam.matrice"><option value=""></option>' + ['colore', 'mono'].map(m =>
+            '<option value="' + m + '"' + (dichiarato[c.chiave] === m ? ' selected' : '') + '>' + esc(T(PAROLA_MATRICE[m])) +
+            '</option>').join('') + '</select>';
+        else
+          valore = '<input data-banco="' + esc(c.chiave) + '"' + (c.unita ? ' data-numero="1"' : '') +
+            ' value="' + escOVuoto(dichiarato[c.chiave]) + '" style="width:' + (c.unita ? '70' : '170') + 'px" spellcheck="false">' + unita;
+        return titolo + '<tr><th>' + etichetta + '</th><td>' + valore + '</td></tr>';
       } else return '';
       const nota = NOTA_CAMPO_BANCO[c.chiave]
         ? '<div style="font-size:12px;opacity:.7">' + esc(T(NOTA_CAMPO_BANCO[c.chiave])) + '</div>' : '';
@@ -523,6 +558,10 @@
         const nome = c && PAROLA_CAMPO_BANCO[c.chiave] ? T(PAROLA_CAMPO_BANCO[c.chiave]) : d.campo;
         const u = c && c.unita ? ' ' + c.unita : '';
         return '<li>' + MF(parola, esc(nome), cifra(d.dichiarato), cifra(d.catalogo), esc(d.voce), esc(u)) + '</li>';
+      }
+      if (d.codice === 'descrizione_non_usata') {
+        const nomi = (d.campi || []).map(k => PAROLA_CAMPO_BANCO['cam.' + k] ? T(PAROLA_CAMPO_BANCO['cam.' + k]) : k);
+        return '<li>' + MF(parola, esc(d.voce), esc(nomi.join(', '))) + '</li>';
       }
       if (d.codice === 'geometria_diversa_dal_catalogo') {
         const pc = PAROLA_CAMPO_CAMERA[d.campo];
@@ -546,7 +585,7 @@
     const salva = $('salvaBanco');
     if (salva) salva.addEventListener('click', () => {
       const valori = {};
-      Array.prototype.forEach.call(box.querySelectorAll('input[data-banco]'), i => {
+      Array.prototype.forEach.call(box.querySelectorAll('input[data-banco], select[data-banco]'), i => {
         valori[i.getAttribute('data-banco')] = valoreScritto(i.value, i.hasAttribute('data-numero'));
       });
       $('esitoBanco').textContent = T('Pag_Salvo');
