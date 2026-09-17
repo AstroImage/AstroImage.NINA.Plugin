@@ -18,9 +18,7 @@
   }
   body { margin:0; padding:20px; background:#15181d; color:#dfe4ea;
          font:14px/1.55 "Segoe UI", system-ui, sans-serif; }
-  h1 { font-size:15px; font-weight:600; margin:0 0 2px; letter-spacing:.02em; }
-  .sotto { opacity:.6; font-size:12.5px; margin-bottom:18px; }
-  .riga { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+
   button { background:#2b6cb0; color:#fff; border:0; border-radius:5px;
            padding:7px 15px; font-size:13px; cursor:pointer; }
   button:hover { background:#3182ce; }
@@ -69,6 +67,43 @@
     pointer-events:none; fill:none; stroke:var(--acc); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
     opacity:.85; transition:opacity .12s; }
   .data-cal:hover svg, .data-cal:focus-within svg { opacity:1; }
+  /*  LA DOMANDA COME IN AIS (17 settembre 2026): «Cosa vuoi riprendere» con la lente e «Pulisci», la notte di riferimento
+   *  con la Luna sotto, e il tasto, su una riga sola. I colori, i raggi e i pesi sono quelli di `.hero-lab`,
+   *  `.hero-input`, `.clr` e `.nightbox` di AIS; le misure sono un poco piu' piccole, perche' qui la riga e' una. */
+  :root { --radius-lg:14px; --fn-cfg:#a78bfa; --fn-cfg-rgb:167,139,250; }
+  .domanda { display:flex; gap:var(--s4); align-items:stretch; flex-wrap:nowrap; margin-bottom:16px; }
+  .campo-oggetto { flex:1 1 320px; min-width:180px; display:flex; flex-direction:column; justify-content:flex-end; }
+  .didascalia { display:flex; align-items:center; gap:7px; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+                font-weight:600; color:var(--acc); margin-bottom:8px; cursor:help; }
+  .didascalia > svg { width:15px; height:15px; flex:none; fill:none; stroke:currentColor; stroke-width:1.8;
+                      stroke-linecap:round; stroke-linejoin:round; }
+  .ico { display:inline-flex; align-items:center; justify-content:center; width:12px; height:12px; border:1px solid currentColor;
+         border-radius:50%; font-size:8.5px; font-style:italic; font-weight:700; line-height:1; letter-spacing:0; }
+  .cerca { display:flex; align-items:center; gap:10px; background:var(--sunken); border:1px solid rgba(var(--acc-rgb),.45);
+           border-radius:var(--radius-lg); padding:0 12px; box-shadow:0 0 0 3px rgba(var(--acc-rgb),.06), var(--elev-lo);
+           transition:border-color .15s, box-shadow .15s; }
+  .cerca:focus-within { border-color:var(--acc); box-shadow:0 0 0 4px rgba(var(--acc-rgb),.16), var(--elev); }
+  .cerca > svg { width:18px; height:18px; flex:none; fill:none; stroke:var(--acc); stroke-width:1.7; stroke-linecap:round;
+                 stroke-linejoin:round; opacity:.8; }
+  .cerca input { flex:1; min-width:0; width:auto; background:transparent; border:none; border-radius:0; font-size:17px;
+                 font-weight:600; color:var(--fg); padding:11px 0; }
+  .cerca input:focus { outline:none; }
+  .cerca input::placeholder { color:var(--dim2); font-weight:400; font-size:14px; }
+  #pulisci { flex:none; padding:2px 8px; font-size:10px; line-height:1.7; letter-spacing:.06em; text-transform:uppercase;
+             color:var(--fn-cfg); background:rgba(var(--fn-cfg-rgb),.09); border:1px solid rgba(var(--fn-cfg-rgb),.4);
+             border-radius:5px; }
+  #pulisci:hover { background:rgba(var(--fn-cfg-rgb),.18); border-color:var(--fn-cfg); }
+  #pulisci[hidden] { display:none; }
+  .notte-rif { flex:0 1 230px; min-width:190px; display:flex; flex-direction:column; justify-content:center; gap:3px;
+               background:var(--bg3); border:1px solid var(--line); border-radius:var(--radius); padding:8px 14px; }
+  .notte-rif .didascalia { color:var(--dim2); font-size:10.5px; letter-spacing:.09em; font-weight:400; margin:0; }
+  .notte-rif .data-cal { align-self:flex-start; }
+  .notte-rif input[type=date] { font:inherit; font-size:17px; font-weight:700; color:var(--fg); background:transparent;
+                                border:none; border-bottom:1px dotted var(--dim2); border-radius:0; padding:0 30px 0 0; }
+  .notte-rif input[type=date]:focus { outline:none; border-bottom-color:var(--acc); }
+  .luna-notte { font-size:12px; color:var(--dim); min-height:1.3em; }
+  .notte-usata { color:var(--warn); font-weight:600; }
+  .azione { flex:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
   /* ── I TRE MODI ────────────────────────────────────────────────
      Ogni valore qui sotto e' copiato dal riquadro «Come riprendere» di AIS —
      `.goalbox` / `.goalgrid` / `.goalcard` / `.gc` — e NON dalle `.stratcard`,

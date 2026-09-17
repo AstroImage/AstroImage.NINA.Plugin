@@ -47,6 +47,9 @@ namespace AstroImage.NINA.Plugin.Views {
      *      voci          { id, azione: "voci" }
      *                 -> { id, ok, corpo: "<il JSON di v1/voci>" }
      *
+     *      luna          { id, azione: "luna", data: "AAAA-MM-GG", lat, lon }
+     *                 -> { id, ok, corpo: "<il JSON di v1/luna>" }
+     *
      *      manda         { id, azione: "manda", prescrizione: "<identificativo>", notte: n }
      *                 -> { id, ok, nome, bersaglio, blocchi, pose, note[], scartati[] }
      *
@@ -288,6 +291,8 @@ namespace AstroImage.NINA.Plugin.Views {
                 if (azione == "cerca") { await Cerca(id, messaggio); return; }
 
                 if (azione == "voci") { await Voci(id); return; }
+
+                if (azione == "luna") { await Luna(id, messaggio); return; }
 
                 if (azione != "prescrizione") {
                     Rispondi(id, false, null, "azione_sconosciuta", Loc.F("Pannello_AzioneSconosciuta", azione)); return;
@@ -632,6 +637,26 @@ namespace AstroImage.NINA.Plugin.Views {
                          Loc.F("Pannello_NessunoRisponde", (DataContext as PannelloStrategyVM)?.Radice));
                 return;
             }
+            Rispondi(id, true, corpo, null, null);
+        }
+
+        /*  LA LUNA DELLA NOTTE (17 settembre 2026): la pagina la scrive sotto la data, come AIS, e il conto e' di Strategy.
+         *  L'ospite porta la data e il sito a `v1/luna` e rimanda il corpo com'e'. Una domanda storta o il servizio spento:
+         *  `ok: false`, e sotto la data non si scrive niente. */
+        private async Task Luna(string id, JsonObject messaggio) {
+            var cliente = (DataContext as PannelloStrategyVM)?.Cliente;
+            if (cliente is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaCorriere")); return; }
+            string data; double lat, lon;
+            try {
+                data = messaggio["data"]?.GetValue<string>();
+                lat = messaggio["lat"]?.GetValue<double>() ?? double.NaN;
+                lon = messaggio["lon"]?.GetValue<double>() ?? double.NaN;
+            } catch { data = null; lat = lon = double.NaN; }
+            if (string.IsNullOrWhiteSpace(data) || double.IsNaN(lat) || double.IsNaN(lon)) {
+                Rispondi(id, false, null, "richiesta_malformata", null); return;
+            }
+            var corpo = await cliente.Luna(data, lat, lon);
+            if (corpo is null) { Rispondi(id, false, null, "servizio_irraggiungibile", null); return; }
             Rispondi(id, true, corpo, null, null);
         }
 

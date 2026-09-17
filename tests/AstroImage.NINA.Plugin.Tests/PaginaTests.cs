@@ -165,7 +165,7 @@ namespace AstroImage.NINA.Plugin.Tests {
             var p = Pagina();
             StringAssert.Contains(p, "window.__LOC__=", "senza dizionario la pagina mostrerebbe i nomi delle chiavi");
             Assert.IsFalse(p.Contains("<!--voci-->"), "il segnaposto delle voci non e' stato sostituito");
-            StringAssert.Contains(p, "\"Pag_Intestazione\"", "una voce che dovrebbe esserci non c'e'");
+            StringAssert.Contains(p, "\"Pag_ChiediPrescrizione\"", "una voce che dovrebbe esserci non c'e'");
         }
 
         [TestMethod]
@@ -660,6 +660,76 @@ namespace AstroImage.NINA.Plugin.Tests {
                     lingua + ": il dizionario ha di nuovo la frase del rifiuto");
             StringAssert.Contains(Tratto(PaginaSenzaCommenti(), "async function manda(tasto)", "\n  }"), "'Pag_NotteAggiunta'",
                 "la risposta non dice che cosa ha consegnato");
+        }
+
+        /*  LA DOMANDA E' QUELLA DI AIS, SU UNA RIGA (17 settembre 2026): «Cosa vuoi riprendere» con la lente e
+         *  «Pulisci», «Notte di riferimento» con la Luna sotto la data, e il tasto — oggetto, data e tasto sulla stessa riga;
+         *  e l'intestazione di prova se ne va. Le didascalie e i suggerimenti sono parole del dizionario, il segnaposto
+         *  anche; la Luna la calcola Strategy, e la pagina la chiede all'ospite col sito del profilo. Guardia strutturale. */
+        [TestMethod]
+        public void LA_DOMANDA_E_QUELLA_DI_AIS_SU_UNA_RIGA() {
+            var html = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.html"), "<!--.*?-->", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            Assert.IsFalse(html.Contains("Pag_Intestazione") || html.Contains("Pag_Sottotitolo") || html.Contains("<h1"),
+                "l'intestazione di prova c'e' ancora");
+            var i0 = html.IndexOf("<div class=\"domanda\">", StringComparison.Ordinal);
+            Assert.IsTrue(i0 >= 0, "manca la riga della domanda");
+            var riga = html.Substring(i0, html.IndexOf("<div class=\"hero-row\">", StringComparison.Ordinal) - i0);
+            foreach (var pezzo in new[] { "id=\"oggetto\"", "id=\"data\" type=\"date\"", "id=\"vai\"", "id=\"stato\"",
+                                          "data-loc=\"Pag_CosaVuoiRiprendere\"", "data-loc-title=\"Pag_CosaVuoiRiprendereNota\"",
+                                          "data-loc-placeholder=\"Pag_OggettoEsempio\"", "id=\"pulisci\"", "data-loc=\"Pag_Pulisci\"",
+                                          "data-loc-title=\"Pag_PulisciNota\"", "data-loc=\"Pag_NotteDiRiferimento\"",
+                                          "data-loc-title=\"Pag_NotteDiRiferimentoNota\"", "id=\"lunaNotte\"", "class=\"ico\"" })
+                StringAssert.Contains(riga, pezzo, "la riga della domanda non ha " + pezzo);
+            Assert.IsTrue(System.Text.RegularExpressions.Regex.Matches(riga, "<svg").Count >= 3, "mancano le icone: il mirino, la lente, il calendario");
+            Assert.IsFalse(System.Text.RegularExpressions.Regex.Match(html, "<input id=\"oggetto\"[^>]*>").Value.Contains("value="),
+                "il campo dell'oggetto non parte con un oggetto scritto nel codice");
+
+            var js = PaginaSenzaCommenti();
+            var voci = Tratto(js, "function applicaVoci() {", "\n  }");
+            StringAssert.Contains(voci, "[data-loc-title]", "i suggerimenti non prendono le parole");
+            StringAssert.Contains(voci, "[data-loc-placeholder]", "il segnaposto non prende le parole");
+            var luna = Tratto(js, "function lunaDellaData() {", "\n  }");
+            foreach (var pezzo in new[] { "chiedi('luna', null, { data: giorno, lat: sito.lat, lon: sito.lon })", "mia !== ultimaLuna",
+                                          "JSON.parse(r.corpo).luna", "l.sopra", "l.fasePercento", "l.altezza_deg", "'Pag_LunaAlta'",
+                                          "'Pag_LunaSotto'", "'Pag_NotteUsata'", "notteUsata" })
+                StringAssert.Contains(luna, pezzo, "la Luna della notte non usa " + pezzo);
+            StringAssert.Contains(Tratto(js, "function disegnaSito(r) {", "\n  }"), "lunaDellaData()", "cambiando sito la Luna non si richiede");
+            StringAssert.Contains(js, "notteUsata = p.notte.usata", "dopo la risposta la Luna non e' quella della notte usata");
+            var pulisci = Tratto(js, "function pulisci() {", "\n  }");
+            foreach (var pezzo in new[] { "$('oggetto').value = ''", "stradaScelta = null", "riempiElencoOggetti()", "aggiornaPulisci()" })
+                StringAssert.Contains(pulisci, pezzo, "«Pulisci» non usa " + pezzo);
+            StringAssert.Contains(js, "e.key === 'Escape'", "«Pulisci» non risponde a Esc");
+            StringAssert.Contains(Tratto(js, "async function vai() {", "stato(T('Pag_StoChiedendo'));"), "'Pag_ScriviOggetto'",
+                "con il campo vuoto la domanda parte lo stesso");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                Assert.IsFalse(t.ContainsKey("Pag_Intestazione") || t.ContainsKey("Pag_Sottotitolo"), lingua + ": l'intestazione di prova e' ancora nel dizionario");
+                foreach (var k in new[] { "Pag_CosaVuoiRiprendere", "Pag_CosaVuoiRiprendereNota", "Pag_OggettoEsempio", "Pag_Pulisci",
+                                          "Pag_PulisciNota", "Pag_NotteDiRiferimento", "Pag_NotteDiRiferimentoNota", "Pag_LunaAlta",
+                                          "Pag_LunaSotto", "Pag_NotteUsata", "Pag_ScriviOggetto" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+                StringAssert.Contains(t["Pag_LunaAlta"], "{1}", lingua);
+            }
+            StringAssert.Contains(Tutte("it")["Pag_LunaAlta"], "Luna {0}%, alta {1}°", "la didascalia non e' quella di AIS");
+            var css = Risorsa("prova.css");
+            foreach (var regola in new[] { ".domanda {", "flex-wrap:nowrap", ".didascalia {", ".cerca {", "#pulisci {", ".notte-rif {", ".luna-notte {" })
+                StringAssert.Contains(css, regola, "manca lo stile «" + regola + "»");
+
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var i = 0; i < 8 && su is not null; i++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views",
+                "PannelloStrategyView.xaml.cs"));
+            StringAssert.Contains(vista, "if (azione == \"luna\") { await Luna(id, messaggio); return; }", "l'ospite non porta la domanda della Luna");
+            var g0 = vista.IndexOf("private async Task Luna(string id, JsonObject messaggio)", StringComparison.Ordinal);
+            Assert.IsTrue(g0 >= 0, "il gestore della Luna non si trova");
+            var gestore = vista.Substring(g0, vista.IndexOf("\n        }", g0, StringComparison.Ordinal) - g0);
+            StringAssert.Contains(gestore, "Rispondi(id, true, corpo, null, null)", "la Luna non torna come il servizio la manda");
         }
 
         /*  LA LUNA STA NELLA NOTTE, E TACE QUANDO NON COSTA (regia, 17 settembre 2026). Il riquadro della penalizzazione

@@ -249,6 +249,11 @@
   function applicaVoci() {
     for (const el of document.querySelectorAll('[data-loc]'))
       el.innerHTML = M(T(el.getAttribute('data-loc')));
+    /*  i suggerimenti e il segnaposto della domanda (17 settembre 2026): testo semplice, senza il grassetto */
+    for (const el of document.querySelectorAll('[data-loc-title]'))
+      el.title = T(el.getAttribute('data-loc-title')).replace(/\*/g, '');
+    for (const el of document.querySelectorAll('[data-loc-placeholder]'))
+      el.placeholder = T(el.getAttribute('data-loc-placeholder')).replace(/\*/g, '');
   }
 
   /*  UNA CARD PER MODO. Il testo tradotto vince quando c'e' — `Pag_Modo_<id>` e
@@ -669,6 +674,12 @@
   }
 
   async function vai() {
+    /*  Senza oggetto non si chiede niente: si dice, e si torna al campo. */
+    if (!$('oggetto').value.trim()) {
+      stato(T('Pag_ScriviOggetto'), 'no');
+      $('oggetto').focus();
+      return;
+    }
     $('vai').disabled = true;
     stato(T('Pag_StoChiedendo'));
     $('uscita').innerHTML = '';
@@ -734,6 +745,9 @@
        fatto che si legga e' la prova che ha attraversato il ponte intatta. */
     const d = JSON.parse(r.corpo);
     const p = d.prodotto;
+    /*  la Luna sotto la data e' quella della notte che il piano usa davvero */
+    notteUsata = p.notte.usata;
+    lunaDellaData();
 
     /* L'IDENTIFICATIVO VIAGGIA CON LA RIGA, non in una variabile a parte.
        Sembra un dettaglio ed e' la differenza fra una guardia che funziona e una che
@@ -906,6 +920,34 @@
    *  prossima domanda torna a far scegliere il motore. */
   for (const campo of ['oggetto', 'data', 'notti'])
     $(campo).addEventListener('input', () => { stradaScelta = null; });
+  /*  una data nuova e' una notte nuova: la Luna si richiede, e la notte usata della risposta di prima non vale piu' */
+  $('data').addEventListener('input', () => { notteUsata = null; lunaDellaData(); });
+
+  /*  LA LUNA SOTTO LA DATA, come in AIS (17 settembre 2026): la fase e l'altezza a meta' del buio astronomico, dal sito
+   *  del profilo. Il conto e' di Strategy, e la pagina lo chiede all'ospite quando cambiano la data o il sito. Dopo una
+   *  risposta, se la notte usata non e' quella chiesta, la Luna e' quella della notte usata, con la freccia. Vince
+   *  l'ultima domanda. */
+  let ultimaLuna = 0, notteUsata = null;
+  function lunaDellaData() {
+    const box = $('lunaNotte');
+    const chiesta = $('data').value;
+    const giorno = notteUsata && notteUsata !== chiesta ? notteUsata : chiesta;
+    const mia = ++ultimaLuna;
+    if (!box) return;
+    if (!sito || sito.lat == null || sito.lon == null || !giorno) { box.textContent = ''; return; }
+    chiedi('luna', null, { data: giorno, lat: sito.lat, lon: sito.lon }).then(r => {
+      if (mia !== ultimaLuna) return;
+      let l = null;
+      try { l = r.ok ? JSON.parse(r.corpo).luna : null; } catch (e) { l = null; }
+      if (!l) { box.textContent = ''; return; }
+      const freccia = giorno !== chiesta
+        ? '<span class="notte-usata">' + MF('Pag_NotteUsata', esc(dataScritta(giorno, { weekday: 'short', day: 'numeric', month: 'short' }))) + '</span> '
+        : '';
+      box.innerHTML = freccia + (l.sopra
+        ? MF('Pag_LunaAlta', cifra(l.fasePercento), cifra(l.altezza_deg, 0))
+        : MF('Pag_LunaSotto', cifra(l.fasePercento)));
+    });
+  }
 
   /*  L'OGGETTO SI TROVA MENTRE SI SCRIVE, come in AIS (17 settembre 2026: IC 435 dal Ponte non si trovava). A ogni
    *  tasto, dopo una breve pausa, la pagina chiede all'ospite `cerca`, e l'elenco sotto il campo si riempie con le
@@ -936,6 +978,21 @@
     pausaRicerca = setTimeout(riempiElencoOggetti, 120);
   });
   riempiElencoOggetti();
+
+  /*  «PULISCI», come in AIS (17 settembre 2026): svuota il campo e riporta l'elenco alle schede complete; compare solo
+   *  quando c'e' qualcosa da pulire. Anche con Esc. */
+  function aggiornaPulisci() { $('pulisci').hidden = !$('oggetto').value; }
+  function pulisci() {
+    $('oggetto').value = '';
+    stradaScelta = null;
+    aggiornaPulisci();
+    riempiElencoOggetti();
+    $('oggetto').focus();
+  }
+  $('pulisci').addEventListener('click', pulisci);
+  $('oggetto').addEventListener('input', aggiornaPulisci);
+  $('oggetto').addEventListener('keydown', e => { if (e.key === 'Escape' && $('oggetto').value) pulisci(); });
+  aggiornaPulisci();
 
   /*  LA FRASE DELL'OSPITE VINCE SU QUELLA GENERICA: l'ospite compone gia'
       «Nessuno risponde a <indirizzo>» con la radice davvero in uso, e la pagina la
@@ -1022,6 +1079,7 @@
 
   function disegnaSito(r) {
     sito = r.sito || null;
+    lunaDellaData();
     sitoScritto = r.dichiarato || {};
     sitoProv = r.provenienza || {};
     sitoManca = r.manca || null;
