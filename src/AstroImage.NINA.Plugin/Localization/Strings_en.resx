@@ -205,7 +205,10 @@
     <value>The engine could not read the request the plugin sent it. This is a plugin fault, not something you did. The engine says: {0}</value>
   </data>
   <data name="Motore_NessunaPrescrizione" xml:space="preserve">
-    <value>With the filters you declared there is no workable road for this object. Try declaring more filters in the wheel, or pick an object the lines you own can actually trace.</value>
+    <value>With this setup and this filter wheel no route can be shot. Missing: {0}.</value>
+  </data>
+  <data name="Motore_NessunaPrescrizioneSenzaDati" xml:space="preserve">
+    <value>Strategy found no workable route for this object, and sent no reason.</value>
   </data>
   <data name="Motore_RichiestaIncompleta" xml:space="preserve">
     <value>The plugin sent a request without {0}. This is a plugin fault, not something you did.</value>
@@ -781,7 +784,10 @@
     <value>{0}: {1} makes this capture</value>
   </data>
   <data name="Pag_Men_StelleNonRiprendibili" xml:space="preserve">
-    <value>the star colour pass cannot be done with this wheel</value>
+    <value>the star colour pass cannot be done</value>
+  </data>
+  <data name="Pag_Men_StelleNonRiprendibili_perche" xml:space="preserve">
+    <value>the star colour pass cannot be done: {0}</value>
   </data>
   <data name="Pag_Men_StelleNonRiprendibili_spento" xml:space="preserve">
     <value>the star colour pass cannot be done with this wheel: channel {0} is turned off</value>
@@ -835,7 +841,7 @@
     <value>for {0} on OSC you picked {1}, which its filter sheet excludes from broadband on a colour sensor</value>
   </data>
   <data name="Pag_Men_Motivo_generico" xml:space="preserve">
-    <value>channel {0} cannot be shot with this wheel</value>
+    <value>channel {0} cannot be shot (engine reason: {1})</value>
   </data>
   <data name="Pag_Men_ChiestaBloccata" xml:space="preserve">
     <value>The technique you picked, *{0}*, cannot be shot with the current wheel: {1}. Until you pick it again, the engine chooses.</value>
@@ -859,7 +865,7 @@
     <value>The technique you picked, *{0}*, has the same channels as *{2}*. The prescription follows the engine's choice, *{1}*.</value>
   </data>
   <data name="Pag_Men_Sostituita_generica" xml:space="preserve">
-    <value>The technique you picked, *{0}*, cannot be taken with this wheel. The prescription follows the engine's choice, *{1}*.</value>
+    <value>The technique you picked, *{0}*, cannot be taken (engine reason: {3}). The prescription follows the engine's choice, *{1}*.</value>
   </data>
   <data name="Pag_Men_StaiScegliendo" xml:space="preserve">
     <value>You are choosing: with these hours the engine would take *{0}*. The prescription follows your choice.</value>
@@ -1227,11 +1233,35 @@
   <data name="Pag_Verdetto_Coperto" xml:space="preserve">
     <value>the requested nights ({0}) cover {1} % of the project</value>
   </data>
-  <data name="Pag_Banco_CamCollegata" xml:space="preserve">
-    <value>connected ({0}): recognised as “{1}”</value>
-  </data>
   <data name="Pag_Banco_CamVoceSconosciuta" xml:space="preserve">
-    <value>“{0}” is not among the catalogue entries, and while it stays written the connected camera is not recognised on its own. Pick one from the list, or empty the field and save; a camera the list does not have is described below.</value>
+    <value>“{0}” is not among the catalogue entries. Pick one from the list; a camera the list does not have is described below.</value>
+  </data>
+  <data name="Pag_CameraDelCalcolo" xml:space="preserve">
+    <value>Camera used in the calculation: *{0}* — {1}, {2}.</value>
+  </data>
+  <data name="Pag_Camera_Via_nome_e_geometria" xml:space="preserve">
+    <value>the connected camera, recognised from its driver</value>
+  </data>
+  <data name="Pag_Camera_Via_dichiarata" xml:space="preserve">
+    <value>the entry written in the setup</value>
+  </data>
+  <data name="Pag_Camera_Via_dichiarata_collegata" xml:space="preserve">
+    <value>the entry written in the setup, confirmed by the connected camera</value>
+  </data>
+  <data name="Pag_Camera_Via_collegata_fuori_catalogo" xml:space="preserve">
+    <value>the connected camera ({0}), not in the catalogue</value>
+  </data>
+  <data name="Pag_Camera_Via_descritta" xml:space="preserve">
+    <value>the camera described by hand</value>
+  </data>
+  <data name="Pag_Camera_Disaccordo" xml:space="preserve">
+    <value>The entry written in the setup ({0}) is not the connected camera ({1}): the connected one is used.</value>
+  </data>
+  <data name="Pag_Camera_UsaVoceScritta" xml:space="preserve">
+    <value>use the written entry instead</value>
+  </data>
+  <data name="Pag_Camera_SoloVoce" xml:space="preserve">
+    <value>Calculated with the written entry only, as you asked: the connected camera was left out of this request.</value>
   </data>
   <data name="Pag_Banco_CamDescrittaSpenta" xml:space="preserve">
     <value>The camera is recognised: below are its data, as Strategy uses them. These fields are for a camera the list does not have.</value>

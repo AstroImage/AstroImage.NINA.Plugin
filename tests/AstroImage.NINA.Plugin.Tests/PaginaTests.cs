@@ -383,7 +383,8 @@ namespace AstroImage.NINA.Plugin.Tests {
                 System.Text.RegularExpressions.RegexOptions.Singleline);
             foreach (var vietato in new[] { "'askar71f'", "'am5'", "'asi2600mc'", "red:", "bancoMandato" })
                 Assert.IsFalse(js.Contains(vietato), $"«{vietato}»: un pezzo del banco scritto nella pagina");
-            Assert.IsTrue(System.Text.RegularExpressions.Regex.IsMatch(js, @"banco:\s*bancoDaMandare\(\)"),
+            /*  dal 18 settembre 2026 col solo argomento «la sola voce scritta», che vale per una richiesta */
+            Assert.IsTrue(System.Text.RegularExpressions.Regex.IsMatch(js, @"banco:\s*bancoDaMandare\((soloVoce)?\)"),
                 "la richiesta non compone il banco dalla lista");
             foreach (var letto in new[] { "r.campiDelBanco", "r.divergenzeDelBanco", "chiedi('banco')", "chiedi('salvaBanco'",
                                           "p.banco", "pb.divergenze", "c.provenienza === 'nina'", "c.provenienza === 'dichiarabile'" })
@@ -662,6 +663,75 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "la risposta non dice che cosa ha consegnato");
         }
 
+        /*  IL RIFIUTO SI SCRIVE COI MOTIVI DEL MOTORE, E LA CAMERA DEL CALCOLO SI DICE (regia, 18 settembre 2026). Il
+         *  pannello scriveva una frase sua al posto delle strade bloccate che il motore aveva mandato, e dava la colpa ai
+         *  filtri quando il problema era la camera. Adesso il rifiuto si scrive col codice del menu delle strade — la
+         *  stessa carta, lo stesso testo del motivo —, e accanto c'e' la camera con cui il motore ha calcolato. Il
+         *  disaccordo fra voce scritta e camera collegata si dice in giallo, e «usa invece la voce scritta» chiede la
+         *  prescrizione con la sola voce, per quella richiesta e basta: nessuno stato che resti. Guardia strutturale. */
+        [TestMethod]
+        public void IL_RIFIUTO_SI_SCRIVE_COI_MOTIVI_E_LA_CAMERA_SI_DICE() {
+            var js = PaginaSenzaCommenti();
+            var rifiuto = Tratto(js, "function disegnaRifiuto(", "\n  }");
+            foreach (var pezzo in new[] { "bloccate", "cartaBloccata", "cameraDelCalcolo(" })
+                StringAssert.Contains(rifiuto, pezzo, "il rifiuto non usa " + pezzo);
+            StringAssert.Contains(Tratto(js, "function cartaBloccata(", "\n  }"), "testoDelMotivo",
+                "la carta della strada bloccata non scrive il motivo del motore");
+            StringAssert.Contains(Tratto(js, "function disegnaMenu(", "\n  }"), "cartaBloccata",
+                "il menu delle strade e il rifiuto non usano la stessa carta");
+            StringAssert.Contains(Tratto(js, "if (!r.ok) {", "return;"), "disegnaRifiuto(r",
+                "la risposta rifiutata non passa dal disegno del rifiuto");
+            StringAssert.Contains(js, "cameraDelCalcolo(p.banco.camera", "la risposta riuscita non dice la camera del calcolo");
+
+            var camera = Tratto(js, "function cameraDelCalcolo(", "\n  }");
+            StringAssert.Contains(camera, "disaccordoDellaCamera(", "la camera del calcolo non dice il disaccordo");
+            var disaccordo = Tratto(js, "function disaccordoDellaCamera(", "\n  }");
+            foreach (var pezzo in new[] { "'Pag_Camera_Disaccordo'", "data-usa-voce-scritta" })
+                StringAssert.Contains(disaccordo, pezzo, "il disaccordo non usa " + pezzo);
+            StringAssert.Contains(js, "vai({ voceScritta: true })", "«usa invece la voce scritta» non chiede niente");
+            StringAssert.Contains(js, "function bancoDaMandare(soloVoceScritta)", "il banco non sa mandare la sola voce");
+            Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(js, @"\b(let|var)\s+[^;=]*voceScritta"),
+                "la voce scritta al posto della collegata e' diventata uno stato che resta");
+
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in new[] { "Pag_CameraDelCalcolo", "Pag_Camera_Disaccordo", "Pag_Camera_UsaVoceScritta",
+                                          "Pag_Camera_SoloVoce", "Pag_Camera_Via_nome_e_geometria", "Pag_Camera_Via_dichiarata",
+                                          "Pag_Camera_Via_dichiarata_collegata", "Pag_Camera_Via_collegata_fuori_catalogo",
+                                          "Pag_Camera_Via_descritta" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+                StringAssert.Contains(t["Pag_Camera_Disaccordo"], "{1}", lingua);
+                Assert.IsFalse(t.ContainsKey("Pag_Banco_CamCollegata"),
+                    lingua + ": c'e' ancora «collegata (…): riconosciuta come (…)», che dice il falso nel disaccordo");
+            }
+        }
+
+        /*  LA STESSA SOSTITUZIONE, ALTROVE (regia, 18 settembre 2026: «cerca se la stessa sostituzione avviene altrove»).
+         *  Tre posti scrivevano una frase nostra che dava la colpa alla ruota quando il motore mandava un motivo che la
+         *  pagina non conosce: il motivo di una banda di un tipo nuovo, la tecnica sostituita per un motivo nuovo, e la
+         *  passata delle stelle con un motivo che non porta le bande che mancano. Adesso il codice del motore si scrive,
+         *  e il motivo della stella passa dal testo del motivo. Guardia strutturale. */
+        [TestMethod]
+        public void UN_MOTIVO_CHE_LA_PAGINA_NON_CONOSCE_NON_DIVENTA_COLPA_DELLA_RUOTA() {
+            var js = PaginaSenzaCommenti();
+            StringAssert.Contains(Tratto(js, "default: return MF('Pag_Men_Motivo_generico'", ";"), "x.tipo",
+                "un motivo di tipo nuovo diventa una frase nostra, senza il suo codice");
+            StringAssert.Contains(Tratto(js, "PAROLA_SOSTITUITA[sost.motivo] || 'Pag_Men_Sostituita_generica'", "</div>"),
+                "sost.motivo", "una sostituzione per un motivo nuovo diventa una frase nostra, senza il suo codice");
+            StringAssert.Contains(Tratto(js, "function testoStelle(", "\n  }"), "testoDelMotivo(perche)",
+                "il motivo della passata delle stelle non passa dal testo del motivo");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in new[] { "Pag_Men_Motivo_generico", "Pag_Men_Sostituita_generica", "Pag_Men_StelleNonRiprendibili" })
+                    Assert.IsFalse(t[k].IndexOf(lingua == "it" ? "ruota" : "wheel", StringComparison.OrdinalIgnoreCase) >= 0,
+                        lingua + ": " + k + " da' la colpa alla ruota, e il motore non l'ha detto");
+                StringAssert.Contains(t["Pag_Men_Motivo_generico"], "{1}", lingua + ": il codice del motivo non entra nella frase");
+                StringAssert.Contains(t["Pag_Men_Sostituita_generica"], "{3}", lingua + ": il codice del motivo non entra nella frase");
+                Assert.IsTrue(t.TryGetValue("Pag_Men_StelleNonRiprendibili_perche", out var p) && p.Contains("{0}"),
+                    lingua + ": manca la frase della stella col suo motivo");
+            }
+        }
+
         /*  IL MOTORE CHE NON RISPONDE SI DICE IN CIMA, E SI PUO' RIPROVARE (17 settembre 2026). Chi installa il plugin per
          *  la prima volta vede questo pannello prima di qualunque altra cosa: se resta muto pensa che sia rotto, e non
          *  che il motore sia spento o l'indirizzo sbagliato. L'avviso sta in cima alla pagina, nomina l'indirizzo che il
@@ -735,7 +805,8 @@ namespace AstroImage.NINA.Plugin.Tests {
                     "dopo " + chi + " la camera non si riconosce");
             }
             var voce = Tratto(js, "c.provenienza === 'riconoscimento'", "} else if (c.provenienza === 'nina')");
-            foreach (var pezzo in new[] { "cameraDelBanco", "placeholder=\"' + esc(", "'Pag_Banco_CamCollegata'", "'Pag_Banco_CamVoceSconosciuta'" })
+            /*  dal 18 settembre 2026 la collegata vince, e il disaccordo sostituisce «collegata (…): riconosciuta come (…)» */
+            foreach (var pezzo in new[] { "cameraDelBanco", "placeholder=\"' + esc(", "disaccordoDellaCamera(", "'Pag_Banco_CamVoceSconosciuta'" })
                 StringAssert.Contains(voce, pezzo, "il campo della camera non usa " + pezzo);
             var descritta = Tratto(js, "c.provenienza === 'descrizione'", "} else return '';");
             foreach (var pezzo in new[] { "spenta", " disabled", "class=\"spento\"", "datiCamera[", "'Pag_Banco_CamDescrittaSpenta'" })
@@ -745,9 +816,9 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(Tratto(js, "chiedi('salvaBanco'", "\n    });"), "riconosciLaCamera()", "dopo il salvataggio la camera non si riconosce");
             foreach (var lingua in new[] { "it", "en" }) {
                 var t = Tutte(lingua);
-                foreach (var k in new[] { "Pag_Banco_CamCollegata", "Pag_Banco_CamVoceSconosciuta", "Pag_Banco_CamDescrittaSpenta" })
+                foreach (var k in new[] { "Pag_Camera_Disaccordo", "Pag_Banco_CamVoceSconosciuta", "Pag_Banco_CamDescrittaSpenta" })
                     Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
-                StringAssert.Contains(t["Pag_Banco_CamCollegata"], "{1}", lingua);
+                StringAssert.Contains(t["Pag_Camera_Disaccordo"], "{1}", lingua);
                 StringAssert.Contains(t["Pag_Banco_CamVoceSconosciuta"], "{0}", lingua);
             }
             var css = Risorsa("prova.css");
@@ -810,7 +881,7 @@ namespace AstroImage.NINA.Plugin.Tests {
             foreach (var pezzo in new[] { "$('oggetto').value = ''", "stradaScelta = null", "riempiElencoOggetti()", "aggiornaPulisci()" })
                 StringAssert.Contains(pulisci, pezzo, "«Pulisci» non usa " + pezzo);
             StringAssert.Contains(js, "e.key === 'Escape'", "«Pulisci» non risponde a Esc");
-            StringAssert.Contains(Tratto(js, "async function vai() {", "stato(T('Pag_StoChiedendo'));"), "'Pag_ScriviOggetto'",
+            StringAssert.Contains(Tratto(js, "async function vai(domanda) {", "stato(T('Pag_StoChiedendo'));"), "'Pag_ScriviOggetto'",
                 "con il campo vuoto la domanda parte lo stesso");
             foreach (var lingua in new[] { "it", "en" }) {
                 var t = Tutte(lingua);
@@ -1091,7 +1162,7 @@ namespace AstroImage.NINA.Plugin.Tests {
                                           "'Pag_Banco_CamDescrittaNota'", "data-numero=\"1\"" })
                 StringAssert.Contains(riga, pezzo, "i campi della camera descritta non usano «" + pezzo + "»");
             StringAssert.Contains(js, "box.querySelectorAll('input[data-banco], select[data-banco]')", "la matrice scelta non si salva");
-            var manda = Tratto(js, "function bancoDaMandare() {", "\n  }");
+            var manda = Tratto(js, "function bancoDaMandare(soloVoceScritta) {", "\n  }");
             foreach (var pezzo in new[] { "c.provenienza === 'descrizione'", "origine: 'dichiarata'", "['rumore_lettura_e', 'qe_picco_pct', 'pozzo_e']" })
                 StringAssert.Contains(manda, pezzo, "la richiesta non manda la camera descritta: «" + pezzo + "»");
             StringAssert.Contains(Tratto(js, "const PAROLA_DIVERGENZA_BANCO", "};"), "'descrizione_non_usata': 'Pag_Banco_Div_descrizione_non_usata'");

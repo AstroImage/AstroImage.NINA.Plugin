@@ -30,6 +30,13 @@
   .stato.no { background:#5b2020; color:#f6cfcf; }
   /*  L'esito di un salvataggio (17 settembre 2026): verde col segno e l'ora, rosso col perche', giallo quando un campo
       e' cambiato dopo. Gli stessi colori degli stati della domanda. */
+  /*  La camera del calcolo e il disaccordo con quella collegata (18 settembre 2026). */
+  .camera-calcolo { font-size:12.5px; margin:8px 0; color:var(--dim); }
+  .camera-calcolo strong { color:var(--fg); }
+  .avvisa { color:#e0a030; }
+  button.collegamento { background:none; border:none; padding:0; margin-left:4px; color:var(--acc2, #38bdf8);
+                        text-decoration:underline; cursor:pointer; font:inherit; font-size:12px; }
+  button.collegamento:hover { background:none; color:#7dd3fc; }
   .esito { margin-left:.6em; font-size:12.5px; }
   .esito.corso { color:var(--dim); }
   .esito.attesa { color:var(--warn); }

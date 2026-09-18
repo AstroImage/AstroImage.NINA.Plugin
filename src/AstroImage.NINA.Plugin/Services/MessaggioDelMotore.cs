@@ -78,7 +78,9 @@ namespace AstroImage.NINA.Plugin.Services {
                  *  `Appiattisci` col separatore localizzato.                          */
                 ["setup_sconosciuto"]     = ("Motore_SetupSconosciuto",    new[] { "pezzo", "chiesto" }),
                 ["setup_incompleto"]      = ("Motore_SetupIncompleto",     new[] { "pezzo", "chiesto", "campi" }),
-                ["nessuna_prescrizione"]  = ("Motore_NessunaPrescrizione", new string[0]),
+                /*  Le bande che il motore dice mancare, non una frase nostra sui filtri (18 settembre 2026): con una
+                 *  camera mono scritta nel banco la colpa non era dei filtri, e la frase di prima lo diceva. */
+                ["nessuna_prescrizione"]  = ("Motore_NessunaPrescrizione", new[] { "mancano" }),
                 /*  Il contratto del banco (16 settembre 2026): una chiave che il motore non conosce, nominata col suo
                  *  percorso, e un valore che non e' un numero del suo campo. */
                 ["banco_chiave_sconosciuta"] = ("Motore_BancoChiaveSconosciuta", new[] { "chiave" }),
@@ -110,6 +112,13 @@ namespace AstroImage.NINA.Plugin.Services {
                 ["setup_sconosciuto"] = ("candidati", "Motore_SetupSconosciutoForse"),
             };
 
+        /*  LA FRASE GENERICA VALE SOLO QUANDO NON E' ARRIVATO NIENTE (regia, 18 settembre 2026). Quando il motore manda un
+         *  motivo il ponte non lo sostituisce con una frase propria: se i dati non bastano a comporre, vale la frase del
+         *  motore, che e' il suo motivo in italiano. Questa si scrive solo se non e' arrivata nemmeno quella. */
+        private static readonly Dictionary<string, string> Generiche = new Dictionary<string, string> {
+            ["nessuna_prescrizione"] = "Motore_NessunaPrescrizioneSenzaDati",
+        };
+
         /*  I PEZZI E I CAMPI DEL MOTORE, NELLA LINGUA DI CHI GUARDA. Prima la frase diceva «al ottica» e metteva in fila
          *  `aperture_mm, throughput`. Un nome che qui non c'e' passa com'e': meglio un nome del motore che un buco. */
         private static readonly Dictionary<string, string> ParolaDelPezzo = new Dictionary<string, string> {
@@ -132,6 +141,9 @@ namespace AstroImage.NINA.Plugin.Services {
         /// <summary>Le code delle frasi, codice per codice. Serve alle prove.</summary>
         public static IReadOnlyDictionary<string, (string Campo, string Chiave)> CodeDelleFrasi => Code;
 
+        /// <summary>Le frasi generiche, per quando non arriva niente. Serve alle prove.</summary>
+        public static IReadOnlyDictionary<string, string> FrasiGeneriche => Generiche;
+
         /// <summary>Le chiavi delle parole di pezzi e campi. Serve alle prove.</summary>
         public static IEnumerable<string> ChiaviDelleParole => ParolaDelPezzo.Values.Concat(ParolaDelCampo.Values);
 
@@ -146,17 +158,20 @@ namespace AstroImage.NINA.Plugin.Services {
         /// </summary>
         public static string? Rendi(string? codice, IReadOnlyDictionary<string, string>? dati,
                                     string? dellMotore) {
-            if (codice is null || !Frasi.TryGetValue(codice, out var f)) return dellMotore;
+            string? Ripiego() => !string.IsNullOrWhiteSpace(dellMotore) ? dellMotore
+                : codice != null && Generiche.TryGetValue(codice, out var g) ? Loc.T(g) : dellMotore;
+            if (codice is null || !Frasi.TryGetValue(codice, out var f)) return Ripiego();
             if (FrasiSenza.TryGetValue(codice, out var r) && (dati is null || !dati.ContainsKey(r.Manca)))
                 f = (r.Chiave, r.Campi);
 
             var valori = new object?[f.Campi.Length];
             for (var i = 0; i < f.Campi.Length; i++) {
-                if (dati is null || !dati.TryGetValue(f.Campi[i], out var v) || v is null)
+                if (dati is null || !dati.TryGetValue(f.Campi[i], out var v) || string.IsNullOrWhiteSpace(v))
                     /*  Un campo che manca non si rimpiazza con il vuoto: la frase
                      *  uscirebbe monca proprio nel punto che serve a correggere
-                     *  l'errore. Meglio quella italiana, che almeno e' intera. */
-                    return dellMotore;
+                     *  l'errore. Meglio quella italiana, che almeno e' intera. Un
+                     *  campo vuoto — una lista senza elementi — vale come assente. */
+                    return Ripiego();
                 valori[i] = f.Campi[i] == "pezzo" && ParolaDelPezzo.TryGetValue(v, out var kp) ? Loc.T(kp) : v;
             }
             var frase = Loc.F(f.Chiave, valori);

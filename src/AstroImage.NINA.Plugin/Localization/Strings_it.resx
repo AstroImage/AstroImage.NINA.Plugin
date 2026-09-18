@@ -205,7 +205,10 @@
     <value>Il motore non ha capito la richiesta che gli ha mandato il plugin. È un guasto del plugin, non un errore tuo. Il motore dice: {0}</value>
   </data>
   <data name="Motore_NessunaPrescrizione" xml:space="preserve">
-    <value>Con i filtri che hai dichiarato non c'è nessuna strada percorribile per questo soggetto. Prova a dichiarare più filtri in ruota, oppure scegli un oggetto che le righe che possiedi sappiano tracciare.</value>
+    <value>Con questo banco e questa ruota nessuna strada si può riprendere. Manca: {0}.</value>
+  </data>
+  <data name="Motore_NessunaPrescrizioneSenzaDati" xml:space="preserve">
+    <value>Strategy non ha trovato nessuna strada percorribile per questo soggetto, e non ha mandato il perché.</value>
   </data>
   <data name="Motore_RichiestaIncompleta" xml:space="preserve">
     <value>Il plugin ha mandato una richiesta senza {0}. È un guasto del plugin, non un errore tuo.</value>
@@ -781,7 +784,10 @@
     <value>{0}: questa ripresa la fa {1}</value>
   </data>
   <data name="Pag_Men_StelleNonRiprendibili" xml:space="preserve">
-    <value>con questa ruota la passata per il colore delle stelle non si fa</value>
+    <value>la passata per il colore delle stelle non si fa</value>
+  </data>
+  <data name="Pag_Men_StelleNonRiprendibili_perche" xml:space="preserve">
+    <value>la passata per il colore delle stelle non si fa: {0}</value>
   </data>
   <data name="Pag_Men_StelleNonRiprendibili_spento" xml:space="preserve">
     <value>con questa ruota la passata per il colore delle stelle non si fa: il canale {0} è spento</value>
@@ -835,7 +841,7 @@
     <value>per {0} su OSC hai scelto {1}, che la sua scheda esclude dalla banda larga davanti a una matrice</value>
   </data>
   <data name="Pag_Men_Motivo_generico" xml:space="preserve">
-    <value>il canale {0} non si riprende con questa ruota</value>
+    <value>il canale {0} non si riprende (motivo del motore: {1})</value>
   </data>
   <data name="Pag_Men_ChiestaBloccata" xml:space="preserve">
     <value>La tecnica che avevi scelto, *{0}*, con la ruota di adesso non si riprende: {1}. Finché non la riscegli, sceglie il motore.</value>
@@ -859,7 +865,7 @@
     <value>La tecnica che avevi scelto, *{0}*, ha gli stessi canali di *{2}*. La prescrizione segue la scelta del motore, *{1}*.</value>
   </data>
   <data name="Pag_Men_Sostituita_generica" xml:space="preserve">
-    <value>La tecnica che avevi scelto, *{0}*, con questa ruota non si può prendere. La prescrizione segue la scelta del motore, *{1}*.</value>
+    <value>La tecnica che avevi scelto, *{0}*, non si può prendere (motivo del motore: {3}). La prescrizione segue la scelta del motore, *{1}*.</value>
   </data>
   <data name="Pag_Men_StaiScegliendo" xml:space="preserve">
     <value>Stai scegliendo tu: con queste ore il motore prenderebbe *{0}*. La prescrizione segue la tua scelta.</value>
@@ -1227,11 +1233,35 @@
   <data name="Pag_Verdetto_Coperto" xml:space="preserve">
     <value>le notti chieste ({0}) coprono il {1} % del progetto</value>
   </data>
-  <data name="Pag_Banco_CamCollegata" xml:space="preserve">
-    <value>collegata ({0}): riconosciuta come «{1}»</value>
-  </data>
   <data name="Pag_Banco_CamVoceSconosciuta" xml:space="preserve">
-    <value>«{0}» non è fra le voci del catalogo, e finché resta scritta la camera collegata non si riconosce da sola. Scegline una dall'elenco, oppure svuota il campo e salva; una camera che l'elenco non ha si descrive qui sotto.</value>
+    <value>«{0}» non è fra le voci del catalogo. Scegline una dall'elenco; una camera che l'elenco non ha si descrive qui sotto.</value>
+  </data>
+  <data name="Pag_CameraDelCalcolo" xml:space="preserve">
+    <value>Camera del calcolo: *{0}* — {1}, {2}.</value>
+  </data>
+  <data name="Pag_Camera_Via_nome_e_geometria" xml:space="preserve">
+    <value>la camera collegata, riconosciuta dal driver</value>
+  </data>
+  <data name="Pag_Camera_Via_dichiarata" xml:space="preserve">
+    <value>la voce scritta nel banco</value>
+  </data>
+  <data name="Pag_Camera_Via_dichiarata_collegata" xml:space="preserve">
+    <value>la voce scritta nel banco, che la camera collegata conferma</value>
+  </data>
+  <data name="Pag_Camera_Via_collegata_fuori_catalogo" xml:space="preserve">
+    <value>la camera collegata ({0}), fuori catalogo</value>
+  </data>
+  <data name="Pag_Camera_Via_descritta" xml:space="preserve">
+    <value>la camera descritta a mano</value>
+  </data>
+  <data name="Pag_Camera_Disaccordo" xml:space="preserve">
+    <value>La voce scritta nel banco ({0}) non è la camera collegata ({1}): vale la collegata.</value>
+  </data>
+  <data name="Pag_Camera_UsaVoceScritta" xml:space="preserve">
+    <value>usa invece la voce scritta</value>
+  </data>
+  <data name="Pag_Camera_SoloVoce" xml:space="preserve">
+    <value>Calcolata con la sola voce scritta, come hai chiesto: la camera collegata è rimasta fuori da questa richiesta.</value>
   </data>
   <data name="Pag_Banco_CamDescrittaSpenta" xml:space="preserve">
     <value>La camera è riconosciuta: qui sotto i suoi dati, come Strategy li usa. Questi campi servono a una camera che l'elenco non ha.</value>
