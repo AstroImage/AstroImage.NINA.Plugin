@@ -354,7 +354,7 @@
      codice che qui non ha una parola si scrive com'e', invece di tacerlo. Le chiavi delle parole sono letterali. */
   const PAROLA_CAMPO_BANCO = {
     'tel': 'Pag_Banco_tel', 'tel.apertura_mm': 'Pag_Banco_tel_apertura_mm',
-    'tel.ostruzione': 'Pag_Banco_tel_ostruzione', 'tel.trasmissione': 'Pag_Banco_tel_trasmissione',
+    'tel.ostruzione_pct': 'Pag_Banco_tel_ostruzione_pct', 'tel.trasmissione': 'Pag_Banco_tel_trasmissione',
     'tel.focale_mm': 'Pag_Banco_tel_focale_mm', 'tel.rapporto': 'Pag_Banco_tel_rapporto',
     'red': 'Pag_Banco_red', 'mnt': 'Pag_Banco_mnt', 'cam': 'Pag_Banco_cam',
     'mnt.rms_caratteristico_arcsec': 'Pag_Banco_mnt_rms_caratteristico_arcsec',
@@ -366,8 +366,7 @@
     'cam.rumore_lettura_e': 'Pag_Banco_Descritta_rumore_lettura_e', 'cam.qe_picco_pct': 'Pag_Banco_Descritta_qe_picco_pct',
     'cam.pozzo_e': 'Pag_Banco_Descritta_pozzo_e' };
   const PAROLA_MATRICE = { colore: 'Pag_Banco_Matrice_colore', mono: 'Pag_Banco_Matrice_mono' };
-  const NOTA_CAMPO_BANCO = { 'mnt.rms_caratteristico_arcsec': 'Pag_Banco_RmsNota',
-    'luna.riferimento_deg': 'Pag_Banco_LunaNota' };
+
   const PAROLA_DIVERGENZA_BANCO = {
     'dichiarato_diverso_dal_catalogo': 'Pag_Banco_Div_dichiarato_diverso_dal_catalogo',
     'focale_diversa_dal_catalogo': 'Pag_Banco_Div_focale_diversa_dal_catalogo',
@@ -616,6 +615,12 @@
     const campi = campiDelBanco.filter(c => PEZZI_DEL_BLOCCO.indexOf(c.pezzo) >= 0 &&
       !/\.id$/.test(c.chiave) && PAROLA_CAMPO_BANCO[c.chiave]);
     const primaDescritta = (campi.find(c => c.provenienza === 'descrizione') || {}).chiave;
+    /*  LE CHIAVI RIMASTE NEL PROFILO (18 settembre 2026): un valore dichiarato per un campo che il servizio non elenca
+     *  piu' — l'ostruzione, che ha cambiato nome con l'unita' — non parte nella richiesta. Si dice, invece di sparire
+     *  senza che nessuno lo sappia; salvando il banco va via. */
+    const orfane = Object.keys(dichiarato).filter(k => !campiDelBanco.some(c => c.chiave === k));
+    const avvisoOrfane = orfane.length ? '<div style="margin:.4em 0;font-size:12.5px;color:#e0a030">' +
+      MF('Pag_Banco_ChiaviOrfane', orfane.map(k => esc(k) + ' = ' + escOVuoto(dichiarato[k])).join(', ')) + '</div>' : '';
     /*  una camera riconosciuta spegne i campi della camera fuori catalogo, e ci mostra i suoi dati */
     const spenta = !!(cameraDelBanco && cameraDelBanco.id);
     const datiCamera = (spenta && cameraDelBanco.dati) || {};
@@ -676,8 +681,19 @@
         valore = '<b style="font-size:15px">' + (v == null ? '—' : (c.unita === 'f/' ? 'f/' : '') + cifra(v, c.unita === 'f/' ? 2 : undefined)) + '</b>' + unita +
           ' <span style="font-size:12px;opacity:.7">' + esc(T('Pag_Banco_Fonte_nina')) + '</span>';
       } else if (c.provenienza === 'dichiarabile') {
+        /*  LA SPIEGAZIONE DEL CAMPO la manda il motore (regia, 18 settembre 2026): nel tooltip del campo,
+         *  della proposta di catalogo e della «i» accanto. Prima qui c'era un'unita' sola — «frazione lineare» — e per due
+         *  campi una nota scritta dal Ponte. L'effetto dell'ostruzione — l'area persa e il diametro equivalente — si
+         *  scrive come arriva: qui non si calcola. */
+        const spiega = spiegazioneDi(c);
+        const titolo = spiega ? ' title="' + esc(spiega) + '"' : '';
+        const p = delProdotto(c);
         valore = '<input data-banco="' + esc(c.chiave) + '" data-numero="1" value="' + escOVuoto(dichiarato[c.chiave]) +
-          '" style="width:70px" spellcheck="false">' + unita + fonte(delProdotto(c));
+          '"' + titolo + ' style="width:70px" spellcheck="false">' + unita + '<span' + titolo + '>' + fonte(p) + '</span>' +
+          (spiega ? ' <span class="ico spiega" tabindex="0"' + titolo + '>i</span>' : '') +
+          (p && p.perdita_area_pct != null && p.diametro_equivalente_mm != null
+            ? '<div style="font-size:12px;opacity:.7">' +
+              MF('Pag_Banco_OstruzioneEffetto', cifra(p.perdita_area_pct), cifra(p.diametro_equivalente_mm)) + '</div>' : '');
       } else if (c.provenienza === 'descrizione') {
         /*  LA CAMERA FUORI CATALOGO (17 settembre 2026): i campi del modulo «su misura» di AIS, sotto la voce, col loro
          *  titolo davanti al primo. La matrice si sceglie; il resto si scrive, e i numeri li giudica il servizio. */
@@ -704,9 +720,7 @@
             ' value="' + mostrato + '" style="width:' + (c.unita ? '70' : '170') + 'px" spellcheck="false">' + unita;
         return titolo + '<tr><th>' + etichetta + '</th><td>' + valore + '</td></tr>';
       } else return '';
-      const nota = NOTA_CAMPO_BANCO[c.chiave]
-        ? '<div style="font-size:12px;opacity:.7">' + esc(T(NOTA_CAMPO_BANCO[c.chiave])) + '</div>' : '';
-      return '<tr><th>' + etichetta + '</th><td>' + valore + nota + '</td></tr>';
+      return '<tr><th>' + etichetta + '</th><td>' + valore + '</td></tr>';
     };
     const campoDi = d => campiDelBanco.find(c => c.pezzo === d.pezzo && c.chiave.split('.')[1] === d.campo);
     const divergenza = d => {
@@ -736,7 +750,7 @@
     const divergenze = (pb && pb.divergenze) || [];
     box.innerHTML = '<div class="box"><b>' + esc(T('Pag_BancoTitolo')) + '</b>' +
       (bancoLetto && bancoLetto.nota ? '<div style="margin:.6em 0;opacity:.85">&#9888; ' + esc(bancoLetto.nota) + '</div>' : '') +
-      '<div style="margin:.4em 0;opacity:.7;font-size:12.5px">' + MF('Pag_BancoNota') + '</div>' +
+      '<div style="margin:.4em 0;opacity:.7;font-size:12.5px">' + MF('Pag_BancoNota') + '</div>' + avvisoOrfane +
       '<table style="width:100%">' + campi.map(riga).join('') + '</table>' +
       (divergenze.length ? '<ul style="margin:.6em 0 0 1.1em;padding:0;color:#e0a030">' + divergenze.map(divergenza).join('') + '</ul>' : '') +
       '<div style="margin-top:.7em"><button id="salvaBanco">' + esc(T('Pag_SalvaBanco')) + '</button>' +
@@ -1530,6 +1544,15 @@
       default: return MF('Pag_Men_Motivo_generico', nomeDellaBanda, escOVuoto(x.tipo));
     }
   }
+  /*  LA SPIEGAZIONE DI UN CAMPO DEL BANCO, nella lingua in uso (18 settembre 2026): la manda il motore, accanto al campo,
+   *  in piu' lingue. Se manca quella in uso vale un'altra delle sue; se non ne manda nessuna non c'e' tooltip — mai una
+   *  frase nostra al suo posto. */
+  function spiegazioneDi(c) {
+    const s = c && c.spiegazione;
+    if (!s || typeof s !== 'object') return '';
+    return s[T('Pag_CodiceLingua')] || s.it || s.en || '';
+  }
+
   /*  LA STRADA BLOCCATA, una carta sola per il menu e per il rifiuto (18 settembre 2026): il nome, «non disponibile»,
    *  e il motivo come lo manda Strategy. Il rifiuto la usa perche' il pannello non scriva mai una frase sua al posto
    *  dei motivi del motore. */

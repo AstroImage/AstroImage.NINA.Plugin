@@ -1178,17 +1178,64 @@ namespace AstroImage.NINA.Plugin.Tests {
         }
 
         /*  LA DISTANZA DI RIFERIMENTO DELLA LUNA SI DICHIARA NEL BANCO (regia, 16 settembre 2026): e' quanto slavato accetta
-         *  chi riprende. Il blocco del banco mostra il pezzo `luna` con la sua parola e la sua nota; la chiave e la
-         *  provenienza vengono dalla lista che Strategy pubblica, come per gli altri campi dichiarabili. */
+         *  chi riprende. Il blocco del banco mostra il pezzo `luna` con la sua parola; la chiave e la provenienza vengono
+         *  dalla lista che Strategy pubblica, come per gli altri campi dichiarabili. La nota che il Ponte scriveva sotto il
+         *  campo non c'e' piu' dal 18 settembre 2026: la spiegazione la manda il motore, ed e' un tooltip
+         *  (I_CAMPI_DEL_BANCO_SI_SPIEGANO_COL_TESTO_DEL_MOTORE). */
         [TestMethod]
         public void IL_BANCO_MOSTRA_LA_DISTANZA_DI_RIFERIMENTO_DELLA_LUNA() {
             var js = PaginaSenzaCommenti();
             StringAssert.Contains(Tratto(js, "const PEZZI_DEL_BLOCCO", ";"), "'luna'", "il blocco del banco non mostra la Luna");
             StringAssert.Contains(Tratto(js, "const PAROLA_CAMPO_BANCO", "};"), "'luna.riferimento_deg': 'Pag_Banco_luna_riferimento_deg'");
-            StringAssert.Contains(Tratto(js, "const NOTA_CAMPO_BANCO", "};"), "'luna.riferimento_deg': 'Pag_Banco_LunaNota'");
             foreach (var lingua in new[] { "it", "en" })
-                foreach (var chiave in new[] { "Pag_Banco_luna_riferimento_deg", "Pag_Banco_LunaNota" })
-                    Assert.IsTrue(Tutte(lingua).ContainsKey(chiave), chiave + " manca in " + lingua);
+                Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_Banco_luna_riferimento_deg"), "Pag_Banco_luna_riferimento_deg manca in " + lingua);
+        }
+
+        /*  I CAMPI DEL BANCO SI SPIEGANO COL TESTO DEL MOTORE, E L'OSTRUZIONE E' UNA PERCENTUALE (regia, 18
+         *  settembre 2026). Le indicazioni accanto a ostruzione, trasmissione, posa massima e Luna erano poco chiare. La
+         *  spiegazione la manda il motore accanto al campo, in italiano e in inglese; l'ospite la porta com'e', la pagina
+         *  sceglie la lingua in uso e la mette nel tooltip del campo e della proposta di catalogo, con la «i» accanto. Le
+         *  note che il Ponte scriveva per l'RMS e la Luna non ci sono piu'. L'ostruzione e' `tel.ostruzione_pct`, e la
+         *  perdita d'area e il diametro equivalente si scrivono come li manda il motore: la pagina non li calcola. Un valore
+         *  dichiarato per un campo che il servizio non elenca piu' — la chiave vecchia rimasta nel profilo — si dice,
+         *  invece di sparire senza che nessuno lo sappia. Guardia strutturale. */
+        [TestMethod]
+        public void I_CAMPI_DEL_BANCO_SI_SPIEGANO_COL_TESTO_DEL_MOTORE() {
+            var js = PaginaSenzaCommenti();
+            var spiega = Tratto(js, "function spiegazioneDi(", "\n  }");
+            foreach (var pezzo in new[] { ".spiegazione", "T('Pag_CodiceLingua')" })
+                StringAssert.Contains(spiega, pezzo, "la spiegazione non usa " + pezzo);
+            var dich = Tratto(js, "c.provenienza === 'dichiarabile') {", "} else if (c.provenienza === 'descrizione')");
+            foreach (var pezzo in new[] { "spiegazioneDi(c)", "title=\"", "class=\"ico" })
+                StringAssert.Contains(dich, pezzo, "il campo dichiarabile non usa " + pezzo);
+            Assert.IsFalse(js.Contains("NOTA_CAMPO_BANCO"), "la pagina ha ancora note sue per i campi del banco");
+            StringAssert.Contains(Tratto(js, "const PAROLA_CAMPO_BANCO", "};"), "'tel.ostruzione_pct': 'Pag_Banco_tel_ostruzione_pct'");
+            Assert.IsFalse(Tratto(js, "const PAROLA_CAMPO_BANCO", "};").Contains("'tel.ostruzione'"), "la chiave vecchia e' ancora un campo");
+            foreach (var pezzo in new[] { "perdita_area_pct", "diametro_equivalente_mm", "'Pag_Banco_OstruzioneEffetto'" })
+                StringAssert.Contains(dich, pezzo, "l'effetto dell'ostruzione non usa " + pezzo);
+            Assert.IsFalse(js.Contains("Math.sqrt"), "la pagina calcola il diametro equivalente invece di scriverlo");
+            StringAssert.Contains(Tratto(js, "function disegnaBanco() {", "\n  }"), "'Pag_Banco_ChiaviOrfane'",
+                "un valore dichiarato per un campo che il servizio non elenca piu' sparisce in silenzio");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                Assert.AreEqual(lingua, t.TryGetValue("Pag_CodiceLingua", out var c) ? c : null, "il codice della lingua");
+                foreach (var k in new[] { "Pag_Banco_tel_ostruzione_pct", "Pag_Banco_OstruzioneEffetto", "Pag_Banco_ChiaviOrfane" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+                foreach (var k in new[] { "Pag_Banco_RmsNota", "Pag_Banco_LunaNota", "Pag_Banco_tel_ostruzione" })
+                    Assert.IsFalse(t.ContainsKey(k), lingua + ": c'e' ancora " + k);
+            }
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var n = 0; n < 8 && su is not null; n++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views",
+                "PannelloStrategyView.xaml.cs"));
+            /*  sul campo del banco, non sui modi di ripresa, che la loro spiegazione la passavano gia' */
+            StringAssert.Contains(vista, "[\"unita\"] = c.Unita, [\"spiegazione\"] = spiegazione",
+                "l'ospite non passa la spiegazione dei campi del banco alla pagina");
         }
 
         /*  IL RITIRO GENERALIZZATO (regia, 16 settembre 2026): salvare una ruota, un banco o un sito diversi ritira la

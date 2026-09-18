@@ -276,6 +276,27 @@ namespace AstroImage.NINA.Plugin.Tests {
             CollectionAssert.AreEqual(new[] { "apertura_diversa_da_nina" }, m.DivergenzeDelBanco.ToArray());
         }
 
+        /*  LA SPIEGAZIONE VIAGGIA COL CAMPO (regia, 18 settembre 2026): il servizio la manda in piu' lingue accanto al
+         *  campo, e il corriere la porta com'e'. Un campo senza spiegazione resta senza: nessun testo nostro al suo posto. */
+        [TestMethod]
+        public async Task Modalita_PortaLaSpiegazioneDeiCampiComeArriva() {
+            const string salute = "{\"modalita\":{\"elenco\":[{\"id\":\"resa\"}]},\"limiti\":{\"banco\":{\"campi\":[" +
+                "{\"chiave\":\"tel.ostruzione_pct\",\"pezzo\":\"ottica\",\"provenienza\":\"dichiarabile\",\"unita\":\"%\"," +
+                "\"spiegazione\":{\"it\":\"Percentuale del diametro.\",\"en\":\"Percentage of the diameter.\",\"xx\":3}}," +
+                "{\"chiave\":\"tel.focale_mm\",\"pezzo\":\"ottica\",\"provenienza\":\"nina\"}]}}}";
+            var (cliente, _) = Banco(HttpStatusCode.OK, salute);
+
+            var m = await cliente.Modalita();
+
+            Assert.AreEqual(2, m.CampiDelBanco.Count);
+            var s = m.CampiDelBanco[0].Spiegazione;
+            Assert.IsNotNull(s, "la spiegazione del campo si e' persa nel corriere");
+            Assert.AreEqual("Percentuale del diametro.", s!["it"]);
+            Assert.AreEqual("Percentage of the diameter.", s["en"]);
+            Assert.IsFalse(s.ContainsKey("xx"), "un valore che non e' un testo non diventa un testo");
+            Assert.IsNull(m.CampiDelBanco[1].Spiegazione, "a un campo senza spiegazione non se ne inventa una");
+        }
+
         [TestMethod]
         public async Task Modalita_UnMotoreSenzaBanco_NonNeFaInventareUno() {
             var (cliente, _) = Banco(HttpStatusCode.OK, "{\"modalita\":{\"elenco\":[{\"id\":\"resa\"}]},\"limiti\":{\"corpo_byte\":1}}");

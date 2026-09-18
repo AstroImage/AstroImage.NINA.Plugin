@@ -205,8 +205,18 @@ namespace AstroImage.NINA.Plugin.Services {
                             if (c.ValueKind != JsonValueKind.Object) continue;
                             var chiave = Testo(c, "chiave");
                             if (string.IsNullOrWhiteSpace(chiave)) continue;
+                            /*  LA SPIEGAZIONE DEL CAMPO, lingua per lingua, come arriva (18 settembre 2026): la scrive il
+                             *  motore, e qui non se ne compone una. Un valore che non e' un testo si salta. */
+                            Dictionary<string, string>? spiegazione = null;
+                            if (c.TryGetProperty("spiegazione", out var sp) && sp.ValueKind == JsonValueKind.Object) {
+                                spiegazione = new Dictionary<string, string>();
+                                foreach (var p in sp.EnumerateObject())
+                                    if (p.Value.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(p.Value.GetString()))
+                                        spiegazione[p.Name] = p.Value.GetString()!;
+                                if (spiegazione.Count == 0) spiegazione = null;
+                            }
                             campiDelBanco.Add(new CampoDelBanco { Chiave = chiave!, Pezzo = Testo(c, "pezzo"),
-                                Provenienza = Testo(c, "provenienza"), Unita = Testo(c, "unita") });
+                                Provenienza = Testo(c, "provenienza"), Unita = Testo(c, "unita"), Spiegazione = spiegazione });
                         }
                     if (lb.TryGetProperty("divergenze", out var ld) && ld.ValueKind == JsonValueKind.Array)
                         foreach (var x in ld.EnumerateArray())
@@ -331,6 +341,9 @@ namespace AstroImage.NINA.Plugin.Services {
         public string? Pezzo { get; set; }
         public string? Provenienza { get; set; }
         public string? Unita { get; set; }
+        /// <summary>La spiegazione del campo, lingua per lingua, come il servizio la manda (18 settembre 2026). Null
+        /// quando il servizio non ne manda: al suo posto non se ne scrive una nostra.</summary>
+        public IReadOnlyDictionary<string, string>? Spiegazione { get; set; }
     }
 
     /// <summary>

@@ -110,6 +110,8 @@ namespace AstroImage.NINA.Plugin.Services {
         private static readonly Dictionary<string, (string Campo, string Chiave)> Code =
             new Dictionary<string, (string, string)> {
                 ["setup_sconosciuto"] = ("candidati", "Motore_SetupSconosciutoForse"),
+                /*  una chiave ritirata arriva col nome nuovo (18 settembre 2026: l'ostruzione in percentuale) */
+                ["banco_chiave_sconosciuta"] = ("sostituita_da", "Motore_BancoChiaveRitirata"),
             };
 
         /*  LA FRASE GENERICA VALE SOLO QUANDO NON E' ARRIVATO NIENTE (regia, 18 settembre 2026). Quando il motore manda un

@@ -30,6 +30,9 @@
   .stato.no { background:#5b2020; color:#f6cfcf; }
   /*  L'esito di un salvataggio (17 settembre 2026): verde col segno e l'ora, rosso col perche', giallo quando un campo
       e' cambiato dopo. Gli stessi colori degli stati della domanda. */
+  /*  La «i» della spiegazione di un campo del banco (18 settembre 2026): il testo e' del motore, qui c'e' solo il segno. */
+  .ico.spiega { margin-left:6px; opacity:.75; cursor:help; vertical-align:middle; }
+  .ico.spiega:hover, .ico.spiega:focus { opacity:1; outline:none; color:var(--acc); }
   /*  La camera del calcolo e il disaccordo con quella collegata (18 settembre 2026). */
   .camera-calcolo { font-size:12.5px; margin:8px 0; color:var(--dim); }
   .camera-calcolo strong { color:var(--fg); }
