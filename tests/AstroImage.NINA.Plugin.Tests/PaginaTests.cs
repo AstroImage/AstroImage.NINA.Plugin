@@ -430,9 +430,10 @@ namespace AstroImage.NINA.Plugin.Tests {
                 foreach (var k in new[] { "Pag_SqmNota", "Pag_SeeingNota", "Pag_RmsNota", "Pag_NottiSerene",
                                           "Pag_Sito_RiferimentoDelMotore", "Pag_Sito_NonAncora" })
                     Assert.IsFalse(t.ContainsKey(k), lingua + ": c'e' ancora " + k);
-                foreach (var k in new[] { "Pag_Parziale_seeing_non_dichiarato", "Pag_Parziale_guida_non_dichiarata",
-                                          "Pag_Parziale_notti_serene_non_dichiarate" })
+                foreach (var k in new[] { "Pag_Parziale_seeing_non_dichiarato", "Pag_Parziale_notti_serene_non_dichiarate" })
                     Assert.IsTrue(t.TryGetValue(k, out var v) && v.Contains("{0}"), lingua + ": la nota di " + k + " non dice il valore");
+                /*  la guida del sito non si assume piu' dal 18 settembre 2026: la sua frase non c'e' */
+                Assert.IsFalse(t.ContainsKey("Pag_Parziale_guida_non_dichiarata"), lingua + ": c'e' ancora la frase della guida del sito");
             }
             string? radice = null;
             var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
@@ -1276,6 +1277,28 @@ namespace AstroImage.NINA.Plugin.Tests {
             /*  sul campo del banco, non sui modi di ripresa, che la loro spiegazione la passavano gia' */
             StringAssert.Contains(vista, "[\"unita\"] = c.Unita, [\"spiegazione\"] = spiegazione",
                 "l'ospite non passa la spiegazione dei campi del banco alla pagina");
+        }
+
+        /*  IL CAMPIONAMENTO SUL PANNELLO (regia, 18 settembre 2026): giudizio, intervallo, scala del pixel e FWHM
+         *  consegnata, coi numeri e le parole del motore — la parola del giudizio e le due spiegazioni in piu' lingue —, e i
+         *  due seeing quando differiscono. Guardia strutturale e ASSICURAZIONE, scritta dopo la riga: la prova che esegue
+         *  la vera riga sui prodotti del servizio vive fuori da queste prove. */
+        [TestMethod]
+        public void IL_CAMPIONAMENTO_STA_SUL_PANNELLO_COI_NUMERI_DEL_MOTORE() {
+            var js = PaginaSenzaCommenti();
+            StringAssert.Contains(Tratto(js, "$('dettagli').innerHTML =", "notaDeiRiferimenti(p.parziale);"), "rigaDelCampionamento(p)",
+                "i dettagli non hanno la riga del campionamento");
+            var riga = Tratto(js, "function rigaDelCampionamento(p) {", "\n  }");
+            foreach (var pezzo in new[] { "s.etichetta", "s.spiegazione", "s.spiegazione_consegnata", "s.lo", "s.hi", "s.scala", "s.consegnata",
+                                          "'Pag_RigaCampionamento'", "'Pag_Camp_Intervallo'", "'Pag_Camp_Scala'", "'Pag_Camp_Consegnata'",
+                                          "'Pag_Camp_DueSeeing'", "T('Pag_CodiceLingua')" })
+                StringAssert.Contains(riga, pezzo, "la riga del campionamento non usa " + pezzo);
+            Assert.IsFalse(riga.Contains("Math."), "la riga calcola: i numeri sono del motore");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in new[] { "Pag_RigaCampionamento", "Pag_Camp_Intervallo", "Pag_Camp_Scala", "Pag_Camp_Consegnata", "Pag_Camp_DueSeeing" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+            }
         }
 
         /*  IL RITIRO GENERALIZZATO (regia, 16 settembre 2026): salvare una ruota, un banco o un sito diversi ritira la

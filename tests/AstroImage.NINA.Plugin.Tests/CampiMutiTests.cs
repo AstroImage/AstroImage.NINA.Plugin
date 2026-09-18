@@ -25,12 +25,14 @@ namespace AstroImage.NINA.Plugin.Tests {
     [TestClass]
     public class CampiMutiTests {
 
+        /*  La guida del sito, `rms`, dal 18 settembre 2026 non e' piu' muta: e' cancellata. Resta nell'elenco perche' non
+         *  deve partire comunque. */
         private static readonly string[] Muti = { "seeing", "rms", "clearFrac" };
 
-        /*  Il caso cattivo: il profilo ha salvato seeing, guida e notti serene, e N.I.N.A. misura seeing e guida. */
+        /*  Il caso cattivo: il profilo ha salvato seeing e notti serene, e N.I.N.A. misura il seeing. */
         private static SitoDiRipresa Cattivo() => DichiarazioneSito.Unisci(
-            new SitoDiRipresa { Lat = 45.95, Lon = 10.2, Seeing = 3.0, Rms = 0.9 },
-            new SitoDichiarato { Sqm = 20.8, Seeing = 2.5, Rms = 1.1, HorizonMin = 20, ClearFrac = 0.5 });
+            new SitoDiRipresa { Lat = 45.95, Lon = 10.2, Seeing = 3.0 },
+            new SitoDichiarato { Sqm = 20.8, Seeing = 2.5, HorizonMin = 20, ClearFrac = 0.5 });
 
         [TestMethod]
         public void IlSitoPerLaPagina_NonPortaICampiMuti_NeSalvatiNeMisurati() {
@@ -48,7 +50,7 @@ namespace AstroImage.NINA.Plugin.Tests {
         [TestMethod]
         public void IlDichiaratoPerLaPagina_NonPortaICampiMuti() {
             var d = DichiarazioneSito.DichiaratoPerLaPagina(
-                new SitoDichiarato { Sqm = 20.8, Seeing = 2.5, Rms = 1.1, HorizonMin = 20, ClearFrac = 0.5 });
+                new SitoDichiarato { Sqm = 20.8, Seeing = 2.5, HorizonMin = 20, ClearFrac = 0.5 });
 
             foreach (var k in Muti)
                 Assert.IsFalse(d.ContainsKey(k), k + " arriva alla pagina come valore scritto: " + d.ToJsonString());
@@ -58,7 +60,7 @@ namespace AstroImage.NINA.Plugin.Tests {
 
         [TestMethod]
         public void UnSalvataggioSenzaICampiMuti_NonLiCancellaDalProfilo() {
-            var prima = new SitoDichiarato { Sqm = 20.8, Seeing = 2.5, Rms = 1.1, HorizonMin = 20, ClearFrac = 0.5 };
+            var prima = new SitoDichiarato { Sqm = 20.8, Seeing = 2.5, HorizonMin = 20, ClearFrac = 0.5 };
             var m = JsonNode.Parse("{\"id\":\"r1\",\"azione\":\"salvaSito\",\"corpo\":{\"sito\":{\"sqm\":21.2,\"horizonMin\":null}}}");
 
             var d = DichiarazioneSito.DalMessaggio(m, out var perCheNo, prima);
@@ -67,8 +69,23 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.AreEqual(21.2, d!.Sqm, "il campo che si scrive cambia");
             Assert.IsNull(d.HorizonMin, "un campo svuotato resta vuoto");
             Assert.AreEqual(2.5, d.Seeing, "il seeing del profilo, muto, si e' perso al primo salvataggio");
-            Assert.AreEqual(1.1, d.Rms);
             Assert.AreEqual(0.5, d.ClearFrac);
+        }
+
+        /*  LA GUIDA DEL SITO SI CANCELLA, NON RESTA IN ATTESA (regia, 18 settembre 2026). Un profilo salvato prima la porta
+         *  ancora: letta, non c'e' piu' — ne' come campo ne' fra gli extra, che il file riscriverebbe a ogni salvataggio —,
+         *  e dal sito per la pagina non parte. */
+        [TestMethod]
+        public void LaGuidaDelSito_SiCancellaDalProfilo_ENonParte() {
+            var d = DichiarazioneSito.Leggi("{\"versione\":1,\"sqm\":20.8,\"seeing\":2.5,\"rms\":1.1,\"clearFrac\":0.5}", out var nota);
+
+            Assert.IsNull(nota, nota);
+            Assert.AreEqual(20.8, d.Sqm, "il resto del profilo si legge");
+            Assert.AreEqual(2.5, d.Seeing);
+            var scritto = DichiarazioneSito.Scrivi(d);
+            Assert.IsFalse(scritto.Contains("\"rms\""), "la guida del sito torna nel file al salvataggio: " + scritto);
+            var sito = DichiarazioneSito.PerLaPagina(DichiarazioneSito.Unisci(new SitoDiRipresa { Lat = 45.95, Lon = 10.2 }, d));
+            Assert.IsFalse(sito.ContainsKey("rms"), "la guida del sito parte verso il motore: " + sito.ToJsonString());
         }
 
         /*  L'ospite usa le due funzioni qui sopra, e il salvataggio gli passa il profilo di prima. Strutturale: legge il

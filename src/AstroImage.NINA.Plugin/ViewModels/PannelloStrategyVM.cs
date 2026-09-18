@@ -257,7 +257,7 @@ namespace AstroImage.NINA.Plugin.ViewModels {
              *  I due mediatori si chiedono con AllowDefault come tutti gli altri: senza
              *  stazione meteo e senza guider il pannello deve aprirsi lo stesso e dire
              *  che quei valori mancano, non sparire dall'elenco dei plugin. */
-            Sito = new SitoDelProfilo(profileService, meteo, guida);
+            Sito = new SitoDelProfilo(profileService, meteo);
             var letto = Sito.Leggi(out var perCheSito);
             Logger.Info("[AstroImage] site: " + (perCheSito ?? $"lat {letto.Lat}, lon {letto.Lon}" +
                         (letto.Sqm is null ? ", SQM not measured" : $", SQM {letto.Sqm} measured")) +
