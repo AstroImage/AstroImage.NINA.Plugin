@@ -45,6 +45,12 @@ $dll    = Join-Path $radice "src\$nome\bin\x64\Release\$nome.dll"
     N.I.N.A. caricherebbe due volte lo stesso plugin. Quella vecchia si sposta e si toglie — ma solo se dentro c'e'
     soltanto roba nostra: quello che non abbiamo messo noi non lo togliamo. #>
 $cartellaNina = 'AstroImage Strategy Bridge'
+<#  E IL FILE HA IL NOME DELLA CARTELLA (18 settembre 2026): e' il nome che N.I.N.A. da' a un plugin di tipo DLL quando
+    lo installa da un repository. Si rinomina il file, non l'assembly: N.I.N.A. carica per percorso. Il DLL col nome
+    dell'assembly, dove c'e' ancora, e' il nostro di prima, e va via: due DLL con lo stesso GUID nella stessa cartella
+    sarebbero due plugin. #>
+$fileNina = "$cartellaNina.dll"
+$nostri   = @("$nome.dll", $fileNina)
 
 $ko = 0
 function Riga([string]$esito, [string]$testo) {
@@ -68,8 +74,13 @@ if ($vuoiCampo -and (-not $Campo -or -not $Motore)) {
 }
 
 function CartelleDelPlugin([string]$radicePlugin) {
-    @(Get-ChildItem -LiteralPath $radicePlugin -Recurse -File -Filter "$nome.dll" -ErrorAction SilentlyContinue |
-        ForEach-Object { $_.DirectoryName } | Sort-Object -Unique)
+    @(Get-ChildItem -LiteralPath $radicePlugin -Recurse -File -Filter '*.dll' -ErrorAction SilentlyContinue |
+        Where-Object { $nostri -contains $_.Name } | ForEach-Object { $_.DirectoryName } | Sort-Object -Unique)
+}
+
+function BloccatoUnoDeiNostri([string]$cartella) {
+    foreach ($n in $nostri) { if (Bloccato (Join-Path $cartella $n)) { return $true } }
+    return $false
 }
 
 function Bloccato([string]$file) {
@@ -95,13 +106,13 @@ function Destinazione([string]$chi, [string]$radicePlugin, [ref]$vecchia) {
     if ($altrove.Count -eq 1) {
         $vecchia.Value = $altrove[0]
         Riga 'attento' "il plugin sta ancora in $($altrove[0]): lo script lo porta in $cartella e toglie la vecchia cartella"
-        if (Bloccato (Join-Path $altrove[0] "$nome.dll")) { Riga 'FALLITO' "il DLL nella cartella vecchia e' bloccato: N.I.N.A. e' aperto, chiudilo" }
+        if (BloccatoUnoDeiNostri $altrove[0]) { Riga 'FALLITO' "il DLL nella cartella vecchia e' bloccato: N.I.N.A. e' aperto, chiudilo" }
     }
     if ($trovate -contains $cartella) { Riga 'ok' "un plugin solo, in $cartella" }
     elseif ($altrove.Count -eq 0) { Riga '--' "mai installato qui: va in $cartella" }
 
     $estranei = @(Get-ChildItem -LiteralPath $cartella -File -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -match '\.(dll|exe)$' -and $_.Name -ne "$nome.dll" } | ForEach-Object { $_.Name })
+        Where-Object { $_.Name -match '\.(dll|exe)$' -and $nostri -notcontains $_.Name } | ForEach-Object { $_.Name })
     if ($estranei.Count) {
         Riga 'FALLITO' ("accanto al plugin ci sono altri DLL, che N.I.N.A. caricherebbe al posto dei suoi: {0}. Toglili a mano e rilancia." -f ($estranei -join ', '))
     } else { Riga 'ok' 'accanto al plugin nessun altro DLL' }
@@ -110,7 +121,7 @@ function Destinazione([string]$chi, [string]$radicePlugin, [ref]$vecchia) {
         Where-Object { $_.Name -notmatch '\.(dll|exe)$' -and $_.Name -ne 'strategy.url' } | ForEach-Object { $_.Name })
     if ($altri.Count) { Riga 'attento' ("anche questi file, che lo script lascia dove sono: {0}" -f ($altri -join ', ')) }
 
-    if (Bloccato (Join-Path $cartella "$nome.dll")) { Riga 'FALLITO' "il DLL e' bloccato: N.I.N.A. e' aperto, chiudilo" }
+    if (BloccatoUnoDeiNostri $cartella) { Riga 'FALLITO' "il DLL e' bloccato: N.I.N.A. e' aperto, chiudilo" }
     else { Riga 'ok' "il DLL non e' bloccato da nessuno" }
     return $cartella
 }
@@ -190,7 +201,12 @@ Write-Host "--- copia ---"
 foreach ($d in $destinazioni) {
     try {
         New-Item -ItemType Directory -Force -Path $d.Cartella | Out-Null
-        Copy-Item -LiteralPath $dll -Destination (Join-Path $d.Cartella "$nome.dll") -Force
+        Copy-Item -LiteralPath $dll -Destination (Join-Path $d.Cartella $fileNina) -Force
+        $colNomeVecchio = Join-Path $d.Cartella "$nome.dll"
+        if (Test-Path -LiteralPath $colNomeVecchio) {
+            Remove-Item -LiteralPath $colNomeVecchio -Force
+            Riga 'ok' "$($d.Nome): tolto il DLL col nome dell'assembly, adesso si chiama $fileNina"
+        }
         if ($d.Url) {
             [System.IO.File]::WriteAllText((Join-Path $d.Cartella 'strategy.url'), $d.Url, (New-Object System.Text.UTF8Encoding $false))
         }
@@ -209,7 +225,7 @@ foreach ($d in $destinazioni) {
                 Remove-Item -LiteralPath $vecchioUrl -Force
                 Riga 'ok' "$($d.Nome): tolto lo strategy.url della cartella vecchia, quello nuovo c'e' gia'"
             }
-            Remove-Item -LiteralPath (Join-Path $d.Vecchia "$nome.dll") -Force -ErrorAction SilentlyContinue
+            foreach ($n in $nostri) { Remove-Item -LiteralPath (Join-Path $d.Vecchia $n) -Force -ErrorAction SilentlyContinue }
             $rimasti = @(Get-ChildItem -LiteralPath $d.Vecchia -Force -ErrorAction SilentlyContinue)
             if ($rimasti.Count -eq 0) {
                 Remove-Item -LiteralPath $d.Vecchia -Force -Recurse
@@ -224,7 +240,7 @@ foreach ($d in $destinazioni) {
 Write-Host "`n--- quale binario c'e' adesso ---"
 Write-Host "  compilato  $impronta   $ramo @ $commit"
 foreach ($d in $destinazioni) {
-    $f = Join-Path $d.Cartella "$nome.dll"
+    $f = Join-Path $d.Cartella $fileNina
     $h = 'assente'
     if (Test-Path -LiteralPath $f) { $h = (Get-FileHash -LiteralPath $f -Algorithm SHA256).Hash }
     if ($h -eq $impronta) { Riga 'ok' "$h   $($d.Nome), identico" }
