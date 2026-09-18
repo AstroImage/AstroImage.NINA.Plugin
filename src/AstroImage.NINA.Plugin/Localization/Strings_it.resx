@@ -1158,9 +1158,6 @@
   <data name="Pag_Parziale_seeing_non_dichiarato" xml:space="preserve">
     <value>Seeing: vale il riferimento del motore, {0}″.</value>
   </data>
-  <data name="Pag_Parziale_guida_non_dichiarata" xml:space="preserve">
-    <value>Guida: vale il riferimento del motore, {0}″.</value>
-  </data>
   <data name="Pag_Parziale_notti_serene_non_dichiarate" xml:space="preserve">
     <value>Notti serene: vale la frazione tipica del motore, {0}.</value>
   </data>
@@ -1214,6 +1211,21 @@
   </data>
   <data name="Pag_RigaVerdetto" xml:space="preserve">
     <value>verdetto</value>
+  </data>
+  <data name="Pag_RigaCampionamento" xml:space="preserve">
+    <value>campionamento</value>
+  </data>
+  <data name="Pag_Camp_Intervallo" xml:space="preserve">
+    <value>ottimale {0}–{1} ″/px</value>
+  </data>
+  <data name="Pag_Camp_Scala" xml:space="preserve">
+    <value>pixel {0} ″/px</value>
+  </data>
+  <data name="Pag_Camp_Consegnata" xml:space="preserve">
+    <value>stelle nel sub {0} ″</value>
+  </data>
+  <data name="Pag_Camp_DueSeeing" xml:space="preserve">
+    <value>giudizio sul seeing del sito, {0} ″; pose sul seeing di riferimento, {1} ″</value>
   </data>
   <data name="Pag_Verdetto_Minimo" xml:space="preserve">
     <value>le notti chieste ({0}) coprono il {1} % del progetto: per il minimo ne servono {2}</value>

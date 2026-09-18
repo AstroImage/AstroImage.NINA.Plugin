@@ -21,9 +21,10 @@ namespace AstroImage.NINA.Plugin.Tests {
     [TestClass]
     public class SitoTests {
 
+        /*  la guida del sito non c'e' piu' dal 18 settembre 2026: la guida che conta e' l'RMS caratteristico del banco */
         private static SitoDiRipresa DaNina(double? lat = 45.95, double? lon = 10.2,
-                                            double? sqm = null, double? seeing = null, double? rms = null) =>
-            new SitoDiRipresa { Lat = lat, Lon = lon, Sqm = sqm, Seeing = seeing, Rms = rms };
+                                            double? sqm = null, double? seeing = null) =>
+            new SitoDiRipresa { Lat = lat, Lon = lon, Sqm = sqm, Seeing = seeing };
 
         // ─────────────────────────────────────── la geometria viene solo dal profilo
 
@@ -77,10 +78,9 @@ namespace AstroImage.NINA.Plugin.Tests {
 
             Assert.IsNull(s.Sqm);
             Assert.IsNull(s.Seeing);
-            Assert.IsNull(s.Rms);
             Assert.IsNull(s.HorizonMin);
             Assert.IsNull(s.ClearFrac);
-            foreach (var campo in new[] { "sqm", "seeing", "rms", "horizonMin", "clearFrac" })
+            foreach (var campo in new[] { "sqm", "seeing", "horizonMin", "clearFrac" })
                 Assert.AreEqual(DichiarazioneSito.Assente, s.Provenienza![campo], campo);
         }
 
@@ -91,7 +91,7 @@ namespace AstroImage.NINA.Plugin.Tests {
                 test lo prende — ed e' la ragione per cui elenca proprio quei numeri. */
             var s = DichiarazioneSito.Unisci(new SitoDiRipresa(), new SitoDichiarato());
 
-            foreach (var v in new double?[] { s.Lat, s.Lon, s.Sqm, s.Seeing, s.Rms,
+            foreach (var v in new double?[] { s.Lat, s.Lon, s.Sqm, s.Seeing,
                                               s.HorizonMin, s.ClearFrac })
                 Assert.IsNull(v, "un sito senza dati deve restare senza dati");
         }
@@ -146,7 +146,7 @@ namespace AstroImage.NINA.Plugin.Tests {
 
         [TestMethod]
         public void Dichiarazione_AndataERitorno() {
-            var d = new SitoDichiarato { Sqm = 20.8, Seeing = 1.6, Rms = 0.6, HorizonMin = 20, ClearFrac = 0.33 };
+            var d = new SitoDichiarato { Sqm = 20.8, Seeing = 1.6, HorizonMin = 20, ClearFrac = 0.33 };
             var r = DichiarazioneSito.Leggi(DichiarazioneSito.Scrivi(d), out var nota);
 
             Assert.IsNull(nota);
@@ -176,13 +176,13 @@ namespace AstroImage.NINA.Plugin.Tests {
         [TestMethod]
         public void IlSalvataggio_LeggeDoveLaPaginaScrive() {
             var m = JsonNode.Parse("{\"id\":\"r1\",\"azione\":\"salvaSito\",\"corpo\":{\"sito\":" +
-                                   "{\"sqm\":20.8,\"seeing\":1.6,\"rms\":null}}}");
+                                   "{\"sqm\":20.8,\"seeing\":1.6,\"horizonMin\":null}}}");
             var d = DichiarazioneSito.DalMessaggio(m, out var perCheNo);
 
             Assert.IsNotNull(d, perCheNo);
             Assert.AreEqual(20.8, d!.Sqm);
             Assert.AreEqual(1.6, d.Seeing);
-            Assert.IsNull(d.Rms, "un campo lasciato vuoto resta vuoto, non diventa zero");
+            Assert.IsNull(d.HorizonMin, "un campo lasciato vuoto resta vuoto, non diventa zero");
         }
 
         [TestMethod]

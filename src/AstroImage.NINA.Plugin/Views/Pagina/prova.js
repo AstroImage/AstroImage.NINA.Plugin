@@ -405,7 +405,6 @@
     'bin_non_dichiarato': ['Pag_Parziale_bin_non_dichiarato', []],
     'orizzonte_non_dichiarato': ['Pag_Parziale_orizzonte_non_dichiarato', ['assunto']],
     'seeing_non_dichiarato': ['Pag_Parziale_seeing_non_dichiarato', ['assunto']],
-    'guida_non_dichiarata': ['Pag_Parziale_guida_non_dichiarata', ['assunto']],
     'notti_serene_non_dichiarate': ['Pag_Parziale_notti_serene_non_dichiarate', ['assunto']],
     'ruota_non_dichiarata': ['Pag_Parziale_ruota_non_dichiarata', ['usata']],
     'convenzioni_di_posa': ['Pag_Parziale_convenzioni_di_posa', ['assunte.download', 'assunte.settle', 'assunte.ditherEvery']],
@@ -419,6 +418,31 @@
    *    notti serene) e' una nota, non un avviso: va in `notaDeiRiferimenti`, quieta, col valore e la provenienza.
    *  Senza il blocco del sito a schermo, o con un campo che il motore non descrive, si dice qui.
    *  Sorvegliato da tools/gate-giallo-pulito.js del motore. */
+  /*  IL CAMPIONAMENTO (regia, 18 settembre 2026): il giudizio con la sua parola e la sua spiegazione, in due lingue dal
+   *  motore; l'intervallo, la scala del pixel e la FWHM consegnata, coi numeri del motore. Il giudizio e' sulle stelle —
+   *  il seeing con la guida caratteristica della montatura, la stessa della posa — e non contiene il pixel, perche' si
+   *  giudica proprio lui; la FWHM consegnata ha il pixel, ed e' quella che si misura nel sub: due numeri della stessa
+   *  origine, mai uno al posto dell'altro. Quando il giudizio e la posa hanno contato due seeing diversi, si dicono tutti
+   *  e due. Senza i numeri del motore la riga non c'e'. Sorvegliata da tools/gate-stesso-ferro.js del motore. */
+  function rigaDelCampionamento(p) {
+    const s = p && p.valutazione && p.valutazione.samp;
+    if (!s || s.lo == null || s.hi == null || s.scala == null || s.consegnata == null) return '';
+    const lingua = T('Pag_CodiceLingua');
+    const nella = o => (o && (o[lingua] || o.it || o.en)) || '';
+    const parola = nella(s.etichetta) || s.k || '';
+    const spiega = nella(s.spiegazione), spiegaConsegnata = nella(s.spiegazione_consegnata);
+    const posa = Object.values(p.posa || {}).find(v => v && v.ex && v.ex.ipotesi && typeof v.ex.ipotesi.seeing === 'number');
+    const seeingPosa = posa ? posa.ex.ipotesi.seeing : null;
+    /*  i due numeri vengono dal motore, dalla stessa costante quando il seeing e' quello di riferimento: si confrontano */
+    const dueSeeing = typeof s.seeing === 'number' && seeingPosa != null && s.seeing !== seeingPosa;
+    return '<tr><th>' + esc(T('Pag_RigaCampionamento')) + '</th><td>' +
+      '<span class="pill ' + esc(s.cls || 'p-dim') + '"' + (spiega ? ' title="' + esc(spiega) + '"' : '') + '>' + esc(parola) + '</span> ' +
+      MF('Pag_Camp_Intervallo', cifra(s.lo, 2), cifra(s.hi, 2)) + ' · ' + MF('Pag_Camp_Scala', cifra(s.scala, 2)) + ' · ' +
+      '<span' + (spiegaConsegnata ? ' title="' + esc(spiegaConsegnata) + '"' : '') + '>' +
+        MF('Pag_Camp_Consegnata', cifra(s.consegnata, 2)) + '</span>' +
+      (dueSeeing ? '<div style="font-size:12px;opacity:.75">' + MF('Pag_Camp_DueSeeing', cifra(s.seeing, 1), cifra(seeingPosa, 1)) + '</div>' : '') +
+      '</td></tr>';
+  }
   function dettaNelSito(p) {
     if (!p || p.pezzo !== 'sito' || !p.campo) return false;
     return Array.prototype.some.call(document.querySelectorAll('#sito [data-prov-sito]'),
@@ -946,6 +970,7 @@
       /*  IL VERDETTO CON LE SUE NOTTI (regia, 16 settembre 2026): quanto del progetto coprono le notti chieste, e quante
           ne servono per il minimo. I numeri li fa Strategy; senza, la riga non c'e'. */
       (x => x ? '<tr><th>' + T('Pag_RigaVerdetto') + '</th><td>' + x + '</td></tr>' : '')(verdettoIntero(p.prescrizione)) +
+      rigaDelCampionamento(p) +
       /*  SU QUALI VETRI E' STATA CALCOLATA, e non e' un dettaglio da nascondere.
          Senza questa riga «non e' cambiato niente perche' il motore avrebbe scelto
          gli stessi vetri» e «non e' cambiato niente perche' la ruota non e' partita»

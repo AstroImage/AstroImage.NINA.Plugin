@@ -38,7 +38,6 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonPropertyName("lon")] public double? Lon { get; set; }
         [JsonPropertyName("sqm")] public double? Sqm { get; set; }
         [JsonPropertyName("seeing")] public double? Seeing { get; set; }
-        [JsonPropertyName("rms")] public double? Rms { get; set; }
         [JsonPropertyName("horizonMin")] public double? HorizonMin { get; set; }
 
         /// <summary>
@@ -82,7 +81,6 @@ namespace AstroImage.NINA.Plugin.Models {
 
         [JsonPropertyName("sqm")] public double? Sqm { get; set; }
         [JsonPropertyName("seeing")] public double? Seeing { get; set; }
-        [JsonPropertyName("rms")] public double? Rms { get; set; }
         [JsonPropertyName("horizonMin")] public double? HorizonMin { get; set; }
         [JsonPropertyName("clearFrac")] public double? ClearFrac { get; set; }
 

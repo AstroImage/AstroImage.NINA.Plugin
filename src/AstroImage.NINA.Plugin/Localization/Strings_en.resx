@@ -1158,9 +1158,6 @@
   <data name="Pag_Parziale_seeing_non_dichiarato" xml:space="preserve">
     <value>Seeing: the engine reference applies, {0}″.</value>
   </data>
-  <data name="Pag_Parziale_guida_non_dichiarata" xml:space="preserve">
-    <value>Guiding: the engine reference applies, {0}″.</value>
-  </data>
   <data name="Pag_Parziale_notti_serene_non_dichiarate" xml:space="preserve">
     <value>Clear nights: the engine's typical fraction applies, {0}.</value>
   </data>
@@ -1214,6 +1211,21 @@
   </data>
   <data name="Pag_RigaVerdetto" xml:space="preserve">
     <value>verdict</value>
+  </data>
+  <data name="Pag_RigaCampionamento" xml:space="preserve">
+    <value>sampling</value>
+  </data>
+  <data name="Pag_Camp_Intervallo" xml:space="preserve">
+    <value>optimal {0}–{1} ″/px</value>
+  </data>
+  <data name="Pag_Camp_Scala" xml:space="preserve">
+    <value>pixel {0} ″/px</value>
+  </data>
+  <data name="Pag_Camp_Consegnata" xml:space="preserve">
+    <value>stars in the sub {0} ″</value>
+  </data>
+  <data name="Pag_Camp_DueSeeing" xml:space="preserve">
+    <value>verdict on the site's seeing, {0} ″; subs on the reference seeing, {1} ″</value>
   </data>
   <data name="Pag_Verdetto_Minimo" xml:space="preserve">
     <value>the requested nights ({0}) cover {1} % of the project: the minimum needs {2}</value>

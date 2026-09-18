@@ -15,23 +15,24 @@ namespace AstroImage.NINA.Plugin.Services {
      *  averle inserite, e N.I.N.A. le chiede alla prima configurazione. Sono l'unica
      *  parte del sito che non va dichiarata.
      *
-     *  Il resto — qualita' del cielo, seeing, errore di guida — arriva solo se un
-     *  dispositivo lo misura: una stazione meteo con misuratore SQM, o il guider
-     *  collegato. Quando non c'e', qui torna nullo e lo dichiara chi riprende: non si
-     *  inventa e non si stima.
+     *  Il resto — qualita' del cielo, seeing — arriva solo se un dispositivo lo misura:
+     *  una stazione meteo con misuratore SQM. Quando non c'e', qui torna nullo e lo
+     *  dichiara chi riprende: non si inventa e non si stima.
+     *
+     *  L'ERRORE DI GUIDA DEL SITO NON SI LEGGE PIU' (regia, 18 settembre 2026): la guida
+     *  che conta, nella posa e nel giudizio di campionamento, e' l'RMS caratteristico della
+     *  montatura, che sta nel banco. Quella di una notte, letta dal guider, non entra in
+     *  niente, e un numero letto per non essere usato e' una trappola.
      */
     public sealed class SitoDelProfilo {
 
         private readonly IProfileService? profilo;
         private readonly IWeatherDataMediator? meteo;
-        private readonly IGuiderMediator? guida;
 
         public SitoDelProfilo(IProfileService? profilo,
-                              IWeatherDataMediator? meteo,
-                              IGuiderMediator? guida) {
+                              IWeatherDataMediator? meteo) {
             this.profilo = profilo;
             this.meteo = meteo;
-            this.guida = guida;
         }
 
         /// <summary>
@@ -119,16 +120,6 @@ namespace AstroImage.NINA.Plugin.Services {
                 /*  StarFWHM e' il seeing misurato sulle stelle, quando la stazione lo
                  *  espone. Non tutte lo fanno, e chi non lo fa restituisce NaN. */
                 s.Seeing = Finito(Protetto(() => (double?)m.StarFWHM));
-            }
-
-            /*  L'errore di guida in RMS totale, in arcosecondi. Il guider lo espone in
-             *  pixel: si converte con la scala che il guider stesso dichiara. Senza
-             *  scala non si converte, e si lascia nullo invece di stimarla. */
-            var g = Protetto(() => guida?.GetInfo());
-            if (g is not null && Protetto(() => (bool?)g.Connected) == true) {
-                var scala = Finito(Protetto(() => (double?)g.PixelScale));
-                var rmsPx = Finito(Protetto(() => (double?)g.RMSError.Total.Pixel));
-                if (scala is > 0 && rmsPx is >= 0) s.Rms = rmsPx * scala;
             }
 
             return s;

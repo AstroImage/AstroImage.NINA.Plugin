@@ -63,6 +63,9 @@ namespace AstroImage.NINA.Plugin.Services {
                 return new SitoDichiarato();
             }
             d.Versione = VersioneCorrente;
+            /*  LA GUIDA DEL SITO SI CANCELLA, non resta in attesa (regia, 18 settembre 2026): un profilo salvato prima la
+             *  porta ancora, e senza questa riga resterebbe negli extra e tornerebbe nel file a ogni salvataggio. */
+            d.Altro?.Remove("rms");
             return d;
         }
 
@@ -86,7 +89,6 @@ namespace AstroImage.NINA.Plugin.Services {
                 Versione = VersioneCorrente,
                 Sqm = Campo("sqm", precedente?.Sqm),
                 Seeing = Campo("seeing", precedente?.Seeing),
-                Rms = Campo("rms", precedente?.Rms),
                 HorizonMin = Campo("horizonMin", precedente?.HorizonMin),
                 ClearFrac = Campo("clearFrac", precedente?.ClearFrac),
             };
@@ -121,7 +123,6 @@ namespace AstroImage.NINA.Plugin.Services {
              *  sovrascriverlo. */
             s.Sqm = Scegli(letto?.Sqm, dichiarato?.Sqm, "sqm", p);
             s.Seeing = Scegli(letto?.Seeing, dichiarato?.Seeing, "seeing", p);
-            s.Rms = Scegli(letto?.Rms, dichiarato?.Rms, "rms", p);
 
             /*  ALTEZZA MINIMA E NOTTI SERENE: solo dichiarate.
              *
