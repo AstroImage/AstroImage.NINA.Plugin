@@ -175,6 +175,20 @@ namespace AstroImage.NINA.Plugin.Tests {
                 "con un campo mancante deve tornare la frase del motore, non una frase bucata");
         }
 
+        /*  UNA CHIAVE RITIRATA DICE COME SI CHIAMA ADESSO (18 settembre 2026): l'ostruzione e' diventata una percentuale e
+         *  ha cambiato nome, e il motore rifiuta la chiave vecchia dicendo la nuova. Il Ponte la scrive, non la tace. */
+        [TestMethod]
+        public void UnaChiaveRitirataDiceIlNomeNuovo() {
+            foreach (var lingua in new[] { "it", "en" }) {
+                Loc.Instance.ForzaLingua(lingua);
+                var s = MessaggioDelMotore.Rendi("banco_chiave_sconosciuta",
+                    Dati(@"{""chiave"":""tel.ostruzione"",""sostituita_da"":""tel.ostruzione_pct""}"), "frase del motore");
+                StringAssert.Contains(s!, "tel.ostruzione", lingua);
+                StringAssert.Contains(s!, "tel.ostruzione_pct", lingua + ": il rifiuto non dice il nome nuovo");
+            }
+            Loc.Instance.ForzaLingua("it");
+        }
+
         /*  UN MOTORE PIU' VECCHIO DEL CONTRATTO non manda `dati`: il ponte non deve
          *  smettere di dire le cose, deve dirle in italiano. */
         [TestMethod]

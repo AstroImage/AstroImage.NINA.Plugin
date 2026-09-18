@@ -98,6 +98,19 @@ namespace AstroImage.NINA.Plugin.Tests {
             }
         }
 
+        // 6 ──────────────────────────────── il suo tooltip, che e' del Ponte (regia, 18 settembre 2026)
+        /*  L'indirizzo del motore e' l'unico campo il cui testo non viene dal motore: serve proprio quando il motore non si
+         *  raggiunge. Il tooltip e' una risorsa del Ponte, nelle due lingue. */
+        [TestMethod]
+        public void IL_CAMPO_DELL_INDIRIZZO_HA_IL_SUO_TOOLTIP() {
+            var xaml = Sorgente(Path.Combine("Options", "BridgeOptionsView.xaml"));
+            StringAssert.Contains(xaml, "ToolTip=\"{Binding [Opzioni_IndirizzoTooltip]", "il campo dell'indirizzo non ha il tooltip");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var resx = Sorgente(Path.Combine("Localization", "Strings_" + lingua + ".resx"));
+                StringAssert.Contains(resx, "name=\"Opzioni_IndirizzoTooltip\"", lingua + ": manca il testo del tooltip");
+            }
+        }
+
         /*  I sorgenti stanno accanto alle prove, non in una cartella di questa macchina: si risale finche' non si
          *  trova src\AstroImage.NINA.Plugin, come fa la prova della pagina per la vista. */
         private static string Sorgente(string dentroIlProgetto) {

@@ -897,8 +897,23 @@
   <data name="Pag_Banco_tel_apertura_mm" xml:space="preserve">
     <value>apertura</value>
   </data>
-  <data name="Pag_Banco_tel_ostruzione" xml:space="preserve">
+  <data name="Pag_Banco_tel_ostruzione_pct" xml:space="preserve">
     <value>ostruzione</value>
+  </data>
+  <data name="Pag_Banco_OstruzioneEffetto" xml:space="preserve">
+    <value>{0}% dell'area persa: raccoglie come un {1} mm senza ostruzione</value>
+  </data>
+  <data name="Pag_Banco_ChiaviOrfane" xml:space="preserve">
+    <value>Nel profilo c'è un valore dichiarato per un campo che Strategy non elenca più, e non parte nella richiesta: {0}. Se il campo ha cambiato nome, riscrivilo in quello nuovo e salva: il valore vecchio va via col salvataggio.</value>
+  </data>
+  <data name="Pag_CodiceLingua" xml:space="preserve">
+    <value>it</value>
+  </data>
+  <data name="Motore_BancoChiaveRitirata" xml:space="preserve">
+    <value>Adesso si chiama «{0}».</value>
+  </data>
+  <data name="Opzioni_IndirizzoTooltip" xml:space="preserve">
+    <value>L'indirizzo a cui questo plugin chiede le prescrizioni: il motore AstroImage-Strategy. Se il motore gira su questo computer lascia vuoto. Se te l'ha dato chi fa girare il motore — per esempio un indirizzo https://….trycloudflare.com — incollalo intero, con https://. Vuoto vale il file strategy.url accanto al plugin, e poi http://127.0.0.1:8791/. Dopo averlo cambiato premi «Riprova» nel pannello.</value>
   </data>
   <data name="Pag_Banco_tel_trasmissione" xml:space="preserve">
     <value>trasmissione</value>
@@ -959,12 +974,6 @@
   </data>
   <data name="Pag_Banco_luna_riferimento_deg" xml:space="preserve">
     <value>Luna: distanza di riferimento</value>
-  </data>
-  <data name="Pag_Banco_LunaNota" xml:space="preserve">
-    <value>La distanza minima da una Luna piena per un Hα da 3 nm. Da qui Strategy ricava la soglia di ogni filtro: cresce con la larghezza della banda e verso il blu, e scala con la fase. Sotto la soglia il moltiplicatore delle ore diventa un minimo, e il canale resta nella sequenza. È quanto slavato accetti: se la dichiari vince sul catalogo, e zero toglie la soglia.</value>
-  </data>
-  <data name="Pag_Banco_RmsNota" xml:space="preserve">
-    <value>La cifra che la montatura tiene abitualmente con questo carico, non quella di una notte. Entra nelle decisioni: se la dichiari vince sul catalogo, ed è una tua responsabilità.</value>
   </data>
   <data name="Pag_Banco_RedDaFocale" xml:space="preserve">
     <value>si riconosce dalla focale</value>

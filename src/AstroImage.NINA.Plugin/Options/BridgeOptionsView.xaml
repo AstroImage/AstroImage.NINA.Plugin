@@ -36,13 +36,19 @@
             DOVE STA IL MOTORE. E' la prima cosa che serve a chi installa il plugin: senza motore il pannello non ha
             niente da mostrare, e lo dice nominando proprio questo indirizzo. Vuoto vale come «quello di casa».
         -->
+        <!--
+            IL TOOLTIP DELL'INDIRIZZO E' DEL PONTE (18 settembre 2026), ed e' l'eccezione alla regola per cui le
+            spiegazioni le manda il motore: questo campo serve proprio quando il motore non si raggiunge.
+        -->
         <TextBlock FontWeight="SemiBold" Margin="0,6,0,2"
+                   ToolTip="{Binding [Opzioni_IndirizzoTooltip], Source={x:Static loc:Loc.Instance}}"
                    Text="{Binding [Opzioni_Indirizzo], Source={x:Static loc:Loc.Instance}}" />
 
         <TextBlock TextWrapping="Wrap" FontSize="10" Opacity="0.7" Margin="0,0,0,4"
                    Text="{Binding [Opzioni_IndirizzoAiuto], Source={x:Static loc:Loc.Instance}}" />
 
         <TextBox Width="420" HorizontalAlignment="Left" Margin="0,0,0,12"
+                 ToolTip="{Binding [Opzioni_IndirizzoTooltip], Source={x:Static loc:Loc.Instance}}"
                  Text="{Binding Indirizzo, UpdateSourceTrigger=LostFocus}" />
 
         <!--

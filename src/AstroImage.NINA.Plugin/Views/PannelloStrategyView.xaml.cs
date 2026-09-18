@@ -747,9 +747,16 @@ namespace AstroImage.NINA.Plugin.Views {
                                                ["spiegazione"] = x.Spiegazione });
             /*  E i campi del banco, perche' la pagina ne costruisca il blocco: la lista e' del servizio. */
             var campi = new JsonArray();
-            foreach (var c in m.CampiDelBanco)
+            /*  e con la spiegazione di ogni campo, lingua per lingua, come il servizio l'ha mandata (18 settembre 2026) */
+            foreach (var c in m.CampiDelBanco) {
+                JsonObject spiegazione = null;
+                if (c.Spiegazione != null) {
+                    spiegazione = new JsonObject();
+                    foreach (var kv in c.Spiegazione) spiegazione[kv.Key] = kv.Value;
+                }
                 campi.Add(new JsonObject { ["chiave"] = c.Chiave, ["pezzo"] = c.Pezzo,
-                                           ["provenienza"] = c.Provenienza, ["unita"] = c.Unita });
+                                           ["provenienza"] = c.Provenienza, ["unita"] = c.Unita, ["spiegazione"] = spiegazione });
+            }
             var divergenze = new JsonArray();
             foreach (var d in m.DivergenzeDelBanco) divergenze.Add(d);
             Rispondi(id, true, null, null, null, 0, null, new JsonObject {
