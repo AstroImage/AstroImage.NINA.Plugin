@@ -182,9 +182,12 @@ namespace AstroImage.NINA.Plugin.Tests {
             Loc.Instance.ForzaLingua("en");
             Assert.AreEqual("SQM 12 non e' un sito",
                 MessaggioDelMotore.Rendi("cielo_implausibile", null, "SQM 12 non e' un sito"));
+            /*  nessuna_prescrizione senza le bande che mancano (18 settembre 2026): vale la frase del motore, che e' il suo
+             *  motivo. Qui prima si voleva la frase nostra — che dava la colpa ai filtri — al posto di quella del motore:
+             *  era la sostituzione che la regia ha tolto (MotiviDelMotoreTests). */
+            Assert.AreEqual("frase italiana", MessaggioDelMotore.Rendi("nessuna_prescrizione", null, "frase italiana"));
             //  Ma un codice che non chiede campi si traduce lo stesso, dati o no.
-            var s = MessaggioDelMotore.Rendi("nessuna_prescrizione", null, "frase italiana");
-            StringAssert.Contains(s!, "no workable road");
+            Assert.AreEqual(Loc.T("Motore_ViaSconosciuta"), MessaggioDelMotore.Rendi("via_sconosciuta", null, "frase italiana"));
         }
 
         /*  I NUMERI SI SCRIVONO COME OVUNQUE NELL'APP. Un SQM e' 20.8 nella pagina,

@@ -506,7 +506,7 @@
   /*  LA RICHIESTA: ogni campo della lista col valore che gli spetta — dal profilo di N.I.N.A. se e' suo, dalla
    *  dichiarazione se e' dichiarabile o e' un riconoscimento. Nessun valore di serie: quello che manca manca, e il
    *  servizio dice che cosa. */
-  function bancoDaMandare() {
+  function bancoDaMandare(soloVoceScritta) {
     const b = {};
     const metti = (chiave, valore) => {
       const parti = chiave.split('.');
@@ -531,7 +531,10 @@
       if (c.provenienza === 'descrizione' && dichiarato[c.chiave] != null) descritta[c.chiave.split('.')[1]] = dichiarato[c.chiave];
     });
     const idCamera = (b.cam && typeof b.cam === 'object') ? b.cam.id : null;
-    if (camera && typeof camera === 'object') {
+    /*  LA SOLA VOCE SCRITTA, quando chi riprende lo chiede per una richiesta (18 settembre 2026): la camera collegata
+     *  vince di serie, e questa e' la strada per simulare un'altra camera senza scollegare quella vera. */
+    if (soloVoceScritta && idCamera) b.cam = { id: idCamera };
+    else if (camera && typeof camera === 'object') {
       b.cam = Object.assign({}, camera, idCamera ? { id: idCamera } : {});
       ['rumore_lettura_e', 'qe_picco_pct', 'pozzo_e'].forEach(k => { if (descritta[k] != null) b.cam[k] = descritta[k]; });
     }
@@ -642,16 +645,18 @@
       } else if (c.provenienza === 'riconoscimento') {
         const id = c.chiave + '.id';
         const pezzo = pb && pb[c.pezzo];
-        /*  LA CAMERA RICONOSCIUTA PRIMA DELLA DOMANDA: la voce nel campo, in grigio quando nessuno l'ha scritta; la camera
-         *  collegata col nome del driver; la voce scritta che non esiste, che impedisce alla camera collegata di farsi
-         *  riconoscere. Senza questo, il riconoscimento si vedeva solo dopo una prescrizione. */
+        /*  LA CAMERA RICONOSCIUTA PRIMA DELLA DOMANDA: la voce nel campo, in grigio quando nessuno l'ha scritta; e dal 18
+         *  settembre 2026, quando la voce scritta non e' la camera collegata, il disaccordo in giallo coi due nomi — vale
+         *  la collegata. «Collegata (…): riconosciuta come (…)» diceva che la collegata era stata riconosciuta come una
+         *  cosa che non e'. La voce scritta resta nel campo com'e': serve quando la camera sara' scollegata. */
         const rc = c.pezzo === 'camera' ? cameraDelBanco : null;
         const segnaposto = rc && rc.id && dichiarato[id] == null ? ' placeholder="' + esc(rc.voce || rc.id) + '"' : '';
         const notaCamera = !rc ? ''
-          : rc.id && rc.collegata
-            ? ' <span style="font-size:12px;opacity:.75">' + MF('Pag_Banco_CamCollegata', esc(rc.nomeDriver || ''), esc(rc.voce || rc.id)) + '</span>'
+          : rc.disaccordo
+            ? '<div style="font-size:12px">' + disaccordoDellaCamera(rc.disaccordo) + '</div>'
           : rc.id
-            ? ' <span style="font-size:12px;opacity:.75">' + MF('Pag_Banco_Riconosciuto', esc(rc.voce || rc.id)) + '</span>'
+            ? ' <span style="font-size:12px;opacity:.75">' + MF('Pag_Banco_Riconosciuto', esc(rc.voce || rc.id)) +
+              (rc.via === 'nome_e_geometria' ? ' ' + MF('Pag_Banco_CamDalDriver') : '') + '</span>'
           : rc.chiesto
             ? '<div style="font-size:12px;color:#e0a030">' + MF('Pag_Banco_CamVoceSconosciuta', esc(rc.chiesto)) + '</div>'
           : '';
@@ -760,7 +765,10 @@
     });
   }
 
-  async function vai() {
+  /*  «USA INVECE LA VOCE SCRITTA» (regia, 18 settembre 2026) vale per la richiesta che fa partire e basta: e' un
+   *  argomento di questa chiamata, non uno stato della pagina — niente che resti acceso e invecchi. */
+  async function vai(domanda) {
+    const soloVoce = !!(domanda && domanda.voceScritta === true);
     /*  Senza oggetto non si chiede niente: si dice, e si torna al campo. */
     if (!$('oggetto').value.trim()) {
       stato(T('Pag_ScriviOggetto'), 'no');
@@ -783,7 +791,7 @@
        *  perche' non ce l'ha nessuno dei due. Si compone dalla lista dei campi che il servizio pubblica, non da una lista
        *  di qui; la camera e' quella che il driver dichiara. Dedurre «askar71f» dal nome di un dispositivo sarebbe
        *  indovinare l'identita' fisica da un'etichetta: l'identificativo lo dichiara chi riprende, come per i filtri. */
-      banco:     bancoDaMandare(),
+      banco:     bancoDaMandare(soloVoce),
       bersaglio: { id: $('oggetto').value.trim() },
       /*  LE TRE DICHIARAZIONI, e adesso vengono dai controlli.
        *  `notti` era il letterale 3 e la data era cablata nel markup: due numeri
@@ -821,8 +829,7 @@
     if (!r.ok) {
       stato(T('Pag_NonRiuscita'), 'no');
       $('dettagli').innerHTML = '';
-      $('uscita').innerHTML = '<div class="box err"><b>' + esc(r.codice || T('Pag_Errore')) +
-        '</b><div style="margin-top:6px;opacity:.8">' + M(r.messaggio || '') + '</div></div>';
+      $('uscita').innerHTML = disegnaRifiuto(r, soloVoce);
       return;
     }
 
@@ -913,6 +920,7 @@
       parzialeDelProdotto(p.parziale);
     $('uscita').innerHTML =
       disegnaMenu(p.prescrizione) +
+      (p.banco && p.banco.camera ? cameraDelCalcolo(p.banco.camera, soloVoce) : '') +
       nottiGiuste(p) +
       '<div class="box"><table>' +
       '<tr><th>' + T('Pag_ColNotte') + '</th><th>' + T('Pag_ColData') + '</th><th>' +
@@ -1013,6 +1021,12 @@
   /*  IL CALENDARIO SI APRE DALL'ICONA (17 settembre 2026): nella riga della domanda il tasto nativo non stava piu' sotto
    *  l'icona, e il clic andava a vuoto. L'icona apre la scelta della data da se'; dove il browser non sa farlo, il campo
    *  prende il fuoco. */
+  /*  «usa invece la voce scritta», ovunque compaia: nel banco, nella risposta, nel rifiuto */
+  document.addEventListener('click', ev => {
+    const t = ev.target && ev.target.closest ? ev.target.closest('[data-usa-voce-scritta]') : null;
+    if (t) vai({ voceScritta: true });
+  });
+
   const iconaData = document.querySelector('.data-cal svg');
   if (iconaData) {
     iconaData.addEventListener('click', () => {
@@ -1512,15 +1526,71 @@
       case 'sotto_soglia_continuo':
         return MF('Pag_Men_Motivo_sotto_soglia_continuo', nomeDellaBanda, scelto, cifra(x.larghezza_nm), cifra(x.soglia_nm));
       case 'escluso_per_decisione': return MF('Pag_Men_Motivo_escluso_per_decisione', nomeDellaBanda, scelto);
-      default: return MF('Pag_Men_Motivo_generico', nomeDellaBanda);
+      /*  un tipo che la pagina non conosce ancora: la banda e il codice del motore, non una colpa data alla ruota */
+      default: return MF('Pag_Men_Motivo_generico', nomeDellaBanda, escOVuoto(x.tipo));
     }
   }
+  /*  LA STRADA BLOCCATA, una carta sola per il menu e per il rifiuto (18 settembre 2026): il nome, «non disponibile»,
+   *  e il motivo come lo manda Strategy. Il rifiuto la usa perche' il pannello non scriva mai una frase sua al posto
+   *  dei motivi del motore. */
+  function cartaBloccata(b) {
+    return '<div class="roadcard lack" aria-disabled="true">' +
+      '<div class="rc-h"><b>' + esc(b.name || b.road) + '</b></div>' +
+      '<div class="rc-p"><span class="pill p-dim">' + esc(T('Pag_Men_NonDisponibile')) + '</span></div>' +
+      '<div class="rc-n"><span class="p-warn">' + (b.perche || []).map(testoDelMotivo).join(' · ') + '</span></div></div>';
+  }
+
+  /*  LA CAMERA DEL CALCOLO (18 settembre 2026): quale camera c'era dentro il conto, da dove viene e che matrice ha. E'
+   *  l'informazione che mancava per capire un rifiuto: con una mono scritta nel banco i dual-band non separano l'OIII,
+   *  e il rimedio e' la camera. Tutto come lo manda Strategy nel prodotto o nel rifiuto. */
+  function cameraDelCalcolo(cam, soloVoce) {
+    if (!cam) return '';
+    const collegataFuori = MF('Pag_Camera_Via_collegata_fuori_catalogo', esc(cam.nome_driver || cam.voce || ''));
+    const via = cam.riconoscimento === 'nome_e_geometria' ? MF('Pag_Camera_Via_nome_e_geometria')
+      : cam.riconoscimento === 'dichiarata' || cam.riconoscimento === 'catalogo'
+        ? MF(cam.osservata ? 'Pag_Camera_Via_dichiarata_collegata' : 'Pag_Camera_Via_dichiarata')
+      : cam.osservata ? collegataFuori : MF('Pag_Camera_Via_descritta');
+    const matrice = cam.matrice && PAROLA_MATRICE[cam.matrice] ? esc(T(PAROLA_MATRICE[cam.matrice])) : '';
+    return '<div class="camera-calcolo">' + MF('Pag_CameraDelCalcolo', esc(cam.voce || cam.id || ''), via, matrice) +
+      (soloVoce ? '<div class="avvisa">' + MF('Pag_Camera_SoloVoce') + '</div>' : '') +
+      (cam.disaccordo ? '<div>' + disaccordoDellaCamera(cam.disaccordo) + '</div>' : '') + '</div>';
+  }
+
+  /*  IL DISACCORDO FRA LA VOCE SCRITTA E LA CAMERA COLLEGATA, in giallo coi due nomi: vale la collegata. Accanto, «usa
+   *  invece la voce scritta», che chiede la prescrizione con la sola voce — solo quando la voce esiste nel catalogo. */
+  function disaccordoDellaCamera(dis) {
+    if (!dis) return '';
+    const s = dis.scritta || {}, c = dis.collegata;
+    const scritta = s.voce ? esc(s.voce) : '«' + esc(s.chiesto || '') + '»';
+    const collegata = esc(c ? (c.voce || c.id) : (dis.nome_driver || ''));
+    return '<span class="avvisa">' + MF('Pag_Camera_Disaccordo', scritta, collegata) + '</span>' +
+      (s.id ? ' <button type="button" class="collegamento" data-usa-voce-scritta="1">' +
+        esc(T('Pag_Camera_UsaVoceScritta')) + '</button>' : '');
+  }
+
+  /*  IL RIFIUTO DEL MOTORE, coi suoi motivi (regia, 18 settembre 2026): la frase che l'ospite ha composto dai dati, la
+   *  camera del calcolo, e le strade bloccate con la carta del menu. Prima c'era la sola frase, e per nessuna_prescrizione
+   *  era una frase nostra che dava la colpa ai filtri. */
+  function disegnaRifiuto(r, soloVoce) {
+    let e = null;
+    try { e = r.corpo ? (JSON.parse(r.corpo).errore || null) : null; } catch (x) { e = null; }
+    const bloccate = e && Array.isArray(e.bloccate) ? e.bloccate : [];
+    return '<div class="box err"><b>' + esc(r.codice || T('Pag_Errore')) + '</b>' +
+      '<div style="margin-top:6px;opacity:.8">' + M(r.messaggio || '') + '</div>' +
+      (e && e.camera ? cameraDelCalcolo(e.camera, soloVoce) : '') +
+      (bloccate.length ? '<div class="roadgrid" style="margin-top:10px">' + bloccate.map(cartaBloccata).join('') + '</div>' : '') +
+      '</div>';
+  }
+
   function testoStelle(perche) {
     if (perche && perche.tipo === 'canale_spento')
       return MF('Pag_Men_StelleNonRiprendibili_spento', escOVuoto(perche.banda));
     const m = (perche && perche.mancano) || [];
-    return m.length ? MF('Pag_Men_StelleNonRiprendibili_mancano', m.map(esc).join(', '))
-                    : MF('Pag_Men_StelleNonRiprendibili');
+    if (m.length) return MF('Pag_Men_StelleNonRiprendibili_mancano', m.map(esc).join(', '));
+    /*  un motivo senza le bande che mancano passa dal testo del motivo (18 settembre 2026); la frase senza motivo vale
+     *  solo quando il motore non ne ha mandato uno */
+    return perche && perche.tipo ? MF('Pag_Men_StelleNonRiprendibili_perche', testoDelMotivo(perche))
+                                 : MF('Pag_Men_StelleNonRiprendibili');
   }
 
   function disegnaMenu(pr) {
@@ -1595,7 +1665,7 @@
       righe.push('<div class="sc-s">' + MF('Pag_Men_ChiestaStessaRipresa', esc(rs.nomeChiesta || rs.chiesta), esc(presaOra)) + '</div>');
     else if (sost)
       righe.push('<div class="sc-s">' + MF(PAROLA_SOSTITUITA[sost.motivo] || 'Pag_Men_Sostituita_generica',
-        esc(sost.nomeChiesta || sost.chiesta), esc(presaOra), esc(sost.nomeCon || sost.con || '')) + '</div>');
+        esc(sost.nomeChiesta || sost.chiesta), esc(presaOra), esc(sost.nomeCon || sost.con || ''), escOVuoto(sost.motivo)) + '</div>');
     else if (pr.roadPicked && !pr.roadAutoSame)
       righe.push('<div class="sc-s">' + MF('Pag_Men_StaiScegliendo', esc(auto ? auto.name : (pr.roadAuto || ''))) + '</div>');
     if (!pr.roadPicked && pr.roadAutoRisolta)
@@ -1606,8 +1676,7 @@
 
     return '<div class="box stratbox" id="menu">' + titolo + '<div class="roadgrid">' +
       cartaAuto + voci.map(carta).join('') +
-      chiuse.map(b => ferma(b.name || b.road, 'Pag_Men_NonDisponibile',
-        '<span class="p-warn">' + (b.perche || []).map(testoDelMotivo).join(' · ') + '</span>')).join('') +
+      chiuse.map(cartaBloccata).join('') +
       nonPrezzabili.map(x => ferma(x.name, 'Pag_Men_NonDisponibile', '<span class="p-warn">' +
         (PAROLA_NON_PREZZABILE[x.motivo] ? esc(T(PAROLA_NON_PREZZABILE[x.motivo])) : esc(x.motivo)) + '</span>')).join('') +
       stesse.map(x => ferma(x.name, 'Pag_Men_StessaRipresa', x.motivo === 'passata_stelle_non_riprendibile'

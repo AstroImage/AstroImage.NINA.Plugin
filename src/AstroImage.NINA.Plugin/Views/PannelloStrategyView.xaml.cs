@@ -347,7 +347,10 @@ namespace AstroImage.NINA.Plugin.Views {
                  *  che il motore ha mandato accanto. Per un codice che non
                  *  conoscessimo ancora torna la frase italiana del motore: si
                  *  degrada in italiano, non nel vuoto. */
-                if (!esito.Riuscito) { Rispondi(id, false, null, esito.Codice, esito.MessaggioTradotto); return; }
+                /*  IL RIFIUTO INTERO ALLA PAGINA (regia, 18 settembre 2026): la frase da sola non basta. Il motore manda
+                 *  le strade bloccate coi loro motivi e la camera con cui ha calcolato, e la pagina li scrive col codice
+                 *  del menu delle strade; prima arrivava solo la frase, e al posto dei motivi c'era una frase nostra. */
+                if (!esito.Riuscito) { Rispondi(id, false, esito.Corpo, esito.Codice, esito.MessaggioTradotto); return; }
 
                 /*  La risposta resta in mano al ponte e riceve un identificativo, che
                  *  torna alla pagina. Quando la pagina chiedera' di consegnare, dovra'
