@@ -117,7 +117,7 @@ Write-Host "`n--- che cosa viene DISTRIBUITO ---"
 $cartellaNina = Join-Path $env:LOCALAPPDATA 'NINA\Plugins\3.0.0\AstroImage Strategy Bridge'
 if (Test-Path $cartellaNina) {
     $spediti = @(Get-ChildItem $cartellaNina -Recurse -File |
-        Where-Object { $_.Name -match '\.(dll|exe)$' -and $_.Name -ne 'AstroImage.NINA.Plugin.dll' } |
+        Where-Object { $_.Name -match '\.(dll|exe)$' -and $_.Name -ne 'AstroImage Strategy Bridge.dll' } |
         ForEach-Object { $_.Name })
     Verifica "in N.I.N.A. arriva il solo DLL del plugin" ($spediti.Count -eq 0) `
         $(if ($spediti.Count) { 'ANCHE: ' + ($spediti -join ', ') } else { 'nient altro' })
@@ -186,7 +186,8 @@ Write-Host "`n--- la copia installata in N.I.N.A. ---"
 # "esiste una copia" ma "quella che N.I.N.A. carichera' e' l'ultima compilata". Un DLL
 # vecchio in quella cartella non da' nessun errore: da' un plugin che si comporta come
 # la versione di ieri, ed e' il modo piu' rapido di perdere un'ora.
-$inNina = Join-Path $env:LOCALAPPDATA 'NINA\Plugins\3.0.0\AstroImage.NINA.Plugin\AstroImage.NINA.Plugin.dll'
+# la cartella e il file che userebbe N.I.N.A. (17 e 18 settembre 2026): il nome del plugin, non quello dell'assembly
+$inNina = Join-Path $env:LOCALAPPDATA 'NINA\Plugins\3.0.0\AstroImage Strategy Bridge\AstroImage Strategy Bridge.dll'
 if (Test-Path $inNina) {
     $a = (Get-FileHash $dll    -Algorithm SHA256).Hash
     $b = (Get-FileHash $inNina -Algorithm SHA256).Hash

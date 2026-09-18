@@ -24,3 +24,6 @@ scripts/installa.locale.psd1
 TestResults/
 *.trx
 coverage.cobertura.xml
+
+# il pacchetto da mandare, che scripts/pacchetto.ps1 rifa' a ogni giro
+pacchetto/

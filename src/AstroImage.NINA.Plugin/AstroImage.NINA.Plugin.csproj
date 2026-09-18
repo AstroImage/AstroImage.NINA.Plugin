@@ -153,6 +153,12 @@
          GUID, e ne caricherebbe due. Il nome viene da AssemblyTitle. -->
     <NinaPluginFolderName Condition="'$(NinaPluginFolderName)' == ''">AstroImage Strategy Bridge</NinaPluginFolderName>
     <NinaPluginsFolder Condition="'$(NinaPluginsFolder)' == ''">$(LOCALAPPDATA)\NINA\Plugins\3.0.0\$(NinaPluginFolderName)</NinaPluginsFolder>
+    <!-- E IL FILE HA IL NOME DELLA CARTELLA (18 settembre 2026), come lo chiama N.I.N.A. quando installa un plugin
+         di tipo DLL da un repository: «<Nome del manifest>.dll». L'assembly resta AstroImage.NINA.Plugin — si
+         rinomina il file, non l'identita': N.I.N.A. carica ogni DLL per percorso, e fra i plugin installati su
+         queste macchine ce ne sono gia' con file e assembly di nome diverso (Target Planning, Filter Offset
+         Calculator). -->
+    <NinaPluginFileName Condition="'$(NinaPluginFileName)' == ''">$(NinaPluginFolderName).dll</NinaPluginFileName>
   </PropertyGroup>
 
   <Target Name="DeployPluginToNina" AfterTargets="Build"
@@ -171,10 +177,15 @@
       e' avvenuta davvero, altrimenti esce un avviso che nomina la causa. Un messaggio
       che dice «copiato» quando non lo e' e' peggio del silenzio.
     -->
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(NinaPluginsFolder)"
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(NinaPluginsFolder)\$(NinaPluginFileName)"
           Retries="2" ContinueOnError="WarnAndContinue">
       <Output TaskParameter="CopiedFiles" ItemName="_PluginInstallato" />
     </Copy>
+    <!-- Il DLL col nome dell'assembly, se c'e' ancora nella stessa cartella, e' il nostro di prima: resterebbero due
+         DLL con lo stesso GUID, e N.I.N.A. li caricherebbe tutti e due. Si toglie solo dopo una copia riuscita. -->
+    <Delete Files="$(NinaPluginsFolder)\$(TargetFileName)"
+            Condition="'@(_PluginInstallato)' != '' And '$(TargetFileName)' != '$(NinaPluginFileName)'"
+            ContinueOnError="WarnAndContinue" />
     <Message Importance="high" Condition="'@(_PluginInstallato)' != ''"
              Text="Plugin copiato in $(NinaPluginsFolder)" />
     <Warning Condition="'@(_PluginInstallato)' == ''"
