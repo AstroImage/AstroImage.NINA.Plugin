@@ -415,9 +415,6 @@
   <data name="Pag_NotteSpostata" xml:space="preserve">
     <value>spostata di {0}</value>
   </data>
-  <data name="Pag_NottiSerene" xml:space="preserve">
-    <value>notti serene</value>
-  </data>
   <data name="Pag_OpzNessunFiltro" xml:space="preserve">
     <value>nessun filtro / filtro trasparente</value>
   </data>
@@ -445,9 +442,6 @@
   <data name="Pag_RispostaRicevuta" xml:space="preserve">
     <value>risposta ricevuta</value>
   </data>
-  <data name="Pag_Rms" xml:space="preserve">
-    <value>guida (RMS)</value>
-  </data>
   <data name="Pag_SalvaConfigurazione" xml:space="preserve">
     <value>Salva configurazione</value>
   </data>
@@ -466,9 +460,6 @@
   </data>
   <data name="Pag_ScriviloQuiSotto" xml:space="preserve">
     <value>Scrivilo qui sotto: senza, il motore non calcola niente, né le ore né la posa.</value>
-  </data>
-  <data name="Pag_Seeing" xml:space="preserve">
-    <value>seeing</value>
   </data>
   <data name="Pag_SenzaBanda" xml:space="preserve">
     <value>—</value>
@@ -1005,12 +996,6 @@
   <data name="Pag_Banco_Div_apertura_diversa_da_nina" xml:space="preserve">
     <value>*Apertura*: {0} mm ({1}), ma la focale {2} mm e il rapporto f/{3} del profilo di N.I.N.A. fanno {4} mm. Uno dei due numeri è vecchio: il rapporto focale del profilo non lo legge nessuna funzione di N.I.N.A., e nessuno lo aggiorna quando si monta un riduttore.</value>
   </data>
-  <data name="Pag_SeeingNota" xml:space="preserve">
-    <value>*Seeing*: una dichiarazione. Serve al consiglio di campionamento e al confronto fra configurazioni; non entra nella prescrizione, che è calcolata su un cielo di riferimento.</value>
-  </data>
-  <data name="Pag_RmsNota" xml:space="preserve">
-    <value>*Guida (RMS)*: una dichiarazione, con lo stesso uso. Nelle decisioni entra l'RMS caratteristico della montatura, che si dichiara nel banco, non questo campo.</value>
-  </data>
   <data name="Banco_DichiarazioneVuota" xml:space="preserve">
     <value>la dichiarazione del banco salvata non dice niente: il banco non è dichiarato.</value>
   </data>
@@ -1049,9 +1034,6 @@
   </data>
   <data name="Pag_RuotaOrfana" xml:space="preserve">
     <value>Hai dichiarato {0}, e in ruota non c'è più: resta fuori da questa prescrizione. Se l'hai rinominato in N.I.N.A., ripuntalo nella vista dei filtri.</value>
-  </data>
-  <data name="Pag_SqmNota" xml:space="preserve">
-    <value>*Cielo (SQM)*: il carattere del sito, non la trasparenza di stanotte. Nel dubbio dichiara il valore più chiaro dell'intervallo, cioè il numero più basso: un cielo dichiarato più scuro del vero prescrive meno ore di quelle che servono, e a casa si torna corti.</value>
   </data>
   <data name="Pag_Banco_cam" xml:space="preserve">
     <value>camera (voce del catalogo)</value>
@@ -1174,13 +1156,13 @@
     <value>Orizzonte non dichiarato nel profilo: vale il limite operativo, {0}°.</value>
   </data>
   <data name="Pag_Parziale_seeing_non_dichiarato" xml:space="preserve">
-    <value>Seeing non dichiarato: vale il riferimento, {0}″.</value>
+    <value>Seeing: vale il riferimento del motore, {0}″.</value>
   </data>
   <data name="Pag_Parziale_guida_non_dichiarata" xml:space="preserve">
-    <value>Guida non dichiarata: vale il riferimento, {0}″.</value>
+    <value>Guida: vale il riferimento del motore, {0}″.</value>
   </data>
   <data name="Pag_Parziale_notti_serene_non_dichiarate" xml:space="preserve">
-    <value>Notti serene non dichiarate: vale la frazione tipica, {0}.</value>
+    <value>Notti serene: vale la frazione tipica del motore, {0}.</value>
   </data>
   <data name="Pag_Parziale_ruota_non_dichiarata" xml:space="preserve">
     <value>Ruota non dichiarata: la prescrizione usa i filtri di serie del motore — {0}.</value>

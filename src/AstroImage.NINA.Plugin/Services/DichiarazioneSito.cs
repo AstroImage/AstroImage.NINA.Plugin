@@ -71,20 +71,24 @@ namespace AstroImage.NINA.Plugin.Services {
 
         /*  Stessa guardia del salvataggio della ruota, e per lo stesso difetto: una
          *  chiave assente non e' «azzera tutto». */
-        public static SitoDichiarato? DalMessaggio(JsonNode? messaggio, out string? perCheNo) {
+        public static SitoDichiarato? DalMessaggio(JsonNode? messaggio, out string? perCheNo, SitoDichiarato? precedente = null) {
             perCheNo = null;
             var corpo = messaggio?["corpo"];
             if (corpo?["sito"] is not JsonObject s) {
                 perCheNo = Loc.T("Sito_SenzaSito");
                 return null;
             }
+            /*  UNA CHIAVE CHE LA PAGINA NON MANDA NON E' UN AZZERAMENTO (18 settembre 2026): i campi muti non hanno una
+             *  casella da cui partire, e il loro valore nel profilo resta com'era. Una chiave mandata vuota, invece, si
+             *  svuota: e' chi riprende che ha cancellato il numero. */
+            double? Campo(string k, double? prima) => s.ContainsKey(k) ? Numero(s[k]) : prima;
             return new SitoDichiarato {
                 Versione = VersioneCorrente,
-                Sqm = Numero(s["sqm"]),
-                Seeing = Numero(s["seeing"]),
-                Rms = Numero(s["rms"]),
-                HorizonMin = Numero(s["horizonMin"]),
-                ClearFrac = Numero(s["clearFrac"]),
+                Sqm = Campo("sqm", precedente?.Sqm),
+                Seeing = Campo("seeing", precedente?.Seeing),
+                Rms = Campo("rms", precedente?.Rms),
+                HorizonMin = Campo("horizonMin", precedente?.HorizonMin),
+                ClearFrac = Campo("clearFrac", precedente?.ClearFrac),
             };
         }
 
@@ -138,6 +142,24 @@ namespace AstroImage.NINA.Plugin.Services {
 
             return s;
         }
+
+        /*  I CAMPI MUTI NON PARTONO (regia, 18 settembre 2026). Seeing, guida e notti serene del sito non si offrono piu':
+         *  nel Ponte non muovevano niente di visibile. Il sito che la pagina riceve e' quello che rimanda al motore: qui
+         *  non entrano ne' col valore salvato nel profilo ne' con quello che N.I.N.A. misura, e il motore applica il suo
+         *  riferimento e lo dichiara; la pagina lo scrive in una nota. Il valore del profilo resta nel profilo, muto, per
+         *  il giorno in cui il campo rientra. L'RMS caratteristico della montatura non c'entra: sta nel banco, e decide.
+         *  Sorvegliato da CampiMutiTests. */
+        /// <summary>Il sito che la pagina riceve, e che rimanda al motore nella richiesta: la geometria e l'orizzonte del
+        /// profilo, il cielo e l'altezza minima. Mai un campo muto.</summary>
+        public static JsonObject PerLaPagina(SitoDiRipresa unito) => new JsonObject {
+            ["lat"] = unito.Lat, ["lon"] = unito.Lon, ["sqm"] = unito.Sqm, ["horizonMin"] = unito.HorizonMin,
+            ["orizzonte"] = unito.Orizzonte is null ? null : JsonSerializer.SerializeToNode(unito.Orizzonte),
+        };
+
+        /// <summary>Quello che chi riprende ha scritto, per i campi che la pagina gli fa scrivere.</summary>
+        public static JsonObject DichiaratoPerLaPagina(SitoDichiarato? d) => new JsonObject {
+            ["sqm"] = d?.Sqm, ["horizonMin"] = d?.HorizonMin,
+        };
 
         /// <summary>
         /// Che cosa manca perche' il motore possa produrre una prescrizione. Serve a

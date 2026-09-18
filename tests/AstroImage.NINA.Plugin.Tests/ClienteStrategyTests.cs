@@ -297,6 +297,36 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsNull(m.CampiDelBanco[1].Spiegazione, "a un campo senza spiegazione non se ne inventa una");
         }
 
+        /*  I CAMPI DEL SITO, da `limiti.sito` (18 settembre 2026): la chiave, l'unita', il valore che il motore assume e la
+         *  spiegazione, come arrivano. Il valore assunto e' quello che una casella spenta mostra, quindi non si inventa: un
+         *  numero che non e' un numero resta assente, e un campo storto si salta senza far perdere gli altri. */
+        [TestMethod]
+        public async Task Modalita_LeggeICampiDelSito_ComeArrivano() {
+            const string salute = "{\"modalita\":{\"elenco\":[{\"id\":\"resa\"}]},\"limiti\":{\"sito\":{\"campi\":[" +
+                "{\"chiave\":\"seeing\",\"unita\":\"″\",\"assunto\":1.6,\"decide\":false," +
+                "\"spiegazione\":{\"it\":\"Il seeing è la FWHM.\",\"en\":\"Seeing is the FWHM.\",\"xx\":3}}," +
+                "{\"chiave\":\"sqm\",\"unita\":\"mag/arcsec²\",\"assunto\":\"molto\",\"decide\":\"si\"}," +
+                "{\"unita\":\"°\"},7]}}}";
+            var (cliente, _) = Banco(HttpStatusCode.OK, salute);
+
+            var m = await cliente.Modalita();
+
+            Assert.AreEqual(1, m.Elenco.Count, "un campo storto del sito non fa perdere i modi");
+            Assert.AreEqual(2, m.CampiDelSito.Count, "le voci senza chiave, o che non sono oggetti, si saltano");
+            var s = m.CampiDelSito[0];
+            Assert.AreEqual("seeing", s.Chiave);
+            Assert.AreEqual("″", s.Unita);
+            Assert.AreEqual(1.6, s.Assunto);
+            Assert.AreEqual(false, s.Decide, "il campo che non decide si e' perso nel corriere: la sua assunzione andrebbe in giallo");
+            Assert.IsNull(m.CampiDelSito[1].Decide, "un decide che non e' un vero o un falso non diventa un vero");
+            Assert.IsNotNull(s.Spiegazione, "la spiegazione del campo del sito si e' persa nel corriere");
+            Assert.AreEqual("Il seeing è la FWHM.", s.Spiegazione!["it"]);
+            Assert.AreEqual("Seeing is the FWHM.", s.Spiegazione["en"]);
+            Assert.IsFalse(s.Spiegazione.ContainsKey("xx"), "un valore che non e' un testo non diventa un testo");
+            Assert.IsNull(m.CampiDelSito[1].Assunto, "un valore assunto che non e' un numero non diventa un numero");
+            Assert.IsNull(m.CampiDelSito[1].Spiegazione, "a un campo senza spiegazione non se ne inventa una");
+        }
+
         [TestMethod]
         public async Task Modalita_UnMotoreSenzaBanco_NonNeFaInventareUno() {
             var (cliente, _) = Banco(HttpStatusCode.OK, "{\"modalita\":{\"elenco\":[{\"id\":\"resa\"}]},\"limiti\":{\"corpo_byte\":1}}");

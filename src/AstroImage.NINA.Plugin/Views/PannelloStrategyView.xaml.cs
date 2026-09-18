@@ -759,10 +759,22 @@ namespace AstroImage.NINA.Plugin.Views {
             }
             var divergenze = new JsonArray();
             foreach (var d in m.DivergenzeDelBanco) divergenze.Add(d);
+            /*  E i campi del sito, con il valore che il motore assume, se decide, e la spiegazione (18 settembre 2026): la
+             *  pagina ne fa i tooltip del blocco del sito, e la nota dei riferimenti per i campi che non decidono. */
+            var sito = new JsonArray();
+            foreach (var c in m.CampiDelSito) {
+                JsonObject spiegazione = null;
+                if (c.Spiegazione != null) {
+                    spiegazione = new JsonObject();
+                    foreach (var kv in c.Spiegazione) spiegazione[kv.Key] = kv.Value;
+                }
+                sito.Add(new JsonObject { ["chiave"] = c.Chiave, ["unita"] = c.Unita, ["assunto"] = c.Assunto,
+                                          ["decide"] = c.Decide, ["spiegazione"] = spiegazione });
+            }
             Rispondi(id, true, null, null, null, 0, null, new JsonObject {
                 ["modalita"] = elenco, ["diSerie"] = m.DiSerie,
                 ["politiche"] = politiche, ["politicaDiSerie"] = m.PoliticaDiSerie,
-                ["campiDelBanco"] = campi, ["divergenzeDelBanco"] = divergenze });
+                ["campiDelBanco"] = campi, ["divergenzeDelBanco"] = divergenze, ["campiDelSito"] = sito });
         }
 
         /*  LA CAMERA COM'E', e nient'altro che com'e'.
@@ -827,20 +839,11 @@ namespace AstroImage.NINA.Plugin.Views {
             Logger.Info($"[AstroImage] site horizon: {(unito.Orizzonte?.Length ?? 0)} points" +
                         (string.IsNullOrWhiteSpace(unito.OrizzonteFile) ? ", no file in the profile" : $" from «{unito.OrizzonteFile}»"));
             Rispondi(id, true, null, null, null, 0, null, new JsonObject {
-                ["sito"] = new JsonObject {
-                    ["lat"] = unito.Lat, ["lon"] = unito.Lon, ["sqm"] = unito.Sqm,
-                    ["seeing"] = unito.Seeing, ["rms"] = unito.Rms,
-                    ["horizonMin"] = unito.HorizonMin, ["clearFrac"] = unito.ClearFrac,
-                    ["orizzonte"] = unito.Orizzonte is null ? null : JsonSerializer.SerializeToNode(unito.Orizzonte),
-                },
+                ["sito"] = DichiarazioneSito.PerLaPagina(unito),
                 ["orizzonteFile"] = unito.OrizzonteFile,
                 /*  Solo i campi che l'utente puo' scrivere: la geometria non si dichiara,
                  *  viene dal profilo e un doppione qui divergerebbe da quello. */
-                ["dichiarato"] = new JsonObject {
-                    ["sqm"] = vm.SitoScritto?.Sqm, ["seeing"] = vm.SitoScritto?.Seeing,
-                    ["rms"] = vm.SitoScritto?.Rms, ["horizonMin"] = vm.SitoScritto?.HorizonMin,
-                    ["clearFrac"] = vm.SitoScritto?.ClearFrac,
-                },
+                ["dichiarato"] = DichiarazioneSito.DichiaratoPerLaPagina(vm.SitoScritto),
                 ["provenienza"] = prov,
                 ["nome"] = unito.Nome,
                 ["perCheNo"] = perCheNo,
@@ -858,7 +861,7 @@ namespace AstroImage.NINA.Plugin.Views {
             var vm = DataContext as PannelloStrategyVM;
             if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
 
-            var nuovo = DichiarazioneSito.DalMessaggio(messaggio, out var perCheMalformata);
+            var nuovo = DichiarazioneSito.DalMessaggio(messaggio, out var perCheMalformata, vm.SitoScritto);
             if (nuovo is null) {
                 Logger.Warning("[AstroImage] site save refused — " + perCheMalformata);
                 Rispondi(id, false, null, "richiesta_malformata", perCheMalformata);
