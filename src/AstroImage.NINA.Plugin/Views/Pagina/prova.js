@@ -45,6 +45,8 @@
   /*  Il banco: i campi che il servizio pubblica, i codici delle sue divergenze, quello che il C# ha letto e dichiarato
    *  per il profilo attivo, e il banco che l'ultima prescrizione ha usato. */
   let campiDelBanco = [], divergenzeDelBanco = [], bancoLetto = null, bancoUsato = null;
+  /*  I campi del sito che il servizio pubblica: l'unita', il valore che il motore assume, la spiegazione. */
+  let campiDelSito = [];
   /*  I dati che l'ultima prescrizione ha assunto: il blocco del sito li scrive accanto ai suoi campi. */
   let parzialeUsato = null;
 
@@ -181,6 +183,9 @@
       campiDelBanco = r.campiDelBanco || [];
       divergenzeDelBanco = r.divergenzeDelBanco || [];
       disegnaBanco();
+      /*  e i campi del sito, che possono arrivare prima o dopo il sito: si applicano a quello che e' a schermo */
+      campiDelSito = r.campiDelSito || [];
+      spiegaIlSito();
       riconosciLaCamera();
     });
     chiedi('camera').then(r => { if (r.ok) { camera = r.camera || null; riconosciLaCamera(); } });
@@ -406,9 +411,37 @@
     'convenzioni_di_posa': ['Pag_Parziale_convenzioni_di_posa', ['assunte.download', 'assunte.settle', 'assunte.ditherEvery']],
   };
   const campoDelDato = (d, via) => { let o = d; for (const k of via.split('.')) o = (o == null ? o : o[k]); return o; };
+  /*  IL GIALLO E' PER CIO' CHE PUO' CAMBIARE UNA DECISIONE ED E' DIVERSO DAL SOLITO (regia, 18 settembre 2026). Tre
+   *  righe gialle fisse su ogni prescrizione insegnano a ignorare il giallo. Due cose non ci vanno:
+   *  · un'assunzione del sito che ha il suo posto nel blocco del sito — la riga del campo la scrive accanto al numero —
+   *    si legge li', e qui non si ripete: si dice una volta, dove si vede (16 settembre 2026);
+   *  · un'assunzione su un campo del sito che il motore dichiara che non decide (`decide` in `limiti.sito`: seeing, guida,
+   *    notti serene) e' una nota, non un avviso: va in `notaDeiRiferimenti`, quieta, col valore e la provenienza.
+   *  Senza il blocco del sito a schermo, o con un campo che il motore non descrive, si dice qui.
+   *  Sorvegliato da tools/gate-giallo-pulito.js del motore. */
+  function dettaNelSito(p) {
+    if (!p || p.pezzo !== 'sito' || !p.campo) return false;
+    return Array.prototype.some.call(document.querySelectorAll('#sito [data-prov-sito]'),
+      el => el.getAttribute('data-prov-sito') === p.campo);
+  }
+  function eUnaNota(p) {
+    const c = p && p.pezzo === 'sito' && p.campo ? campoDelSito(p.campo) : null;
+    return !!c && c.decide === false;
+  }
+  function notaDeiRiferimenti(lista) {
+    const note = (lista || []).filter(eUnaNota).map(p => {
+      const w = PAROLA_PARZIALE[p.tipo];
+      const valori = w ? w[1].map(via => { const v = campoDelDato(p.dati || {}, via); return v == null ? '—' : cifra(v); }) : [];
+      const s = spiegazioneDi(campoDelSito(p.campo));
+      return '<span' + (s ? ' title="' + esc(s) + '"' : '') + '>' +
+        (w ? MF(w[0], ...valori) : esc(p.tipo + ' — ' + p.effetto)) + '</span>';
+    });
+    return note.length ? '<div class="nota-rif">' + note.join(' · ') + '</div>' : '';
+  }
   function parzialeDelProdotto(lista) {
-    if (!lista || !lista.length) return '';
-    const righe = lista.map(p => {
+    const daDire = (lista || []).filter(p => !dettaNelSito(p) && !eUnaNota(p));
+    if (!daDire.length) return '';
+    const righe = daDire.map(p => {
       const w = PAROLA_PARZIALE[p.tipo];
       if (!w) return '<li>' + esc(p.tipo + ' — ' + p.effetto) + '</li>';
       const valori = w[1].map(via => { const v = campoDelDato(p.dati || {}, via);
@@ -798,8 +831,9 @@
 
     const r = await chiedi('prescrizione', {
       /* IL SITO E' QUELLO DEL PROFILO, non piu' sette numeri scritti qui dentro.
-         Se manca qualcosa manca davvero: nessun ripiego, nessun valore di serie. */
-      sito:      sito || {},
+         Se manca qualcosa manca davvero: nessun ripiego, nessun valore di serie. E solo i campi che il Ponte offre: un
+         campo spento non parte mai (sitoDaMandare). */
+      sito:      sitoDaMandare(),
       /*  IL BANCO IN TRE PEZZI (16 settembre 2026): quello che N.I.N.A. tiene — focale e rapporto, riletti ogni volta —,
        *  quello che il catalogo del motore riconosce dall'identificativo dichiarato, e quello che chi riprende dichiara
        *  perche' non ce l'ha nessuno dei due. Si compone dalla lista dei campi che il servizio pubblica, non da una lista
@@ -931,7 +965,8 @@
            d.misura ? cifra(d.misura.ms) + ' ms' : '—',
            (r.corpo.length / 1024).toFixed(0)) + '</td></tr>' +
       '</table></div>' +
-      parzialeDelProdotto(p.parziale);
+      parzialeDelProdotto(p.parziale) +
+      notaDeiRiferimenti(p.parziale);
     $('uscita').innerHTML =
       disegnaMenu(p.prescrizione) +
       (p.banco && p.banco.camera ? cameraDelCalcolo(p.banco.camera, soloVoce) : '') +
@@ -1202,6 +1237,36 @@
              : 'color:#e0a030">' + MF('Pag_OrizzonteNonLetto', nome)) + '</span></td></tr>';
   }
 
+  /*  IL SITO CHE PARTE (regia, 18 settembre 2026): la richiesta porta solo i campi che il Ponte offre — la geometria e
+   *  l'orizzonte del profilo, il cielo e l'altezza minima. Seeing, guida e notti serene non si offrono piu': i loro valori
+   *  restano nei profili, muti, e non partono ne' col numero rimasto ne' vuoti; il motore applica il suo riferimento e lo
+   *  dichiara. E' l'elenco di cio' che entra, non di cio' che resta fuori: una chiave nuova del sito non parte finche'
+   *  qualcuno non la scrive qui. L'ospite gia' non li manda (CampiMutiTests); questa e' la seconda porta, e la guardia la
+   *  prova su un sito che li porta ancora (tools/gate-giallo-pulito.js del motore). */
+  const SITO_CHE_PARTE = ['lat', 'lon', 'sqm', 'horizonMin', 'orizzonte'];
+  function sitoDaMandare() {
+    const s = {};
+    for (const k of SITO_CHE_PARTE) if (sito && sito[k] !== undefined) s[k] = sito[k];
+    return s;
+  }
+
+  function campoDelSito(chiave) {
+    return campiDelSito.find(c => c && c.chiave === chiave) || null;
+  }
+  /*  LE SPIEGAZIONI DEL SITO, dal motore (18 settembre 2026): il tooltip e la «i» delle righe. I campi del
+   *  servizio possono arrivare prima o dopo il sito: si applicano a quello che e' a schermo, senza ridisegnarlo, cosi' un
+   *  numero scritto e non ancora salvato resta dov'e'. */
+  function spiegaIlSito() {
+    for (const tr of document.querySelectorAll('#sito [data-riga-sito]')) {
+      const s = spiegazioneDi(campoDelSito(tr.getAttribute('data-riga-sito')));
+      for (const el of tr.querySelectorAll('th, input, .ico.spiega')) {
+        if (s) el.setAttribute('title', s); else el.removeAttribute('title');
+      }
+      const i = tr.querySelector('.ico.spiega');
+      if (i) i.hidden = !s;
+    }
+  }
+
   function disegnaSito(r) {
     sito = r.sito || null;
     lunaDellaData();
@@ -1210,18 +1275,19 @@
     sitoManca = r.manca || null;
 
     /* La provenienza si vede accanto al numero: un SQM misurato e uno scritto a mano
-       valgono lo stesso per il motore, ma non per chi guarda. */
+       valgono lo stesso per il motore, ma non per chi guarda. La spiegazione del campo la manda il motore, e la mette
+       `spiegaIlSito` nel tooltip della riga e nella «i»: qui la riga dice solo quale campo e'. */
     const riga = (etichetta, campo, unita, scrivibile) => {
       const v = sito ? sito[campo] : null;
       unitaDelSito[campo] = unita;
-      return '<tr><th>' + etichetta + '</th><td>' +
+      return '<tr data-riga-sito="' + campo + '"><th>' + etichetta + '</th><td>' +
         (scrivibile
           ? '<input data-sito="' + campo + '" value="' + (sitoScritto[campo] === null ||
               sitoScritto[campo] === undefined ? '' : sitoScritto[campo]) +
             '" style="width:70px" spellcheck="false"> ' +
             (v === null || v === undefined ? '' : '<b>' + num(v) + '</b> ' + unita)
           : '<b>' + num(v) + '</b> ' + unita) +
-        ' ' + provenienzaDelSito(campo) + '</td></tr>';
+        ' ' + provenienzaDelSito(campo) + ' <span class="ico spiega" tabindex="0" hidden>i</span></td></tr>';
     };
 
     $('sito').innerHTML =
@@ -1236,11 +1302,12 @@
       riga(T('Pag_Latitudine'), 'lat', '&deg;', false) +
       riga(T('Pag_Longitudine'), 'lon', '&deg;', false) +
       riga(T('Pag_Sqm'), 'sqm', 'mag/arcsec&sup2;', true) +
-      riga(T('Pag_Seeing'), 'seeing', '&Prime;', true) +
-      riga(T('Pag_Rms'), 'rms', '&Prime;', true) +
       rigaOrizzonte(r) +
       riga(T('Pag_AltezzaMinima'), 'horizonMin', '&deg;', true) +
-      riga(T('Pag_NottiSerene'), 'clearFrac', '', true) +
+      /*  Seeing, guida e notti serene non ci sono piu' (regia, 18 settembre 2026): nel Ponte non muovevano niente di
+       *  visibile, e un campo cosi' e' un'assunzione muta travestita da controllo. Il valore che il motore assume si legge
+       *  nella nota sotto la prescrizione (`notaDeiRiferimenti`). Quello che il cielo e l'altezza minima vogliono dire lo
+       *  spiega il motore nei tooltip: qui c'erano tre note del Ponte. */
       '</table>' +
       '<div style="margin-top:.7em">' +
         '<button id="salvaSito">' + T('Pag_SalvaSito') + '</button> ' +
@@ -1248,13 +1315,8 @@
       '</div>' +
       '<div style="margin-top:.7em;opacity:.7;font-size:12.5px">' +
         MF('Pag_LatLonNota') +
-      '</div>' +
-      /*  Seeing e guida sono dichiarazioni, e lo dicono: servono al campionamento e al confronto, e non entrano nella
-       *  prescrizione. Nelle decisioni entra l'RMS caratteristico della montatura, che si dichiara nel banco. */
-      /*  E l'SQM dice che cosa vuole: il carattere del sito, e nel dubbio il valore piu' chiaro (regia, 16 settembre 2026). */
-      '<div style="margin-top:.5em;opacity:.7;font-size:12.5px">' + MF('Pag_SqmNota') + '</div>' +
-      '<div style="margin-top:.3em;opacity:.7;font-size:12.5px">' + MF('Pag_SeeingNota') + '</div>' +
-      '<div style="margin-top:.3em;opacity:.7;font-size:12.5px">' + MF('Pag_RmsNota') + '</div></div>';
+      '</div></div>';
+    spiegaIlSito();
 
     Array.prototype.forEach.call(document.querySelectorAll('#sito input'), i => {
       i.addEventListener('input', () => { segnaEsito('esitoSito', 'attesa', T('Pag_NonSalvato')); });

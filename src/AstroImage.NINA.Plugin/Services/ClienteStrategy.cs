@@ -196,8 +196,19 @@ namespace AstroImage.NINA.Plugin.Services {
                  *  vuoto, e la pagina lo dice invece di inventarne uno. */
                 var campiDelBanco = new List<CampoDelBanco>();
                 var divergenzeDelBanco = new List<string>();
+                var campiDelSito = new List<CampoDelSito>();
                 string? Testo(JsonElement el, string nome) =>
                     el.TryGetProperty(nome, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
+                /*  LA SPIEGAZIONE DEL CAMPO, lingua per lingua, come arriva (18 settembre 2026): la scrive il motore, e qui
+                 *  non se ne compone una. Un valore che non e' un testo si salta. */
+                Dictionary<string, string>? Spiegazione(JsonElement c) {
+                    if (!c.TryGetProperty("spiegazione", out var sp) || sp.ValueKind != JsonValueKind.Object) return null;
+                    var s = new Dictionary<string, string>();
+                    foreach (var p in sp.EnumerateObject())
+                        if (p.Value.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(p.Value.GetString()))
+                            s[p.Name] = p.Value.GetString()!;
+                    return s.Count == 0 ? null : s;
+                }
                 if (doc.RootElement.TryGetProperty("limiti", out var lim) && lim.ValueKind == JsonValueKind.Object &&
                     lim.TryGetProperty("banco", out var lb) && lb.ValueKind == JsonValueKind.Object) {
                     if (lb.TryGetProperty("campi", out var lc) && lc.ValueKind == JsonValueKind.Array)
@@ -205,28 +216,35 @@ namespace AstroImage.NINA.Plugin.Services {
                             if (c.ValueKind != JsonValueKind.Object) continue;
                             var chiave = Testo(c, "chiave");
                             if (string.IsNullOrWhiteSpace(chiave)) continue;
-                            /*  LA SPIEGAZIONE DEL CAMPO, lingua per lingua, come arriva (18 settembre 2026): la scrive il
-                             *  motore, e qui non se ne compone una. Un valore che non e' un testo si salta. */
-                            Dictionary<string, string>? spiegazione = null;
-                            if (c.TryGetProperty("spiegazione", out var sp) && sp.ValueKind == JsonValueKind.Object) {
-                                spiegazione = new Dictionary<string, string>();
-                                foreach (var p in sp.EnumerateObject())
-                                    if (p.Value.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(p.Value.GetString()))
-                                        spiegazione[p.Name] = p.Value.GetString()!;
-                                if (spiegazione.Count == 0) spiegazione = null;
-                            }
                             campiDelBanco.Add(new CampoDelBanco { Chiave = chiave!, Pezzo = Testo(c, "pezzo"),
-                                Provenienza = Testo(c, "provenienza"), Unita = Testo(c, "unita"), Spiegazione = spiegazione });
+                                Provenienza = Testo(c, "provenienza"), Unita = Testo(c, "unita"), Spiegazione = Spiegazione(c) });
                         }
                     if (lb.TryGetProperty("divergenze", out var ld) && ld.ValueKind == JsonValueKind.Array)
                         foreach (var x in ld.EnumerateArray())
                             if (x.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(x.GetString()))
                                 divergenzeDelBanco.Add(x.GetString()!);
                 }
+                /*  E I CAMPI DEL SITO, da `limiti.sito` (18 settembre 2026): la chiave, l'unita', il valore che il motore
+                 *  assume quando il campo manca, se decide, e la spiegazione. Un numero che non e' un numero resta assente,
+                 *  e un `decide` che non e' un vero o un falso resta non detto. */
+                if (doc.RootElement.TryGetProperty("limiti", out var lim2) && lim2.ValueKind == JsonValueKind.Object &&
+                    lim2.TryGetProperty("sito", out var ls) && ls.ValueKind == JsonValueKind.Object &&
+                    ls.TryGetProperty("campi", out var lsc) && lsc.ValueKind == JsonValueKind.Array)
+                    foreach (var c in lsc.EnumerateArray()) {
+                        if (c.ValueKind != JsonValueKind.Object) continue;
+                        var chiave = Testo(c, "chiave");
+                        if (string.IsNullOrWhiteSpace(chiave)) continue;
+                        double? assunto = c.TryGetProperty("assunto", out var a) && a.ValueKind == JsonValueKind.Number &&
+                                          a.TryGetDouble(out var n) && double.IsFinite(n) ? n : (double?)null;
+                        bool? decide = c.TryGetProperty("decide", out var de) && (de.ValueKind == JsonValueKind.True ||
+                                       de.ValueKind == JsonValueKind.False) ? de.GetBoolean() : (bool?)null;
+                        campiDelSito.Add(new CampoDelSito { Chiave = chiave!, Unita = Testo(c, "unita"), Assunto = assunto,
+                            Decide = decide, Spiegazione = Spiegazione(c) });
+                    }
                 return new ModalitaDiRipresa { Elenco = elenco,
                     DiSerie = m.TryGetProperty("di_serie", out var d) ? d.GetString() : null,
                     Politiche = politiche, PoliticaDiSerie = politicaDiSerie,
-                    CampiDelBanco = campiDelBanco, DivergenzeDelBanco = divergenzeDelBanco };
+                    CampiDelBanco = campiDelBanco, DivergenzeDelBanco = divergenzeDelBanco, CampiDelSito = campiDelSito };
             } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
                 throw;
             } catch { return ModalitaDiRipresa.Vuota; }
@@ -331,6 +349,8 @@ namespace AstroImage.NINA.Plugin.Services {
         public IReadOnlyList<CampoDelBanco> CampiDelBanco { get; set; } = new List<CampoDelBanco>();
         /// <summary>I codici con cui il motore dice che due sorgenti del banco divergono.</summary>
         public IReadOnlyList<string> DivergenzeDelBanco { get; set; } = new List<string>();
+        /// <summary>I campi del sito che il motore legge, da <c>limiti.sito</c>. Vuoti su un motore che non li pubblica.</summary>
+        public IReadOnlyList<CampoDelSito> CampiDelSito { get; set; } = new List<CampoDelSito>();
         public static ModalitaDiRipresa Vuota => new ModalitaDiRipresa();
     }
 
@@ -343,6 +363,18 @@ namespace AstroImage.NINA.Plugin.Services {
         public string? Unita { get; set; }
         /// <summary>La spiegazione del campo, lingua per lingua, come il servizio la manda (18 settembre 2026). Null
         /// quando il servizio non ne manda: al suo posto non se ne scrive una nostra.</summary>
+        public IReadOnlyDictionary<string, string>? Spiegazione { get; set; }
+    }
+
+    /// <summary>Un campo del sito come il servizio lo pubblica (18 settembre 2026): la chiave, l'unita', il valore che il
+    /// motore assume quando il campo manca, se il valore muove le decisioni della prescrizione, e la spiegazione lingua
+    /// per lingua. Un'assunzione su un campo che non decide la pagina la scrive come nota, non come avviso.</summary>
+    public sealed class CampoDelSito {
+        public string Chiave { get; set; } = "";
+        public string? Unita { get; set; }
+        public double? Assunto { get; set; }
+        /// <summary>Vero o falso come lo dichiara il motore; null quando non lo dice: allora non si presume niente.</summary>
+        public bool? Decide { get; set; }
         public IReadOnlyDictionary<string, string>? Spiegazione { get; set; }
     }
 

@@ -33,6 +33,14 @@
   /*  La «i» della spiegazione di un campo del banco (18 settembre 2026): il testo e' del motore, qui c'e' solo il segno. */
   .ico.spiega { margin-left:6px; opacity:.75; cursor:help; vertical-align:middle; }
   .ico.spiega:hover, .ico.spiega:focus { opacity:1; outline:none; color:var(--acc); }
+  /*  Una riga del sito senza spiegazione del motore non ha la «i»: `.ico` e' inline-flex, e senza questa regola vincerebbe
+      sull'attributo hidden (18 settembre 2026, visto a schermo su latitudine e longitudine). */
+  .ico.spiega[hidden] { display:none; }
+  /*  La nota dei riferimenti (regia, 18 settembre 2026): i valori che il motore assume per i campi che non decidono —
+      seeing, guida, notti serene —, col valore e la provenienza. Quieta e distinta dal riquadro degli avvisi: niente
+      giallo, niente bordo. Il tooltip di ogni voce e' la spiegazione del motore. */
+  .nota-rif { font-size:12px; color:var(--dim); margin:-6px 2px 14px; line-height:1.5; }
+  .nota-rif span[title] { cursor:help; border-bottom:1px dotted var(--dim2); }
   /*  La camera del calcolo e il disaccordo con quella collegata (18 settembre 2026). */
   .camera-calcolo { font-size:12.5px; margin:8px 0; color:var(--dim); }
   .camera-calcolo strong { color:var(--fg); }

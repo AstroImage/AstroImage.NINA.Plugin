@@ -415,9 +415,6 @@
   <data name="Pag_NotteSpostata" xml:space="preserve">
     <value>moved by {0}</value>
   </data>
-  <data name="Pag_NottiSerene" xml:space="preserve">
-    <value>clear nights</value>
-  </data>
   <data name="Pag_OpzNessunFiltro" xml:space="preserve">
     <value>no filter / clear filter</value>
   </data>
@@ -445,9 +442,6 @@
   <data name="Pag_RispostaRicevuta" xml:space="preserve">
     <value>answer received</value>
   </data>
-  <data name="Pag_Rms" xml:space="preserve">
-    <value>guiding (RMS)</value>
-  </data>
   <data name="Pag_SalvaConfigurazione" xml:space="preserve">
     <value>Save configuration</value>
   </data>
@@ -466,9 +460,6 @@
   </data>
   <data name="Pag_ScriviloQuiSotto" xml:space="preserve">
     <value>Write it below: without it the engine computes nothing at all, neither the hours nor the sub length.</value>
-  </data>
-  <data name="Pag_Seeing" xml:space="preserve">
-    <value>seeing</value>
   </data>
   <data name="Pag_SenzaBanda" xml:space="preserve">
     <value>—</value>
@@ -1005,12 +996,6 @@
   <data name="Pag_Banco_Div_apertura_diversa_da_nina" xml:space="preserve">
     <value>*Aperture*: {0} mm ({1}), but the focal length {2} mm and the f/{3} ratio in the N.I.N.A. profile make {4} mm. One of the two figures is stale: no N.I.N.A. function reads the profile focal ratio, so nobody updates it when a reducer goes on.</value>
   </data>
-  <data name="Pag_SeeingNota" xml:space="preserve">
-    <value>*Seeing*: a declaration. It serves the sampling advice and the comparison between configurations; it does not enter the prescription, which is worked out on a reference sky.</value>
-  </data>
-  <data name="Pag_RmsNota" xml:space="preserve">
-    <value>*Guiding (RMS)*: a declaration, with the same use. What enters the decisions is the mount's characteristic RMS, declared in the setup, not this field.</value>
-  </data>
   <data name="Banco_DichiarazioneVuota" xml:space="preserve">
     <value>the saved setup declaration says nothing: the setup is not declared.</value>
   </data>
@@ -1049,9 +1034,6 @@
   </data>
   <data name="Pag_RuotaOrfana" xml:space="preserve">
     <value>You declared {0}, and it is no longer in the wheel: it stays out of this prescription. If you renamed it in N.I.N.A., point it again in the filter view.</value>
-  </data>
-  <data name="Pag_SqmNota" xml:space="preserve">
-    <value>*Sky (SQM)*: the character of the site, not tonight's transparency. When in doubt, declare the brightest value of the range, that is the lowest number: a sky declared darker than it is prescribes fewer hours than it takes, and you come home short.</value>
   </data>
   <data name="Pag_Banco_cam" xml:space="preserve">
     <value>camera (catalogue entry)</value>
@@ -1174,13 +1156,13 @@
     <value>Horizon not declared in the profile: the operating limit applies, {0}°.</value>
   </data>
   <data name="Pag_Parziale_seeing_non_dichiarato" xml:space="preserve">
-    <value>Seeing not declared: the reference applies, {0}″.</value>
+    <value>Seeing: the engine reference applies, {0}″.</value>
   </data>
   <data name="Pag_Parziale_guida_non_dichiarata" xml:space="preserve">
-    <value>Guiding not declared: the reference applies, {0}″.</value>
+    <value>Guiding: the engine reference applies, {0}″.</value>
   </data>
   <data name="Pag_Parziale_notti_serene_non_dichiarate" xml:space="preserve">
-    <value>Clear-night fraction not declared: the typical fraction applies, {0}.</value>
+    <value>Clear nights: the engine's typical fraction applies, {0}.</value>
   </data>
   <data name="Pag_Parziale_ruota_non_dichiarata" xml:space="preserve">
     <value>Filter wheel not declared: the prescription uses the engine’s stock filters — {0}.</value>

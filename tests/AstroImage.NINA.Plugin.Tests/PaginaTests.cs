@@ -391,26 +391,59 @@ namespace AstroImage.NINA.Plugin.Tests {
                 StringAssert.Contains(js, letto, $"la pagina non legge piu' «{letto}»");
         }
 
-        /*  IL CAMPO SQM DICE CHE COSA VUOLE (regia, 16 settembre 2026): il carattere del sito, non la trasparenza di
-         *  stanotte, e nel dubbio il valore piu' chiaro dell'intervallo, perche' un cielo dichiarato troppo scuro
-         *  prescrive meno ore di quelle che servono. La frase sta nel blocco del sito, accanto a seeing e guida, e
-         *  nelle due lingue dice le due cose. Guardia strutturale: legge la pagina, non la esegue. */
+        /*  IL SITO SI SPIEGA COL TESTO DEL MOTORE, E LE TRE ASSUNZIONI SONO UNA NOTA (regia, 18 settembre 2026). Le tre
+         *  note del Ponte sotto il blocco del sito — il cielo, il seeing, la guida — se ne vanno: la
+         *  spiegazione di ogni campo la manda il motore in `limiti.sito`, e la pagina la mette nel tooltip della riga e
+         *  nella «i». Seeing, guida e notti serene escono dal pannello: i loro valori restano muti nei profili, la richiesta
+         *  porta solo i campi che il Ponte offre, e l'assunzione del motore — su un campo che il motore dichiara che non
+         *  decide — si scrive in una nota quieta, non nel giallo, col valore, la provenienza e il tooltip del motore. Il
+         *  giallo non ripete nemmeno un'assunzione che il blocco del sito dice gia' accanto al campo.
+         *  Guardia strutturale: legge la pagina; la esegue, su prescrizioni normali, tools/gate-giallo-pulito.js del motore. */
         [TestMethod]
-        public void IL_CAMPO_SQM_DICE_CHE_COSA_VUOLE() {
-            var js = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.js"), @"/\*.*?\*/", "",
-                System.Text.RegularExpressions.RegexOptions.Singleline);
-            var i = js.IndexOf("$('sito').innerHTML", StringComparison.Ordinal);
-            Assert.IsTrue(i >= 0, "la pagina non disegna piu' il blocco del sito");
-            var fine = js.IndexOf("Array.prototype.forEach", i, StringComparison.Ordinal);
-            Assert.IsTrue(fine > i, "il blocco del sito non si chiude dove ci si aspetta");
-            StringAssert.Contains(js.Substring(i, fine - i), "MF('Pag_SqmNota')",
-                "il campo del cielo non dice che cosa vuole");
-            var it = Tutte("it")["Pag_SqmNota"];
-            StringAssert.Contains(it, "carattere del sito");
-            StringAssert.Contains(it, "più chiaro");
-            var en = Tutte("en")["Pag_SqmNota"];
-            StringAssert.Contains(en, "character of the site");
-            StringAssert.Contains(en, "brightest");
+        public void IL_SITO_SI_SPIEGA_COL_TESTO_DEL_MOTORE_E_LE_TRE_ASSUNZIONI_SONO_UNA_NOTA() {
+            var js = PaginaSenzaCommenti();
+            var disegna = Tratto(js, "function disegnaSito(r) {", "\n  }");
+            foreach (var sua in new[] { "Pag_SqmNota", "Pag_SeeingNota", "Pag_RmsNota" })
+                Assert.IsFalse(js.Contains(sua), "la pagina scrive ancora la sua nota " + sua);
+            foreach (var campo in new[] { "'clearFrac'", "'seeing'", "'rms'" })
+                Assert.IsFalse(disegna.Contains(campo), "il blocco del sito ha ancora la riga " + campo);
+            foreach (var pezzo in new[] { "data-riga-sito=\"", "class=\"ico spiega\"", "spiegaIlSito();" })
+                StringAssert.Contains(disegna, pezzo, "il blocco del sito non usa " + pezzo);
+            var spiega = Tratto(js, "function spiegaIlSito() {", "\n  }");
+            foreach (var pezzo in new[] { "campoDelSito(", "spiegazioneDi(", "'title'" })
+                StringAssert.Contains(spiega, pezzo, "le spiegazioni del sito non usano " + pezzo);
+            StringAssert.Contains(js, "sito:      sitoDaMandare(),", "la richiesta non passa dal sito che parte");
+            StringAssert.Contains(js, "const SITO_CHE_PARTE = ['lat', 'lon', 'sqm', 'horizonMin', 'orizzonte'];");
+            var giallo = Tratto(js, "function parzialeDelProdotto(", "\n  }");
+            foreach (var pezzo in new[] { "dettaNelSito(p)", "eUnaNota(p)" })
+                StringAssert.Contains(giallo, pezzo, "il riquadro giallo non esclude " + pezzo);
+            StringAssert.Contains(Tratto(js, "function eUnaNota(", "\n  }"), "c.decide === false",
+                "la nota non si appoggia al decide che il motore dichiara");
+            var nota = Tratto(js, "function notaDeiRiferimenti(", "\n  }");
+            foreach (var pezzo in new[] { "class=\"nota-rif\"", "spiegazioneDi(campoDelSito(p.campo))", "PAROLA_PARZIALE[p.tipo]" })
+                StringAssert.Contains(nota, pezzo, "la nota dei riferimenti non usa " + pezzo);
+            Assert.IsFalse(nota.Contains("e0a030"), "la nota e' gialla: deve essere distinta dagli avvisi");
+            StringAssert.Contains(js, "notaDeiRiferimenti(p.parziale)", "la prescrizione non scrive la nota dei riferimenti");
+            StringAssert.Contains(js, "campiDelSito = r.campiDelSito || [];", "la pagina non prende i campi del sito dall'ospite");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in new[] { "Pag_SqmNota", "Pag_SeeingNota", "Pag_RmsNota", "Pag_NottiSerene",
+                                          "Pag_Sito_RiferimentoDelMotore", "Pag_Sito_NonAncora" })
+                    Assert.IsFalse(t.ContainsKey(k), lingua + ": c'e' ancora " + k);
+                foreach (var k in new[] { "Pag_Parziale_seeing_non_dichiarato", "Pag_Parziale_guida_non_dichiarata",
+                                          "Pag_Parziale_notti_serene_non_dichiarate" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && v.Contains("{0}"), lingua + ": la nota di " + k + " non dice il valore");
+            }
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var n = 0; n < 8 && su is not null; n++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views",
+                "PannelloStrategyView.xaml.cs"));
+            StringAssert.Contains(vista, "[\"campiDelSito\"] = sito", "l'ospite non passa alla pagina i campi del sito");
         }
 
         /*  SUL CAMBIO DI PROFILO LA PRESCRIZIONE ESCE DALLO SCHERMO. Il pannello la ritira dalle mani del Ponte
@@ -483,13 +516,18 @@ namespace AstroImage.NINA.Plugin.Tests {
             var i0 = vista.IndexOf("private void Sito(string id)", StringComparison.Ordinal);
             Assert.IsTrue(i0 >= 0, "la risposta del sito non si trova");
             var metodo = vista.Substring(i0, vista.IndexOf("\n        }", i0, StringComparison.Ordinal) - i0);
-            var sito = metodo.Substring(metodo.IndexOf("[\"sito\"] = new JsonObject", StringComparison.Ordinal));
-            sito = sito.Substring(0, sito.IndexOf("},", StringComparison.Ordinal));
+            /*  dal 18 settembre 2026 il sito per la pagina si compone in DichiarazioneSito.PerLaPagina, che lascia fuori i
+             *  campi spenti (CampiSpentiTests): l'orizzonte si cerca li' */
+            StringAssert.Contains(metodo, "[\"sito\"] = DichiarazioneSito.PerLaPagina(unito)");
+            var dichiarazione = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Services",
+                "DichiarazioneSito.cs"));
+            var sito = Tratto(dichiarazione, "public static JsonObject PerLaPagina(", "};");
             StringAssert.Contains(sito, "[\"orizzonte\"]", "il sito che la pagina rimanda non porta l'orizzonte del profilo");
             StringAssert.Contains(metodo, "[\"orizzonteFile\"]", "la pagina non sa da quale file viene l'orizzonte");
             var js = PaginaSenzaCommenti();
-            Assert.IsTrue(System.Text.RegularExpressions.Regex.IsMatch(js, @"sito:\s+sito \|\| \{\}"),
-                "la richiesta non rimanda il sito ricevuto");
+            StringAssert.Contains(js, "sito:      sitoDaMandare(),", "la richiesta non rimanda il sito ricevuto");
+            StringAssert.Contains(Tratto(js, "const SITO_CHE_PARTE = [", "];"), "'orizzonte'",
+                "l'orizzonte del profilo non e' fra i campi del sito che partono");
             var riga = Tratto(js, "function rigaOrizzonte(", "\n  }");
             foreach (var k in new[] { "'Pag_Orizzonte'", "'Pag_OrizzonteDalProfilo'", "'Pag_OrizzonteNonLetto'" })
                 StringAssert.Contains(riga, k);
@@ -1028,8 +1066,10 @@ namespace AstroImage.NINA.Plugin.Tests {
             foreach (var pezzo in new[] { "'Pag_ColPose'", "righe", "'Pag_NonSiPuoMandare'", "id=\"consegna\"" })
                 StringAssert.Contains(cuore, pezzo, "sotto la domanda manca " + pezzo);
             Assert.IsFalse(cuore.Contains("Pag_RigaVerdetto"), "il resto della risposta sta fra la domanda e le notti");
-            var resto = Tratto(js, "$('dettagli').innerHTML =", "parzialeDelProdotto(p.parziale);");
-            foreach (var pezzo in new[] { "'Pag_ColOggetto'", "'Pag_RigaVerdetto'", "'Pag_RigaCalcolataSu'", "'Pag_RigaContratto'" })
+            /*  dal 18 settembre 2026 il resto finisce con la nota dei riferimenti, dopo il riquadro giallo */
+            var resto = Tratto(js, "$('dettagli').innerHTML =", "notaDeiRiferimenti(p.parziale);");
+            foreach (var pezzo in new[] { "'Pag_ColOggetto'", "'Pag_RigaVerdetto'", "'Pag_RigaCalcolataSu'", "'Pag_RigaContratto'",
+                                          "parzialeDelProdotto(p.parziale)" })
                 StringAssert.Contains(resto, pezzo, "nel resto della risposta manca " + pezzo);
             Assert.IsTrue(js.Split(new[] { "$('dettagli').innerHTML = ''" }, StringSplitOptions.None).Length - 1 >= 3,
                 "il resto della risposta non si toglie insieme al cuore: nuova domanda, errore, ritiro");
