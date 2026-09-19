@@ -299,6 +299,8 @@ namespace AstroImage.NINA.Plugin.Views {
 
                 if (azione == "riconosciCamera") { await RiconosciCamera(id, messaggio); return; }
 
+                if (azione == "nuovoProgetto") { NuovoProgetto(id); return; }
+
                 if (azione != "prescrizione") {
                     Rispondi(id, false, null, "azione_sconosciuta", Loc.F("Pannello_AzioneSconosciuta", azione)); return;
                 }
@@ -338,7 +340,16 @@ namespace AstroImage.NINA.Plugin.Views {
                     Logger.Warning("[AstroImage] prescription not asked — " + domanda.Rifiuto);
                     Rispondi(id, false, null, "ruota_solo_orfane", domanda.Rifiuto); return;
                 }
-                var esito = await cliente.Prescrizione(domanda.Corpo);
+                /*  IL PROFILO DEL PROGETTO VIAGGIA CON LA DOMANDA (regia, 19 settembre 2026): se per questo
+                 *  bersaglio con questo banco un progetto e' aperto, il suo profilo parte, e il motore lo onora — ricalcola
+                 *  solo la notte. Si aggiunge solo se la pagina non ne manda uno suo. */
+                JsonObject corpoDomanda = null;
+                try { corpoDomanda = JsonNode.Parse(domanda.Corpo) as JsonObject; } catch (System.Text.Json.JsonException) { }
+                var bersaglioChiesto = ProgettiDelProfilo.BersaglioDellaDomanda(corpoDomanda);
+                var bancoChiesto = ProgettiDelProfilo.ChiaveDelBanco(corpoDomanda?["banco"] as JsonObject);
+                var progetto = vmR is null ? null : ProgettiDelProfilo.AggiungiAllaDomanda(corpoDomanda, vmR.Dichiarazioni.Progetti);
+                var corpoDaMandare = progetto != null && corpoDomanda != null ? corpoDomanda.ToJsonString() : domanda.Corpo;
+                var esito = await cliente.Prescrizione(corpoDaMandare);
                 /*  LA FRASE SI SCRIVE QUI, non dove l'errore e' nato.
                  *
                  *  Strategy parla italiano e basta: e' un calcolatore dietro una
@@ -357,7 +368,7 @@ namespace AstroImage.NINA.Plugin.Views {
                  *  rimandarlo: e' cio' che impedisce di mandare la riga di una
                  *  prescrizione precedente rimasta sullo schermo. */
                 var vm = DataContext as PannelloStrategyVM;
-                var idPrescrizione = vm?.InMano.Prendi(esito);
+                var idPrescrizione = vm?.InMano.Prendi(esito, bersaglioChiesto, bancoChiesto);
                 /*  IL DATO CHE MANCAVA. Alla prima integrazione il pannello disse «non
                  *  disponibile» e per sapere PERCHE' bisognava passarci sopra il mouse.
                  *  Adesso il motivo finisce nel log, e la domanda «e' stato chiamato
@@ -380,6 +391,9 @@ namespace AstroImage.NINA.Plugin.Views {
                                 prescrizione che si sta guardando e' stata calcolata sui
                                 vetri di serie del motore e non sui propri. */
                              ["ruotaAggiunta"] = ruotaInviata?.DeepClone(),
+                             /*  Il progetto aperto a cui la domanda apparteneva, o null: la pagina dice «consegnando apri il
+                                 progetto» quando non c'e', e il giorno dell'apertura quando c'e'. */
+                             ["progetto"] = progetto is null ? null : new JsonObject { ["apertoIl"] = progetto.ApertoIl },
                              /*  Le voci dichiarate che in ruota non ci sono piu': non sono partite, e la pagina
                                  lo dice in giallo accanto alla ruota su cui la prescrizione e' calcolata. */
                              ["orfane"] = new JsonArray(domanda.Orfane.Select(o => (JsonNode)new JsonObject {
@@ -510,6 +524,16 @@ namespace AstroImage.NINA.Plugin.Views {
                 return;
             }
 
+            /*  LA PRIMA CONSEGNA APRE IL PROGETTO (regia, 19 settembre 2026): guardare e' gratis, consegnare e' l'impegno. Il
+             *  profilo che il motore ha proposto con questa prescrizione si congela, per il bersaglio e il banco della
+             *  domanda; se il progetto c'era gia', resta quello. */
+            var progettoAperto = ProgettiDelProfilo.Apri(vm.Dichiarazioni.Progetti, vm.InMano.Bersaglio, vm.InMano.Banco,
+                                                          vm.InMano.Profilo, DateTime.Now);
+            string progettoNonSalvato = null;
+            if (progettoAperto && !vm.Dichiarazioni.SalvaProgetti(out progettoNonSalvato))
+                Logger.Warning(IO + "send: project opened but not saved — " + progettoNonSalvato);
+            else if (progettoAperto) Logger.Info(IO + "send: project opened for " + vm.InMano.Bersaglio);
+
             /*  Le cose scartate e le note NON si nascondono dietro un «fatto». Un
              *  blocco che non si e' costruito deve vedersi, o chi riprende scoprira'
              *  sotto il cielo che una banda non c'era. */
@@ -520,7 +544,26 @@ namespace AstroImage.NINA.Plugin.Views {
                 ["pose"] = ricetta.Blocchi.Sum(b => b.Pose),
                 ["note"] = new JsonArray(ricetta.Note.Select(x => (JsonNode)x!).ToArray()),
                 ["scartati"] = new JsonArray(ricetta.Scartati.Select(x => (JsonNode)x!).ToArray()),
+                ["progettoAperto"] = progettoAperto,
+                ["progettoNonSalvato"] = progettoNonSalvato,
             });
+        }
+
+        /*  APRI UN PROGETTO NUOVO (regia, 19 settembre 2026): a un clic. Toglie il profilo del progetto della prescrizione
+         *  in mano, e la pagina ne chiede una nuova, che torna proposta; la consegna dopo apre il progetto nuovo. */
+        private void NuovoProgetto(string id) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
+            if (!ProgettiDelProfilo.Chiudi(vm.Dichiarazioni.Progetti, vm.InMano.Bersaglio, vm.InMano.Banco)) {
+                Rispondi(id, false, null, "nessun_progetto", Loc.T("Progetto_NessunoAperto")); return;
+            }
+            if (!vm.Dichiarazioni.SalvaProgetti(out var perCheNo)) {
+                Logger.Warning("[AstroImage] project not saved — " + perCheNo);
+                Rispondi(id, false, null, "progetto_non_salvato", perCheNo); return;
+            }
+            Logger.Info("[AstroImage] project closed: " + vm.InMano.Bersaglio);
+            vm.InMano.Lascia();
+            Rispondi(id, true, null, null, null);
         }
 
         private void Rispondi(string id, bool ok, string corpo, string codice, string messaggio,

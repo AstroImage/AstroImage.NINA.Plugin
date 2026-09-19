@@ -405,7 +405,8 @@ namespace AstroImage.NINA.Plugin.Tests {
             var disegna = Tratto(js, "function disegnaSito(r) {", "\n  }");
             foreach (var sua in new[] { "Pag_SqmNota", "Pag_SeeingNota", "Pag_RmsNota" })
                 Assert.IsFalse(js.Contains(sua), "la pagina scrive ancora la sua nota " + sua);
-            foreach (var campo in new[] { "'clearFrac'", "'seeing'", "'rms'" })
+            /*  il seeing tipico e' rientrato il 19 settembre 2026 (IL_SEEING_TIPICO_SI_DICHIARA_SUL_PANNELLO, sotto) */
+            foreach (var campo in new[] { "'clearFrac'", "'rms'" })
                 Assert.IsFalse(disegna.Contains(campo), "il blocco del sito ha ancora la riga " + campo);
             foreach (var pezzo in new[] { "data-riga-sito=\"", "class=\"ico spiega\"", "spiegaIlSito();" })
                 StringAssert.Contains(disegna, pezzo, "il blocco del sito non usa " + pezzo);
@@ -413,7 +414,7 @@ namespace AstroImage.NINA.Plugin.Tests {
             foreach (var pezzo in new[] { "campoDelSito(", "spiegazioneDi(", "'title'" })
                 StringAssert.Contains(spiega, pezzo, "le spiegazioni del sito non usano " + pezzo);
             StringAssert.Contains(js, "sito:      sitoDaMandare(),", "la richiesta non passa dal sito che parte");
-            StringAssert.Contains(js, "const SITO_CHE_PARTE = ['lat', 'lon', 'sqm', 'horizonMin', 'orizzonte'];");
+            StringAssert.Contains(js, "const SITO_CHE_PARTE = ['lat', 'lon', 'sqm', 'seeing', 'horizonMin', 'orizzonte'];");
             var giallo = Tratto(js, "function parzialeDelProdotto(", "\n  }");
             foreach (var pezzo in new[] { "dettaNelSito(p)", "eUnaNota(p)" })
                 StringAssert.Contains(giallo, pezzo, "il riquadro giallo non esclude " + pezzo);
@@ -1277,6 +1278,52 @@ namespace AstroImage.NINA.Plugin.Tests {
             /*  sul campo del banco, non sui modi di ripresa, che la loro spiegazione la passavano gia' */
             StringAssert.Contains(vista, "[\"unita\"] = c.Unita, [\"spiegazione\"] = spiegazione",
                 "l'ospite non passa la spiegazione dei campi del banco alla pagina");
+        }
+
+        /*  IL PROFILO DEL PROGETTO STA SUL PANNELLO (regia, 19 settembre 2026): prima della consegna la pagina
+         *  dice che consegnando si apre il progetto; con un progetto aperto dice quando, i dark, le premesse cambiate o la
+         *  nota — frasi del motore —, i canali che stanotte saltano, e «apri un progetto nuovo» col suo costo. Guardia
+         *  strutturale e ASSICURAZIONE, scritta dopo il blocco; la meta' del motore non si prova qui. */
+        [TestMethod]
+        public void IL_PROFILO_DEL_PROGETTO_STA_SUL_PANNELLO() {
+            var js = PaginaSenzaCommenti();
+            var blocco = Tratto(js, "function bloccoDelProgetto(p, r) {", "\n  }");
+            foreach (var pezzo in new[] { "p.profilo", "p.dark", "p.progetto", "pr.frase", "pr.nota", "p.saltati_stanotte",
+                                          "d.dark_nuovi", "'Pag_Progetto_ConsegnaApre'", "'Pag_Progetto_Aperto'", "'Pag_Progetto_Nuovo'",
+                                          "id=\"nuovoProgetto\"", "pf.pareggio" })
+                StringAssert.Contains(blocco, pezzo, "il blocco del progetto non usa " + pezzo);
+            StringAssert.Contains(js, "bloccoDelProgetto(p, r) +", "il blocco del progetto non sta fra le notti e la consegna");
+            StringAssert.Contains(js, "chiedi('nuovoProgetto'", "«apri un progetto nuovo» non chiede niente all'ospite");
+            StringAssert.Contains(js, "r.progettoAperto", "la consegna non dice che ha aperto il progetto");
+            StringAssert.Contains(js, "MF('Pag_CalcolataColProgetto'", "«calcolata su» tace i filtri del progetto che stanotte non sono in ruota");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in new[] { "Pag_Progetto_Titolo", "Pag_Progetto_ConsegnaApre", "Pag_Progetto_Aperto", "Pag_Progetto_Dark",
+                                          "Pag_Progetto_Saltato", "Pag_Progetto_Nuovo", "Pag_Progetto_NuovoCosto", "Pag_Progetto_NuovoSenzaDark",
+                                          "Pag_Progetto_NuovoNessunDark", "Pag_Progetto_ApertoOra", "Pag_Progetto_NonSalvato", "Pag_CalcolataColProgetto" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+            }
+        }
+
+        /*  IL SEEING TIPICO SI DICHIARA SUL PANNELLO, E LA POSA DICE PERCHE' NON LO SEGUE (regia, 19 settembre 2026). Una
+         *  riga del sito accanto al cielo, scrivibile, con la spiegazione del motore; parte nella richiesta; la sua
+         *  assunzione si dice accanto al campo e non anche nella nota; e la riga dei due seeing porta il perche' del motore.
+         *  Guardia strutturale e ASSICURAZIONE, scritta dopo la riga: le prove che eseguono sono in CampiMutiTests (l'ospite)
+         *  e, per la pagina vera, fuori da queste prove. */
+        [TestMethod]
+        public void IL_SEEING_TIPICO_SI_DICHIARA_SUL_PANNELLO_E_LA_POSA_DICE_PERCHE() {
+            var js = PaginaSenzaCommenti();
+            StringAssert.Contains(Tratto(js, "function disegnaSito(r) {", "\n  }"), "riga(T('Pag_Seeing'), 'seeing', '&Prime;', true)",
+                "il blocco del sito non ha la riga scrivibile del seeing tipico");
+            StringAssert.Contains(Tratto(js, "function notaDeiRiferimenti(", "\n  }"), "!dettaNelSito(p)",
+                "la nota ripete un'assunzione che il blocco del sito dice gia' accanto al campo");
+            StringAssert.Contains(Tratto(js, "function rigaDelCampionamento(p) {", "\n  }"), "s.spiegazione_due_seeing",
+                "la riga dei due seeing non porta il perche' del motore");
+            /*  il valore assunto accanto al campo si scrive con la virgola: sullo schermo, il 19 settembre, «assume 1.6″» */
+            StringAssert.Contains(Tratto(js, "function provenienzaDelSito(", "\n  }"), "cifra(assunto.dati.assunto)",
+                "il valore assunto accanto al campo non passa da cifra: esce col punto");
+            foreach (var lingua in new[] { "it", "en" })
+                Assert.IsTrue(Tutte(lingua).TryGetValue("Pag_Seeing", out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca Pag_Seeing");
         }
 
         /*  IL CAMPIONAMENTO SUL PANNELLO (regia, 18 settembre 2026): giudizio, intervallo, scala del pixel e FWHM

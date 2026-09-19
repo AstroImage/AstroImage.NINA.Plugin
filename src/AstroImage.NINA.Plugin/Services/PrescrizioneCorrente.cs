@@ -47,18 +47,39 @@ namespace AstroImage.NINA.Plugin.Services {
         /// che ritorna. Una risposta non riuscita non si tiene: non c'e' niente da
         /// mandare, e tenerla vorrebbe dire poter consegnare l'errore di prima.
         /// </summary>
-        public string? Prendi(EsitoPrescrizione? esito) {
+        public string? Prendi(EsitoPrescrizione? esito) => Prendi(esito, null, null);
+
+        /*  IL PROGETTO DELLA RISPOSTA IN MANO (19 settembre 2026): il bersaglio come la pagina l'ha chiesto e il banco come
+         *  l'ha mandato. La consegna apre il progetto con questi, e «apri un progetto nuovo» chiude questo. */
+        /// <summary>Come `Prendi`, tenendo il bersaglio e il banco della richiesta per il progetto.</summary>
+        public string? Prendi(EsitoPrescrizione? esito, string? bersaglio, string? banco) {
             _ritirata = false;
             if (esito is null || !esito.Riuscito || esito.Sequenze.Count == 0) {
-                _id = null; _esito = null; return null;
+                _id = null; _esito = null; Bersaglio = null; Banco = null; return null;
             }
             _id = Guid.NewGuid().ToString("N");
             _esito = esito;
+            Bersaglio = bersaglio; Banco = banco;
             return _id;
         }
 
+        /// <summary>Il bersaglio della richiesta in mano, come la pagina l'ha chiesto.</summary>
+        public string? Bersaglio { get; private set; }
+
+        /// <summary>La chiave del banco della richiesta in mano (`ProgettiDelProfilo.ChiaveDelBanco`).</summary>
+        public string? Banco { get; private set; }
+
+        /// <summary>Il profilo del progetto che il motore ha dichiarato nella risposta in mano, o null.</summary>
+        public System.Text.Json.Nodes.JsonObject? Profilo {
+            get {
+                if (string.IsNullOrWhiteSpace(_esito?.Corpo)) return null;
+                try { return System.Text.Json.Nodes.JsonNode.Parse(_esito!.Corpo)?["prodotto"]?["profilo"] as System.Text.Json.Nodes.JsonObject; }
+                catch (System.Text.Json.JsonException) { return null; }
+            }
+        }
+
         /// <summary>Dimentica quello che ha in mano.</summary>
-        public void Lascia() { _id = null; _esito = null; _ritirata = false; }
+        public void Lascia() { _id = null; _esito = null; _ritirata = false; Bersaglio = null; Banco = null; }
 
         /*  UNA NOTTE SI CONSEGNA QUANTE VOLTE SI VUOLE (decisione del 16 settembre 2026). Il Sequenziatore e' di N.I.N.A. e
          *  il suo contenuto e' di chi riprende: dieci sequenze identiche, cancellate e rimesse quando e come vuole.

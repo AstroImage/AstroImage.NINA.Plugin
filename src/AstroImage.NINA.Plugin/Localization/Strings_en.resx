@@ -273,6 +273,9 @@
   <data name="Pag_CalcolataTuaRuota" xml:space="preserve">
     <value>*your wheel* — {0}</value>
   </data>
+  <data name="Pag_CalcolataColProgetto" xml:space="preserve">
+    <value>plus the project's filters that are not in the wheel tonight: {0}</value>
+  </data>
   <data name="Pag_ChiediPrescrizione" xml:space="preserve">
     <value>Ask for a prescription</value>
   </data>
@@ -477,6 +480,9 @@
     <value>The whole object — as a mosaic if needed</value>
   </data>
 
+  <data name="Pag_Seeing" xml:space="preserve">
+    <value>typical seeing</value>
+  </data>
   <data name="Pag_Sqm" xml:space="preserve">
     <value>sky (SQM)</value>
   </data>
@@ -533,6 +539,42 @@
   </data>
   <data name="Pannello_SenzaCorriere" xml:space="preserve">
     <value>The panel has no courier: the ViewModel is missing.</value>
+  </data>
+  <data name="Progetto_NessunoAperto" xml:space="preserve">
+    <value>There is no open project for this prescription.</value>
+  </data>
+  <data name="Pag_Progetto_Titolo" xml:space="preserve">
+    <value>Project profile</value>
+  </data>
+  <data name="Pag_Progetto_ConsegnaApre" xml:space="preserve">
+    <value>Sending this sequence opens the project: the profile freezes. Gain mode, sub lengths, road and temperature stay these for every night of this object with this setup, and each night only the plan is recalculated.</value>
+  </data>
+  <data name="Pag_Progetto_Aperto" xml:space="preserve">
+    <value>Project opened on {0}: the profile is frozen, and each night only the plan is recalculated.</value>
+  </data>
+  <data name="Pag_Progetto_Dark" xml:space="preserve">
+    <value>Darks needed: {0}</value>
+  </data>
+  <data name="Pag_Progetto_Saltato" xml:space="preserve">
+    <value>Tonight {0} is skipped: filter {1} is not in the wheel. The project's road does not change.</value>
+  </data>
+  <data name="Pag_Progetto_Nuovo" xml:space="preserve">
+    <value>Open a new project</value>
+  </data>
+  <data name="Pag_Progetto_NuovoCosto" xml:space="preserve">
+    <value>It costs these new darks: {0}</value>
+  </data>
+  <data name="Pag_Progetto_NuovoSenzaDark" xml:space="preserve">
+    <value>No new darks: today the engine would decide the same profile.</value>
+  </data>
+  <data name="Pag_Progetto_NuovoNessunDark" xml:space="preserve">
+    <value>No new darks.</value>
+  </data>
+  <data name="Pag_Progetto_ApertoOra" xml:space="preserve">
+    <value>You opened the project: from here the profile is frozen.</value>
+  </data>
+  <data name="Pag_Progetto_NonSalvato" xml:space="preserve">
+    <value>The project was not saved in the N.I.N.A. profile: {0}</value>
   </data>
   <data name="Pannello_SenzaViewModel" xml:space="preserve">
     <value>The panel has no ViewModel.</value>

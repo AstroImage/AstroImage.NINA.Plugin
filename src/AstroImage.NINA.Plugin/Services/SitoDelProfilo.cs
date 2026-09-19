@@ -15,9 +15,14 @@ namespace AstroImage.NINA.Plugin.Services {
      *  averle inserite, e N.I.N.A. le chiede alla prima configurazione. Sono l'unica
      *  parte del sito che non va dichiarata.
      *
-     *  Il resto — qualita' del cielo, seeing — arriva solo se un dispositivo lo misura:
-     *  una stazione meteo con misuratore SQM. Quando non c'e', qui torna nullo e lo
-     *  dichiara chi riprende: non si inventa e non si stima.
+     *  La qualita' del cielo arriva solo se un dispositivo la misura: una stazione
+     *  meteo con misuratore SQM. Quando non c'e', qui torna nulla e la dichiara chi
+     *  riprende: non si inventa e non si stima.
+     *
+     *  IL SEEING NON SI LEGGE (19 settembre 2026): quello del sito e' il seeing che il
+     *  posto ha di solito, e si dichiara. La FWHM delle stelle che una stazione espone e'
+     *  quella di stanotte, con la guida e l'ottica dentro: non e' il seeing del posto, e
+     *  il seeing di stanotte non entra in nessuna decisione.
      *
      *  L'ERRORE DI GUIDA DEL SITO NON SI LEGGE PIU' (regia, 18 settembre 2026): il servizio
      *  non lo chiede, e la guida che conta arriva col banco. Quella di una notte, letta dal
@@ -116,9 +121,6 @@ namespace AstroImage.NINA.Plugin.Services {
             var m = Protetto(() => meteo?.GetInfo());
             if (m is not null && Protetto(() => (bool?)m.Connected) == true) {
                 s.Sqm = Finito(Protetto(() => (double?)m.SkyQuality));
-                /*  StarFWHM e' il seeing misurato sulle stelle, quando la stazione lo
-                 *  espone. Non tutte lo fanno, e chi non lo fa restituisce NaN. */
-                s.Seeing = Finito(Protetto(() => (double?)m.StarFWHM));
             }
 
             return s;

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AstroImage.NINA.Plugin.Models;
 
 #nullable enable
@@ -67,6 +68,22 @@ namespace AstroImage.NINA.Plugin.Services {
              *  numeri plausibili di un altro telescopio. */
             Banco = DichiarazioneBanco.Leggi(memoria.Leggi(ChiaveBanco), out var notaB);
             NotaBanco = notaB;
+            /*  E i progetti aperti (19 settembre 2026): un progetto di un altro profilo sono pose e guadagni di un altro
+             *  treno. */
+            Progetti = ProgettiDelProfilo.Leggi(memoria.Leggi(ProgettiDelProfilo.Chiave), out var notaP);
+            NotaProgetti = notaP;
+        }
+
+        /// <summary>I progetti aperti nel profilo attivo: il profilo congelato di ogni bersaglio col suo banco.</summary>
+        public List<ProgettiDelProfilo.Progetto> Progetti { get; private set; } = new List<ProgettiDelProfilo.Progetto>();
+
+        /// <summary>Che cosa non andava nei progetti salvati, se qualcosa non andava.</summary>
+        public string? NotaProgetti { get; private set; }
+
+        /// <summary>Scrive i progetti aperti nel profilo attivo.</summary>
+        public bool SalvaProgetti(out string? perCheNo) {
+            NotaProgetti = null;
+            return memoria.Scrivi(ProgettiDelProfilo.Chiave, ProgettiDelProfilo.Scrivi(Progetti), out perCheNo);
         }
 
         /// <summary>Sostituisce il banco dichiarato e lo scrive nel profilo attivo.</summary>

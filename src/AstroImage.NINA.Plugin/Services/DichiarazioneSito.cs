@@ -118,11 +118,17 @@ namespace AstroImage.NINA.Plugin.Services {
             s.OrizzonteFile = letto?.OrizzonteFile;
             p["orizzonte"] = s.Orizzonte is null ? Assente : DaProfilo;
 
-            /*  Per gli altri vince la MISURA sulla dichiarazione, sempre: se un
+            /*  Per il cielo vince la MISURA sulla dichiarazione, sempre: se un
              *  misuratore c'e', il numero scritto a mano l'anno scorso non deve
              *  sovrascriverlo. */
             s.Sqm = Scegli(letto?.Sqm, dichiarato?.Sqm, "sqm", p);
-            s.Seeing = Scegli(letto?.Seeing, dichiarato?.Seeing, "seeing", p);
+
+            /*  IL SEEING TIPICO DEL SITO: solo dichiarato (regia, 19 settembre 2026). E' il seeing che il posto ha di
+             *  solito, della stessa specie dell'SQM. La FWHM che una stazione misura stanotte non e' lui: e' la notte, con
+             *  la guida e l'ottica dentro, e il seeing di stanotte non entra mai in una decisione. Non lo sostituisce, e non
+             *  lo riempie quando manca: allora vale il riferimento del motore, che lo dichiara. */
+            s.Seeing = dichiarato?.Seeing;
+            p["seeing"] = s.Seeing is null ? Assente : Dichiarato;
 
             /*  ALTEZZA MINIMA E NOTTI SERENE: solo dichiarate.
              *
@@ -144,22 +150,24 @@ namespace AstroImage.NINA.Plugin.Services {
             return s;
         }
 
-        /*  I CAMPI MUTI NON PARTONO (regia, 18 settembre 2026). Seeing, guida e notti serene del sito non si offrono piu':
-         *  nel Ponte non muovevano niente di visibile. Il sito che la pagina riceve e' quello che rimanda al motore: qui
-         *  non entrano ne' col valore salvato nel profilo ne' con quello che N.I.N.A. misura, e il motore applica il suo
+        /*  I CAMPI MUTI NON PARTONO (regia, 18 settembre 2026). Guida e notti serene del sito non si offrono piu': nel
+         *  Ponte non muovevano niente di visibile. Il sito che la pagina riceve e' quello che rimanda al motore: qui non
+         *  entrano ne' col valore salvato nel profilo ne' con quello che N.I.N.A. misura, e il motore applica il suo
          *  riferimento e lo dichiara; la pagina lo scrive in una nota. Il valore del profilo resta nel profilo, muto, per
          *  il giorno in cui il campo rientra. L'RMS caratteristico della montatura non c'entra: sta nel banco, e decide.
+         *  IL SEEING TIPICO E' RIENTRATO (regia, 19 settembre 2026), solo dichiarato: vedi `Unisci`.
          *  Sorvegliato da CampiMutiTests. */
         /// <summary>Il sito che la pagina riceve, e che rimanda al motore nella richiesta: la geometria e l'orizzonte del
-        /// profilo, il cielo e l'altezza minima. Mai un campo muto.</summary>
+        /// profilo, il cielo, il seeing tipico dichiarato e l'altezza minima. Mai un campo muto.</summary>
         public static JsonObject PerLaPagina(SitoDiRipresa unito) => new JsonObject {
-            ["lat"] = unito.Lat, ["lon"] = unito.Lon, ["sqm"] = unito.Sqm, ["horizonMin"] = unito.HorizonMin,
+            ["lat"] = unito.Lat, ["lon"] = unito.Lon, ["sqm"] = unito.Sqm, ["seeing"] = unito.Seeing,
+            ["horizonMin"] = unito.HorizonMin,
             ["orizzonte"] = unito.Orizzonte is null ? null : JsonSerializer.SerializeToNode(unito.Orizzonte),
         };
 
         /// <summary>Quello che chi riprende ha scritto, per i campi che la pagina gli fa scrivere.</summary>
         public static JsonObject DichiaratoPerLaPagina(SitoDichiarato? d) => new JsonObject {
-            ["sqm"] = d?.Sqm, ["horizonMin"] = d?.HorizonMin,
+            ["sqm"] = d?.Sqm, ["seeing"] = d?.Seeing, ["horizonMin"] = d?.HorizonMin,
         };
 
         /// <summary>

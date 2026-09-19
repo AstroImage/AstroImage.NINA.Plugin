@@ -26,8 +26,8 @@ namespace AstroImage.NINA.Plugin.Tests {
     public class CampiMutiTests {
 
         /*  La guida del sito, `rms`, dal 18 settembre 2026 non e' piu' muta: e' cancellata. Resta nell'elenco perche' non
-         *  deve partire comunque. */
-        private static readonly string[] Muti = { "seeing", "rms", "clearFrac" };
+         *  deve partire comunque. Il seeing tipico non e' piu' muto dal 19 settembre 2026: torna, e solo dichiarato (sotto). */
+        private static readonly string[] Muti = { "rms", "clearFrac" };
 
         /*  Il caso cattivo: il profilo ha salvato seeing e notti serene, e N.I.N.A. misura il seeing. */
         private static SitoDiRipresa Cattivo() => DichiarazioneSito.Unisci(
@@ -56,6 +56,40 @@ namespace AstroImage.NINA.Plugin.Tests {
                 Assert.IsFalse(d.ContainsKey(k), k + " arriva alla pagina come valore scritto: " + d.ToJsonString());
             Assert.AreEqual(20.8, (double)d["sqm"]!);
             Assert.AreEqual(20.0, (double)d["horizonMin"]!);
+        }
+
+        /*  IL SEEING TIPICO TORNA (regia, 19 settembre 2026): una proprieta' del posto, della stessa specie dell'SQM, che il
+         *  motore usa nel giudizio di campionamento e nel consiglio di binning. Si dichiara, e solo si dichiara: la FWHM che
+         *  una stazione misura stanotte non e' il seeing del posto — e' la notte, con la guida e l'ottica dentro — e non lo
+         *  sostituisce ne' parte al suo posto. Nate rosse contro 3571b41: il seeing non partiva, e se partiva vinceva la
+         *  misura di stanotte. */
+        [TestMethod]
+        public void IlSeeingTipico_ParteDichiarato_ELaNotteMisurataNonLoSostituisce() {
+            var s = DichiarazioneSito.Unisci(new SitoDiRipresa { Lat = 45.95, Lon = 10.2, Seeing = 3.0 },
+                                             new SitoDichiarato { Sqm = 20.8, Seeing = 2.5 });
+            var p = DichiarazioneSito.PerLaPagina(s);
+
+            Assert.IsTrue(p.ContainsKey("seeing"), "il seeing tipico non parte verso la pagina: " + p.ToJsonString());
+            Assert.AreEqual(2.5, (double)p["seeing"]!, "parte la FWHM di stanotte al posto del seeing dichiarato");
+            Assert.AreEqual(DichiarazioneSito.Dichiarato, s.Provenienza!["seeing"]);
+        }
+
+        [TestMethod]
+        public void IlSeeingTipico_NonDichiarato_NonLoRiempieLaNotteMisurata() {
+            var s = DichiarazioneSito.Unisci(new SitoDiRipresa { Lat = 45.95, Lon = 10.2, Seeing = 3.0 },
+                                             new SitoDichiarato { Sqm = 20.8 });
+            var p = DichiarazioneSito.PerLaPagina(s);
+
+            Assert.IsTrue(p.ContainsKey("seeing"), "la chiave del seeing tipico non c'e': " + p.ToJsonString());
+            Assert.IsNull(p["seeing"], "la FWHM misurata stanotte e' diventata il seeing del sito: " + p.ToJsonString());
+            Assert.AreEqual(DichiarazioneSito.Assente, s.Provenienza!["seeing"]);
+        }
+
+        [TestMethod]
+        public void IlDichiaratoPerLaPagina_PortaIlSeeingTipico() {
+            var d = DichiarazioneSito.DichiaratoPerLaPagina(new SitoDichiarato { Sqm = 20.8, Seeing = 2.5, ClearFrac = 0.5 });
+
+            Assert.AreEqual(2.5, (double)d["seeing"]!, "il seeing scritto non torna nel suo campo: " + d.ToJsonString());
         }
 
         [TestMethod]

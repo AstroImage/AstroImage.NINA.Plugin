@@ -431,6 +431,8 @@
     const nella = o => (o && (o[lingua] || o.it || o.en)) || '';
     const parola = nella(s.etichetta) || s.k || '';
     const spiega = nella(s.spiegazione), spiegaConsegnata = nella(s.spiegazione_consegnata);
+    /*  perche' la posa non segue il seeing del sito, dal motore (19 settembre 2026): arriva quando serve */
+    const spiegaDueSeeing = nella(s.spiegazione_due_seeing);
     const posa = Object.values(p.posa || {}).find(v => v && v.ex && v.ex.ipotesi && typeof v.ex.ipotesi.seeing === 'number');
     const seeingPosa = posa ? posa.ex.ipotesi.seeing : null;
     /*  i due numeri vengono dal motore, dalla stessa costante quando il seeing e' quello di riferimento: si confrontano */
@@ -440,8 +442,41 @@
       MF('Pag_Camp_Intervallo', cifra(s.lo, 2), cifra(s.hi, 2)) + ' · ' + MF('Pag_Camp_Scala', cifra(s.scala, 2)) + ' · ' +
       '<span' + (spiegaConsegnata ? ' title="' + esc(spiegaConsegnata) + '"' : '') + '>' +
         MF('Pag_Camp_Consegnata', cifra(s.consegnata, 2)) + '</span>' +
-      (dueSeeing ? '<div style="font-size:12px;opacity:.75">' + MF('Pag_Camp_DueSeeing', cifra(s.seeing, 1), cifra(seeingPosa, 1)) + '</div>' : '') +
+      (dueSeeing ? '<div style="font-size:12px;opacity:.75"' + (spiegaDueSeeing ? ' title="' + esc(spiegaDueSeeing) + '"' : '') + '>' +
+        MF('Pag_Camp_DueSeeing', cifra(s.seeing, 1), cifra(seeingPosa, 1)) + '</div>' : '') +
       '</td></tr>';
+  }
+  /*  IL PROFILO DEL PROGETTO (regia, 19 settembre 2026). L'unita' non e' la notte, e' il progetto: il motore
+   *  propone un profilo — modo, pose, strada, temperatura — e la prima consegna lo congela. Il pannello lo dice PRIMA,
+   *  perche' chi apre un progetto per sbaglio si chiederebbe poi perche' i numeri non si muovono piu'. Con un progetto
+   *  aperto dice quando si e' aperto, i dark che chiede, le premesse cambiate e il loro costo — tutte frasi del motore —,
+   *  i canali che stanotte saltano, e «apri un progetto nuovo» a un clic, con scritto quanti dark nuovi costa. */
+  function bloccoDelProgetto(p, r) {
+    const pf = p && p.profilo;
+    if (!pf) return '';
+    const lingua = T('Pag_CodiceLingua');
+    const nella = o => (o && (o[lingua] || o.it || o.en)) || '';
+    const dark = nella(p.dark && p.dark.frase);
+    const riga = (t, stile) => '<div style="margin-top:6px' + (stile ? ';' + stile : '') + '">' + t + '</div>';
+    let h = '<b>' + T('Pag_Progetto_Titolo') + '</b>';
+    if (pf.stato !== 'congelato') {
+      h += riga(MF('Pag_Progetto_ConsegnaApre'));
+      if (dark) h += riga(MF('Pag_Progetto_Dark', esc(dark)), 'opacity:.85');
+      for (const x of pf.pareggio || []) h += riga(esc(nella(x.frase)), 'opacity:.75;font-size:12.5px');
+      return '<div class="box" id="progetto">' + h + '</div>';
+    }
+    const pr = p.progetto || {};
+    const d = pr.decisione_di_adesso || {};
+    h += riga(MF('Pag_Progetto_Aperto', esc((r && r.progetto && r.progetto.apertoIl) || '—')));
+    if (dark) h += riga(MF('Pag_Progetto_Dark', esc(dark)), 'opacity:.85');
+    if (pr.frase) h += riga(esc(nella(pr.frase)), 'color:#e0a030');
+    else if (pr.nota) h += riga(esc(nella(pr.nota)), 'opacity:.7;font-size:12.5px');
+    for (const s of p.saltati_stanotte || []) h += riga(MF('Pag_Progetto_Saltato', esc(s.canale), esc(s.filtro)), 'color:#e0a030');
+    const costo = d.disponibile && d.dark_nuovi ? MF('Pag_Progetto_NuovoCosto', esc(nella(d.dark_nuovi.frase)))
+      : d.disponibile && d.uguale ? MF('Pag_Progetto_NuovoSenzaDark') : d.disponibile ? MF('Pag_Progetto_NuovoNessunDark') : '';
+    h += '<div style="margin-top:8px"><button id="nuovoProgetto">' + T('Pag_Progetto_Nuovo') + '</button> ' +
+      '<span style="opacity:.75;font-size:12.5px">' + costo + '</span> ' + esito('esitoProgetto') + '</div>';
+    return '<div class="box" id="progetto">' + h + '</div>';
   }
   function dettaNelSito(p) {
     if (!p || p.pezzo !== 'sito' || !p.campo) return false;
@@ -453,7 +488,8 @@
     return !!c && c.decide === false;
   }
   function notaDeiRiferimenti(lista) {
-    const note = (lista || []).filter(eUnaNota).map(p => {
+    /*  un'assunzione che ha il suo campo a schermo si dice accanto al campo, non anche qui (il seeing, 19 settembre) */
+    const note = (lista || []).filter(p => eUnaNota(p) && !dettaNelSito(p)).map(p => {
       const w = PAROLA_PARZIALE[p.tipo];
       const valori = w ? w[1].map(via => { const v = campoDelDato(p.dati || {}, via); return v == null ? '—' : cifra(v); }) : [];
       const s = spiegazioneDi(campoDelSito(p.campo));
@@ -979,6 +1015,10 @@
         (r.ruotaAggiunta && r.ruotaAggiunta.length
           ? MF('Pag_CalcolataTuaRuota', r.ruotaAggiunta.map(esc).join(' · '))
           : '<span style="color:#e0a030">' + MF('Pag_CalcolataDiSerie') + '</span>') +
+        /*  I FILTRI DEL PROGETTO: con un progetto aperto il motore calcola la strada intera, anche coi filtri che stanotte
+         *  non sono in ruota; senza questa riga «la tua ruota» direbbe meno filtri di quelli del calcolo. */
+        (x => x.length ? '<div style="margin-top:4px">' + MF('Pag_CalcolataColProgetto', x.map(esc).join(' · ')) + '</div>' : '')(
+          [...new Set((p.saltati_stanotte || []).map(s => s.filtro))]) +
         /*  LE ORFANE SI DICONO QUI, alla richiesta, una per riga: un filtro dichiarato e poi rinominato o tolto in
          *  N.I.N.A. non e' partito, e senza questa riga lo si scoprirebbe solo al rifiuto della consegna. */
         (r.orfane || []).map(o => '<div style="color:#e0a030;margin-top:4px">' +
@@ -1001,6 +1041,7 @@
         T('Pag_ColBlocchi') + '</th><th>' + T('Pag_ColPose') + '</th><th>' +
         T('Pag_ColDurata') + '</th><th>' + T('Pag_ColFiltri') + '</th><th>' + T('Pag_ColGuadagno') + '</th><th></th></tr>' +
       righe + '</table></div>' +
+      bloccoDelProgetto(p, r) +
       (r.consegnabile ? '' :
         '<div class="box err"><b>' + T('Pag_NonSiPuoMandare') + '</b>' +
         '<div style="margin-top:6px;opacity:.85">' +
@@ -1014,6 +1055,17 @@
 
     for (const b of document.querySelectorAll('button.manda'))
       b.addEventListener('click', () => manda(b));
+    /*  APRI UN PROGETTO NUOVO: il Ponte toglie il profilo congelato, e la domanda si rifa' — torna proposta, e la prossima
+     *  consegna apre il progetto nuovo. */
+    const nuovo = $('nuovoProgetto');
+    if (nuovo) nuovo.addEventListener('click', async () => {
+      nuovo.disabled = true;
+      segnaEsito('esitoProgetto', 'corso', T('Pag_Salvo'));
+      const r2 = await chiedi('nuovoProgetto', null, {});
+      nuovo.disabled = false;
+      if (!r2.ok) { segnaEsito('esitoProgetto', 'no', T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '')); return; }
+      vai();
+    });
     /*  LE NOTTI GIUSTE: il tasto mette la data proposta e rifa' la domanda. La strada scelta non vale piu', come quando
      *  la data la cambia chi scrive. */
     const sposta = $('spostaData');
@@ -1064,7 +1116,11 @@
       '<div style="margin-top:6px;opacity:.85">' + esc(r.bersaglio || '') + ' — ' +
       MF('Pag_BlocchiPose', cifra(r.blocchi), cifra(r.pose)) + ' ' +
       '<span style="opacity:.7">' + T('Pag_NienteAvviato') + '</span></div>' +
-      elenco(T('Pag_Scartato'), r.scartati) + elenco(T('Pag_DaSapere'), r.note) + '</div>';
+      elenco(T('Pag_Scartato'), r.scartati) + elenco(T('Pag_DaSapere'), r.note) +
+      /*  la prima consegna ha aperto il progetto: da qui il profilo e' congelato */
+      (r.progettoAperto ? '<div style="margin-top:6px">' + MF('Pag_Progetto_ApertoOra') + '</div>' : '') +
+      (r.progettoNonSalvato ? '<div style="margin-top:6px;color:#e0a030">' + MF('Pag_Progetto_NonSalvato', esc(r.progettoNonSalvato)) + '</div>' : '') +
+      '</div>';
   }
 
   /*  QUALE COPERTURA E' SPUNTATA. Due segmenti, e uno lo e' sempre: il markup
@@ -1241,7 +1297,7 @@
     const assunto = (p === 'non_disponibile' && parzialeUsato)
       ? parzialeUsato.find(x => x.pezzo === 'sito' && x.campo === campo && x.dati && x.dati.assunto != null) : null;
     return '<span data-prov-sito="' + esc(campo) + '" style="font-size:12px;' + colore + '">' +
-      (assunto ? MF('Pag_Prov_assunto', esc(assunto.dati.assunto), unitaDelSito[campo] || '')
+      (assunto ? MF('Pag_Prov_assunto', cifra(assunto.dati.assunto), unitaDelSito[campo] || '')
                : esc(parola ? T(parola) : p)) + '</span>';
   }
   function aggiornaProvenienzeDelSito() {
@@ -1263,12 +1319,14 @@
   }
 
   /*  IL SITO CHE PARTE (regia, 18 settembre 2026): la richiesta porta solo i campi che il Ponte offre — la geometria e
-   *  l'orizzonte del profilo, il cielo e l'altezza minima. Seeing, guida e notti serene non si offrono piu': i loro valori
-   *  restano nei profili, muti, e non partono ne' col numero rimasto ne' vuoti; il motore applica il suo riferimento e lo
-   *  dichiara. E' l'elenco di cio' che entra, non di cio' che resta fuori: una chiave nuova del sito non parte finche'
-   *  qualcuno non la scrive qui. L'ospite gia' non li manda (CampiMutiTests); questa e' la seconda porta, e la guardia la
-   *  prova su un sito che li porta ancora. */
-  const SITO_CHE_PARTE = ['lat', 'lon', 'sqm', 'horizonMin', 'orizzonte'];
+   *  l'orizzonte del profilo, il cielo, il seeing tipico e l'altezza minima. Guida e notti serene non si offrono piu': i
+   *  loro valori restano nei profili, muti, e non partono ne' col numero rimasto ne' vuoti; il motore applica il suo
+   *  riferimento e lo dichiara. IL SEEING TIPICO TORNA (regia, 19 settembre 2026): e' una proprieta' del posto, della
+   *  stessa specie dell'SQM, e il motore lo usa nel giudizio di campionamento e nel consiglio di binning; la posa resta sul
+   *  riferimento, e il motore dice perche'. E' l'elenco di cio' che entra, non di cio' che resta fuori: una chiave nuova
+   *  del sito non parte finche' qualcuno non la scrive qui. L'ospite gia' non manda i muti (CampiMutiTests); questa e' la
+   *  seconda porta, per un sito che li porta ancora. */
+  const SITO_CHE_PARTE = ['lat', 'lon', 'sqm', 'seeing', 'horizonMin', 'orizzonte'];
   function sitoDaMandare() {
     const s = {};
     for (const k of SITO_CHE_PARTE) if (sito && sito[k] !== undefined) s[k] = sito[k];
@@ -1327,12 +1385,15 @@
       riga(T('Pag_Latitudine'), 'lat', '&deg;', false) +
       riga(T('Pag_Longitudine'), 'lon', '&deg;', false) +
       riga(T('Pag_Sqm'), 'sqm', 'mag/arcsec&sup2;', true) +
+      /*  IL SEEING TIPICO DEL SITO (regia, 19 settembre 2026): si dichiara, e solo si dichiara. La FWHM che una stazione
+       *  misura stanotte non e' il seeing del posto — e' la notte, con la guida e l'ottica dentro — e non lo sostituisce. */
+      riga(T('Pag_Seeing'), 'seeing', '&Prime;', true) +
       rigaOrizzonte(r) +
       riga(T('Pag_AltezzaMinima'), 'horizonMin', '&deg;', true) +
-      /*  Seeing, guida e notti serene non ci sono piu' (regia, 18 settembre 2026): nel Ponte non muovevano niente di
-       *  visibile, e un campo cosi' e' un'assunzione muta travestita da controllo. Il valore che il motore assume si legge
-       *  nella nota sotto la prescrizione (`notaDeiRiferimenti`). Quello che il cielo e l'altezza minima vogliono dire lo
-       *  spiega il motore nei tooltip: qui c'erano tre note del Ponte. */
+      /*  Guida e notti serene non ci sono piu' (regia, 18 settembre 2026): nel Ponte non muovevano niente di visibile, e
+       *  un campo cosi' e' un'assunzione muta travestita da controllo. Il valore che il motore assume per le notti serene si
+       *  legge nella nota sotto la prescrizione (`notaDeiRiferimenti`). Quello che cielo, seeing e altezza minima vogliono
+       *  dire lo spiega il motore nei tooltip. */
       '</table>' +
       '<div style="margin-top:.7em">' +
         '<button id="salvaSito">' + T('Pag_SalvaSito') + '</button> ' +
