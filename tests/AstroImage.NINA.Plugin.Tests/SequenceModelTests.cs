@@ -433,6 +433,8 @@ namespace AstroImage.NINA.Plugin.Tests {
             j["blocchi"] = new JsonArray(b0);
             var dopo = JsonNode.Parse(SequenceModel.Leggi(j.ToJsonString())!.Scrivi())!;
             CollectionAssert.AreEqual(
+                /*  I campi del canale NON compaiono, ed e' il punto: questo blocco e' costruito a mano senza di loro,
+                 *  e un campo assente non si riscrive. E' la regola «campo assente → riga assente» vista da qui. */
                 new[] { "canali", "filtro", "sec", "n", "gain", "offset", "gainFonte", "modo", "ore" },
                 dopo["blocchi"]![0]!.AsObject().Select(p => p.Key).ToArray());
             Assert.AreEqual("motore", dopo["blocchi"]![0]!["gainFonte"]!.GetValue<string>());
@@ -448,8 +450,11 @@ namespace AstroImage.NINA.Plugin.Tests {
             var dopo = JsonNode.Parse(m.Scrivi())!.AsObject();
 
             CollectionAssert.AreEqual(
+                /*  `totale` entra dopo `blocchi` il 20 settembre 2026: e' il totale della notte — pose, ore di
+                 *  integrazione, ore di orologio — e sta dove il motore lo scrive, subito dopo i blocchi che
+                 *  riassume. */
                 new[] { "notte", "quando", "nome", "bersaglio", "ottica", "sito", "cap",
-                        "blocchi", "nonFusi", "dither", "flip" },
+                        "blocchi", "totale", "nonFusi", "dither", "flip" },
                 dopo.Select(p => p.Key).ToArray());
             CollectionAssert.AreEqual(
                 new[] { "data", "inizio", "fine", "oreUtili" },
@@ -466,7 +471,10 @@ namespace AstroImage.NINA.Plugin.Tests {
                         "tempC", "minutiFreddo", "minutiCaldo" },
                 dopo["cap"]!.AsObject().Select(p => p.Key).ToArray());
             CollectionAssert.AreEqual(
-                new[] { "canali", "filtro", "sec", "n", "gain", "offset", "modo" },
+                /*  Il blocco di una fixture VIVA porta i campi del canale e la fonte del guadagno: la fixture si
+                 *  rigenera dal motore di oggi, e l'ordine e' quello con cui il motore li scrive. */
+                new[] { "canali", "filtro", "sec", "n", "poseCanale", "oreCanale", "perBanda",
+                        "gain", "offset", "gainFonte", "modo", "ore" },
                 dopo["blocchi"]![0]!.AsObject().Select(p => p.Key).ToArray());
         }
     }

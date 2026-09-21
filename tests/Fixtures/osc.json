@@ -50,11 +50,21 @@
       "filtro": "L",
       "sec": 180,
       "n": 131,
-      "gain": -1,
-      "offset": -1,
-      "modo": "LCG"
+      "poseCanale": 131,
+      "oreCanale": 6.55,
+      "perBanda": true,
+      "gain": 0,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "LCG",
+      "ore": 6.55
     }
   ],
+  "totale": {
+    "pose": 131,
+    "ore": 6.55,
+    "orologio": 6.841111111111111
+  },
   "nonFusi": [],
   "dither": {
     "ogniPose": 2

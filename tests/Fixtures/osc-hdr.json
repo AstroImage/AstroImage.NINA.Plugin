@@ -50,9 +50,14 @@
       "filtro": "HO",
       "sec": 20,
       "n": 25,
-      "gain": -1,
-      "offset": -1,
-      "modo": "HCG"
+      "poseCanale": 25,
+      "oreCanale": 0.1388888888888889,
+      "perBanda": true,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.1388888888888889
     },
     {
       "canali": [
@@ -60,10 +65,15 @@
       ],
       "filtro": "HO",
       "sec": 180,
-      "n": 106,
-      "gain": -1,
-      "offset": -1,
-      "modo": "HCG"
+      "n": 105,
+      "poseCanale": 105,
+      "oreCanale": 5.25,
+      "perBanda": true,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 5.25
     },
     {
       "canali": [
@@ -71,12 +81,22 @@
       ],
       "filtro": "L",
       "sec": 60,
-      "n": 27,
-      "gain": -1,
-      "offset": -1,
-      "modo": "HCG"
+      "n": 30,
+      "poseCanale": 30,
+      "oreCanale": 0.5,
+      "perBanda": true,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.5
     }
   ],
+  "totale": {
+    "pose": 160,
+    "ore": 5.888888888888889,
+    "orologio": 6.2444444444444445
+  },
   "nonFusi": [
     "Ha+OIII 180s contro Ha+OIII 20s"
   ],

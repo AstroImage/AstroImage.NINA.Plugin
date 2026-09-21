@@ -88,6 +88,20 @@ namespace AstroImage.NINA.Plugin.Models {
         public List<Blocco> Blocchi { get; set; } = new List<Blocco>();
 
         /// <summary>
+        /// Il totale della notte, come lo fa il motore: le pose, le ore di integrazione e quelle di orologio. Il Ponte
+        /// non le somma e non le ricava — il numero che mostra lo manda il motore.
+        /// <para>
+        /// L'orologio non e' l'integrazione: fra una posa e l'altra ci sono lo scarico e l'assestamento dopo il dither,
+        /// e quelli non si recuperano. Ricavarlo da questa parte del confine vorrebbe dire conoscere lo scarico, che e'
+        /// una convenzione del motore.
+        /// </para>
+        /// Annullabile: un motore piu' vecchio non lo manda, e allora non si scrive niente invece di scrivere zero.
+        /// </summary>
+        [JsonPropertyName("totale")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public TotaleDellaNotte? Totale { get; set; }
+
+        /// <summary>
         /// Le anomalie che il motore ha visto e NON ha appianato: due pose diverse
         /// dietro lo stesso vetro su una camera a matrice. Sono frasi gia' scritte,
         /// destinate a essere mostrate, non interpretate.
@@ -476,6 +490,39 @@ namespace AstroImage.NINA.Plugin.Models {
         public int? N { get; set; }
 
         /// <summary>
+        /// Le pose di questo canale su TUTTO IL PROGETTO, non solo stanotte: <see cref="N"/> ne e' una fetta.
+        /// <para>
+        /// Il Ponte lo mostra com'e' arrivato e non lo ricava dalle ore: un numero ricavato qui sarebbe una seconda
+        /// verita' sullo stesso piano. La relazione che lo rende
+        /// verificabile: la somma di <see cref="N"/> su tutte le notti, per lo stesso canale e la stessa posa, fa
+        /// esattamente questo numero.
+        /// </para>
+        /// Annullabile: il piano puo' non essere arrivato, e allora si dice il numero della notte e basta.
+        /// </summary>
+        [JsonPropertyName("poseCanale")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? PoseCanale { get; set; }
+
+        /// <summary>Le ore del canale su tutto il progetto. Stesso dominio di <see cref="PoseCanale"/>.</summary>
+        [JsonPropertyName("oreCanale")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public double? OreCanale { get; set; }
+
+        /// <summary>
+        /// DI CHE COSA sono <see cref="PoseCanale"/> e <see cref="OreCanale"/>. <c>true</c>: di CIASCUNA banda di questo
+        /// blocco. <c>false</c>: del blocco intero, perche' la fusione su una camera a matrice li ha sommati.
+        /// <para>
+        /// Serve a chi disegna, ed e' l'unico modo onesto di compattare. Unendo tre bande con gli stessi numeri si deve
+        /// scrivere «per banda» invece di «sul canale», o chi legge somma tre volte — ma quella parola chi disegna non
+        /// se la puo' inventare: sarebbe una decisione presa dove si disegna. Compattare e' disegnare; dire su cosa si
+        /// compatta e' decidere, e decide il motore.
+        /// </para>
+        /// </summary>
+        [JsonPropertyName("perBanda")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? PerBanda { get; set; }
+
+        /// <summary>
         /// Guadagno. Vale -1 quando il modo di guadagno non lo dichiara: e' un
         /// "non specificato", non un guadagno negativo, e va trattato come tale da
         /// chiunque legga.
@@ -512,6 +559,31 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonPropertyName("ore")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public double? Ore { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? Extra { get; set; }
+    }
+
+    /// <summary>
+    /// Il totale di una notte, come lo fa il motore. Tre numeri e nessun conto da questa parte.
+    /// </summary>
+    public sealed class TotaleDellaNotte {
+
+        /// <summary>Tutte le pose di questa notte, tutti i blocchi.</summary>
+        [JsonPropertyName("pose")]
+        public int? Pose { get; set; }
+
+        /// <summary>Le ore di INTEGRAZIONE: i fotoni, <c>sec × n</c> sommati.</summary>
+        [JsonPropertyName("ore")]
+        public double? Ore { get; set; }
+
+        /// <summary>
+        /// Le ore di OROLOGIO: quanto dura davvero, con lo scarico e l'assestamento dopo il dither. Non e' mai meno
+        /// dell'integrazione. Annullabile, e non si ricava: ricavarla vorrebbe dire conoscere lo scarico.
+        /// </summary>
+        [JsonPropertyName("orologio")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public double? Orologio { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement>? Extra { get; set; }
