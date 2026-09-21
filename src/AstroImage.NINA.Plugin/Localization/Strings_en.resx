@@ -1524,6 +1524,12 @@
   <data name="Pag_LimiteClasseSpiegazione" xml:space="preserve">
     <value>The exposure is held at the ceiling of its family of objects: documented practice for the class, not a calculation on this object. It is a declared fallback.</value>
   </data>
+  <data name="Pag_Ruolo_nucleo" xml:space="preserve">
+    <value>core</value>
+  </data>
+  <data name="Pag_RuoloSpiegazione_nucleo" xml:space="preserve">
+    <value>Short series for the core, to be merged in HDR: at full scale the information is gone and cannot be recovered in processing.</value>
+  </data>
   <data name="Pag_LimiteSpiegazione" xml:space="preserve">
     <value>What decided the length of this exposure.</value>
   </data>

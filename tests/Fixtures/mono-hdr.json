@@ -1,0 +1,240 @@
+{
+  "notte": 1,
+  "quando": {
+    "data": "2026-11-19",
+    "inizio": "2026-11-20T03:05:00.000Z",
+    "fine": "2026-11-20T04:50:00.000Z",
+    "oreUtili": 1.15
+  },
+  "nome": null,
+  "bersaglio": {
+    "nome": "M3",
+    "rot": 0,
+    "off": null,
+    "ra_deg": 205.55,
+    "dec_deg": 28.3833,
+    "spostato": false
+  },
+  "ottica": {
+    "tel": "Ritchey-Chretien 8\"",
+    "camera": "ZWO ASI 2600MM Pro",
+    "montatura": "iOptron CEM70G",
+    "focale_mm": 1624,
+    "rapporto": 7.99,
+    "pixel_um": 3.76,
+    "riduttore": 1,
+    "scala_arcsec_px": 0.478,
+    "bin": 1,
+    "matrice": false
+  },
+  "sito": {
+    "lat": 46.0167,
+    "lon": 10.3333
+  },
+  "cap": {
+    "raffredda": true,
+    "ruota": true,
+    "focheggiatore": true,
+    "guida": true,
+    "rotatore": false,
+    "home": true,
+    "tempC": -10,
+    "minutiFreddo": 8,
+    "minutiCaldo": 10
+  },
+  "blocchi": [
+    {
+      "canali": [
+        "R"
+      ],
+      "gruppo": "RGB",
+      "filtro": "R",
+      "sec": 10,
+      "n": 25,
+      "poseCanale": 25,
+      "oreCanale": 0.06944444444444445,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 4
+      },
+      "perBanda": true,
+      "limite": null,
+      "ruolo": "nucleo",
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.06944444444444445
+    },
+    {
+      "canali": [
+        "G"
+      ],
+      "gruppo": "RGB",
+      "filtro": "G",
+      "sec": 10,
+      "n": 25,
+      "poseCanale": 25,
+      "oreCanale": 0.06944444444444445,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 4
+      },
+      "perBanda": true,
+      "limite": null,
+      "ruolo": "nucleo",
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.06944444444444445
+    },
+    {
+      "canali": [
+        "B"
+      ],
+      "gruppo": "RGB",
+      "filtro": "B",
+      "sec": 10,
+      "n": 25,
+      "poseCanale": 25,
+      "oreCanale": 0.06944444444444445,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 4
+      },
+      "perBanda": true,
+      "limite": null,
+      "ruolo": "nucleo",
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.06944444444444445
+    },
+    {
+      "canali": [
+        "R"
+      ],
+      "gruppo": "RGB",
+      "filtro": "R",
+      "sec": 60,
+      "n": 11,
+      "poseCanale": 42,
+      "oreCanale": 0.7,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 42
+      },
+      "perBanda": true,
+      "limite": "pavimento",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.18333333333333332
+    },
+    {
+      "canali": [
+        "G"
+      ],
+      "gruppo": "RGB",
+      "filtro": "G",
+      "sec": 60,
+      "n": 11,
+      "poseCanale": 42,
+      "oreCanale": 0.7,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 42
+      },
+      "perBanda": true,
+      "limite": "pavimento",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.18333333333333332
+    },
+    {
+      "canali": [
+        "B"
+      ],
+      "gruppo": "RGB",
+      "filtro": "B",
+      "sec": 60,
+      "n": 11,
+      "poseCanale": 42,
+      "oreCanale": 0.7,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 42
+      },
+      "perBanda": true,
+      "limite": "pavimento",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.18333333333333332
+    },
+    {
+      "canali": [
+        "L"
+      ],
+      "gruppo": "L",
+      "filtro": "L",
+      "sec": 60,
+      "n": 25,
+      "poseCanale": 76,
+      "oreCanale": 1.2666666666666666,
+      "oreCanaleHM": {
+        "ore": 1,
+        "minuti": 16
+      },
+      "perBanda": true,
+      "limite": "pavimento",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.4166666666666667
+    }
+  ],
+  "totale": {
+    "pose": 133,
+    "ore": 1.175,
+    "oreHM": {
+      "ore": 1,
+      "minuti": 11
+    },
+    "orologio": 1.4705555555555558,
+    "orologioHM": {
+      "ore": 1,
+      "minuti": 28
+    },
+    "perGruppo": {
+      "RGB": 0.7583333333333333,
+      "L": 0.4166666666666667
+    },
+    "perGruppoHM": {
+      "RGB": {
+        "ore": 0,
+        "minuti": 46
+      },
+      "L": {
+        "ore": 0,
+        "minuti": 25
+      }
+    }
+  },
+  "nonFusi": [],
+  "dither": {
+    "ogniPose": 2
+  },
+  "flip": true
+}

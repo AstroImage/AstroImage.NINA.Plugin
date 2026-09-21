@@ -1524,6 +1524,12 @@
   <data name="Pag_LimiteClasseSpiegazione" xml:space="preserve">
     <value>La posa è ferma al tetto della sua famiglia di oggetti: è la pratica documentata per la classe, non un calcolo su questo oggetto. È un ripiego dichiarato.</value>
   </data>
+  <data name="Pag_Ruolo_nucleo" xml:space="preserve">
+    <value>nucleo</value>
+  </data>
+  <data name="Pag_RuoloSpiegazione_nucleo" xml:space="preserve">
+    <value>Serie corta per il nucleo, da fondere in HDR: a fondo scala l'informazione non c'è più e non si recupera in elaborazione.</value>
+  </data>
   <data name="Pag_LimiteSpiegazione" xml:space="preserve">
     <value>Chi ha deciso la durata di questa posa.</value>
   </data>

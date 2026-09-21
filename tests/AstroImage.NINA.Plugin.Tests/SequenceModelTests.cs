@@ -21,12 +21,13 @@ namespace AstroImage.NINA.Plugin.Tests {
      *  JSON inventato prova solo che chi l'ha scritto e chi legge hanno avuto la
      *  stessa idea sbagliata.
      *
-     *  Cinque casi, scelti per coprire i rami che il contratto ha davvero:
+     *  Sei casi, scelti per coprire i rami che il contratto ha davvero:
      *    mono      - monocromatica, cinque filtri, niente offset, capacita' di serie;
      *    osc       - camera a matrice: la banda larga arriva come un canale solo, RGB;
      *    osc-hdr   - matrice con serie corta: due pose diverse sullo stesso vetro,
      *                dichiarate in nonFusi;
      *    completo  - campo spostato, rotazione, rotatore dichiarato, dither ogni 3;
+     *    mono-hdr  - monocromatica con la serie corta su piu' bande, ciascuna col suo ruolo;
      *    scarno    - il caso povero: niente sito, niente autoguida, niente ottica.
      *
      *  Il motore, il catalogo e i dati fotometrici restano fuori da questo
@@ -530,6 +531,15 @@ namespace AstroImage.NINA.Plugin.Tests {
                 new[] { "canali", "gruppo", "filtro", "sec", "n", "poseCanale", "oreCanale", "oreCanaleHM", "perBanda", "limite",
                         "gain", "offset", "gainFonte", "modo", "ore" },
                 dopo["blocchi"]![0]!.AsObject().Select(p => p.Key).ToArray());
+            /*  `ruolo` sta dopo `limite`, dove il motore lo scrive. Il primo blocco di `completo` non e' un nucleo, e un ruolo
+             *  nullo non si riscrive: la posizione si guarda sulla serie corta di `osc-hdr`, dove invece e' il limite a
+             *  essere nullo — i secondi del nucleo non li decide il limite della serie lunga. */
+            var corta = JsonNode.Parse(SequenceModel.Leggi(Testo("osc-hdr"))!.Scrivi())!["blocchi"]!.AsArray()
+                .Select(b => b!.AsObject()).First(b => (string?)b["ruolo"] == "nucleo");
+            CollectionAssert.AreEqual(
+                new[] { "canali", "gruppo", "filtro", "sec", "n", "poseCanale", "oreCanale", "oreCanaleHM", "perBanda", "ruolo",
+                        "gain", "offset", "gainFonte", "modo", "ore" },
+                corta.Select(p => p.Key).ToArray());
         }
     }
 }

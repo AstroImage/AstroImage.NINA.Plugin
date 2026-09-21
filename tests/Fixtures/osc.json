@@ -59,6 +59,7 @@
       },
       "perBanda": true,
       "limite": "strategia",
+      "ruolo": null,
       "gain": 0,
       "offset": 50,
       "gainFonte": "motore",

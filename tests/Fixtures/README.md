@@ -5,7 +5,7 @@ AstroImage-Strategy, fatta girare su banchi ottici veri del suo catalogo. È l'u
 che rende utile un test sul contratto: un JSON inventato dimostra soltanto che chi l'ha
 scritto e chi lo legge hanno avuto la stessa idea sbagliata.
 
-## I cinque casi, e perché proprio questi
+## I sei casi, e perché proprio questi
 
 | file | che cosa esercita |
 |---|---|
@@ -13,9 +13,10 @@ scritto e chi lo legge hanno avuto la stessa idea sbagliata.
 | `osc.json` | sensore a matrice: la banda larga arriva come un canale solo, `RGB`, in un blocco; niente da fondere, e `nonFusi` vuoto |
 | `osc-hdr.json` | matrice con serie corta: due pose diverse sullo stesso filtro, che restano due blocchi e sono dichiarate in `nonFusi` |
 | `completo.json` | campo spostato (`off` con `spostato: true`), rotazione, rotatore **dichiarato**, dither ogni 3 pose |
+| `mono-hdr.json` | monocromatica con la serie corta su più bande: R, G e B a posa corta, ciascuna con `ruolo: "nucleo"`, accanto alla serie lunga della stessa banda |
 | `scarno.json` | il caso povero: niente sito, niente autoguida, nessun nome di attrezzatura — tutti i campi che devono restare `null` |
 
-Tutte e cinque portano `quando`, perché il motore lo riempie da una notte vera. Il caso
+Tutte e sei portano `quando`, perché il motore lo riempie da una notte vera. Il caso
 con `quando` nullo — una notte costruita a mano, senza tempo — non è raggiungibile dalla
 pagina, e i test lo ottengono degradando una fixture invece di inventarne una.
 
@@ -39,6 +40,7 @@ servizio, con la ruota L-Ultimate + P2:
 | `osc.json` | M31 · RedCat 51 + ASI 2600MC + AM5 · 1 settembre 2026 · una notte |
 | `osc-hdr.json` | M27 · Askar 71F 0,75× + ASI 2600MC + AM5 · 1 settembre 2026 · una notte (la serie corta è della notte 1) |
 | `servizio/prescrizione-ok.json` | NGC 6888 · Askar 71F 0,75× + ASI 2600MC + AM5 · 15 settembre 2026 · una notte |
+| `mono-hdr.json` | M3 · RC8 + ASI 2600MM + CEM70G · 19 novembre 2026 · tre notti (la serie corta è della notte 1); entrata il 21 settembre 2026. È la notte che il servizio prescrive per M3 da quel sito: chiesta a settembre, la spostava lì |
 
 Una conseguenza da sapere: **un blocco su più canali nessuna risposta vera lo porta più.** Il contratto
 lo permette ancora — il motore fonde due canali larghi con lo stesso filtro, la stessa posa e lo stesso

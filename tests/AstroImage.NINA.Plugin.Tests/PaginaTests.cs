@@ -352,6 +352,22 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(js, "politica: politicaScelta", "la politica scelta non parte nella richiesta");
         }
 
+        /*  UN CODICE CHE LA MAPPA NON CONOSCE TACE, anche quando coincide con un nome che ogni oggetto eredita: il ruolo e
+         *  chi ha deciso i secondi si cercano nelle loro mappe solo come voci proprie. Con «PAROLA_DEL_RUOLO[b.ruolo]» un
+         *  ruolo «constructor» trovava una funzione, e il disegno della notte si fermava. Guardia strutturale e
+         *  ASSICURAZIONE: legge la pagina, non la esegue, ed e' scritta dopo la correzione — sul codice di prima, che
+         *  indicizzava le due mappe direttamente, sarebbe stata rossa. */
+        [TestMethod]
+        public void IL_RUOLO_E_IL_LIMITE_SI_CERCANO_SOLO_COME_VOCI_PROPRIE() {
+            var js = System.Text.RegularExpressions.Regex.Replace(Risorsa("prova.js"), @"/\*.*?\*/", "",
+                System.Text.RegularExpressions.RegexOptions.Singleline);
+            Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(js, @"(PAROLA_DEL_RUOLO|SPIEGAZIONE_DEL_RUOLO|PAROLA_DEL_LIMITE)\s*\["),
+                "una mappa del ruolo o del limite si interroga direttamente: un codice ereditato troverebbe una funzione");
+            StringAssert.Contains(js, "Object.prototype.hasOwnProperty.call(mappa, codice)", "la voce propria non si controlla piu'");
+            StringAssert.Contains(js, "vocePropria(PAROLA_DEL_RUOLO, b.ruolo)", "il ruolo non passa dalla voce propria");
+            StringAssert.Contains(js, "vocePropria(PAROLA_DEL_LIMITE, b.limite)", "il limite non passa dalla voce propria");
+        }
+
         /*  IL MENU LEGGE LE STRADE E NON NE DECIDE NESSUNA. Il nome di una strada e' quello del motore; il prezzo e'
          *  quello di progetto, e la pagina non lo moltiplica per i riquadri — sarebbe una regola di scala del motore
          *  scritta qui; le chiavi delle parole sono letterali, perche' una chiave composta la prova delle voci orfane

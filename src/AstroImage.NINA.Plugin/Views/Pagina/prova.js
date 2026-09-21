@@ -1256,6 +1256,15 @@
     tetto_di_posa: 'Pag_Limite_tetto_di_posa', pavimento: 'Pag_Limite_pavimento',
     stelle_sature: 'Pag_Limite_stelle_sature', classe: 'Pag_Limite_classe', lettura: 'Pag_Limite_lettura',
     montatura: 'Pag_Limite_montatura' };
+  /*  CHE COSA FA LA SERIE NEL SUO CANALE (21 settembre 2026). La serie corta dell'HDR si segna in testa alla riga, e si
+   *  segna diversa: senza la parola, «20 s · 25 pose» si leggerebbe come una seconda posa del canale. */
+  const PAROLA_DEL_RUOLO = { nucleo: 'Pag_Ruolo_nucleo' };
+  const SPIEGAZIONE_DEL_RUOLO = { nucleo: 'Pag_RuoloSpiegazione_nucleo' };
+  /*  LA VOCE DI UNA MAPPA, SOLO SE E' SUA. Un codice che coincide con un nome che ogni oggetto eredita — «constructor»,
+   *  «toString» — troverebbe una funzione invece di niente, e il disegno di tutta la notte si fermerebbe. Un codice che
+   *  la mappa non conosce deve tacere, come ogni altro. */
+  const vocePropria = (mappa, codice) =>
+    (typeof codice === 'string' && Object.prototype.hasOwnProperty.call(mappa, codice)) ? mappa[codice] : null;
   const PAROLA_DEL_CIELO = { buio: 'Pag_Cielo_buio', luna_non_disturba: 'Pag_Cielo_luna_non_disturba',
     luna_tollerabile: 'Pag_Cielo_luna_tollerabile', luna_pesante: 'Pag_Cielo_luna_pesante', non_usata: 'Pag_Cielo_non_usata' };
   const PAROLA_DEL_RIFERIMENTO = { brillanza_pubblicata: 'Pag_Prof_Rif_brillanza_pubblicata',
@@ -1291,7 +1300,8 @@
   function vociDelCanale(blocchi) {
     const uguali = (a, b) => a.perBanda === true && b.perBanda === true && a.sec === b.sec && a.n === b.n &&
       a.poseCanale === b.poseCanale && a.oreCanale === b.oreCanale &&
-      a.limite === b.limite && a.gain === b.gain && a.offset === b.offset && a.gainFonte === b.gainFonte && a.modo === b.modo;
+      a.limite === b.limite && a.ruolo === b.ruolo &&
+      a.gain === b.gain && a.offset === b.offset && a.gainFonte === b.gainFonte && a.modo === b.modo;
     const voci = [];
     for (const b of blocchi) {
       const v = voci.find(x => uguali(x.b, b));
@@ -1307,7 +1317,12 @@
    *  segna diverso. Non un allarme e non un divieto: il prodotto consiglia. */
   function rigaDellaPosa(v, conBanda, guadagnoPerRiga) {
     const b = v.b, unite = v.blocchi.length > 1;
-    let s = '<span class="posa-sec">' + cifra(b.sec) + ' s</span>';
+    let s = '';
+    const parolaDelRuolo = vocePropria(PAROLA_DEL_RUOLO, b.ruolo), spiegazioneDelRuolo = vocePropria(SPIEGAZIONE_DEL_RUOLO, b.ruolo);
+    if (parolaDelRuolo && spiegazioneDelRuolo)
+      s += '<span class="ruolo ' + (b.ruolo === 'nucleo' ? 'nucleo' : '') + '" title="' + esc(T(spiegazioneDelRuolo)) + '">' +
+           esc(T(parolaDelRuolo)) + '</span> ';
+    s += '<span class="posa-sec">' + cifra(b.sec) + ' s</span>';
     if (b.poseCanale != null)
       s += ' <span class="tenue">·</span> <b>' + cifra(b.poseCanale) + '</b> ' +
            esc(T(unite ? 'Pag_PosePerBanda' : 'Pag_PoseSulCanale')) +
@@ -1315,8 +1330,8 @@
     if (b.n != null) s += ' <span class="tenue">· ' + esc(T('Pag_Stanotte')) + '</span> <b>' + cifra(b.n) + '</b>';
     if (conBanda) s += ' <span class="tenue">' + esc(v.bande.join('·')) + '</span>';
     if (guadagnoPerRiga) s += ' <span class="tenue">· ' + guadagnoDelBlocco(b) + '</span>';
-    if (b.limite && PAROLA_DEL_LIMITE[b.limite]) {
-      const parola = T(PAROLA_DEL_LIMITE[b.limite]);
+    if (vocePropria(PAROLA_DEL_LIMITE, b.limite)) {
+      const parola = T(vocePropria(PAROLA_DEL_LIMITE, b.limite));
       s += b.limite === 'classe'
         ? ' <span class="limite classe" title="' + esc(T('Pag_LimiteClasseSpiegazione')) + '">' + esc(parola) + '</span>'
         : ' <span class="limite" title="' + esc(T('Pag_LimiteSpiegazione')) + '">' + esc(parola) + '</span>';

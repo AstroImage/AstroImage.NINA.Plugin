@@ -28,7 +28,24 @@ namespace AstroImage.NINA.Plugin.Tests {
     [TestClass]
     public class CampiAScermoTests {
 
-        private static readonly string[] Vive = { "mono", "completo", "osc", "osc-hdr" };
+        private static readonly string[] Vive = { "mono", "completo", "osc", "osc-hdr", "mono-hdr" };
+
+        /*  LE MAPPE CHE LA PAGINA USA DAVVERO. Una prova che compone la chiave — "Pag_Ruolo_" + codice — guarda il
+         *  dizionario, non il pannello: se il codice entrasse nei .resx e non nella mappa della pagina, la prova
+         *  resterebbe verde e il pannello non scriverebbe niente. Qui si legge la mappa letterale da prova.js, com'e'
+         *  incorporata nel plugin, e si pretendono le chiavi che lei nomina. */
+        private static Dictionary<string, string> MappaDellaPagina(string nome) {
+            using var s = typeof(SequenceModel).Assembly.GetManifestResourceStream("AstroImage.NINA.Plugin.Views.Pagina.prova.js");
+            Assert.IsNotNull(s, "prova.js non e' incorporata nel plugin");
+            var js = new StreamReader(s!).ReadToEnd();
+            var m = System.Text.RegularExpressions.Regex.Match(js, @"const\s+" + nome + @"\s*=\s*\{([^}]*)\}");
+            Assert.IsTrue(m.Success, "la pagina non ha piu' la mappa " + nome);
+            var mappa = new Dictionary<string, string>();
+            foreach (System.Text.RegularExpressions.Match c in System.Text.RegularExpressions.Regex.Matches(m.Groups[1].Value, @"(\w+)\s*:\s*'(Pag_\w+)'"))
+                mappa[c.Groups[1].Value] = c.Groups[2].Value;
+            Assert.IsTrue(mappa.Count > 0, "la mappa " + nome + " non ha voci: questo verde non varrebbe");
+            return mappa;
+        }
 
         private static string CartellaFixture =>
             Path.Combine(Path.GetDirectoryName(typeof(CampiAScermoTests).Assembly.Location)!, "Fixtures");
@@ -154,17 +171,69 @@ namespace AstroImage.NINA.Plugin.Tests {
         public void Limite_OgniCodiceHaLaSuaParolaNelleDueLingue() {
             var it = new ResourceManager("AstroImage.NINA.Plugin.Localization.Strings_it", typeof(SequenceModel).Assembly);
             var en = new ResourceManager("AstroImage.NINA.Plugin.Localization.Strings_en", typeof(SequenceModel).Assembly);
+            var mappa = MappaDellaPagina("PAROLA_DEL_LIMITE");
             var provati = 0;
             foreach (var (f, b) in Blocchi()) {
                 if (b.Limite is null) continue;
                 provati++;
-                var chiave = "Pag_Limite_" + b.Limite;
+                Assert.IsTrue(mappa.TryGetValue(b.Limite, out var chiave),
+                    $"{Nome(f, b)}: il limite «{b.Limite}» non e' nella mappa della pagina: il pannello non lo direbbe");
                 Assert.IsFalse(string.IsNullOrEmpty(it.GetString(chiave, CultureInfo.InvariantCulture)),
                     $"{Nome(f, b)}: il limite «{b.Limite}» non ha una parola italiana ({chiave})");
                 Assert.IsFalse(string.IsNullOrEmpty(en.GetString(chiave, CultureInfo.InvariantCulture)),
                     $"{Nome(f, b)}: il limite «{b.Limite}» non ha una parola inglese ({chiave})");
             }
             Assert.IsTrue(provati > 0, "nessun blocco dice chi ha deciso i secondi: questo verde non vale");
+        }
+
+        /*  `ruolo`: che cosa fa la serie nel suo canale. La relazione, nei due versi: un blocco e' `nucleo` SE E SOLO SE nel
+         *  suo canale c'e' una serie piu' lunga delle stesse bande — la serie corta esiste per fondersi con quella. E sul
+         *  nucleo il limite non c'e': i suoi secondi non li decide il limite della serie lunga. Se il campo cambiasse da
+         *  solo — tolto dal blocco corto, o messo su uno che non ha una serie lunga accanto — la relazione si rompe. */
+        [TestMethod]
+        public void Ruolo_NucleoSeESoloSeNelCanaleCeUnaSerieLungaDelleStesseBande() {
+            int provati = 0, nuclei = 0;
+            foreach (var nome in Vive) {
+                var bl = Modello(nome).Blocchi;
+                foreach (var b in bl) {
+                    provati++;
+                    var lunga = bl.Any(o => !ReferenceEquals(o, b) && (o.Gruppo ?? "") == (b.Gruppo ?? "") &&
+                                            o.Canali.Intersect(b.Canali).Any() && (o.Sec ?? 0) > (b.Sec ?? 0));
+                    var eNucleo = b.Ruolo == "nucleo";
+                    if (eNucleo) nuclei++;
+                    Assert.AreEqual(lunga, eNucleo, $"{Nome(nome, b)} a {b.Sec} s: ruolo «{b.Ruolo}» — " + (lunga
+                        ? "accanto c'e' una serie piu' lunga delle stesse bande, e questa non si dice nucleo"
+                        : "si dice nucleo senza una serie lunga delle stesse bande accanto"));
+                    if (eNucleo)
+                        Assert.IsNull(b.Limite, $"{Nome(nome, b)}: il nucleo porta il limite «{b.Limite}», che e' della serie lunga");
+                }
+            }
+            Assert.IsTrue(nuclei > 0, "nessun nucleo nelle fixture: il verso che dice «nucleo» non e' provato");
+            Assert.IsTrue(provati > nuclei, "solo nuclei nelle fixture: il verso che tace non e' provato");
+        }
+
+        /*  E ogni ruolo che arriva il pannello lo deve saper DIRE, nelle due lingue, con la sua spiegazione: un codice che
+         *  il dizionario non conosce non si scrive, e il blocco sembrerebbe una serie normale. */
+        [TestMethod]
+        public void Ruolo_OgniCodiceHaLaSuaParolaELaSuaSpiegazioneNelleDueLingue() {
+            var it = new ResourceManager("AstroImage.NINA.Plugin.Localization.Strings_it", typeof(SequenceModel).Assembly);
+            var en = new ResourceManager("AstroImage.NINA.Plugin.Localization.Strings_en", typeof(SequenceModel).Assembly);
+            var parole = MappaDellaPagina("PAROLA_DEL_RUOLO");
+            var spiegazioni = MappaDellaPagina("SPIEGAZIONE_DEL_RUOLO");
+            var provati = 0;
+            foreach (var (f, b) in Blocchi()) {
+                if (b.Ruolo is null) continue;
+                provati++;
+                Assert.IsTrue(parole.TryGetValue(b.Ruolo, out var parola) && spiegazioni.ContainsKey(b.Ruolo),
+                    $"{Nome(f, b)}: il ruolo «{b.Ruolo}» non e' nelle mappe della pagina: la serie si leggerebbe come una posa normale");
+                foreach (var chiave in new[] { parola!, spiegazioni[b.Ruolo] }) {
+                    Assert.IsFalse(string.IsNullOrEmpty(it.GetString(chiave, CultureInfo.InvariantCulture)),
+                        $"{Nome(f, b)}: il ruolo «{b.Ruolo}» non ha la voce italiana {chiave}");
+                    Assert.IsFalse(string.IsNullOrEmpty(en.GetString(chiave, CultureInfo.InvariantCulture)),
+                        $"{Nome(f, b)}: il ruolo «{b.Ruolo}» non ha la voce inglese {chiave}");
+                }
+            }
+            Assert.IsTrue(provati > 0, "nessun blocco dice il suo ruolo: questo verde non vale");
         }
     }
 }

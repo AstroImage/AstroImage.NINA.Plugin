@@ -552,6 +552,19 @@ namespace AstroImage.NINA.Plugin.Models {
         public string? Limite { get; set; }
 
         /// <summary>
+        /// CHE COSA FA QUESTA SERIE NEL SUO CANALE, come codice. Il primo valore e' <c>nucleo</c>: la serie corta da
+        /// fondere in HDR, perche' dove il soggetto va a fondo scala l'informazione non c'e' piu' e non si recupera in
+        /// elaborazione. Nullo per la serie che fa il canale, che non ha bisogno di un nome.
+        /// <para>
+        /// Un codice e non un booleano: un booleano e' il primo di una serie, e alla seconda voce dovrebbe cambiare
+        /// significato. Un codice che il dizionario non sa dire non si scrive — si tace, non si indovina.
+        /// </para>
+        /// </summary>
+        [JsonPropertyName("ruolo")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Ruolo { get; set; }
+
+        /// <summary>
         /// Guadagno. Vale -1 quando il modo di guadagno non lo dichiara: e' un
         /// "non specificato", non un guadagno negativo, e va trattato come tale da
         /// chiunque legga.
