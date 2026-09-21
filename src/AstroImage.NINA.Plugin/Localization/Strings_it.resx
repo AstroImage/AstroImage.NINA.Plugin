@@ -96,6 +96,33 @@
   <data name="Garanzia_ParolaNonAttecchita" xml:space="preserve">
     <value>{0}: chiesto «{1}», l'oggetto dice «{2}». Il blocco non si consegna: riprendere col filtro sbagliato non si recupera.</value>
   </data>
+  <data name="Filtro33_SenzaChiave" xml:space="preserve">
+    <value>Filtro «{0}»: non si è potuto sapere con quale nome N.I.N.A. lo cerca, quindi nemmeno quale posizione userà al momento di scattare. Il blocco non si consegna.</value>
+  </data>
+  <data name="Filtro33_Doppio" xml:space="preserve">
+    <value>Filtro «{0}»: nel profilo di N.I.N.A. {1} diventano lo stesso nome, «{2}», e al momento di scattare N.I.N.A. ne userebbe uno solo, l'ultimo. Il blocco non si consegna: rinomina uno dei filtri nel profilo.</value>
+  </data>
+  <data name="Filtro33_Definizione" xml:space="preserve">
+    <value>Filtro «{0}»: N.I.N.A. ha scritto per il filtro la definizione «{1}», e ci si aspettava «{2}». Il blocco non si consegna: riprendere col filtro sbagliato non si recupera.</value>
+  </data>
+  <data name="Filtro33_Variabile" xml:space="preserve">
+    <value>Filtro «{0}»: una variabile della sequenza si chiama «{1}», come il filtro, e al momento di scattare varrebbe lei. Il blocco non si consegna: rinomina la variabile.</value>
+  </data>
+  <data name="Filtro33_SenzaTabella" xml:space="preserve">
+    <value>Filtro «{0}»: non si è potuta leggere la tabella dei nomi di N.I.N.A., e senza non si sa quale posizione userà al momento di scattare. Il blocco non si consegna.</value>
+  </data>
+  <data name="Filtro33_NonRisolto" xml:space="preserve">
+    <value>Filtro «{0}»: N.I.N.A. non conosce il nome «{1}», e al momento di scattare non saprebbe quale posizione usare. Il blocco non si consegna.</value>
+  </data>
+  <data name="Filtro33_Ambiguo" xml:space="preserve">
+    <value>Filtro «{0}»: in N.I.N.A. il nome «{1}» appartiene anche a {2}, e al momento di scattare non si risolverebbe. Il blocco non si consegna: rinomina il filtro nel profilo, o l'altro.</value>
+  </data>
+  <data name="Filtro33_NonUnFiltro" xml:space="preserve">
+    <value>Filtro «{0}»: in N.I.N.A. il nome «{1}» appartiene a {2}, non a un filtro. Il blocco non si consegna.</value>
+  </data>
+  <data name="Filtro33_Posizione" xml:space="preserve">
+    <value>Filtro «{0}»: a ruota collegata N.I.N.A. userebbe la posizione {1}, e «{0}» sta in posizione {2}. Il blocco non si consegna: riprendere col filtro sbagliato non si recupera.</value>
+  </data>
   <data name="Iter_NienteSuCuiScrivere" xml:space="preserve">
     <value>non c'è niente su cui scrivere.</value>
   </data>

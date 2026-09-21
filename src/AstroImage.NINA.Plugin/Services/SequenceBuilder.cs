@@ -325,9 +325,10 @@ namespace AstroImage.NINA.Plugin.Services {
              *  NON E' PARANOIA, E' L'UNICA COSA CHE SCALA. N.I.N.A. 3.3 ha aggiunto a
              *  trentaquattro proprieta' del Sequenziatore una coppia
              *  `<Nome>Definition`/`<Nome>Expression` che in un caso — le iterazioni —
-             *  vinceva sull'assegnazione. Le altre tre che tocchiamo oggi si comportano
-             *  bene: misurato sul Sequenziatore vero, `ExposureTime`, il filtro e il
-             *  dither riportano il valore prescritto. Ma «oggi si comporta bene» non e'
+             *  vinceva sull'assegnazione. `ExposureTime` e il dither riportano il valore
+             *  prescritto, misurato sul Sequenziatore vero; il filtro riporta il nome, ma
+             *  sulla 3.3 scatta la POSIZIONE che l'espressione risolve, e per questo si
+             *  verifica a parte, qui sotto. Ma «oggi si comporta bene» non e'
              *  una garanzia per la prossima nightly, e ricordarsi di ricontrollare a
              *  ogni versione non e' un piano. Rileggere e confrontare costa quattro
              *  chiamate e vale per tutte le versioni che verranno.
@@ -346,12 +347,22 @@ namespace AstroImage.NINA.Plugin.Services {
                 !Garanzia.Numero(posaLetta, "Offset", b.Offset.Value, "l'offset", out perCheNo))
                 return null;
 
-            /*  Il filtro si verifica per NOME, che e' cio' che N.I.N.A. usa per
-             *  sceglierlo in ruota. Solo se il ponte l'ha davvero impostato: se il
-             *  vetro non era in ruota si e' gia' rifiutato tutto molto prima. */
-            if (!string.IsNullOrWhiteSpace(b.Filtro) && FiltroDaRuota(b.Filtro!) is not null &&
-                !Garanzia.Parola(se.GetSwitchFilter()?.Filter?.Name, b.Filtro, Loc.T("Cosa_Filtro"), out perCheNo))
-                return null;
+            /*  Il filtro si verifica due volte. Per NOME, che sulla 3.2 e' cio' che scatta.
+             *  E per POSIZIONE, perche' sulla 3.3 non lo e' piu': `SwitchFilter.Execute`
+             *  rivaluta l'espressione del filtro e prende quello alla posizione che ne esce,
+             *  e il nome si risolve in una tabella dove puo' portarlo anche un interruttore,
+             *  un sensore o una variabile (vedi FiltroPerPosizione). Solo se il ponte l'ha
+             *  davvero impostato: se il vetro non era in ruota si e' gia' rifiutato tutto
+             *  molto prima. */
+            if (!string.IsNullOrWhiteSpace(b.Filtro) && FiltroDaRuota(b.Filtro!) is FilterInfo scelto) {
+                var cambio = se.GetSwitchFilter();
+                if (!Garanzia.Parola(cambio?.Filter?.Name, b.Filtro, Loc.T("Cosa_Filtro"), out perCheNo))
+                    return null;
+                var lettura = FiltroPerPosizione.Leggi(cambio, scelto.Name);
+                Logger.Info($"[AstroImage] filter {scelto.Name} at position {scelto.Position}: {lettura}");
+                if (!FiltroPerPosizione.Verifica(scelto.Name, scelto.Position, FiltriDelProfilo(), lettura, out perCheNo))
+                    return null;
+            }
 
             return se;
         }
@@ -366,6 +377,12 @@ namespace AstroImage.NINA.Plugin.Services {
             if (ruota is null) return null;
             return ruota.FirstOrDefault(f => StessoVetro(f?.Name, nome));
         }
+
+        /// <summary>I filtri del profilo attivo, col nome e la posizione: la lista su cui N.I.N.A. costruisce i suoi simboli.</summary>
+        public IReadOnlyList<(string Nome, int Posizione)> FiltriDelProfilo() =>
+            profilo?.ActiveProfile?.FilterWheelSettings?.FilterWheelFilters?
+                .Where(f => f is not null).Select(f => (f.Name ?? "", (int)f.Position)).ToList()
+            ?? new List<(string Nome, int Posizione)>();
 
         /// <summary>I nomi dei vetri che il profilo attivo dichiara in ruota.</summary>
         public IReadOnlyList<string> NomiInRuota() =>

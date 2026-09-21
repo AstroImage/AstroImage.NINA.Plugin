@@ -96,6 +96,33 @@
   <data name="Garanzia_ParolaNonAttecchita" xml:space="preserve">
     <value>{0}: asked for “{1}”, the object says “{2}”. The block is not delivered: imaging through the wrong filter cannot be undone.</value>
   </data>
+  <data name="Filtro33_SenzaChiave" xml:space="preserve">
+    <value>Filter “{0}”: could not find out under which name N.I.N.A. looks it up, so neither which position it will use when imaging. The block is not delivered.</value>
+  </data>
+  <data name="Filtro33_Doppio" xml:space="preserve">
+    <value>Filter “{0}”: in the N.I.N.A. profile {1} become the same name, “{2}”, and when imaging N.I.N.A. would use only one of them, the last. The block is not delivered: rename one of the filters in the profile.</value>
+  </data>
+  <data name="Filtro33_Definizione" xml:space="preserve">
+    <value>Filter “{0}”: N.I.N.A. wrote the definition “{1}” for the filter, and “{2}” was expected. The block is not delivered: imaging through the wrong filter cannot be undone.</value>
+  </data>
+  <data name="Filtro33_Variabile" xml:space="preserve">
+    <value>Filter “{0}”: a sequence variable is named “{1}”, like the filter, and when imaging it would win. The block is not delivered: rename the variable.</value>
+  </data>
+  <data name="Filtro33_SenzaTabella" xml:space="preserve">
+    <value>Filter “{0}”: the N.I.N.A. name table could not be read, and without it there is no knowing which position it will use when imaging. The block is not delivered.</value>
+  </data>
+  <data name="Filtro33_NonRisolto" xml:space="preserve">
+    <value>Filter “{0}”: N.I.N.A. does not know the name “{1}”, and when imaging it would not know which position to use. The block is not delivered.</value>
+  </data>
+  <data name="Filtro33_Ambiguo" xml:space="preserve">
+    <value>Filter “{0}”: in N.I.N.A. the name “{1}” also belongs to {2}, and when imaging it would not resolve. The block is not delivered: rename the filter in the profile, or the other one.</value>
+  </data>
+  <data name="Filtro33_NonUnFiltro" xml:space="preserve">
+    <value>Filter “{0}”: in N.I.N.A. the name “{1}” belongs to {2}, not to a filter. The block is not delivered.</value>
+  </data>
+  <data name="Filtro33_Posizione" xml:space="preserve">
+    <value>Filter “{0}”: with the wheel connected N.I.N.A. would use position {1}, and “{0}” is in position {2}. The block is not delivered: imaging through the wrong filter cannot be undone.</value>
+  </data>
   <data name="Iter_NienteSuCuiScrivere" xml:space="preserve">
     <value>there is nothing to write on.</value>
   </data>
