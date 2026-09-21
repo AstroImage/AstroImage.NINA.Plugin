@@ -118,13 +118,67 @@ namespace AstroImage.NINA.Plugin.Tests {
          *
          *  Vale perche' le fixture non hanno chiavi assenti: il motore le riduce a
          *  null. Quel caso ha il suo test a parte, ed e' l'unico dove il testo
-         *  cambia -- il modello riscrive `null` dove il JSON non aveva la chiave. */
+         *  cambia -- il modello riscrive `null` dove il JSON non aveva la chiave.
+         *
+         *  CON UN'ECCEZIONE DICHIARATA DAL MODELLO STESSO (21 settembre 2026). I campi
+         *  che il modello marca «mai riscritti quando mancano» — `WhenWritingNull`: le
+         *  pose e le ore del canale, chi ha deciso i secondi, chi ha deciso il guadagno,
+         *  i pezzi in ore e minuti — tornano identici quando portano un valore; quando
+         *  arrivano `null` il modello non li riscrive, perche' per il pannello nullo e
+         *  assente dicono la stessa cosa e un servizio piu' vecchio non li manda affatto.
+         *  Qui si tolgono dal testo di partenza SOLO le righe `"campo": null` di quei
+         *  campi, e l'elenco lo da' il modello per riflessione, non una lista a mano:
+         *  tutto il resto torna byte per byte. Trovato quando la serie corta dell'HDR
+         *  ha smesso di portare un limite che non era il suo. */
         [TestMethod]
         [DynamicData(nameof(Fixture))]
         public void OgniFixture_TornaIdenticaAncheComeTesto(string nome) {
-            var partenza = Testo(nome).Replace("\r\n", "\n").TrimEnd('\n');
+            var partenza = SenzaINulliNonRiscritti(Testo(nome).Replace("\r\n", "\n").TrimEnd('\n'));
             var ritorno = SequenceModel.Leggi(partenza)!.Scrivi().Replace("\r\n", "\n").TrimEnd('\n');
             Assert.AreEqual(partenza, ritorno, "il file riscritto non e' quello di partenza");
+        }
+
+        /// <summary>I tipi del modello: si parte da <see cref="SequenceModel"/> e si seguono le proprieta', dentro liste,
+        /// dizionari e annullabili. Non l'assembly intero: li' ci sono anche le viste, che tirano dentro N.I.N.A.</summary>
+        private static IEnumerable<Type> TipiDelModello() {
+            var visti = new HashSet<Type>();
+            var da = new Stack<Type>(new[] { typeof(SequenceModel) });
+            while (da.Count > 0) {
+                var t = da.Pop();
+                if (t.IsGenericType) { foreach (var a in t.GetGenericArguments()) da.Push(a); continue; }
+                if (t.IsArray) { da.Push(t.GetElementType()!); continue; }
+                if (t.Namespace != typeof(SequenceModel).Namespace || !visti.Add(t)) continue;
+                foreach (var p in t.GetProperties()) da.Push(p.PropertyType);
+            }
+            return visti;
+        }
+
+        /// <summary>I nomi JSON dei campi che il modello non riscrive quando sono nulli.</summary>
+        private static IEnumerable<string> CampiNonRiscrittiSeNulli() =>
+            TipiDelModello()
+                .SelectMany(t => t.GetProperties())
+                .Where(p => p.GetCustomAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>()?.Condition ==
+                            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)
+                .Select(p => p.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()?.Name)
+                .Where(n => n != null).Select(n => n!).Distinct();
+
+        private static string SenzaINulliNonRiscritti(string testo) {
+            var nomi = string.Join("|", CampiNonRiscrittiSeNulli().Select(System.Text.RegularExpressions.Regex.Escape));
+            var s = System.Text.RegularExpressions.Regex.Replace(testo, "\n[ \t]*\"(" + nomi + ")\": null,?(?=\n)", "");
+            /*  se la riga tolta era l'ultima del suo oggetto, la virgola della precedente resta orfana */
+            return System.Text.RegularExpressions.Regex.Replace(s, ",(\n[ \t]*[}\\]])", "$1");
+        }
+
+        /*  Il controllo dell'eccezione: l'elenco non e' vuoto e contiene il campo per cui e' nata, e un `null` di un
+         *  campo che il modello RISCRIVE resta nel testo — l'eccezione non si allarga da sola. */
+        [TestMethod]
+        public void LEccezioneDeiNulli_EQuellaDelModello_ENonSiAllarga() {
+            var nomi = CampiNonRiscrittiSeNulli().ToList();
+            CollectionAssert.Contains(nomi, "limite", "il campo per cui l'eccezione e' nata non e' fra quelli non riscritti");
+            CollectionAssert.DoesNotContain(nomi, "gain", "il guadagno si riscrive sempre: non puo' stare nell'eccezione");
+            var prova = "{\n  \"gain\": null,\n  \"limite\": null\n}";
+            Assert.AreEqual("{\n  \"gain\": null\n}", SenzaINulliNonRiscritti(prova),
+                "l'eccezione ha tolto un campo che il modello riscrive, o ha lasciato una virgola orfana");
         }
 
         // ------------------------------------------------------- i casi, uno per uno
@@ -473,7 +527,7 @@ namespace AstroImage.NINA.Plugin.Tests {
             CollectionAssert.AreEqual(
                 /*  Il blocco di una fixture VIVA porta i campi del canale e la fonte del guadagno: la fixture si
                  *  rigenera dal motore di oggi, e l'ordine e' quello con cui il motore li scrive. */
-                new[] { "canali", "filtro", "sec", "n", "poseCanale", "oreCanale", "perBanda",
+                new[] { "canali", "gruppo", "filtro", "sec", "n", "poseCanale", "oreCanale", "oreCanaleHM", "perBanda", "limite",
                         "gain", "offset", "gainFonte", "modo", "ore" },
                 dopo["blocchi"]![0]!.AsObject().Select(p => p.Key).ToArray());
         }

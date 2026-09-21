@@ -559,13 +559,19 @@ namespace AstroImage.NINA.Plugin.Tests {
         [TestMethod]
         public void LA_TABELLA_DELLE_NOTTI_DICE_IL_GUADAGNO_DI_OGNI_BLOCCO() {
             var js = PaginaSenzaCommenti();
-            var righe = Tratto(js, "for (const s of p.sequenze) {", "$('uscita').innerHTML");
-            StringAssert.Contains(righe, "guadagnoDelBlocco(", "la riga della notte non dice il guadagno dei blocchi");
+            /*  RIBASATA IL 21 SETTEMBRE 2026. La tabella delle notti non c'e' piu': era una riga per notte e una cella per
+             *  grandezza, e una grandezza che varia per canale non ci stava — il guadagno si ripeteva sei volte uguale
+             *  nella stessa cella. Il riquadro lo dice UNA volta per notte quando e' lo stesso per tutti i blocchi, e su
+             *  ogni riga quando cambia; la colonna del guadagno non esiste piu'. Resta quello che la prova chiedeva: che il
+             *  guadagno si veda, col modo e con chi l'ha deciso. */
+            var righe = Tratto(js, "function riquadroDelPiano(p, r, d) {", "\n  }");
+            StringAssert.Contains(righe, "guadagnoDelBlocco(", "il riquadro della notte non dice il guadagno dei blocchi");
             var f = Tratto(js, "function guadagnoDelBlocco(", "\n  }");
             StringAssert.Contains(f, "b.gainFonte", "il guadagno non dice chi l'ha deciso");
             foreach (var k in new[] { "'Pag_GuadagnoMotore'", "'Pag_GuadagnoDichiarato'", "'Pag_GuadagnoDellaCamera'" })
                 StringAssert.Contains(f, k);
-            StringAssert.Contains(js, "T('Pag_ColGuadagno')", "la tabella non ha la colonna del guadagno");
+            StringAssert.Contains(Tratto(js, "function rigaDellaPosa(", "\n  }"), "guadagnoDelBlocco(",
+                "quando il guadagno cambia fra i blocchi, la riga della posa non lo dice");
             foreach (var lingua in new[] { "it", "en" }) {
                 StringAssert.Contains(Tutte(lingua)["Pag_GuadagnoMotore"], "{1}", lingua + ": il modo non entra nella frase");
                 Assert.IsTrue(Tutte(lingua).ContainsKey("Pag_GuadagnoDellaCamera"), lingua);
@@ -968,7 +974,8 @@ namespace AstroImage.NINA.Plugin.Tests {
                                           "'Pag_LunaRiga'", "'Pag_LunaRigaMinima'", "'Pag_LunaPercheSopra'", "'Pag_LunaPercheSotto'",
                                           "'Pag_LunaPenaCongiunto'" })
                 StringAssert.Contains(righe, pezzo, "le righe della Luna non usano " + pezzo);
-            StringAssert.Contains(Tratto(js, "for (const s of p.sequenze) {", "\n    }"), "righeDellaLuna(p.luna, s.notte)",
+            /*  dal 21 settembre 2026 la notte e' una scheda del riquadro, e la Luna ci sta dentro */
+            StringAssert.Contains(Tratto(js, "function riquadroDelPiano(p, r, d) {", "\n  }"), "righeDellaLuna(p.luna, s.notte)",
                 "le righe della Luna non stanno nella notte");
             foreach (var lingua in new[] { "it", "en" }) {
                 var t = Tutte(lingua);
@@ -999,7 +1006,7 @@ namespace AstroImage.NINA.Plugin.Tests {
             var js = PaginaSenzaCommenti();
             var cuore = Tratto(js, "disegnaMenu(p.prescrizione) +", "bancoUsato = p.banco");
             Assert.IsTrue(cuore.IndexOf("nottiGiuste(p)", StringComparison.Ordinal) >= 0 &&
-                cuore.IndexOf("nottiGiuste(p)", StringComparison.Ordinal) < cuore.IndexOf("'Pag_ColPose'", StringComparison.Ordinal),
+                cuore.IndexOf("nottiGiuste(p)", StringComparison.Ordinal) < cuore.IndexOf("riquadro +", StringComparison.Ordinal),
                 "le notti giuste non stanno sopra le notti");
             var giuste = Tratto(js, "function nottiGiuste(p) {", "\n  }");
             foreach (var pezzo in new[] { "p.notte.meglio", "g.data", "g.spostataDi", "g.resa", "g.canale", "'Pag_NottiGiuste'",
@@ -1065,7 +1072,8 @@ namespace AstroImage.NINA.Plugin.Tests {
 
             var js = PaginaSenzaCommenti();
             var cuore = Tratto(js, "disegnaMenu(p.prescrizione) +", "bancoUsato = p.banco");
-            foreach (var pezzo in new[] { "'Pag_ColPose'", "righe", "'Pag_NonSiPuoMandare'", "id=\"consegna\"" })
+            /*  dal 21 settembre 2026 le notti sono il riquadro, non una tabella con la colonna delle pose */
+            foreach (var pezzo in new[] { "riquadro +", "'Pag_NonSiPuoMandare'", "id=\"consegna\"" })
                 StringAssert.Contains(cuore, pezzo, "sotto la domanda manca " + pezzo);
             Assert.IsFalse(cuore.Contains("Pag_RigaVerdetto"), "il resto della risposta sta fra la domanda e le notti");
             /*  dal 18 settembre 2026 il resto finisce con la nota dei riferimenti, dopo il riquadro giallo */

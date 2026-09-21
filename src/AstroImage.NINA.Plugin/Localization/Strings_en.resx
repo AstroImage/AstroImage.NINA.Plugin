@@ -279,29 +279,14 @@
   <data name="Pag_ChiediPrescrizione" xml:space="preserve">
     <value>Ask for a prescription</value>
   </data>
-  <data name="Pag_ColBlocchi" xml:space="preserve">
-    <value>blocks</value>
-  </data>
-  <data name="Pag_ColData" xml:space="preserve">
-    <value>date</value>
-  </data>
-  <data name="Pag_ColDurata" xml:space="preserve">
-    <value>length</value>
-  </data>
   <data name="Pag_ColEQuestoFiltro" xml:space="preserve">
     <value>is this filter</value>
-  </data>
-  <data name="Pag_ColFiltri" xml:space="preserve">
-    <value>filters</value>
   </data>
   <data name="Pag_ColNotte" xml:space="preserve">
     <value>night</value>
   </data>
   <data name="Pag_ColOggetto" xml:space="preserve">
     <value>object</value>
-  </data>
-  <data name="Pag_ColPose" xml:space="preserve">
-    <value>exposures</value>
   </data>
   <data name="Pag_ComeRiprendere" xml:space="preserve">
     <value>How to shoot</value>
@@ -1165,7 +1150,7 @@
     <value>Read noise unknown: {0} e⁻ assumed.</value>
   </data>
   <data name="Pag_Parziale_posa_massima_non_nota" xml:space="preserve">
-    <value>The mount does not declare its longest exposure: the class limit applies, {0} s.</value>
+    <value>The mount does not declare its longest exposure: the default fallback applies, {0} s.</value>
   </data>
   <data name="Pag_Parziale_rumore_sotto_il_pavimento" xml:space="preserve">
     <value>Declared read noise ({0} e⁻, {1}) below what the sensor can do ({2} e⁻): the value stays, and it is suspect.</value>
@@ -1238,9 +1223,6 @@
   </data>
   <data name="Pag_Prov_assunto" xml:space="preserve">
     <value>not declared: the engine assumes {0}{1}</value>
-  </data>
-  <data name="Pag_ColGuadagno" xml:space="preserve">
-    <value>gain</value>
   </data>
   <data name="Pag_GuadagnoMotore" xml:space="preserve">
     <value>{0} ({1}, chosen by the engine)</value>
@@ -1466,5 +1448,149 @@
   </data>
   <data name="Pag_OrizzonteNonLetto" xml:space="preserve">
     <value>the N.I.N.A. profile names “{0}”, but it could not be read: the minimum altitude below applies</value>
+  </data>
+  <data name="Pag_NotteN" xml:space="preserve">
+    <value>Night {0}</value>
+  </data>
+  <data name="Pag_OreDisponibili" xml:space="preserve">
+    <value>{0} available</value>
+  </data>
+  <data name="Pag_Cielo_buio" xml:space="preserve">
+    <value>dark sky</value>
+  </data>
+  <data name="Pag_Cielo_luna_non_disturba" xml:space="preserve">
+    <value>the Moon does not affect these channels</value>
+  </data>
+  <data name="Pag_Cielo_luna_tollerabile" xml:space="preserve">
+    <value>Moon up, tolerable</value>
+  </data>
+  <data name="Pag_Cielo_luna_pesante" xml:space="preserve">
+    <value>Moon heavy on these channels</value>
+  </data>
+  <data name="Pag_Cielo_non_usata" xml:space="preserve">
+    <value>night not used</value>
+  </data>
+  <data name="Pag_PoseSulCanale" xml:space="preserve">
+    <value>exposures on the channel</value>
+  </data>
+  <data name="Pag_PosePerBanda" xml:space="preserve">
+    <value>exposures per band</value>
+  </data>
+  <data name="Pag_Stanotte" xml:space="preserve">
+    <value>tonight</value>
+  </data>
+  <data name="Pag_Limite_progetto" xml:space="preserve">
+    <value>project exposure</value>
+  </data>
+  <data name="Pag_Limite_colore_stellare" xml:space="preserve">
+    <value>star colour protected</value>
+  </data>
+  <data name="Pag_Limite_strategia" xml:space="preserve">
+    <value>rule of the mode</value>
+  </data>
+  <data name="Pag_Limite_stella_protetta" xml:space="preserve">
+    <value>protected star</value>
+  </data>
+  <data name="Pag_Limite_stella_scoperta" xml:space="preserve">
+    <value>protected star, not covered</value>
+  </data>
+  <data name="Pag_Limite_fondo_satura" xml:space="preserve">
+    <value>sky background saturates</value>
+  </data>
+  <data name="Pag_Limite_soggetto_satura" xml:space="preserve">
+    <value>the subject saturates</value>
+  </data>
+  <data name="Pag_Limite_pose_minime" xml:space="preserve">
+    <value>minimum number of exposures</value>
+  </data>
+  <data name="Pag_Limite_tetto_di_posa" xml:space="preserve">
+    <value>exposure ceiling</value>
+  </data>
+  <data name="Pag_Limite_pavimento" xml:space="preserve">
+    <value>operating floor</value>
+  </data>
+  <data name="Pag_Limite_stelle_sature" xml:space="preserve">
+    <value>star saturation</value>
+  </data>
+  <data name="Pag_Limite_classe" xml:space="preserve">
+    <value>class ceiling</value>
+  </data>
+  <data name="Pag_Limite_lettura" xml:space="preserve">
+    <value>the sky does not bury the read noise</value>
+  </data>
+  <data name="Pag_Limite_montatura" xml:space="preserve">
+    <value>mount ceiling</value>
+  </data>
+  <data name="Pag_LimiteClasseSpiegazione" xml:space="preserve">
+    <value>The exposure is held at the ceiling of its family of objects: documented practice for the class, not a calculation on this object. It is a declared fallback.</value>
+  </data>
+  <data name="Pag_LimiteSpiegazione" xml:space="preserve">
+    <value>What decided the length of this exposure.</value>
+  </data>
+  <data name="Pag_TotaleNotte" xml:space="preserve">
+    <value>total *{0}* of integration · *{1}* of clock time with download and dithering</value>
+  </data>
+  <data name="Pag_TotaleNotteSoloIntegrazione" xml:space="preserve">
+    <value>total *{0}* of integration</value>
+  </data>
+  <data name="Pag_Prof_Arrivi" xml:space="preserve">
+    <value>reaches *{0} {1}*</value>
+  </data>
+  <data name="Pag_Prof_Rif_brillanza_pubblicata" xml:space="preserve">
+    <value>the published mean brightness is *{0}*</value>
+  </data>
+  <data name="Pag_Prof_Rif_bordo_galassia" xml:space="preserve">
+    <value>the edge of the galaxy is at *{0}*</value>
+  </data>
+  <data name="Pag_Prof_SenzaRiferimento" xml:space="preserve">
+    <value>this object carries no published reference: no invented target</value>
+  </data>
+  <data name="Pag_Prof_ColoreNonPubblicato" xml:space="preserve">
+    <value>in {0} band: the colour of this object is not published</value>
+  </data>
+  <data name="Pag_Prof_Scala" xml:space="preserve">
+    <value>one magnitude deeper, here: *×{0}* → *{1}*</value>
+  </data>
+  <data name="Pag_Prof_Regime_fondo" xml:space="preserve">
+    <value>the background dominates</value>
+  </data>
+  <data name="Pag_Prof_Regime_transizione" xml:space="preserve">
+    <value>transition</value>
+  </data>
+  <data name="Pag_Prof_Regime_sorgente" xml:space="preserve">
+    <value>the source dominates the noise</value>
+  </data>
+  <data name="Pag_Prof_Pavimento" xml:space="preserve">
+    <value>below the SNR {0} per arcsec² floor: with these hours the subject does not get there</value>
+  </data>
+  <data name="Pag_Prof_PavimentoOre" xml:space="preserve">
+    <value>, it would take *{0}*</value>
+  </data>
+  <data name="Pag_Bril_Classe" xml:space="preserve">
+    <value>this object carries no measured brightness: the hours come from its class</value>
+  </data>
+  <data name="Pag_Bril_Almeno" xml:space="preserve">
+    <value>brightness ≥ *{0} R*</value>
+  </data>
+  <data name="Pag_Bril_Ereditato" xml:space="preserve">
+    <value>limit inherited from {0}</value>
+  </data>
+  <data name="Pag_Bril_OreTetto" xml:space="preserve">
+    <value>the hours are a ceiling, not an estimate</value>
+  </data>
+  <data name="Pag_ContrattoPiuNuovo" xml:space="preserve">
+    <value>The answer uses a newer contract ({0}) than this panel knows ({1}): what is recognised is shown.</value>
+  </data>
+  <data name="Pag_CieloSpiegazione" xml:space="preserve">
+    <value>The Moon raises the sky background by {0} mag on this night.</value>
+  </data>
+  <data name="Pag_OreMinuti" xml:space="preserve">
+    <value>{0} h {1}′</value>
+  </data>
+  <data name="Pag_SoloMinuti" xml:space="preserve">
+    <value>{0}′</value>
+  </data>
+  <data name="Pag_Restano" xml:space="preserve">
+    <value>*{0}* left if the sky holds</value>
   </data>
 </root>

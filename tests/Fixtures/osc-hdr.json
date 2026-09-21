@@ -47,12 +47,18 @@
       "canali": [
         "Ha+OIII"
       ],
+      "gruppo": "Ha+OIII",
       "filtro": "HO",
       "sec": 20,
       "n": 25,
       "poseCanale": 25,
       "oreCanale": 0.1388888888888889,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 8
+      },
       "perBanda": true,
+      "limite": null,
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
@@ -63,12 +69,18 @@
       "canali": [
         "Ha+OIII"
       ],
+      "gruppo": "Ha+OIII",
       "filtro": "HO",
       "sec": 180,
       "n": 105,
       "poseCanale": 105,
       "oreCanale": 5.25,
+      "oreCanaleHM": {
+        "ore": 5,
+        "minuti": 15
+      },
       "perBanda": true,
+      "limite": "classe",
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
@@ -79,12 +91,18 @@
       "canali": [
         "RGB"
       ],
+      "gruppo": "RGB",
       "filtro": "L",
       "sec": 60,
       "n": 30,
       "poseCanale": 30,
       "oreCanale": 0.5,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 30
+      },
       "perBanda": true,
+      "limite": "pose_minime",
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
@@ -95,7 +113,29 @@
   "totale": {
     "pose": 160,
     "ore": 5.888888888888889,
-    "orologio": 6.2444444444444445
+    "oreHM": {
+      "ore": 5,
+      "minuti": 53
+    },
+    "orologio": 6.2444444444444445,
+    "orologioHM": {
+      "ore": 6,
+      "minuti": 15
+    },
+    "perGruppo": {
+      "Ha+OIII": 5.388888888888889,
+      "RGB": 0.5
+    },
+    "perGruppoHM": {
+      "Ha+OIII": {
+        "ore": 5,
+        "minuti": 23
+      },
+      "RGB": {
+        "ore": 0,
+        "minuti": 30
+      }
+    }
   },
   "nonFusi": [
     "Ha+OIII 180s contro Ha+OIII 20s"

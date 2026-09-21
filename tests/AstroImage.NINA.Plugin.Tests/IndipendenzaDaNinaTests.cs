@@ -92,16 +92,17 @@ namespace AstroImage.NINA.Plugin.Tests {
             /*  E IL TOTALE DELLA NOTTE (20 settembre 2026): pose, ore di integrazione e ore di orologio, come le fa
              *  il motore. E' un tipo e non tre campi sciolti nel modello perche' sono la stessa notte vista da tre
              *  lati, e perche' l'orologio puo' mancare mentre gli altri due ci sono. Non sa fare niente nemmeno lui. */
-            Assert.AreEqual(22, tipi.Length,
+            /*  E I PEZZI DI UN TEMPO (21 settembre 2026): ore e minuti gia' arrotondati, perche' il pannello non ricava minuti. */
+            Assert.AreEqual(23, tipi.Length,
                 "il modello deve avere esattamente questi tipi: SequenceModel, Quando, Bersaglio, " +
-                "Offset, Ottica, Sito, Capacita, Blocco, TotaleDellaNotte, Dither, la busta del servizio " +
+                "Offset, Ottica, Sito, Capacita, Blocco, TotaleDellaNotte, OreEMinuti, Dither, la busta del servizio " +
                 "RispostaPrescrizione, ProdottoPrescrizione, SequenzaDiNotte, " +
                 "ErroreServizio, MisuraServizio, la ruota virtuale CatalogoDelMotore, " +
                 "VetroDelMotore, RuotaVirtuale, VoceRuota, il sito SitoDiRipresa, " +
                 "SitoDichiarato, e il banco BancoDichiarato. Trovati: " +
                 string.Join(", ", tipi.Select(t => t.Name)));
             foreach (var atteso in new[] { "SequenceModel", "Quando", "Bersaglio", "Offset",
-                                           "Ottica", "Sito", "Capacita", "Blocco", "TotaleDellaNotte", "Dither",
+                                           "Ottica", "Sito", "Capacita", "Blocco", "TotaleDellaNotte", "OreEMinuti", "Dither",
                                            "RispostaPrescrizione", "ProdottoPrescrizione",
                                            "SequenzaDiNotte",
                                            "ErroreServizio", "MisuraServizio" }) {

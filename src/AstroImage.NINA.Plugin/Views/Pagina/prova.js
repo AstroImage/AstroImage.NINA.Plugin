@@ -951,40 +951,7 @@
     notteUsata = p.notte.usata;
     lunaDellaData();
 
-    /* L'IDENTIFICATIVO VIAGGIA CON LA RIGA, non in una variabile a parte.
-       Sembra un dettaglio ed e' la differenza fra una guardia che funziona e una che
-       non puo' scattare: se il tasto leggesse l'ultimo identificativo ricevuto, un
-       tasto rimasto in giro da una richiesta precedente manderebbe l'oggetto NUOVO
-       con l'aria di mandare il vecchio — e il ponte non avrebbe modo di accorgersene,
-       perche' l'identificativo che riceve sarebbe quello giusto. Provato: succedeva. */
-    let righe = '';
-    for (const s of p.sequenze) {
-      const m = s.modello;
-      /*  Pose e ore della notte le fa il motore (`totale`), e qui si stampano: il numero che la pagina mostra lo manda
-       *  il motore (contratto delle schede §6 ter). Un motore che non le manda lascia il trattino. */
-      const tot = m.totale || {};
-      const pose = cifra(tot.pose);
-      const ore = tot.ore == null ? '—' : cifra(tot.ore, 2) + ' h';
-      const tasto = r.consegnabile
-        ? '<button class="manda" data-notte="' + s.notte +
-          '" data-prescrizione="' + esc(r.prescrizione || '') + '">' + T('Pag_MandaANina') + '</button>'
-        : '<span style="opacity:.45">—</span>';
-      righe += '<tr><td class="n">' + s.notte + '</td>' +
-               '<td>' + esc((m.quando && m.quando.data) || '—') + '</td>' +
-               '<td class="n">' + m.blocchi.length + '</td>' +
-               '<td class="n">' + pose + '</td>' +
-               '<td class="n">' + ore + '</td>' +
-               /*  IL NOME CHE VEDRAI IN SEQUENZA, non l'etichetta di banda del motore.
-                  «HO · L» erano i nomi dei CANALI, e leggerli accanto al tasto che
-                  consegna faceva credere che quelli sarebbero finiti nel Sequenziatore.
-                  Il vetro vero e' in `posa.<canale>.ex.spec.filter.id`, e la
-                  dichiarazione dice come si chiama sulla tua ruota. */
-               '<td>' + esc(m.blocchi.map(b => vetroDelBlocco(p, b)).join(' · ')) + '</td>' +
-               '<td>' + m.blocchi.map(b => guadagnoDelBlocco(b)).join(' · ') + '</td>' +
-               '<td>' + tasto + '</td></tr>';
-      const luna = righeDellaLuna(p.luna, s.notte);
-      if (luna) righe += '<tr class="luna"><td></td><td colspan="7">' + luna + '</td></tr>';
-    }
+    const riquadro = riquadroDelPiano(p, r, d);
 
     /*  IL CUORE IN ALTO (17 settembre 2026): sotto la domanda, subito, la tecnica di ripresa e le notti da mandare a
      *  N.I.N.A. (`uscita`); il resto della risposta — oggetto, notte, verdetto, filtri, contratto, dati assunti — sta
@@ -1036,11 +1003,7 @@
       disegnaMenu(p.prescrizione) +
       (p.banco && p.banco.camera ? cameraDelCalcolo(p.banco.camera, soloVoce) : '') +
       nottiGiuste(p) +
-      '<div class="box"><table>' +
-      '<tr><th>' + T('Pag_ColNotte') + '</th><th>' + T('Pag_ColData') + '</th><th>' +
-        T('Pag_ColBlocchi') + '</th><th>' + T('Pag_ColPose') + '</th><th>' +
-        T('Pag_ColDurata') + '</th><th>' + T('Pag_ColFiltri') + '</th><th>' + T('Pag_ColGuadagno') + '</th><th></th></tr>' +
-      righe + '</table></div>' +
+      riquadro +
       bloccoDelProgetto(p, r) +
       (r.consegnabile ? '' :
         '<div class="box err"><b>' + T('Pag_NonSiPuoMandare') + '</b>' +
@@ -1253,6 +1216,211 @@
   /*  IL GUADAGNO DEL BLOCCO, come la sequenza lo imposta (regia, 16 settembre 2026): il motore sceglie il modo, il
    *  pannello lo mostra, la sequenza lo imposta. Col guadagno, il modo e chi l'ha deciso; un blocco a -1 lascia il
    *  guadagno che la camera ha. I numeri sono quelli del modello, scritti come arrivano. */
+  /*  IL RIQUADRO DEL PIANO — 21 settembre 2026.
+   *  ═════════════════════════════════════════════════════════════════════════════════════════════════════
+   *  Qui c'era una tabella: una riga per notte, una colonna per grandezza. Ed era SBAGLIATA, non brutta. Una
+   *  grandezza che varia per canale — il filtro, il guadagno, la posa — dentro una cella per notte non ha dove
+   *  andare, e si ripete tante volte quanti sono i canali: «100 (HCG, scelto dal motore)» sei volte di fila. Non era
+   *  un difetto dentro la tabella: era la tabella, e si sarebbe ripresentato su ogni campo nuovo, perche' il
+   *  contenitore non sapeva dire la forma del dato. Se un difetto si ripete non si corregge il caso: si toglie la
+   *  possibilita' — e la possibilita' era la cella.
+   *
+   *  LA FORMA E' QUELLA DI AIS: notte → canali → riga della posa → totale e orologio.
+   *
+   *  LE REGOLE DI QUESTO RIQUADRO, ognuna col suo perche':
+   *    · un campo che non arriva e' una riga che non si disegna: niente zeri, niente trattini ricavati. Un numero
+   *      inventato dove il servizio tace e' la bugia piu' difficile da scoprire, perche' ha l'aria di un dato;
+   *    · si compatta solo cio' che e' IDENTICO, e la parola che dice su che cosa e' il numero non la sceglie il
+   *      pannello: «per banda» si scrive solo unendo blocchi che la risposta dichiara `perBanda`;
+   *    · nessuna frase arriva fatta: si compone dai codici, nelle due lingue del dizionario;
+   *    · una risposta con un contratto piu' nuovo si disegna per quello che si riconosce, e lo si dice.         */
+  const CONTRATTO_CONOSCIUTO = 1;
+  /*  LE ORE IN ORE E MINUTI, COME IN AIS — e il minuto lo manda il motore (21 settembre 2026). Il pannello non lo
+   *  ricava: sarebbe un numero che nessuno gli ha mandato, e due arrotondamenti dello stesso tempo in due posti si
+   *  dividono di un minuto sul mezzo minuto esatto — misurato, su 888 notti succedeva 21 volte. Arriva in pezzi,
+   *  `{ore, minuti}`, arrotondati una volta sola; sotto l'ora si scrivono i soli minuti, come in AIS.
+   *  Se i pezzi non arrivano — un servizio piu' vecchio — si scrive il decimale che c'e': lo stesso numero, in un'altra
+   *  forma, non un numero inventato. */
+  const oreScritte = (pezzi, h) => {
+    if (pezzi && pezzi.ore != null && pezzi.minuti != null)
+      return pezzi.ore > 0 ? MF('Pag_OreMinuti', cifra(pezzi.ore), String(pezzi.minuti).padStart(2, '0'))
+                           : MF('Pag_SoloMinuti', cifra(pezzi.minuti));
+    return (h == null || !isFinite(h)) ? '—' : cifra(h, 2) + ' h';
+  };
+  /*  LE CHIAVI SONO LETTERALI, come per l'affidabilita' e la classe: una chiave composta col codice la prova delle
+   *  voci orfane non la vede. Un codice che la mappa non conosce non si disegna — si tace, non si indovina. */
+  const PAROLA_DEL_LIMITE = { progetto: 'Pag_Limite_progetto', colore_stellare: 'Pag_Limite_colore_stellare',
+    strategia: 'Pag_Limite_strategia', stella_protetta: 'Pag_Limite_stella_protetta',
+    stella_scoperta: 'Pag_Limite_stella_scoperta', fondo_satura: 'Pag_Limite_fondo_satura',
+    soggetto_satura: 'Pag_Limite_soggetto_satura', pose_minime: 'Pag_Limite_pose_minime',
+    tetto_di_posa: 'Pag_Limite_tetto_di_posa', pavimento: 'Pag_Limite_pavimento',
+    stelle_sature: 'Pag_Limite_stelle_sature', classe: 'Pag_Limite_classe', lettura: 'Pag_Limite_lettura',
+    montatura: 'Pag_Limite_montatura' };
+  const PAROLA_DEL_CIELO = { buio: 'Pag_Cielo_buio', luna_non_disturba: 'Pag_Cielo_luna_non_disturba',
+    luna_tollerabile: 'Pag_Cielo_luna_tollerabile', luna_pesante: 'Pag_Cielo_luna_pesante', non_usata: 'Pag_Cielo_non_usata' };
+  const PAROLA_DEL_RIFERIMENTO = { brillanza_pubblicata: 'Pag_Prof_Rif_brillanza_pubblicata',
+    bordo_galassia: 'Pag_Prof_Rif_bordo_galassia' };
+  const PAROLA_DEL_REGIME = { fondo: 'Pag_Prof_Regime_fondo', transizione: 'Pag_Prof_Regime_transizione',
+    sorgente: 'Pag_Prof_Regime_sorgente' };
+  /*  Le tinte dei canali sono le stesse delle pastiglie delle bande, piu' su: un filtro ha lo stesso colore in tutto
+   *  il pannello. Il colore aiuta a riconoscere, non porta mai da solo l'informazione: il nome e' sempre scritto. */
+  const TINTA_DEL_CANALE = { Ha: 'c-ha', OIII: 'c-oiii', 'Ha+OIII': 'c-oiii', SII: 'c-sii', L: 'c-l',
+                             R: 'c-rgb', G: 'c-rgb', B: 'c-rgb', RGB: 'c-rgb' };
+
+  /*  I canali della notte. I gruppi e le ore che il piano da' a ciascuno li dice `piano.nights[].blocks`; i blocchi
+   *  della sequenza si appendono al loro gruppo per banda. Un blocco che nessun gruppo reclama diventa un gruppo suo:
+   *  si mostra, non si perde. Un gruppo senza blocchi stanotte non ha niente da dire, e non si disegna. */
+  function gruppiDellaNotte(nt, blocchi) {
+    const gruppi = ((nt && nt.blocks) || []).map(g => ({ id: g.id, bande: g.bands || [g.id], h: g.h, hHM: g.hHM, blocchi: [] }));
+    for (const b of blocchi) {
+      const c = b.canali || [];
+      /*  Il canale lo dice il blocco (`gruppo`): e' l'unico modo di rimettere R, G e B sotto RGB senza sapere da se'
+       *  come il servizio li spartisce. Senza quel campo si prova per banda, e un blocco che nessuno reclama fa
+       *  gruppo per conto suo. */
+      let g = b.gruppo ? gruppi.find(x => x.id === b.gruppo) : gruppi.find(x => c.some(k => k === x.id || x.bande.indexOf(k) >= 0));
+      if (!g) { g = { id: b.gruppo || c.join('+') || '—', bande: c, h: null, blocchi: [] }; gruppi.push(g); }
+      g.blocchi.push(b);
+    }
+    return gruppi.filter(g => g.blocchi.length);
+  }
+
+  /*  LE VOCI DI UN CANALE, COMPATTATE. Due blocchi diventano una voce sola quando dicono esattamente le stesse cose —
+   *  posa, pose di stanotte, pose e ore del canale, chi ha deciso i secondi, guadagno — E quando la risposta dichiara
+   *  che quei numeri sono di ciascuna banda. Senza quella dichiarazione il pannello non unisce: unire e scrivere
+   *  «per banda» vorrebbe dire decidere di che cosa sia il numero, e non tocca a chi disegna. */
+  function vociDelCanale(blocchi) {
+    const uguali = (a, b) => a.perBanda === true && b.perBanda === true && a.sec === b.sec && a.n === b.n &&
+      a.poseCanale === b.poseCanale && a.oreCanale === b.oreCanale &&
+      a.limite === b.limite && a.gain === b.gain && a.offset === b.offset && a.gainFonte === b.gainFonte && a.modo === b.modo;
+    const voci = [];
+    for (const b of blocchi) {
+      const v = voci.find(x => uguali(x.b, b));
+      if (v) { v.bande.push(...(b.canali || [])); v.blocchi.push(b); }
+      else voci.push({ b, bande: (b.canali || []).slice(), blocchi: [b] });
+    }
+    return voci;
+  }
+
+  /*  LA RIGA DELLA POSA — una grammatica sola: posa · pose del canale (ore) · stanotte. Quando il canale sta tutto in
+   *  una notte «stanotte» ripete il numero, e la ripetizione dice una cosa vera: che la notte e' il canale intero.
+   *  In coda, chi ha deciso i secondi: tenue per tutti tranne il tetto di classe, che e' un ripiego dichiarato e si
+   *  segna diverso. Non un allarme e non un divieto: il prodotto consiglia. */
+  function rigaDellaPosa(v, conBanda, guadagnoPerRiga) {
+    const b = v.b, unite = v.blocchi.length > 1;
+    let s = '<span class="posa-sec">' + cifra(b.sec) + ' s</span>';
+    if (b.poseCanale != null)
+      s += ' <span class="tenue">·</span> <b>' + cifra(b.poseCanale) + '</b> ' +
+           esc(T(unite ? 'Pag_PosePerBanda' : 'Pag_PoseSulCanale')) +
+           (b.oreCanale != null ? ' <span class="tenue">(' + oreScritte(b.oreCanaleHM, b.oreCanale) + ')</span>' : '');
+    if (b.n != null) s += ' <span class="tenue">· ' + esc(T('Pag_Stanotte')) + '</span> <b>' + cifra(b.n) + '</b>';
+    if (conBanda) s += ' <span class="tenue">' + esc(v.bande.join('·')) + '</span>';
+    if (guadagnoPerRiga) s += ' <span class="tenue">· ' + guadagnoDelBlocco(b) + '</span>';
+    if (b.limite && PAROLA_DEL_LIMITE[b.limite]) {
+      const parola = T(PAROLA_DEL_LIMITE[b.limite]);
+      s += b.limite === 'classe'
+        ? ' <span class="limite classe" title="' + esc(T('Pag_LimiteClasseSpiegazione')) + '">' + esc(parola) + '</span>'
+        : ' <span class="limite" title="' + esc(T('Pag_LimiteSpiegazione')) + '">' + esc(parola) + '</span>';
+    }
+    return s;
+  }
+
+  /*  SOTTO LE ORE DEL CANALE CHE DECIDE L'IMMAGINE, una volta sola — la profondita' e' del canale, non della notte:
+   *  fin dove arrivano quelle ore, contro che cosa, quanto costa una magnitudine in piu' QUI; e da dove vengono le
+   *  ore, quando non sono una previsione. Le ore che vengono dalla classe si segnano diverse, come la posa ferma
+   *  alla classe: e' lo stesso genere di debito, detto al suo posto. */
+  function profonditaDelCanale(p) {
+    const f = p.profondita, bri = p.brillanza, righe = [];
+    if (f && f.arrivi != null) {
+      const dec = f.unita === 'R' ? 0 : 2;
+      let r1 = MF('Pag_Prof_Arrivi', cifra(f.arrivi, dec), esc(f.unita || ''));
+      if (f.riferimento == null)
+        r1 += ' <span class="tenue">· ' + esc(T('Pag_Prof_SenzaRiferimento')) + '</span>';
+      else if (PAROLA_DEL_RIFERIMENTO[f.riferimentoTipo])
+        r1 += ' <span class="tenue">·</span> ' + MF(PAROLA_DEL_RIFERIMENTO[f.riferimentoTipo], cifra(f.riferimento, dec)) +
+              (f.coloreNonPubblicato && f.riferimentoBanda
+                ? ' <span class="tenue">(' + MF('Pag_Prof_ColoreNonPubblicato', esc(f.riferimentoBanda)) + ')</span>' : '');
+      righe.push('<div>' + r1 + '</div>');
+      if (f.scala != null && f.ore_per_una_mag != null)
+        righe.push('<div>' + MF('Pag_Prof_Scala', cifra(f.scala, 1), oreScritte(f.ore_per_una_magHM, f.ore_per_una_mag)) +
+          (PAROLA_DEL_REGIME[f.regimeCodice] ? ' <span class="tenue">(' + esc(T(PAROLA_DEL_REGIME[f.regimeCodice])) + ')</span>' : '') +
+          '</div>');
+      if (f.pavimentoLega)
+        righe.push('<div class="avvisa">' + MF('Pag_Prof_Pavimento', cifra(f.snr)) +
+          (f.ore_al_pavimento != null ? MF('Pag_Prof_PavimentoOre', oreScritte(f.ore_al_pavimentoHM, f.ore_al_pavimento)) : '') + '</div>');
+    }
+    if (bri && bri.ore_sono === 'classe')
+      righe.push('<div><span class="ore-classe">' + esc(T('Pag_Bril_Classe')) + '</span></div>');
+    else if (bri && bri.ore_sono === 'tetto' && bri.valore != null)
+      righe.push('<div class="avvisa">' + MF('Pag_Bril_Almeno', cifra(bri.valore, 1)) +
+        (bri.ereditato_da ? ' <span class="tenue">· ' + MF('Pag_Bril_Ereditato', esc(bri.ereditato_da)) + '</span>' : '') +
+        '<br>' + esc(T('Pag_Bril_OreTetto')) + '</div>');
+    return righe.length ? '<div class="profondita">' + righe.join('') + '</div>' : '';
+  }
+
+  function riquadroDelPiano(p, r, d) {
+    const notti = (p.piano && p.piano.nights) || [];
+    const critico = p.prescrizione && p.prescrizione.critGroup;
+    const piuNuovo = Number(d.contratto) > CONTRATTO_CONOSCIUTO
+      ? '<div class="nota-rif">' + MF('Pag_ContrattoPiuNuovo', esc(d.contratto), cifra(CONTRATTO_CONOSCIUTO)) + '</div>' : '';
+    const schede = (p.sequenze || []).map((s, iNotte) => {
+      const m = s.modello || {}, blocchi = m.blocchi || [];
+      const nt = notti.find(x => x.n === s.notte) || null;
+      /*  LA TESTA DELLA NOTTE: il numero, la data, le ore che il cielo concede, e il giudizio sulla Luna come codice,
+       *  con i tre numeri che lo spiegano al passaggio del mouse. */
+      const TONO = { buio: 'ok', luna_non_disturba: 'ok', luna_tollerabile: 'attenzione', luna_pesante: 'pesante', non_usata: 'spento' };
+      /*  Il perche' della pastiglia dice di quanto la Luna alza il fondo stanotte — il numero come arriva. */
+      const cielo = nt && PAROLA_DEL_CIELO[nt.cielo]
+        ? ' <span class="cielo ' + (TONO[nt.cielo] || 'spento') + '"' +
+          (nt.dMagV != null ? ' title="' + esc(T('Pag_CieloSpiegazione').replace('{0}', cifra(nt.dMagV, 2))) + '"' : '') +
+          '>' + esc(T(PAROLA_DEL_CIELO[nt.cielo])) + '</span>' : '';
+      const testa = '<div class="notte-testa"><span class="titolo">' + MF('Pag_NotteN', cifra(s.notte)) + '</span>' +
+        '<span class="data">' + esc(dataScritta((m.quando && m.quando.data) || '', { weekday: 'short', day: 'numeric', month: 'short' })) + '</span>' +
+        (nt && nt.availH != null ? '<span class="disponibili">' + MF('Pag_OreDisponibili', cifra(nt.availH, 1) + ' h') + '</span>' : '') +
+        cielo + '</div>';
+      /*  Il guadagno si dice una volta per notte quando e' lo stesso per tutti i blocchi — com'e' quasi sempre —, e
+       *  su ogni riga solo quando cambia: dirlo sei volte uguale era proprio il difetto della tabella. */
+      const guadagni = [...new Set(blocchi.map(b => guadagnoDelBlocco(b)))];
+      const perRiga = guadagni.length > 1;
+      const canali = gruppiDellaNotte(nt, blocchi).map(g => {
+        const voci = vociDelCanale(g.blocchi);
+        const conBanda = voci.length > 1 || voci.some(v => v.bande.length > 1) ||
+          (voci.length === 1 && voci[0].bande.length === 1 && voci[0].bande[0] !== g.id);
+        const vetri = [...new Set(g.blocchi.map(b => vetroDelBlocco(p, b)))].join(' · ');
+        /*  Le ore di questo canale stanotte le manda il motore (`totale.perGruppo`): sommare i blocchi qui sarebbe
+         *  ricavare un numero. Se non arrivano, la colonna resta vuota. */
+        const fatte = m.totale && m.totale.perGruppo ? m.totale.perGruppo[g.id] : null;
+        const fatteHM = m.totale && m.totale.perGruppoHM ? m.totale.perGruppoHM[g.id] : null;
+        const riga = '<div class="canale"><div class="nome ' + (TINTA_DEL_CANALE[g.id] || '') + '">' + esc(g.id) +
+          '<small>' + esc(vetri) + '</small></div>' +
+          '<div class="ore">' + (g.h != null ? oreScritte(g.hHM, g.h) : '') + '</div>' +
+          '<div class="posa">' + voci.map(v => rigaDellaPosa(v, conBanda, perRiga)).join(' <span class="tenue">&nbsp;·&nbsp;</span> ') + '</div>' +
+          '<div class="fatte">' + (fatte != null ? '= ' + oreScritte(fatteHM, fatte) : '') + '</div></div>';
+        return riga + (iNotte === 0 && critico && g.id === critico ? profonditaDelCanale(p) : '');
+      }).join('');
+      const t = m.totale || {};
+      const totale = t.ore == null ? '' : (t.orologio != null
+        ? MF('Pag_TotaleNotte', oreScritte(t.oreHM, t.ore), oreScritte(t.orologioHM, t.orologio))
+        : MF('Pag_TotaleNotteSoloIntegrazione', oreScritte(t.oreHM, t.ore)));
+      /*  «restano X se il cielo tiene» c'e' quando il servizio lo manda: la soglia e' sua, e sotto la soglia il campo
+       *  non arriva. Il pannello non la conosce e non ne ha bisogno. */
+      const restano = nt && nt.restano != null
+        ? ' <span class="tenue">· ' + MF('Pag_Restano', oreScritte(nt.restanoHM, nt.restano)) + '</span>' : '';
+      /* L'IDENTIFICATIVO VIAGGIA CON LA RIGA, non in una variabile a parte.
+         Sembra un dettaglio ed e' la differenza fra una guardia che funziona e una che
+         non puo' scattare: se il tasto leggesse l'ultimo identificativo ricevuto, un
+         tasto rimasto in giro da una richiesta precedente manderebbe l'oggetto NUOVO
+         con l'aria di mandare il vecchio — e il ponte non avrebbe modo di accorgersene,
+         perche' l'identificativo che riceve sarebbe quello giusto. Provato: succedeva. */
+      const tasto = r.consegnabile
+        ? '<button class="manda" data-notte="' + s.notte + '" data-prescrizione="' + esc(r.prescrizione || '') + '">' +
+          T('Pag_MandaANina') + '</button>' : '';
+      const piede = '<div class="notte-piede"><span>' + totale + restano + '</span>' +
+        (!perRiga && guadagni.length === 1 ? '<span>· ' + guadagni[0] + '</span>' : '') + tasto + '</div>';
+      return '<div class="notte">' + testa + righeDellaLuna(p.luna, s.notte) + canali + piede + '</div>';
+    }).join('');
+    return piuNuovo + schede;
+  }
+
   function guadagnoDelBlocco(b) {
     if (b.gain == null || b.gain < 0) return T('Pag_GuadagnoDellaCamera');
     return b.gainFonte === 'dichiarato'

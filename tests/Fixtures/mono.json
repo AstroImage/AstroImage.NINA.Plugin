@@ -47,12 +47,18 @@
       "canali": [
         "OIII"
       ],
+      "gruppo": "OIII",
       "filtro": "O",
       "sec": 600,
       "n": 28,
       "poseCanale": 87,
       "oreCanale": 14.5,
+      "oreCanaleHM": {
+        "ore": 14,
+        "minuti": 30
+      },
       "perBanda": true,
+      "limite": "strategia",
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
@@ -63,12 +69,18 @@
       "canali": [
         "Ha"
       ],
+      "gruppo": "Ha",
       "filtro": "H",
       "sec": 600,
       "n": 8,
       "poseCanale": 22,
       "oreCanale": 3.666666666666667,
+      "oreCanaleHM": {
+        "ore": 3,
+        "minuti": 40
+      },
       "perBanda": true,
+      "limite": "pose_minime",
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
@@ -79,12 +91,18 @@
       "canali": [
         "R"
       ],
+      "gruppo": "RGB",
       "filtro": "R",
       "sec": 30,
       "n": 18,
       "poseCanale": 52,
       "oreCanale": 0.4333333333333333,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 26
+      },
       "perBanda": true,
+      "limite": "colore_stellare",
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
@@ -95,12 +113,18 @@
       "canali": [
         "G"
       ],
+      "gruppo": "RGB",
       "filtro": "G",
       "sec": 30,
       "n": 18,
       "poseCanale": 52,
       "oreCanale": 0.4333333333333333,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 26
+      },
       "perBanda": true,
+      "limite": "colore_stellare",
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
@@ -111,12 +135,18 @@
       "canali": [
         "B"
       ],
+      "gruppo": "RGB",
       "filtro": "B",
       "sec": 30,
       "n": 18,
       "poseCanale": 52,
       "oreCanale": 0.4333333333333333,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 26
+      },
       "perBanda": true,
+      "limite": "colore_stellare",
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
@@ -127,7 +157,34 @@
   "totale": {
     "pose": 90,
     "ore": 6.45,
-    "orologio": 6.650000000000001
+    "oreHM": {
+      "ore": 6,
+      "minuti": 27
+    },
+    "orologio": 6.650000000000001,
+    "orologioHM": {
+      "ore": 6,
+      "minuti": 39
+    },
+    "perGruppo": {
+      "OIII": 4.666666666666667,
+      "Ha": 1.3333333333333333,
+      "RGB": 0.44999999999999996
+    },
+    "perGruppoHM": {
+      "OIII": {
+        "ore": 4,
+        "minuti": 40
+      },
+      "Ha": {
+        "ore": 1,
+        "minuti": 20
+      },
+      "RGB": {
+        "ore": 0,
+        "minuti": 27
+      }
+    }
   },
   "nonFusi": [],
   "dither": {

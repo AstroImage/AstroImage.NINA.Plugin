@@ -47,12 +47,18 @@
       "canali": [
         "RGB"
       ],
+      "gruppo": "RGB",
       "filtro": "L",
       "sec": 180,
       "n": 131,
       "poseCanale": 131,
       "oreCanale": 6.55,
+      "oreCanaleHM": {
+        "ore": 6,
+        "minuti": 33
+      },
       "perBanda": true,
+      "limite": "strategia",
       "gain": 0,
       "offset": 50,
       "gainFonte": "motore",
@@ -63,7 +69,24 @@
   "totale": {
     "pose": 131,
     "ore": 6.55,
-    "orologio": 6.841111111111111
+    "oreHM": {
+      "ore": 6,
+      "minuti": 33
+    },
+    "orologio": 6.841111111111111,
+    "orologioHM": {
+      "ore": 6,
+      "minuti": 50
+    },
+    "perGruppo": {
+      "RGB": 6.55
+    },
+    "perGruppoHM": {
+      "RGB": {
+        "ore": 6,
+        "minuti": 33
+      }
+    }
   },
   "nonFusi": [],
   "dither": {

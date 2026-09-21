@@ -50,12 +50,18 @@
       "canali": [
         "OIII"
       ],
+      "gruppo": "OIII",
       "filtro": "OIII 3nm",
       "sec": 900,
       "n": 19,
       "poseCanale": 60,
       "oreCanale": 15,
+      "oreCanaleHM": {
+        "ore": 15,
+        "minuti": 0
+      },
       "perBanda": true,
+      "limite": "strategia",
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
@@ -66,12 +72,18 @@
       "canali": [
         "Ha"
       ],
+      "gruppo": "Ha",
       "filtro": "Ha 3nm",
       "sec": 600,
       "n": 10,
       "poseCanale": 28,
       "oreCanale": 4.666666666666667,
+      "oreCanaleHM": {
+        "ore": 4,
+        "minuti": 40
+      },
       "perBanda": true,
+      "limite": "pose_minime",
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
@@ -82,7 +94,29 @@
   "totale": {
     "pose": 29,
     "ore": 6.416666666666667,
-    "orologio": 6.465
+    "oreHM": {
+      "ore": 6,
+      "minuti": 25
+    },
+    "orologio": 6.465,
+    "orologioHM": {
+      "ore": 6,
+      "minuti": 28
+    },
+    "perGruppo": {
+      "OIII": 4.75,
+      "Ha": 1.6666666666666667
+    },
+    "perGruppoHM": {
+      "OIII": {
+        "ore": 4,
+        "minuti": 45
+      },
+      "Ha": {
+        "ore": 1,
+        "minuti": 40
+      }
+    }
   },
   "nonFusi": [],
   "dither": {

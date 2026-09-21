@@ -279,29 +279,14 @@
   <data name="Pag_ChiediPrescrizione" xml:space="preserve">
     <value>Chiedi una prescrizione</value>
   </data>
-  <data name="Pag_ColBlocchi" xml:space="preserve">
-    <value>blocchi</value>
-  </data>
-  <data name="Pag_ColData" xml:space="preserve">
-    <value>data</value>
-  </data>
-  <data name="Pag_ColDurata" xml:space="preserve">
-    <value>durata</value>
-  </data>
   <data name="Pag_ColEQuestoFiltro" xml:space="preserve">
     <value>è questo filtro</value>
-  </data>
-  <data name="Pag_ColFiltri" xml:space="preserve">
-    <value>filtri</value>
   </data>
   <data name="Pag_ColNotte" xml:space="preserve">
     <value>notte</value>
   </data>
   <data name="Pag_ColOggetto" xml:space="preserve">
     <value>oggetto</value>
-  </data>
-  <data name="Pag_ColPose" xml:space="preserve">
-    <value>pose</value>
   </data>
   <data name="Pag_ComeRiprendere" xml:space="preserve">
     <value>Come riprendere</value>
@@ -1165,7 +1150,7 @@
     <value>Rumore di lettura non noto: assunti {0} e⁻.</value>
   </data>
   <data name="Pag_Parziale_posa_massima_non_nota" xml:space="preserve">
-    <value>La montatura non dichiara la posa massima: vale il tetto di classe, {0} s.</value>
+    <value>La montatura non dichiara la posa massima: vale il ripiego di serie, {0} s.</value>
   </data>
   <data name="Pag_Parziale_rumore_sotto_il_pavimento" xml:space="preserve">
     <value>Rumore di lettura dichiarato ({0} e⁻, {1}) sotto quello che il sensore può fare ({2} e⁻): il valore resta, ed è sospetto.</value>
@@ -1238,9 +1223,6 @@
   </data>
   <data name="Pag_Prov_assunto" xml:space="preserve">
     <value>non dichiarato: il motore assume {0}{1}</value>
-  </data>
-  <data name="Pag_ColGuadagno" xml:space="preserve">
-    <value>guadagno</value>
   </data>
   <data name="Pag_GuadagnoMotore" xml:space="preserve">
     <value>{0} ({1}, scelto dal motore)</value>
@@ -1466,5 +1448,149 @@
   </data>
   <data name="Pag_OrizzonteNonLetto" xml:space="preserve">
     <value>il profilo di N.I.N.A. nomina «{0}», ma non si è letto: vale l'altezza minima qui sotto</value>
+  </data>
+  <data name="Pag_NotteN" xml:space="preserve">
+    <value>Notte {0}</value>
+  </data>
+  <data name="Pag_OreDisponibili" xml:space="preserve">
+    <value>{0} disponibili</value>
+  </data>
+  <data name="Pag_Cielo_buio" xml:space="preserve">
+    <value>cielo buio</value>
+  </data>
+  <data name="Pag_Cielo_luna_non_disturba" xml:space="preserve">
+    <value>la Luna non disturba questi canali</value>
+  </data>
+  <data name="Pag_Cielo_luna_tollerabile" xml:space="preserve">
+    <value>Luna presente, tollerabile</value>
+  </data>
+  <data name="Pag_Cielo_luna_pesante" xml:space="preserve">
+    <value>Luna pesante su questi canali</value>
+  </data>
+  <data name="Pag_Cielo_non_usata" xml:space="preserve">
+    <value>notte non utilizzata</value>
+  </data>
+  <data name="Pag_PoseSulCanale" xml:space="preserve">
+    <value>pose sul canale</value>
+  </data>
+  <data name="Pag_PosePerBanda" xml:space="preserve">
+    <value>pose per banda</value>
+  </data>
+  <data name="Pag_Stanotte" xml:space="preserve">
+    <value>stanotte</value>
+  </data>
+  <data name="Pag_Limite_progetto" xml:space="preserve">
+    <value>posa del progetto</value>
+  </data>
+  <data name="Pag_Limite_colore_stellare" xml:space="preserve">
+    <value>colore stellare protetto</value>
+  </data>
+  <data name="Pag_Limite_strategia" xml:space="preserve">
+    <value>regola della modalità</value>
+  </data>
+  <data name="Pag_Limite_stella_protetta" xml:space="preserve">
+    <value>stella protetta</value>
+  </data>
+  <data name="Pag_Limite_stella_scoperta" xml:space="preserve">
+    <value>stella protetta, scoperta</value>
+  </data>
+  <data name="Pag_Limite_fondo_satura" xml:space="preserve">
+    <value>il fondo cielo satura</value>
+  </data>
+  <data name="Pag_Limite_soggetto_satura" xml:space="preserve">
+    <value>il soggetto satura</value>
+  </data>
+  <data name="Pag_Limite_pose_minime" xml:space="preserve">
+    <value>numero minimo di pose</value>
+  </data>
+  <data name="Pag_Limite_tetto_di_posa" xml:space="preserve">
+    <value>tetto di posa</value>
+  </data>
+  <data name="Pag_Limite_pavimento" xml:space="preserve">
+    <value>pavimento operativo</value>
+  </data>
+  <data name="Pag_Limite_stelle_sature" xml:space="preserve">
+    <value>saturazione stellare</value>
+  </data>
+  <data name="Pag_Limite_classe" xml:space="preserve">
+    <value>tetto di classe</value>
+  </data>
+  <data name="Pag_Limite_lettura" xml:space="preserve">
+    <value>il fondo non copre il rumore di lettura</value>
+  </data>
+  <data name="Pag_Limite_montatura" xml:space="preserve">
+    <value>tetto della montatura</value>
+  </data>
+  <data name="Pag_LimiteClasseSpiegazione" xml:space="preserve">
+    <value>La posa è ferma al tetto della sua famiglia di oggetti: è la pratica documentata per la classe, non un calcolo su questo oggetto. È un ripiego dichiarato.</value>
+  </data>
+  <data name="Pag_LimiteSpiegazione" xml:space="preserve">
+    <value>Chi ha deciso la durata di questa posa.</value>
+  </data>
+  <data name="Pag_TotaleNotte" xml:space="preserve">
+    <value>totale *{0}* di integrazione · *{1}* di orologio con scarico e dithering</value>
+  </data>
+  <data name="Pag_TotaleNotteSoloIntegrazione" xml:space="preserve">
+    <value>totale *{0}* di integrazione</value>
+  </data>
+  <data name="Pag_Prof_Arrivi" xml:space="preserve">
+    <value>arriva a *{0} {1}*</value>
+  </data>
+  <data name="Pag_Prof_Rif_brillanza_pubblicata" xml:space="preserve">
+    <value>la brillanza media pubblicata sta a *{0}*</value>
+  </data>
+  <data name="Pag_Prof_Rif_bordo_galassia" xml:space="preserve">
+    <value>il bordo della galassia sta a *{0}*</value>
+  </data>
+  <data name="Pag_Prof_SenzaRiferimento" xml:space="preserve">
+    <value>questo oggetto non porta un riferimento pubblicato: nessun traguardo inventato</value>
+  </data>
+  <data name="Pag_Prof_ColoreNonPubblicato" xml:space="preserve">
+    <value>in banda {0}: il colore di questo oggetto non è pubblicato</value>
+  </data>
+  <data name="Pag_Prof_Scala" xml:space="preserve">
+    <value>una magnitudine più in fondo, qui: *×{0}* → *{1}*</value>
+  </data>
+  <data name="Pag_Prof_Regime_fondo" xml:space="preserve">
+    <value>il fondo domina</value>
+  </data>
+  <data name="Pag_Prof_Regime_transizione" xml:space="preserve">
+    <value>transizione</value>
+  </data>
+  <data name="Pag_Prof_Regime_sorgente" xml:space="preserve">
+    <value>la sorgente domina il rumore</value>
+  </data>
+  <data name="Pag_Prof_Pavimento" xml:space="preserve">
+    <value>sotto il pavimento di SNR {0} per arcsec²: con queste ore il soggetto non ci arriva</value>
+  </data>
+  <data name="Pag_Prof_PavimentoOre" xml:space="preserve">
+    <value>, ne servirebbero *{0}*</value>
+  </data>
+  <data name="Pag_Bril_Classe" xml:space="preserve">
+    <value>questo oggetto non porta una brillanza misurata: le ore vengono dalla classe</value>
+  </data>
+  <data name="Pag_Bril_Almeno" xml:space="preserve">
+    <value>brillanza ≥ *{0} R*</value>
+  </data>
+  <data name="Pag_Bril_Ereditato" xml:space="preserve">
+    <value>limite ereditato da {0}</value>
+  </data>
+  <data name="Pag_Bril_OreTetto" xml:space="preserve">
+    <value>le ore sono un tetto, non una stima</value>
+  </data>
+  <data name="Pag_ContrattoPiuNuovo" xml:space="preserve">
+    <value>La risposta usa un contratto più nuovo ({0}) di quello che questo pannello conosce ({1}): si mostra quello che si riconosce.</value>
+  </data>
+  <data name="Pag_CieloSpiegazione" xml:space="preserve">
+    <value>La Luna alza il fondo cielo di {0} mag in questa notte.</value>
+  </data>
+  <data name="Pag_OreMinuti" xml:space="preserve">
+    <value>{0} h {1}′</value>
+  </data>
+  <data name="Pag_SoloMinuti" xml:space="preserve">
+    <value>{0}′</value>
+  </data>
+  <data name="Pag_Restano" xml:space="preserve">
+    <value>restano *{0}* se il cielo tiene</value>
   </data>
 </root>

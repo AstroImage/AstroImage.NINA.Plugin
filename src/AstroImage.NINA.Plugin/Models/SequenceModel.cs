@@ -465,6 +465,16 @@ namespace AstroImage.NINA.Plugin.Models {
         public List<string?> Canali { get; set; } = new List<string?>();
 
         /// <summary>
+        /// Il CANALE della prescrizione a cui questo blocco appartiene — «RGB» per i blocchi R, G e B di una camera
+        /// monocromatica. Il piano ragiona per canale, la sequenza per banda: il pannello rimette le bande sotto il loro
+        /// canale con questo campo, invece di sapere da se' come si spartiscono. Annullabile: un servizio piu' vecchio
+        /// non lo manda, e allora ogni blocco si mostra per conto suo.
+        /// </summary>
+        [JsonPropertyName("gruppo")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Gruppo { get; set; }
+
+        /// <summary>
         /// Il nome del filtro COSI' COME E' SCRITTO SULLA RUOTA di chi riprende, non
         /// il nome del canale. Un nome che nella ruota non esiste N.I.N.A. non lo
         /// segnala: mette il primo filtro e va avanti.
@@ -508,6 +518,11 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public double? OreCanale { get; set; }
 
+        /// <summary>Le stesse ore del canale, gia' in ore e minuti: il pannello le scrive, non le converte.</summary>
+        [JsonPropertyName("oreCanaleHM")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public OreEMinuti? OreCanaleHM { get; set; }
+
         /// <summary>
         /// DI CHE COSA sono <see cref="PoseCanale"/> e <see cref="OreCanale"/>. <c>true</c>: di CIASCUNA banda di questo
         /// blocco. <c>false</c>: del blocco intero, perche' la fusione su una camera a matrice li ha sommati.
@@ -521,6 +536,20 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonPropertyName("perBanda")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? PerBanda { get; set; }
+
+        /// <summary>
+        /// CHI HA DECISO I SECONDI di questo blocco, come codice: il numero minimo di pose, la regola della modalita',
+        /// le stelle da proteggere, il pavimento operativo, il tetto della famiglia di oggetti, e cosi' via. E' un codice
+        /// e non una frase perche' il pannello parla due lingue: la parola la mette il dizionario.
+        /// <para>
+        /// <c>classe</c> e' l'unico che si segna diverso: vuol dire che la posa e' ferma alla pratica documentata per
+        /// quella famiglia di oggetti, non a un calcolo sull'oggetto — un ripiego dichiarato.
+        /// </para>
+        /// Annullabile: quando non arriva, il pannello tace invece di indovinare.
+        /// </summary>
+        [JsonPropertyName("limite")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Limite { get; set; }
 
         /// <summary>
         /// Guadagno. Vale -1 quando il modo di guadagno non lo dichiara: e' un
@@ -565,6 +594,22 @@ namespace AstroImage.NINA.Plugin.Models {
     }
 
     /// <summary>
+    /// Un tempo gia' arrotondato al minuto, in due pezzi. Il pannello non ricava i minuti da un numero di ore — sarebbe
+    /// un numero che nessuno gli ha mandato, e due arrotondamenti dello stesso tempo in due posti possono dividersi di un
+    /// minuto sul mezzo minuto esatto. Li riceve fatti, e li scrive.
+    /// </summary>
+    public sealed class OreEMinuti {
+        [JsonPropertyName("ore")]
+        public int Ore { get; set; }
+
+        [JsonPropertyName("minuti")]
+        public int Minuti { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? Extra { get; set; }
+    }
+
+    /// <summary>
     /// Il totale di una notte, come lo fa il motore. Tre numeri e nessun conto da questa parte.
     /// </summary>
     public sealed class TotaleDellaNotte {
@@ -577,6 +622,11 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonPropertyName("ore")]
         public double? Ore { get; set; }
 
+        /// <summary>L'integrazione in ore e minuti.</summary>
+        [JsonPropertyName("oreHM")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public OreEMinuti? OreHM { get; set; }
+
         /// <summary>
         /// Le ore di OROLOGIO: quanto dura davvero, con lo scarico e l'assestamento dopo il dither. Non e' mai meno
         /// dell'integrazione. Annullabile, e non si ricava: ricavarla vorrebbe dire conoscere lo scarico.
@@ -584,6 +634,24 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonPropertyName("orologio")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public double? Orologio { get; set; }
+
+        /// <summary>L'orologio in ore e minuti.</summary>
+        [JsonPropertyName("orologioHM")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public OreEMinuti? OrologioHM { get; set; }
+
+        /// <summary>
+        /// Le ore di integrazione di CIASCUN CANALE in questa notte, per canale della prescrizione. Il pannello le scrive
+        /// accanto al canale invece di sommare i blocchi: la somma sarebbe un numero ricavato da questa parte.
+        /// </summary>
+        [JsonPropertyName("perGruppo")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Dictionary<string, double>? PerGruppo { get; set; }
+
+        /// <summary>Le ore di ciascun canale stanotte, in ore e minuti.</summary>
+        [JsonPropertyName("perGruppoHM")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Dictionary<string, OreEMinuti>? PerGruppoHM { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement>? Extra { get; set; }
