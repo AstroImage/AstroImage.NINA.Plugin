@@ -518,8 +518,8 @@ namespace AstroImage.NINA.Plugin.Tests {
             CollectionAssert.AreEqual(new[] { "senzaSerie", "perBanda" }, conSerie.AsObject().Select(p => p.Key).ToArray());
             foreach (var banda in conSerie["perBanda"]!.AsObject())
                 CollectionAssert.AreEqual(
-                    new[] { "decisa", "forma", "motivoDiClasse", "posaPrincipale", "serieSec", "seriePose", "serieDaConsegnare", "nonBasta",
-                            "posaUnica", "sicuroFinoA", "chiBrucia", "magProtetta", "orePari", "orePariHM",
+                    new[] { "decisa", "forma", "motivoDiClasse", "pareggio", "posaPrincipale", "serieSec", "seriePose", "serieDaConsegnare", "nonBasta",
+                            "posaUnica", "sicuroFinoA", "chiBrucia", "magProtetta", "orologioPari", "orologioPariHM",
                             "posaRiferimento", "equivalenti", "equivalentiHM" },
                     banda.Value!.AsObject().Select(p => p.Key).ToArray(), banda.Key);
             CollectionAssert.AreEqual(

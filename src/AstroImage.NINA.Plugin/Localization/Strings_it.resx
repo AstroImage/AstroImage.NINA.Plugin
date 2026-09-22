@@ -1645,16 +1645,19 @@
     <value>, e la posa principale sarebbe di {0} s: tutto a {1} s</value>
   </data>
   <data name="Pag_Serie_PariOreUnica" xml:space="preserve">
-    <value>, perché a pari ore ({0}) la parte debole riceve quanto {1} a {2} s, invece di {3} con la serie corta.</value>
+    <value>, perché a pari tempo di cielo ({0}) la parte debole riceve quanto {1} a {2} s, invece di {3} con la serie corta.</value>
   </data>
   <data name="Pag_Serie_PariOreSoloUnica" xml:space="preserve">
-    <value>, e a pari ore ({0}) la parte debole riceve quanto {1} a {2} s.</value>
+    <value>, e a pari tempo di cielo ({0}) la parte debole riceve quanto {1} a {2} s.</value>
   </data>
   <data name="Pag_Serie_PariOreDoppia" xml:space="preserve">
-    <value> A pari ore ({0}) la parte debole riceve quanto {1} a {2} s con la serie corta, e {3} con tutto a {4} s.</value>
+    <value> A pari tempo di cielo ({0}) la parte debole riceve quanto {1} a {2} s con la serie corta, e {3} con tutto a {4} s.</value>
   </data>
   <data name="Pag_Serie_PariOreSoloDoppia" xml:space="preserve">
-    <value> A pari ore ({0}) la parte debole riceve quanto {1} a {2} s con la serie corta; nessun gradino della scala permette di fare tutto alla posa corta.</value>
+    <value> A pari tempo di cielo ({0}) la parte debole riceve quanto {1} a {2} s con la serie corta; nessun gradino della scala permette di fare tutto alla posa corta.</value>
+  </data>
+  <data name="Pag_Serie_Pareggio" xml:space="preserve">
+    <value> — con questa posa non serve fare HDR, e si sceglie la posa unica.</value>
   </data>
   <data name="Pag_Serie_DellaClasse" xml:space="preserve">
     <value>{0}: {1} — serie corta della classe, a {2} s, {3} pose.</value>

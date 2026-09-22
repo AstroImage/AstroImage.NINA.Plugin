@@ -273,6 +273,7 @@
         "decisa": "fisica",
         "forma": "doppia",
         "motivoDiClasse": null,
+        "pareggio": false,
         "posaPrincipale": 180,
         "serieSec": 60,
         "seriePose": 16,
@@ -282,24 +283,24 @@
         "sicuroFinoA": 117,
         "chiBrucia": "soggetto",
         "magProtetta": null,
-        "orePari": 1.122298709603862,
-        "orePariHM": {
+        "orologioPari": 1.1597086665906575,
+        "orologioPariHM": {
           "ore": 1,
-          "minuti": 7
+          "minuti": 10
         },
         "posaRiferimento": 180,
         "equivalenti": {
-          "doppia": 0.8556320429371952,
-          "unica": 0.6961510496626919
+          "doppia": 0.8209976595016938,
+          "unica": 0.6424680056976443
         },
         "equivalentiHM": {
           "doppia": {
             "ore": 0,
-            "minuti": 51
+            "minuti": 49
           },
           "unica": {
             "ore": 0,
-            "minuti": 42
+            "minuti": 39
           }
         }
       },
@@ -307,6 +308,7 @@
         "decisa": "classe",
         "forma": "doppia",
         "motivoDiClasse": "banda_senza_misura",
+        "pareggio": null,
         "posaPrincipale": null,
         "serieSec": 20,
         "seriePose": 25,
@@ -316,8 +318,8 @@
         "sicuroFinoA": null,
         "chiBrucia": null,
         "magProtetta": null,
-        "orePari": null,
-        "orePariHM": null,
+        "orologioPari": null,
+        "orologioPariHM": null,
         "posaRiferimento": null,
         "equivalenti": null,
         "equivalentiHM": null

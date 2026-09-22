@@ -726,6 +726,13 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonPropertyName("motivoDiClasse")]
         public string? MotivoDiClasse { get; set; }
 
+        /// <summary>
+        /// Sullo stesso tempo di cielo le due forme finiscono nello stesso minuto: non c'e' nessun vantaggio da
+        /// raccontare, e il pannello lo dichiara invece di accostare due numeri identici.
+        /// </summary>
+        [JsonPropertyName("pareggio")]
+        public bool? Pareggio { get; set; }
+
         /// <summary>La posa lunga del canale: fatta davvero accanto alla serie, solo ipotetica se tutto va alla posa corta.</summary>
         [JsonPropertyName("posaPrincipale")]
         public double? PosaPrincipale { get; set; }
@@ -763,12 +770,12 @@ namespace AstroImage.NINA.Plugin.Models {
         public double? MagProtetta { get; set; }
 
         /// <summary>Le ore del canale nel piano: le ore a pari delle quali si confrontano le due forme.</summary>
-        [JsonPropertyName("orePari")]
-        public double? OrePari { get; set; }
+        [JsonPropertyName("orologioPari")]
+        public double? OrologioPari { get; set; }
 
         /// <summary>Le stesse ore, in ore e minuti.</summary>
-        [JsonPropertyName("orePariHM")]
-        public OreEMinuti? OrePariHM { get; set; }
+        [JsonPropertyName("orologioPariHM")]
+        public OreEMinuti? OrologioPariHM { get; set; }
 
         /// <summary>La posa a cui sono espresse le ore equivalenti.</summary>
         [JsonPropertyName("posaRiferimento")]

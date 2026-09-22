@@ -1645,16 +1645,19 @@
     <value>, and the main exposure would be {0} s: everything at {1} s</value>
   </data>
   <data name="Pag_Serie_PariOreUnica" xml:space="preserve">
-    <value>, because at equal hours ({0}) the faint part gets as much as {1} at {2} s, instead of {3} with the short series.</value>
+    <value>, because at equal sky time ({0}) the faint part gets as much as {1} at {2} s, instead of {3} with the short series.</value>
   </data>
   <data name="Pag_Serie_PariOreSoloUnica" xml:space="preserve">
-    <value>, and at equal hours ({0}) the faint part gets as much as {1} at {2} s.</value>
+    <value>, and at equal sky time ({0}) the faint part gets as much as {1} at {2} s.</value>
   </data>
   <data name="Pag_Serie_PariOreDoppia" xml:space="preserve">
-    <value> At equal hours ({0}) the faint part gets as much as {1} at {2} s with the short series, and {3} with everything at {4} s.</value>
+    <value> At equal sky time ({0}) the faint part gets as much as {1} at {2} s with the short series, and {3} with everything at {4} s.</value>
   </data>
   <data name="Pag_Serie_PariOreSoloDoppia" xml:space="preserve">
-    <value> At equal hours ({0}) the faint part gets as much as {1} at {2} s with the short series; no step of the scale allows everything at the short exposure.</value>
+    <value> At equal sky time ({0}) the faint part gets as much as {1} at {2} s with the short series; no step of the scale allows everything at the short exposure.</value>
+  </data>
+  <data name="Pag_Serie_Pareggio" xml:space="preserve">
+    <value> — at this exposure no HDR is needed, so the single form is chosen.</value>
   </data>
   <data name="Pag_Serie_DellaClasse" xml:space="preserve">
     <value>{0}: {1} — the class's short series, at {2} s, {3} frames.</value>

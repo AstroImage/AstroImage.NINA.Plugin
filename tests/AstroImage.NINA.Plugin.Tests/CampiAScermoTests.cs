@@ -30,7 +30,7 @@ namespace AstroImage.NINA.Plugin.Tests {
     public class CampiAScermoTests {
 
         private static readonly string[] Vive = { "mono", "completo", "osc", "osc-hdr", "mono-hdr",
-                                                  "forma-unica", "nucleo-di-classe", "senza-serie" };
+                                                  "forma-unica", "nucleo-di-classe", "senza-serie", "pareggio" };
 
         /*  LE MAPPE CHE LA PAGINA USA DAVVERO. Una prova che compone la chiave — "Pag_Ruolo_" + codice — guarda il
          *  dizionario, non il pannello: se il codice entrasse nei .resx e non nella mappa della pagina, la prova
@@ -327,23 +327,38 @@ namespace AstroImage.NINA.Plugin.Tests {
          *  riferimento e' quella della forma doppia quando si puo' fare, se no la posa unica. */
         [TestMethod]
         public void SerieCorta_VinceLaFormaConPiuOreEquivalenti() {
-            var provati = 0;
+            var provati = 0; var pareggi = 0;
             foreach (var (f, m, banda, q) in Serie()) {
                 if (q.Decisa != "fisica") continue;
                 provati++;
                 Assert.IsNotNull(q.Equivalenti, $"{f}/{banda}: decisa dalla fisica, e senza le ore equivalenti");
                 double? d = q.Equivalenti!.Doppia, u = q.Equivalenti.Unica;
+                /*  IL PAREGGIO: le due cifre che andrebbero a schermo finiscono nello STESSO MINUTO, e tutt'e due le
+                 *  forme si possono fare. Allora vince la unica — li' niente satura, e nessuna fusione serve — e il
+                 *  pannello lo dichiara. Se il campo cambiasse da solo, o i due minuti si separassero, la relazione si
+                 *  rompe nei due versi. */
+                var minuti = new System.Func<OreEMinuti?, int?>(p => p is null ? (int?)null : p.Ore * 60 + p.Minuti);
+                var pariAlMinuto = d != null && u != null && q.EquivalentiHM != null &&
+                                   minuti(q.EquivalentiHM.Doppia) != null && minuti(q.EquivalentiHM.Doppia) == minuti(q.EquivalentiHM.Unica);
+                Assert.AreEqual(pariAlMinuto, q.Pareggio == true,
+                    $"{f}/{banda}: pareggio={q.Pareggio} mentre le due forme dicono {minuti(q.EquivalentiHM?.Doppia)}′ e {minuti(q.EquivalentiHM?.Unica)}′");
+                if (q.Pareggio == true) {
+                    Assert.AreEqual("unica", q.Forma, $"{f}/{banda}: in pareggio la forma e' la unica, e qui e' «{q.Forma}»");
+                    pareggi++;
+                    continue;
+                }
                 var vinceUnica = u != null && (d == null || u > d);
                 Assert.AreEqual(vinceUnica ? "unica" : "doppia", q.Forma,
                     $"{f}/{banda}: {d?.ToString("F3") ?? "—"} h con la serie corta, {u?.ToString("F3") ?? "—"} h tutto alla posa corta, e la forma e' «{q.Forma}»");
                 foreach (var x in new[] { d, u })
-                    if (x != null) Assert.IsTrue(x <= q.OrePari + 1e-9, $"{f}/{banda}: {x:F3} h equivalenti su {q.OrePari:F3} h del canale");
+                    if (x != null) Assert.IsTrue(x <= q.OrologioPari + 1e-9, $"{f}/{banda}: {x:F3} h equivalenti su {q.OrologioPari:F3} h del canale");
                 if (d != null && q.Forma == "doppia")
                     Assert.AreEqual(q.PosaPrincipale, q.PosaRiferimento, $"{f}/{banda}: forma doppia, e le ore sono espresse a {q.PosaRiferimento} s invece che alla principale");
                 if (d == null && q.PosaUnica != null)
                     Assert.AreEqual(q.PosaUnica, q.PosaRiferimento, $"{f}/{banda}: la doppia non si puo' fare, e il riferimento non e' la posa unica");
             }
             Assert.IsTrue(provati > 0, "nessuna serie decisa dalla fisica: questo verde non vale");
+            Assert.IsTrue(pareggi > 0, "nessun pareggio nelle fixture: il ramo che lo dice non e' provato");
         }
 
         /*  `magProtetta`: LA CIFRA A SCHERMO E' QUELLA DELLA POSA (22 settembre 2026). Il pannello scrive «le stelle fino
@@ -379,8 +394,8 @@ namespace AstroImage.NINA.Plugin.Tests {
         public void SerieCorta_OreEMinutiTornanoColDecimale() {
             var provati = 0;
             foreach (var (f, m, banda, q) in Serie()) {
-                Assert.AreEqual(q.OrePari is null, q.OrePariHM is null, $"{f}/{banda}: le ore del canale e i loro pezzi arrivano insieme");
-                if (q.OrePariHM != null) { provati++; TornaCol($"{f}/{banda} orePari", q.OrePariHM, q.OrePari); }
+                Assert.AreEqual(q.OrologioPari is null, q.OrologioPariHM is null, $"{f}/{banda}: le ore del canale e i loro pezzi arrivano insieme");
+                if (q.OrologioPariHM != null) { provati++; TornaCol($"{f}/{banda} orologioPari", q.OrologioPariHM, q.OrologioPari); }
                 if (q.Equivalenti is null) continue;
                 Assert.IsNotNull(q.EquivalentiHM, $"{f}/{banda}: le ore equivalenti senza i loro pezzi");
                 foreach (var (dec, hm, forma) in new[] { (q.Equivalenti.Doppia, q.EquivalentiHM!.Doppia, "doppia"), (q.Equivalenti.Unica, q.EquivalentiHM.Unica, "unica") }) {
@@ -414,7 +429,7 @@ namespace AstroImage.NINA.Plugin.Tests {
                     fisica++;
                     Assert.IsTrue(q.ChiBrucia != null && chi.TryGetValue(q.ChiBrucia, out _), $"{dove}: chi brucia, «{q.ChiBrucia}», il pannello non lo sa dire");
                     Parole(dove, chi[q.ChiBrucia!]);
-                    Assert.IsTrue(q.PosaPrincipale != null && q.OrePari != null, $"{dove}: decisa dalla fisica, e senza il suo conto");
+                    Assert.IsTrue(q.PosaPrincipale != null && q.OrologioPari != null, $"{dove}: decisa dalla fisica, e senza il suo conto");
                     Assert.AreEqual(q.ChiBrucia == "stelle", q.MagProtetta != null, $"{dove}: la magnitudine protetta c'e' se e solo se bruciano le stelle");
                     /*  la magnitudine protetta non ha una relazione con gli altri pezzi: si prova il suo dominio, una
                      *  magnitudine di stelle da proteggere — un limite di plausibilita', dichiarato come tale */
@@ -426,7 +441,7 @@ namespace AstroImage.NINA.Plugin.Tests {
                     altre++;
                     Assert.AreEqual("doppia", q.Forma, $"{dove}: una serie della {q.Decisa} e' sempre accanto alla posa principale");
                     Assert.IsTrue(q.SerieSec != null && q.SeriePose != null, $"{dove}: la serie della {q.Decisa} senza i suoi secondi o le sue pose");
-                    Assert.IsTrue(q.SicuroFinoA is null && q.ChiBrucia is null && q.OrePari is null && q.Equivalenti is null && q.PosaPrincipale is null,
+                    Assert.IsTrue(q.SicuroFinoA is null && q.ChiBrucia is null && q.OrologioPari is null && q.Equivalenti is null && q.PosaPrincipale is null,
                         $"{dove}: decisa dalla {q.Decisa}, e porta un conto che solo la fisica puo' fare");
                     /*  e la classe dice PERCHE' decide lei, con un codice che il pannello sa dire: la banda senza una
                      *  brillanza misurata, o il canale di due righe. Il progetto no: li' ha deciso una consegna. */

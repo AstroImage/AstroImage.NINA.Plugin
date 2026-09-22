@@ -1297,13 +1297,16 @@
     if (!chi || q.sicuroFinoA == null || q.posaPrincipale == null) return '';
     let f = MF(chi, esc(etichetta), n(q.sicuroFinoA), n(q.magProtetta));
     const e = q.equivalenti || {}, eh = q.equivalentiHM || {};
-    const pari = q.orePari != null ? oreScritte(q.orePariHM, q.orePari) : null;
+    const pari = q.orologioPari != null ? oreScritte(q.orologioPariHM, q.orologioPari) : null;
     const eqD = e.doppia != null ? oreScritte(eh.doppia, e.doppia) : null;
     const eqU = e.unica != null ? oreScritte(eh.unica, e.unica) : null;
     const rif = q.posaRiferimento != null ? n(q.posaRiferimento) : null;
     if (q.forma === 'unica' && q.posaUnica != null) {
       f += MF('Pag_Serie_Unica', n(q.posaPrincipale), n(q.posaUnica));
-      f += pari && eqU && rif ? (eqD ? MF('Pag_Serie_PariOreUnica', pari, eqU, rif, eqD) : MF('Pag_Serie_PariOreSoloUnica', pari, eqU, rif)) : '.';
+      /*  SUL PAREGGIO NON SI CONFRONTA NIENTE: le due cifre sarebbero uguali, e il paragone citerebbe per giunta un
+       *  piano che non si farebbe — a quella posa la serie non servirebbe. Il pezzo lo dice, e qui si scrive. */
+      f += q.pareggio === true ? MF('Pag_Serie_Pareggio')
+         : pari && eqU && rif ? (eqD ? MF('Pag_Serie_PariOreUnica', pari, eqU, rif, eqD) : MF('Pag_Serie_PariOreSoloUnica', pari, eqU, rif)) : '.';
     } else if (q.forma === 'doppia' && q.serieSec != null && q.seriePose != null) {
       f += MF('Pag_Serie_Doppia', n(q.posaPrincipale), n(q.serieSec), n(q.seriePose), n(q.serieDaConsegnare));
       if (q.nonBasta === true) f += MF('Pag_Serie_NonBasta', n(q.serieSec));

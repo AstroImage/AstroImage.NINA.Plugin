@@ -150,6 +150,7 @@
         "decisa": "classe",
         "forma": "doppia",
         "motivoDiClasse": "canale_doppio",
+        "pareggio": null,
         "posaPrincipale": null,
         "serieSec": 20,
         "seriePose": 25,
@@ -159,8 +160,8 @@
         "sicuroFinoA": null,
         "chiBrucia": null,
         "magProtetta": null,
-        "orePari": null,
-        "orePariHM": null,
+        "orologioPari": null,
+        "orologioPariHM": null,
         "posaRiferimento": null,
         "equivalenti": null,
         "equivalentiHM": null

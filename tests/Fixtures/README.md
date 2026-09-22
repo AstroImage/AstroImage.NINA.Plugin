@@ -5,7 +5,7 @@ AstroImage-Strategy, fatta girare su banchi ottici veri del suo catalogo. È l'u
 che rende utile un test sul contratto: un JSON inventato dimostra soltanto che chi l'ha
 scritto e chi lo legge hanno avuto la stessa idea sbagliata.
 
-## I nove casi, e perché proprio questi
+## I dieci casi, e perché proprio questi
 
 | file | che cosa esercita |
 |---|---|
@@ -17,9 +17,10 @@ scritto e chi lo legge hanno avuto la stessa idea sbagliata.
 | `forma-unica.json` | una banda che va tutta alla posa corta invece di fare la serie corta: in `serieCorta` i pezzi della forma unica, e nessun nucleo |
 | `nucleo-di-classe.json` | due serie corte decise in due modi: una dalla fisica del canale, coi pezzi del suo conto, e una dalla classe, coi soli secondi e pose |
 | `senza-serie.json` | una classe che la serie corta non la vuole, e lo dice col suo codice in `serieCorta.senzaSerie` |
+| `pareggio.json` | su una banda le due forme finiscono nello stesso minuto, sulle altre no: i due rami della frase in una fixture sola |
 | `scarno.json` | il caso povero: niente sito, niente autoguida, nessun nome di attrezzatura — tutti i campi che devono restare `null` |
 
-Tutte e nove portano `quando`, perché il motore lo riempie da una notte vera. Il caso
+Tutte e dieci portano `quando`, perché il motore lo riempie da una notte vera. Il caso
 con `quando` nullo — una notte costruita a mano, senza tempo — non è raggiungibile dalla
 pagina, e i test lo ottengono degradando una fixture invece di inventarne una.
 
@@ -47,6 +48,8 @@ servizio, con la ruota L-Ultimate + P2:
 | `forma-unica.json` | NGC 2392 · RC8 + ASI 2600MM + CEM70G · 12 gennaio 2027 · tre notti; entrata il 22 settembre 2026 |
 | `nucleo-di-classe.json` | NGC 6543 · RC8 + ASI 2600MM + CEM70G · 21 settembre 2026 · tre notti; entrata il 22 settembre 2026 |
 | `senza-serie.json` | M35 · Tecnosky 115 0,8× + ASI 2600MM + CEM70G · 12 gennaio 2027 · tre notti; entrata il 22 settembre 2026 |
+| `pareggio.json` | M3 · RC8 + ASI 2600MM + CEM70G · 19 novembre 2026 · **due** notti; entrata il 22 settembre 2026. Cercata sul servizio fra sei globulari, tre banchi, tre date e una-due-tre notti |
+| `servizio/prescrizione-stelle.json` | M3 · Askar 71F 0,75× + ASI 2600MM + CEM70G · 19 novembre 2026 · tre notti; entrata il 22 settembre 2026. È la risposta intera ridotta: porta la posa di ogni canale accanto alle sequenze |
 
 Una conseguenza da sapere: **un blocco su più canali nessuna risposta vera lo porta più.** Il contratto
 lo permette ancora — il motore fonde due canali larghi con lo stesso filtro, la stessa posa e lo stesso

@@ -16,14 +16,14 @@
     "spostato": false
   },
   "ottica": {
-    "tel": "Askar 71F",
+    "tel": "Ritchey-Chretien 8\"",
     "camera": "ZWO ASI 2600MM Pro",
     "montatura": "iOptron CEM70G",
-    "focale_mm": 367,
-    "rapporto": 5.17,
+    "focale_mm": 1624,
+    "rapporto": 7.99,
     "pixel_um": 3.76,
-    "riduttore": 0.75,
-    "scala_arcsec_px": 2.113,
+    "riduttore": 1,
+    "scala_arcsec_px": 0.478,
     "bin": 1,
     "matrice": false
   },
@@ -49,13 +49,13 @@
       ],
       "gruppo": "RGB",
       "filtro": "R",
-      "sec": 15,
+      "sec": 30,
       "n": 16,
       "poseCanale": 16,
-      "oreCanale": 0.06666666666666667,
+      "oreCanale": 0.13333333333333333,
       "oreCanaleHM": {
         "ore": 0,
-        "minuti": 4
+        "minuti": 8
       },
       "perBanda": true,
       "limite": null,
@@ -64,7 +64,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.06666666666666667
+      "ore": 0.13333333333333333
     },
     {
       "canali": [
@@ -72,13 +72,13 @@
       ],
       "gruppo": "RGB",
       "filtro": "G",
-      "sec": 15,
+      "sec": 30,
       "n": 16,
       "poseCanale": 16,
-      "oreCanale": 0.06666666666666667,
+      "oreCanale": 0.13333333333333333,
       "oreCanaleHM": {
         "ore": 0,
-        "minuti": 4
+        "minuti": 8
       },
       "perBanda": true,
       "limite": null,
@@ -87,30 +87,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.06666666666666667
-    },
-    {
-      "canali": [
-        "B"
-      ],
-      "gruppo": "RGB",
-      "filtro": "B",
-      "sec": 10,
-      "n": 16,
-      "poseCanale": 16,
-      "oreCanale": 0.044444444444444446,
-      "oreCanaleHM": {
-        "ore": 0,
-        "minuti": 3
-      },
-      "perBanda": true,
-      "limite": null,
-      "ruolo": "nucleo",
-      "gain": 100,
-      "offset": 50,
-      "gainFonte": "motore",
-      "modo": "HCG",
-      "ore": 0.044444444444444446
+      "ore": 0.13333333333333333
     },
     {
       "canali": [
@@ -119,12 +96,12 @@
       "gruppo": "RGB",
       "filtro": "R",
       "sec": 60,
-      "n": 19,
-      "poseCanale": 67,
-      "oreCanale": 1.1166666666666667,
+      "n": 15,
+      "poseCanale": 38,
+      "oreCanale": 0.6333333333333333,
       "oreCanaleHM": {
-        "ore": 1,
-        "minuti": 7
+        "ore": 0,
+        "minuti": 38
       },
       "perBanda": true,
       "limite": "pavimento",
@@ -133,7 +110,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.31666666666666665
+      "ore": 0.25
     },
     {
       "canali": [
@@ -142,12 +119,12 @@
       "gruppo": "RGB",
       "filtro": "G",
       "sec": 60,
-      "n": 19,
-      "poseCanale": 67,
-      "oreCanale": 1.1166666666666667,
+      "n": 15,
+      "poseCanale": 38,
+      "oreCanale": 0.6333333333333333,
       "oreCanaleHM": {
-        "ore": 1,
-        "minuti": 7
+        "ore": 0,
+        "minuti": 38
       },
       "perBanda": true,
       "limite": "pavimento",
@@ -156,7 +133,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.31666666666666665
+      "ore": 0.25
     },
     {
       "canali": [
@@ -164,38 +141,38 @@
       ],
       "gruppo": "RGB",
       "filtro": "B",
-      "sec": 60,
-      "n": 20,
-      "poseCanale": 68,
-      "oreCanale": 1.1333333333333333,
+      "sec": 30,
+      "n": 46,
+      "poseCanale": 92,
+      "oreCanale": 0.7666666666666667,
       "oreCanaleHM": {
-        "ore": 1,
-        "minuti": 8
+        "ore": 0,
+        "minuti": 46
       },
       "perBanda": true,
-      "limite": "pavimento",
+      "limite": "stelle_sature",
       "ruolo": null,
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.3333333333333333
+      "ore": 0.38333333333333336
     }
   ],
   "totale": {
-    "pose": 106,
-    "ore": 1.1444444444444444,
+    "pose": 108,
+    "ore": 1.15,
     "oreHM": {
       "ore": 1,
       "minuti": 9
     },
-    "orologio": 1.38,
+    "orologio": 1.3900000000000001,
     "orologioHM": {
       "ore": 1,
       "minuti": 23
     },
     "perGruppo": {
-      "RGB": 1.1444444444444444
+      "RGB": 1.15
     },
     "perGruppoHM": {
       "RGB": {
@@ -214,30 +191,33 @@
         "motivoDiClasse": null,
         "pareggio": false,
         "posaPrincipale": 60,
-        "serieSec": 15,
+        "serieSec": 30,
         "seriePose": 16,
         "serieDaConsegnare": 15,
         "nonBasta": false,
-        "posaUnica": null,
-        "sicuroFinoA": 16,
+        "posaUnica": 30,
+        "sicuroFinoA": 51,
         "chiBrucia": "stelle",
         "magProtetta": 11,
-        "orologioPari": 1.3116094575275492,
+        "orologioPari": 0.8688888888888857,
         "orologioPariHM": {
-          "ore": 1,
-          "minuti": 19
+          "ore": 0,
+          "minuti": 52
         },
         "posaRiferimento": 60,
         "equivalenti": {
-          "doppia": 1.0671063840929356,
-          "unica": null
+          "doppia": 0.6176470588235266,
+          "unica": 0.6029144775467138
         },
         "equivalentiHM": {
           "doppia": {
-            "ore": 1,
-            "minuti": 4
+            "ore": 0,
+            "minuti": 37
           },
-          "unica": null
+          "unica": {
+            "ore": 0,
+            "minuti": 36
+          }
         }
       },
       "G": {
@@ -246,62 +226,68 @@
         "motivoDiClasse": null,
         "pareggio": false,
         "posaPrincipale": 60,
-        "serieSec": 15,
+        "serieSec": 30,
         "seriePose": 16,
         "serieDaConsegnare": 15,
         "nonBasta": false,
-        "posaUnica": null,
-        "sicuroFinoA": 16,
+        "posaUnica": 30,
+        "sicuroFinoA": 52,
         "chiBrucia": "stelle",
         "magProtetta": 11,
-        "orologioPari": 1.3116094575275492,
+        "orologioPari": 0.8688888888888857,
         "orologioPariHM": {
-          "ore": 1,
-          "minuti": 19
+          "ore": 0,
+          "minuti": 52
         },
         "posaRiferimento": 60,
         "equivalenti": {
-          "doppia": 1.0671063840929353,
-          "unica": null
+          "doppia": 0.6176470588235267,
+          "unica": 0.6022877351755733
         },
         "equivalentiHM": {
           "doppia": {
-            "ore": 1,
-            "minuti": 4
+            "ore": 0,
+            "minuti": 37
           },
-          "unica": null
+          "unica": {
+            "ore": 0,
+            "minuti": 36
+          }
         }
       },
       "B": {
         "decisa": "fisica",
-        "forma": "doppia",
+        "forma": "unica",
         "motivoDiClasse": null,
-        "pareggio": false,
+        "pareggio": true,
         "posaPrincipale": 60,
-        "serieSec": 10,
-        "seriePose": 16,
-        "serieDaConsegnare": 15,
-        "nonBasta": false,
-        "posaUnica": null,
-        "sicuroFinoA": 14,
+        "serieSec": null,
+        "seriePose": null,
+        "serieDaConsegnare": null,
+        "nonBasta": null,
+        "posaUnica": 30,
+        "sicuroFinoA": 45,
         "chiBrucia": "stelle",
         "magProtetta": 11,
-        "orologioPari": 1.3116094575275492,
+        "orologioPari": 0.8688888888888857,
         "orologioPariHM": {
-          "ore": 1,
-          "minuti": 19
+          "ore": 0,
+          "minuti": 52
         },
         "posaRiferimento": 60,
         "equivalenti": {
-          "doppia": 1.0867142272301904,
-          "unica": null
+          "doppia": 0.6176470588235267,
+          "unica": 0.6087445858144467
         },
         "equivalentiHM": {
           "doppia": {
-            "ore": 1,
-            "minuti": 5
+            "ore": 0,
+            "minuti": 37
           },
-          "unica": null
+          "unica": {
+            "ore": 0,
+            "minuti": 37
+          }
         }
       }
     }

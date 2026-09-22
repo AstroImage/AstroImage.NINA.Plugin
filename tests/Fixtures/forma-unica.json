@@ -227,6 +227,7 @@
         "decisa": "fisica",
         "forma": "unica",
         "motivoDiClasse": null,
+        "pareggio": false,
         "posaPrincipale": 600,
         "serieSec": null,
         "seriePose": null,
@@ -236,24 +237,24 @@
         "sicuroFinoA": 492,
         "chiBrucia": "soggetto",
         "magProtetta": null,
-        "orePari": 4.601700230615712,
-        "orePariHM": {
+        "orologioPari": 4.663056233690589,
+        "orologioPariHM": {
           "ore": 4,
-          "minuti": 36
+          "minuti": 40
         },
         "posaRiferimento": 600,
         "equivalenti": {
-          "doppia": 3.1850335639490455,
-          "unica": 3.7828318515902986
+          "doppia": 3.1663932130718533,
+          "unica": 3.7356216804932014
         },
         "equivalentiHM": {
           "doppia": {
             "ore": 3,
-            "minuti": 11
+            "minuti": 10
           },
           "unica": {
             "ore": 3,
-            "minuti": 47
+            "minuti": 44
           }
         }
       }
