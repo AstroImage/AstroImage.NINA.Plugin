@@ -508,9 +508,20 @@ namespace AstroImage.NINA.Plugin.Tests {
                 /*  `totale` entra dopo `blocchi` il 20 settembre 2026: e' il totale della notte — pose, ore di
                  *  integrazione, ore di orologio — e sta dove il motore lo scrive, subito dopo i blocchi che
                  *  riassume. */
+                /*  `serieCorta` entra dopo `nonFusi` il 22 settembre 2026: la serie corta di ogni banda in pezzi, dove il
+                 *  motore la scrive. */
                 new[] { "notte", "quando", "nome", "bersaglio", "ottica", "sito", "cap",
-                        "blocchi", "totale", "nonFusi", "dither", "flip" },
+                        "blocchi", "totale", "nonFusi", "serieCorta", "dither", "flip" },
                 dopo.Select(p => p.Key).ToArray());
+            /*  e i pezzi di una banda nell'ordine in cui il motore li scrive, su una fixture che ne porta */
+            var conSerie = JsonNode.Parse(SequenceModel.Leggi(Testo("nucleo-di-classe"))!.Scrivi())!["serieCorta"]!;
+            CollectionAssert.AreEqual(new[] { "senzaSerie", "perBanda" }, conSerie.AsObject().Select(p => p.Key).ToArray());
+            foreach (var banda in conSerie["perBanda"]!.AsObject())
+                CollectionAssert.AreEqual(
+                    new[] { "decisa", "forma", "motivoDiClasse", "posaPrincipale", "serieSec", "seriePose", "serieDaConsegnare", "nonBasta",
+                            "posaUnica", "sicuroFinoA", "chiBrucia", "magProtetta", "orePari", "orePariHM",
+                            "posaRiferimento", "equivalenti", "equivalentiHM" },
+                    banda.Value!.AsObject().Select(p => p.Key).ToArray(), banda.Key);
             CollectionAssert.AreEqual(
                 new[] { "data", "inizio", "fine", "oreUtili" },
                 dopo["quando"]!.AsObject().Select(p => p.Key).ToArray());

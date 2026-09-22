@@ -1626,4 +1626,49 @@
   <data name="Pag_Restano" xml:space="preserve">
     <value>*{0}* left if the sky holds</value>
   </data>
+  <data name="Pag_Serie_Chi_soggetto" xml:space="preserve">
+    <value>{0}: the subject stays safe up to {1} s</value>
+  </data>
+  <data name="Pag_Serie_Chi_nucleo_misurato" xml:space="preserve">
+    <value>{0}: the measured core stays safe up to {1} s</value>
+  </data>
+  <data name="Pag_Serie_Chi_stelle" xml:space="preserve">
+    <value>{0}: stars down to magnitude {2} stay safe up to {1} s</value>
+  </data>
+  <data name="Pag_Serie_Doppia" xml:space="preserve">
+    <value>, and the main exposure is {0} s: a short series at {1} s, {2} frames so that {3} arrive.</value>
+  </data>
+  <data name="Pag_Serie_NonBasta" xml:space="preserve">
+    <value> Even {0} s exceeds that limit, and it is the shortest step of the scale.</value>
+  </data>
+  <data name="Pag_Serie_Unica" xml:space="preserve">
+    <value>, and the main exposure would be {0} s: everything at {1} s</value>
+  </data>
+  <data name="Pag_Serie_PariOreUnica" xml:space="preserve">
+    <value>, because at equal hours ({0}) the faint part gets as much as {1} at {2} s, instead of {3} with the short series.</value>
+  </data>
+  <data name="Pag_Serie_PariOreSoloUnica" xml:space="preserve">
+    <value>, and at equal hours ({0}) the faint part gets as much as {1} at {2} s.</value>
+  </data>
+  <data name="Pag_Serie_PariOreDoppia" xml:space="preserve">
+    <value> At equal hours ({0}) the faint part gets as much as {1} at {2} s with the short series, and {3} with everything at {4} s.</value>
+  </data>
+  <data name="Pag_Serie_PariOreSoloDoppia" xml:space="preserve">
+    <value> At equal hours ({0}) the faint part gets as much as {1} at {2} s with the short series; no step of the scale allows everything at the short exposure.</value>
+  </data>
+  <data name="Pag_Serie_DellaClasse" xml:space="preserve">
+    <value>{0}: {1} — the class's short series, at {2} s, {3} frames.</value>
+  </data>
+  <data name="Pag_Serie_Classe_banda_senza_misura" xml:space="preserve">
+    <value>In this band the subject's brightness is not measured.</value>
+  </data>
+  <data name="Pag_Serie_Classe_canale_doppio" xml:space="preserve">
+    <value>The engine does not compute the common Hα and OIII exposure from brightness yet.</value>
+  </data>
+  <data name="Pag_Serie_DelProgetto" xml:space="preserve">
+    <value>{0}: the project's short series, at {1} s, {2} frames.</value>
+  </data>
+  <data name="Pag_Serie_Senza_membri_brillanti_a_ogni_posa" xml:space="preserve">
+    <value>No short series: in an open cluster the brightest members reach full scale even at the shortest exposure, and a short series would not save them.</value>
+  </data>
 </root>

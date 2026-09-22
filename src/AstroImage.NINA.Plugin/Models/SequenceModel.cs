@@ -110,6 +110,19 @@ namespace AstroImage.NINA.Plugin.Models {
         public List<string> NonFusi { get; set; } = new List<string>();
 
         /// <summary>
+        /// I PEZZI DELLA SERIE CORTA, banda per banda, per le bande riprese stanotte: perche' c'e', perche' il canale va
+        /// tutto alla posa corta, o perche' la classe non la vuole. Il pannello compone la sua frase da questi pezzi, nelle sue due
+        /// lingue; qui non c'e' niente da calcolare, solo da trascrivere.
+        /// <para>
+        /// Annullabile, e non si riscrive quando manca: un motore piu' vecchio non la manda, e nullo non e' «nessuna
+        /// serie» — e' «non detto», e il pannello tace.
+        /// </para>
+        /// </summary>
+        [JsonPropertyName("serieCorta")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public SerieCorta? SerieCorta { get; set; }
+
+        /// <summary>
         /// Nullo quando il banco non dichiara l'autoguida: senza guida il dithering
         /// non si fa, e il motore lo dice togliendo il campo invece di mettere zero.
         /// </summary>
@@ -665,6 +678,121 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonPropertyName("perGruppoHM")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Dictionary<string, OreEMinuti>? PerGruppoHM { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? Extra { get; set; }
+    }
+
+    /// <summary>
+    /// La serie corta del piano, per banda, come il servizio la manda: i pezzi, non la frase.
+    /// </summary>
+    public sealed class SerieCorta {
+
+        /// <summary>
+        /// La classe dell'oggetto non vuole la serie corta, e il perche' come codice. Nullo quando non e' cosi'.
+        /// </summary>
+        [JsonPropertyName("senzaSerie")]
+        public string? SenzaSerie { get; set; }
+
+        /// <summary>
+        /// Banda → i pezzi della sua serie, per le sole bande che questa notte riprende. Una banda assente non ha niente
+        /// da dire: la sua posa non brucia niente, o la serie non la decide nessuno.
+        /// </summary>
+        [JsonPropertyName("perBanda")]
+        public Dictionary<string, SerieDellaBanda> PerBanda { get; set; } = new Dictionary<string, SerieDellaBanda>();
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? Extra { get; set; }
+    }
+
+    /// <summary>
+    /// I pezzi della serie corta di una banda. Il loro dominio e' il canale su tutto il progetto, come le pose del
+    /// canale: sono gli stessi in ogni notte. I nulli si scrivono: dicono che quel pezzo, per come e' stata decisa la
+    /// serie, non esiste.
+    /// </summary>
+    public sealed class SerieDellaBanda {
+
+        /// <summary>Chi ha deciso la serie: <c>fisica</c>, <c>classe</c> o <c>progetto</c>.</summary>
+        [JsonPropertyName("decisa")]
+        public string? Decisa { get; set; }
+
+        /// <summary><c>doppia</c>: la posa principale piu' la serie corta. <c>unica</c>: tutto alla posa corta.</summary>
+        [JsonPropertyName("forma")]
+        public string? Forma { get; set; }
+
+        /// <summary>
+        /// Perche' ha deciso la classe: <c>banda_senza_misura</c> oppure <c>canale_doppio</c>. Nullo quando non decide lei.
+        /// </summary>
+        [JsonPropertyName("motivoDiClasse")]
+        public string? MotivoDiClasse { get; set; }
+
+        /// <summary>La posa lunga del canale: fatta davvero accanto alla serie, solo ipotetica se tutto va alla posa corta.</summary>
+        [JsonPropertyName("posaPrincipale")]
+        public double? PosaPrincipale { get; set; }
+
+        /// <summary>La posa della serie corta, nella forma doppia.</summary>
+        [JsonPropertyName("serieSec")]
+        public double? SerieSec { get; set; }
+
+        /// <summary>Quante pose corte si scattano in tutto il progetto.</summary>
+        [JsonPropertyName("seriePose")]
+        public int? SeriePose { get; set; }
+
+        /// <summary>Quante pose della serie devono arrivare.</summary>
+        [JsonPropertyName("serieDaConsegnare")]
+        public int? SerieDaConsegnare { get; set; }
+
+        /// <summary>Vero quando anche la posa corta piu' breve disponibile supera quel limite.</summary>
+        [JsonPropertyName("nonBasta")]
+        public bool? NonBasta { get; set; }
+
+        /// <summary>La posa della forma unica; nulla quando nessun gradino la tiene.</summary>
+        [JsonPropertyName("posaUnica")]
+        public double? PosaUnica { get; set; }
+
+        /// <summary>Fin dove chi brucia e' al sicuro, in secondi.</summary>
+        [JsonPropertyName("sicuroFinoA")]
+        public double? SicuroFinoA { get; set; }
+
+        /// <summary>Chi pone quel limite: <c>soggetto</c>, <c>nucleo_misurato</c> o <c>stelle</c>.</summary>
+        [JsonPropertyName("chiBrucia")]
+        public string? ChiBrucia { get; set; }
+
+        /// <summary>La magnitudine protetta, quando bruciano le stelle.</summary>
+        [JsonPropertyName("magProtetta")]
+        public double? MagProtetta { get; set; }
+
+        /// <summary>Le ore del canale nel piano: le ore a pari delle quali si confrontano le due forme.</summary>
+        [JsonPropertyName("orePari")]
+        public double? OrePari { get; set; }
+
+        /// <summary>Le stesse ore, in ore e minuti.</summary>
+        [JsonPropertyName("orePariHM")]
+        public OreEMinuti? OrePariHM { get; set; }
+
+        /// <summary>La posa a cui sono espresse le ore equivalenti.</summary>
+        [JsonPropertyName("posaRiferimento")]
+        public double? PosaRiferimento { get; set; }
+
+        /// <summary>Per ciascuna forma, quante ore a quella posa darebbero alla parte debole la stessa profondita'; nulla se la forma e' impossibile.</summary>
+        [JsonPropertyName("equivalenti")]
+        public LeDueForme<double?>? Equivalenti { get; set; }
+
+        /// <summary>Le stesse, in ore e minuti.</summary>
+        [JsonPropertyName("equivalentiHM")]
+        public LeDueForme<OreEMinuti?>? EquivalentiHM { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? Extra { get; set; }
+    }
+
+    /// <summary>Un valore per ciascuna delle due forme della serie corta.</summary>
+    public sealed class LeDueForme<T> {
+        [JsonPropertyName("doppia")]
+        public T Doppia { get; set; } = default!;
+
+        [JsonPropertyName("unica")]
+        public T Unica { get; set; } = default!;
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement>? Extra { get; set; }

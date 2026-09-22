@@ -111,6 +111,35 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.AreEqual(0, ProgettiDelProfilo.Leggi(null, out _).Count);
         }
 
+        /*  LA SERIE CORTA PER BANDA TORNA INTERA (22 settembre 2026). Da quando ogni banda ha i suoi secondi e le sue pose,
+         *  il profilo porta `serieCorta.perBanda` quando le bande non sono uguali, e il progetto congelato deve rimandarlo
+         *  com'e' arrivato: una serie ridotta ai soli `sec` e `n` della prima banda direbbe al motore un'altra calibrazione.
+         *  Il Ponte il profilo non lo interpreta — lo tiene intero — quindi oggi questa prova e' verde per costruzione:
+         *  e' un'assicurazione, non una misura, e cade il giorno che qualcuno desse al profilo un tipo che perde chiavi.
+         *  GUARDATA ROSSA IL 22 SETTEMBRE 2026, rompendo il giro apposta: togliendo `perBanda` dal profilo riletto la
+         *  prova cade, e lo dice — «la serie corta del progetto ha perso le bande: il motore la rileggerebbe uguale per
+         *  tutte». La prima stesura cadeva con un riferimento nullo, cioe' senza dire niente: adesso il verso si prova
+         *  prima, riga per riga. */
+        [TestMethod]
+        public void LaSerieCortaPerBanda_TornaInteraColProgetto() {
+            var proposto = Proposto();
+            proposto["serieCorta"] = new JsonObject { ["sec"] = 15, ["n"] = 16, ["bande"] = new JsonArray("R", "G", "B"),
+                ["gruppo"] = "RGB", ["perBanda"] = new JsonObject {
+                    ["R"] = new JsonObject { ["sec"] = 15, ["n"] = 16 }, ["G"] = new JsonObject { ["sec"] = 15, ["n"] = 16 },
+                    ["B"] = new JsonObject { ["sec"] = 10, ["n"] = 16 } } };
+            var progetti = new List<ProgettiDelProfilo.Progetto>();
+            ProgettiDelProfilo.Apri(progetti, "M3", BancoRc8, proposto, new DateTime(2026, 9, 22));
+            var riletti = ProgettiDelProfilo.Leggi(ProgettiDelProfilo.Scrivi(progetti), out _);
+            var domanda = new JsonObject { ["bersaglio"] = new JsonObject { ["id"] = "M3" }, ["banco"] = Banco() };
+            Assert.IsNotNull(ProgettiDelProfilo.AggiungiAllaDomanda(domanda, riletti));
+            var sc = domanda["opzioni"]!["profilo"]!["serieCorta"];
+            Assert.IsNotNull(sc, "il profilo del progetto non porta piu' la serie corta");
+            Assert.IsNotNull(sc!["perBanda"], "la serie corta del progetto ha perso le bande: il motore la rileggerebbe uguale per tutte");
+            Assert.IsNotNull(sc["perBanda"]!["B"], "la serie della B non c'e' piu'");
+            Assert.AreEqual(10, sc["perBanda"]!["B"]!["sec"]!.GetValue<int>(), "la serie della B non torna com'era");
+            Assert.IsTrue(JsonNode.DeepEquals(proposto["serieCorta"], sc), "la serie corta del progetto non torna intera: " + sc.ToJsonString());
+        }
+
         [TestMethod]
         public void ApriUnProgettoNuovo_ToglieQuelloDiQuestoBersaglioConQuestoBanco() {
             var progetti = new List<ProgettiDelProfilo.Progetto>();

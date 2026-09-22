@@ -1,0 +1,266 @@
+{
+  "notte": 1,
+  "quando": {
+    "data": "2027-01-12",
+    "inizio": "2027-01-12T17:55:00.000Z",
+    "fine": "2027-01-13T04:50:00.000Z",
+    "oreUtili": 10.317
+  },
+  "nome": null,
+  "bersaglio": {
+    "nome": "NGC 2392",
+    "rot": 0,
+    "off": null,
+    "ra_deg": 112.3,
+    "dec_deg": 20.9167,
+    "spostato": false
+  },
+  "ottica": {
+    "tel": "Ritchey-Chretien 8\"",
+    "camera": "ZWO ASI 2600MM Pro",
+    "montatura": "iOptron CEM70G",
+    "focale_mm": 1624,
+    "rapporto": 7.99,
+    "pixel_um": 3.76,
+    "riduttore": 1,
+    "scala_arcsec_px": 0.478,
+    "bin": 1,
+    "matrice": false
+  },
+  "sito": {
+    "lat": 46.0167,
+    "lon": 10.3333
+  },
+  "cap": {
+    "raffredda": true,
+    "ruota": true,
+    "focheggiatore": true,
+    "guida": true,
+    "rotatore": false,
+    "home": true,
+    "tempC": -10,
+    "minutiFreddo": 8,
+    "minutiCaldo": 10
+  },
+  "blocchi": [
+    {
+      "canali": [
+        "OIII"
+      ],
+      "gruppo": "OIII",
+      "filtro": "O",
+      "sec": 300,
+      "n": 20,
+      "poseCanale": 58,
+      "oreCanale": 4.833333333333333,
+      "oreCanaleHM": {
+        "ore": 4,
+        "minuti": 50
+      },
+      "perBanda": true,
+      "limite": "soggetto_satura",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 1.6666666666666667
+    },
+    {
+      "canali": [
+        "SII"
+      ],
+      "gruppo": "SII",
+      "filtro": "S",
+      "sec": 180,
+      "n": 145,
+      "poseCanale": 439,
+      "oreCanale": 21.950000000000003,
+      "oreCanaleHM": {
+        "ore": 21,
+        "minuti": 57
+      },
+      "perBanda": true,
+      "limite": "classe",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 7.25
+    },
+    {
+      "canali": [
+        "Ha"
+      ],
+      "gruppo": "Ha",
+      "filtro": "H",
+      "sec": 300,
+      "n": 8,
+      "poseCanale": 24,
+      "oreCanale": 2,
+      "oreCanaleHM": {
+        "ore": 2,
+        "minuti": 0
+      },
+      "perBanda": true,
+      "limite": "pose_minime",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.6666666666666666
+    },
+    {
+      "canali": [
+        "R"
+      ],
+      "gruppo": "RGB",
+      "filtro": "R",
+      "sec": 60,
+      "n": 5,
+      "poseCanale": 15,
+      "oreCanale": 0.25,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 15
+      },
+      "perBanda": true,
+      "limite": "pose_minime",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.08333333333333333
+    },
+    {
+      "canali": [
+        "G"
+      ],
+      "gruppo": "RGB",
+      "filtro": "G",
+      "sec": 60,
+      "n": 5,
+      "poseCanale": 15,
+      "oreCanale": 0.25,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 15
+      },
+      "perBanda": true,
+      "limite": "pose_minime",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.08333333333333333
+    },
+    {
+      "canali": [
+        "B"
+      ],
+      "gruppo": "RGB",
+      "filtro": "B",
+      "sec": 60,
+      "n": 5,
+      "poseCanale": 15,
+      "oreCanale": 0.25,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 15
+      },
+      "perBanda": true,
+      "limite": "pose_minime",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.08333333333333333
+    }
+  ],
+  "totale": {
+    "pose": 188,
+    "ore": 9.833333333333334,
+    "oreHM": {
+      "ore": 9,
+      "minuti": 50
+    },
+    "orologio": 10.251111111111113,
+    "orologioHM": {
+      "ore": 10,
+      "minuti": 15
+    },
+    "perGruppo": {
+      "OIII": 1.6666666666666667,
+      "SII": 7.25,
+      "Ha": 0.6666666666666666,
+      "RGB": 0.25
+    },
+    "perGruppoHM": {
+      "OIII": {
+        "ore": 1,
+        "minuti": 40
+      },
+      "SII": {
+        "ore": 7,
+        "minuti": 15
+      },
+      "Ha": {
+        "ore": 0,
+        "minuti": 40
+      },
+      "RGB": {
+        "ore": 0,
+        "minuti": 15
+      }
+    }
+  },
+  "nonFusi": [],
+  "serieCorta": {
+    "senzaSerie": null,
+    "perBanda": {
+      "OIII": {
+        "decisa": "fisica",
+        "forma": "unica",
+        "motivoDiClasse": null,
+        "posaPrincipale": 600,
+        "serieSec": null,
+        "seriePose": null,
+        "serieDaConsegnare": null,
+        "nonBasta": null,
+        "posaUnica": 300,
+        "sicuroFinoA": 492,
+        "chiBrucia": "soggetto",
+        "magProtetta": null,
+        "orePari": 4.601700230615712,
+        "orePariHM": {
+          "ore": 4,
+          "minuti": 36
+        },
+        "posaRiferimento": 600,
+        "equivalenti": {
+          "doppia": 3.1850335639490455,
+          "unica": 3.7828318515902986
+        },
+        "equivalentiHM": {
+          "doppia": {
+            "ore": 3,
+            "minuti": 11
+          },
+          "unica": {
+            "ore": 3,
+            "minuti": 47
+          }
+        }
+      }
+    }
+  },
+  "dither": {
+    "ogniPose": 2
+  },
+  "flip": true
+}

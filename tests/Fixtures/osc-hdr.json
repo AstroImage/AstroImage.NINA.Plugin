@@ -73,12 +73,12 @@
       "gruppo": "Ha+OIII",
       "filtro": "HO",
       "sec": 180,
-      "n": 105,
-      "poseCanale": 105,
-      "oreCanale": 5.25,
+      "n": 98,
+      "poseCanale": 98,
+      "oreCanale": 4.9,
       "oreCanaleHM": {
-        "ore": 5,
-        "minuti": 15
+        "ore": 4,
+        "minuti": 54
       },
       "perBanda": true,
       "limite": "classe",
@@ -87,7 +87,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 5.25
+      "ore": 4.9
     },
     {
       "canali": [
@@ -96,53 +96,77 @@
       "gruppo": "RGB",
       "filtro": "L",
       "sec": 60,
-      "n": 30,
-      "poseCanale": 30,
-      "oreCanale": 0.5,
+      "n": 52,
+      "poseCanale": 52,
+      "oreCanale": 0.8666666666666667,
       "oreCanaleHM": {
         "ore": 0,
-        "minuti": 30
+        "minuti": 52
       },
       "perBanda": true,
-      "limite": "pose_minime",
+      "limite": "stelle_sature",
       "ruolo": null,
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.5
+      "ore": 0.8666666666666667
     }
   ],
   "totale": {
-    "pose": 160,
-    "ore": 5.888888888888889,
+    "pose": 175,
+    "ore": 5.905555555555556,
     "oreHM": {
       "ore": 5,
-      "minuti": 53
+      "minuti": 54
     },
-    "orologio": 6.2444444444444445,
+    "orologio": 6.294444444444444,
     "orologioHM": {
       "ore": 6,
-      "minuti": 15
+      "minuti": 18
     },
     "perGruppo": {
-      "Ha+OIII": 5.388888888888889,
-      "RGB": 0.5
+      "Ha+OIII": 5.03888888888889,
+      "RGB": 0.8666666666666667
     },
     "perGruppoHM": {
       "Ha+OIII": {
         "ore": 5,
-        "minuti": 23
+        "minuti": 2
       },
       "RGB": {
         "ore": 0,
-        "minuti": 30
+        "minuti": 52
       }
     }
   },
   "nonFusi": [
     "Ha+OIII 180s contro Ha+OIII 20s"
   ],
+  "serieCorta": {
+    "senzaSerie": null,
+    "perBanda": {
+      "Ha+OIII": {
+        "decisa": "classe",
+        "forma": "doppia",
+        "motivoDiClasse": "canale_doppio",
+        "posaPrincipale": null,
+        "serieSec": 20,
+        "seriePose": 25,
+        "serieDaConsegnare": null,
+        "nonBasta": null,
+        "posaUnica": null,
+        "sicuroFinoA": null,
+        "chiBrucia": null,
+        "magProtetta": null,
+        "orePari": null,
+        "orePariHM": null,
+        "posaRiferimento": null,
+        "equivalenti": null,
+        "equivalentiHM": null
+      }
+    }
+  },
   "dither": {
     "ogniPose": 2
   },

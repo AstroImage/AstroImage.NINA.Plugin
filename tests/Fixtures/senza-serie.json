@@ -1,0 +1,175 @@
+{
+  "notte": 1,
+  "quando": {
+    "data": "2027-01-12",
+    "inizio": "2027-01-12T17:45:00.000Z",
+    "fine": "2027-01-13T03:45:00.000Z",
+    "oreUtili": 9.4
+  },
+  "nome": null,
+  "bersaglio": {
+    "nome": "M35",
+    "rot": 0,
+    "off": null,
+    "ra_deg": 92.225,
+    "dec_deg": 24.3333,
+    "spostato": false
+  },
+  "ottica": {
+    "tel": "Tecnosky 115/800 tripletto",
+    "camera": "ZWO ASI 2600MM Pro",
+    "montatura": "iOptron CEM70G",
+    "focale_mm": 640,
+    "rapporto": 5.57,
+    "pixel_um": 3.76,
+    "riduttore": 0.8,
+    "scala_arcsec_px": 1.212,
+    "bin": 1,
+    "matrice": false
+  },
+  "sito": {
+    "lat": 46.0167,
+    "lon": 10.3333
+  },
+  "cap": {
+    "raffredda": true,
+    "ruota": true,
+    "focheggiatore": true,
+    "guida": true,
+    "rotatore": false,
+    "home": true,
+    "tempC": -10,
+    "minutiFreddo": 8,
+    "minutiCaldo": 10
+  },
+  "blocchi": [
+    {
+      "canali": [
+        "R"
+      ],
+      "gruppo": "RGB",
+      "filtro": "R",
+      "sec": 60,
+      "n": 31,
+      "poseCanale": 92,
+      "oreCanale": 1.5333333333333334,
+      "oreCanaleHM": {
+        "ore": 1,
+        "minuti": 32
+      },
+      "perBanda": true,
+      "limite": "pavimento",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.5166666666666667
+    },
+    {
+      "canali": [
+        "G"
+      ],
+      "gruppo": "RGB",
+      "filtro": "G",
+      "sec": 60,
+      "n": 31,
+      "poseCanale": 92,
+      "oreCanale": 1.5333333333333334,
+      "oreCanaleHM": {
+        "ore": 1,
+        "minuti": 32
+      },
+      "perBanda": true,
+      "limite": "pavimento",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.5166666666666667
+    },
+    {
+      "canali": [
+        "B"
+      ],
+      "gruppo": "RGB",
+      "filtro": "B",
+      "sec": 60,
+      "n": 31,
+      "poseCanale": 92,
+      "oreCanale": 1.5333333333333334,
+      "oreCanaleHM": {
+        "ore": 1,
+        "minuti": 32
+      },
+      "perBanda": true,
+      "limite": "pavimento",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.5166666666666667
+    },
+    {
+      "canali": [
+        "L"
+      ],
+      "gruppo": "L",
+      "filtro": "L",
+      "sec": 60,
+      "n": 69,
+      "poseCanale": 205,
+      "oreCanale": 3.4166666666666665,
+      "oreCanaleHM": {
+        "ore": 3,
+        "minuti": 25
+      },
+      "perBanda": true,
+      "limite": "pavimento",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 1.15
+    }
+  ],
+  "totale": {
+    "pose": 162,
+    "ore": 2.7,
+    "oreHM": {
+      "ore": 2,
+      "minuti": 42
+    },
+    "orologio": 3.06,
+    "orologioHM": {
+      "ore": 3,
+      "minuti": 4
+    },
+    "perGruppo": {
+      "RGB": 1.5500000000000003,
+      "L": 1.15
+    },
+    "perGruppoHM": {
+      "RGB": {
+        "ore": 1,
+        "minuti": 33
+      },
+      "L": {
+        "ore": 1,
+        "minuti": 9
+      }
+    }
+  },
+  "nonFusi": [],
+  "serieCorta": {
+    "senzaSerie": "membri_brillanti_a_ogni_posa",
+    "perBanda": {}
+  },
+  "dither": {
+    "ogniPose": 2
+  },
+  "flip": true
+}

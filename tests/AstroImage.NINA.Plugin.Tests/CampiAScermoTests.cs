@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Resources;
+using System.Text.Json.Nodes;
 using AstroImage.NINA.Plugin.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -28,7 +29,8 @@ namespace AstroImage.NINA.Plugin.Tests {
     [TestClass]
     public class CampiAScermoTests {
 
-        private static readonly string[] Vive = { "mono", "completo", "osc", "osc-hdr", "mono-hdr" };
+        private static readonly string[] Vive = { "mono", "completo", "osc", "osc-hdr", "mono-hdr",
+                                                  "forma-unica", "nucleo-di-classe", "senza-serie" };
 
         /*  LE MAPPE CHE LA PAGINA USA DAVVERO. Una prova che compone la chiave — "Pag_Ruolo_" + codice — guarda il
          *  dizionario, non il pannello: se il codice entrasse nei .resx e non nella mappa della pagina, la prova
@@ -234,6 +236,224 @@ namespace AstroImage.NINA.Plugin.Tests {
                 }
             }
             Assert.IsTrue(provati > 0, "nessun blocco dice il suo ruolo: questo verde non vale");
+        }
+
+        /*  LA SERIE CORTA DI OGNI BANDA, IN PEZZI (22 settembre 2026). Il pannello compone da questi pezzi il perche' della
+         *  serie — sotto il canale e sul nucleo — e ognuno va a schermo. Le relazioni che seguono valgono su qualunque
+         *  prescrizione: dicono come i pezzi stanno fra loro e coi blocchi della notte, non quanto valgono. */
+        private static IEnumerable<(string Fixture, SequenceModel Modello, string Banda, SerieDellaBanda Pezzi)> Serie() =>
+            Vive.Select(n => (n, Modello(n))).Where(x => x.Item2.SerieCorta != null)
+                .SelectMany(x => x.Item2.SerieCorta!.PerBanda.Select(kv => (x.n, x.Item2, kv.Key, kv.Value)));
+
+        /*  Il nucleo ha la sua serie, e la serie e' quella del nucleo: un blocco `nucleo` ha la sua banda fra i pezzi, in
+         *  forma doppia, coi secondi della serie, e le pose del canale sono le pose della serie — di una banda, o del blocco
+         *  intero quando la matrice le ha fuse. E ogni banda coi pezzi ha un blocco in questa notte. */
+        [TestMethod]
+        public void SerieCorta_IlNucleoHaLaSuaSerieELaSerieIlSuoNucleo() {
+            int nuclei = 0, bande = 0;
+            foreach (var nome in Vive) {
+                var m = Modello(nome);
+                var sc = m.SerieCorta;
+                if (sc is null) continue;
+                var qui = new HashSet<string>(m.Blocchi.SelectMany(b => b.Canali).OfType<string>());
+                foreach (var banda in sc.PerBanda.Keys) {
+                    bande++;
+                    Assert.IsTrue(qui.Contains(banda), $"{nome}: i pezzi della serie di {banda} in una notte che non riprende {banda}");
+                }
+                foreach (var b in m.Blocchi.Where(b => b.Ruolo == "nucleo")) {
+                    nuclei++;
+                    var canali = b.Canali.OfType<string>().ToList();
+                    Assert.AreEqual(b.Canali.Count, canali.Count, $"{Nome(nome, b)}: un nucleo con un canale senza nome");
+                    foreach (var c in canali) {
+                        Assert.IsTrue(sc.PerBanda.TryGetValue(c, out var q), $"{Nome(nome, b)}: un nucleo senza i pezzi della sua serie");
+                        Assert.AreEqual("doppia", q!.Forma, $"{Nome(nome, b)}: c'e' il nucleo, e la forma non e' doppia");
+                        Assert.AreEqual(q.SerieSec, b.Sec, $"{Nome(nome, b)}: il nucleo e' a {b.Sec} s, la sua serie a {q.SerieSec} s");
+                    }
+                    var attese = b.PerBanda == false ? canali.Sum(c => sc.PerBanda[c].SeriePose ?? 0) : sc.PerBanda[canali[0]].SeriePose;
+                    Assert.AreEqual(attese, b.PoseCanale, $"{Nome(nome, b)}: {b.PoseCanale} pose sul canale, e la serie ne dice {attese}");
+                }
+            }
+            Assert.IsTrue(nuclei > 0 && bande > 0, "nessun nucleo, o nessuna banda coi pezzi: questo verde non vale");
+        }
+
+        /*  La posa dei blocchi e' quella della forma: nella doppia la serie lunga e' alla posa principale, nella unica il
+         *  canale e' tutto alla posa unica e il nucleo non c'e'. */
+        [TestMethod]
+        public void SerieCorta_LaPosaDeiBlocchiEQuellaDellaForma() {
+            int doppie = 0, uniche = 0;
+            foreach (var (f, m, banda, q) in Serie()) {
+                if (q.Decisa != "fisica") continue;
+                var lunghe = m.Blocchi.Where(b => b.Ruolo == null && b.Canali.Contains(banda)).ToList();
+                if (q.Forma == "doppia") {
+                    doppie++;
+                    Assert.IsTrue(lunghe.All(b => b.Sec == q.PosaPrincipale),
+                        $"{f}/{banda}: la serie lunga e' a {string.Join(", ", lunghe.Select(b => b.Sec))} s, la posa principale a {q.PosaPrincipale} s");
+                } else {
+                    uniche++;
+                    Assert.IsTrue(lunghe.Count > 0 && lunghe.All(b => b.Sec == q.PosaUnica),
+                        $"{f}/{banda}: forma unica a {q.PosaUnica} s, e i blocchi sono a {string.Join(", ", lunghe.Select(b => b.Sec))} s");
+                    Assert.IsFalse(m.Blocchi.Any(b => b.Ruolo == "nucleo" && b.Canali.Contains(banda)), $"{f}/{banda}: forma unica, e c'e' un nucleo");
+                }
+            }
+            Assert.IsTrue(doppie > 0 && uniche > 0, $"le fixture portano {doppie} forme doppie e {uniche} uniche decise dalla fisica: servono tutte e due");
+        }
+
+        /*  Il limite sta fra la serie e la posa principale: la principale lo supera — per questo c'e' la serie —, mentre
+         *  serie e posa unica restano entro di lui; fa eccezione la serie quando anche la posa corta piu' breve lo supera.
+         *  Le pose che si scattano non sono meno di quelle che devono arrivare. I secondi del limite arrivano interi: il
+         *  confronto e' coi due versi dell'arrotondamento. */
+        [TestMethod]
+        public void SerieCorta_IlLimiteStaFraLaSerieELaPosaPrincipale() {
+            var provati = 0;
+            foreach (var (f, m, banda, q) in Serie()) {
+                if (q.Decisa != "fisica") continue;
+                provati++;
+                Assert.IsNotNull(q.SicuroFinoA, $"{f}/{banda}: decisa dalla fisica, e senza il suo limite");
+                Assert.IsTrue(q.PosaPrincipale >= q.SicuroFinoA, $"{f}/{banda}: la posa principale di {q.PosaPrincipale} s non supera il limite di {q.SicuroFinoA} s");
+                if (q.Forma == "doppia") {
+                    Assert.IsNotNull(q.NonBasta, $"{f}/{banda}: forma doppia, e non dice se il gradino basta");
+                    Assert.IsTrue(q.NonBasta == true ? q.SerieSec >= q.SicuroFinoA : q.SerieSec <= q.SicuroFinoA,
+                        $"{f}/{banda}: serie a {q.SerieSec} s col limite a {q.SicuroFinoA} s, e «nemmeno il gradino piu' corto basta» vale {q.NonBasta}");
+                    Assert.IsTrue(q.SeriePose >= q.SerieDaConsegnare, $"{f}/{banda}: {q.SeriePose} pose per consegnarne {q.SerieDaConsegnare}");
+                }
+                if (q.PosaUnica != null)
+                    Assert.IsTrue(q.PosaUnica <= q.SicuroFinoA, $"{f}/{banda}: la posa unica di {q.PosaUnica} s supera il limite di {q.SicuroFinoA} s");
+            }
+            Assert.IsTrue(provati > 0, "nessuna serie decisa dalla fisica: questo verde non vale");
+        }
+
+        /*  Vince la forma con piu' ore equivalenti, cioe' quella con cui, a ore uguali, la parte debole arriva piu' giu'; e
+         *  nessuna delle due supera le ore del canale, perche' sono espresse alla posa piu' lunga delle due. La posa di
+         *  riferimento e' quella della forma doppia quando si puo' fare, se no la posa unica. */
+        [TestMethod]
+        public void SerieCorta_VinceLaFormaConPiuOreEquivalenti() {
+            var provati = 0;
+            foreach (var (f, m, banda, q) in Serie()) {
+                if (q.Decisa != "fisica") continue;
+                provati++;
+                Assert.IsNotNull(q.Equivalenti, $"{f}/{banda}: decisa dalla fisica, e senza le ore equivalenti");
+                double? d = q.Equivalenti!.Doppia, u = q.Equivalenti.Unica;
+                var vinceUnica = u != null && (d == null || u > d);
+                Assert.AreEqual(vinceUnica ? "unica" : "doppia", q.Forma,
+                    $"{f}/{banda}: {d?.ToString("F3") ?? "—"} h con la serie corta, {u?.ToString("F3") ?? "—"} h tutto alla posa corta, e la forma e' «{q.Forma}»");
+                foreach (var x in new[] { d, u })
+                    if (x != null) Assert.IsTrue(x <= q.OrePari + 1e-9, $"{f}/{banda}: {x:F3} h equivalenti su {q.OrePari:F3} h del canale");
+                if (d != null && q.Forma == "doppia")
+                    Assert.AreEqual(q.PosaPrincipale, q.PosaRiferimento, $"{f}/{banda}: forma doppia, e le ore sono espresse a {q.PosaRiferimento} s invece che alla principale");
+                if (d == null && q.PosaUnica != null)
+                    Assert.AreEqual(q.PosaUnica, q.PosaRiferimento, $"{f}/{banda}: la doppia non si puo' fare, e il riferimento non e' la posa unica");
+            }
+            Assert.IsTrue(provati > 0, "nessuna serie decisa dalla fisica: questo verde non vale");
+        }
+
+        /*  `magProtetta`: LA CIFRA A SCHERMO E' QUELLA DELLA POSA (22 settembre 2026). Il pannello scrive «le stelle fino
+         *  alla magnitudine X»: quella X dev'essere la magnitudine con cui la posa di quel canale e' stata decisa, e la
+         *  risposta intera le porta tutt'e due — il perche' nella sequenza, la posa in `posa.<canale>.ex.protectMag`. Se
+         *  il numero del perche' cambiasse da solo, il pannello direbbe una magnitudine che nessuna posa ha protetto. Il
+         *  limite di plausibilita' della prova dei codici resta, ed e' un'altra cosa: quello dice che e' una magnitudine,
+         *  questo che e' LA magnitudine. */
+        [TestMethod]
+        public void MagProtetta_ELaMagnitudineConCuiLaPosaEStataDecisa() {
+            var testo = File.ReadAllText(Path.Combine(CartellaFixture, "servizio", "prescrizione-stelle.json"));
+            var prodotto = JsonNode.Parse(testo)!["prodotto"]!;
+            var posa = prodotto["posa"]!.AsObject();
+            var provati = 0;
+            foreach (var s in prodotto["sequenze"]!.AsArray()) {
+                var sc = s!["modello"]!["serieCorta"];
+                if (sc is null) continue;
+                foreach (var kv in sc["perBanda"]!.AsObject()) {
+                    var q = kv.Value!;
+                    if (q["chiBrucia"]?.GetValue<string>() != "stelle") continue;
+                    provati++;
+                    var dallaPosa = posa[kv.Key]?["ex"]?["protectMag"];
+                    Assert.IsNotNull(dallaPosa, $"{kv.Key}: la serie dice di proteggere le stelle, e la posa non dice fino a quale magnitudine");
+                    Assert.AreEqual(dallaPosa!.GetValue<double>(), q["magProtetta"]!.GetValue<double>(), 1e-9,
+                        $"{kv.Key}: il perche' dice magnitudine {q["magProtetta"]}, la posa e' stata decisa su {dallaPosa}");
+                }
+            }
+            Assert.IsTrue(provati > 0, "nessuna serie decisa dalle stelle nella risposta: questo verde non vale");
+        }
+
+        /*  I pezzi in ore e minuti tornano col decimale che accompagnano, e ci sono se e solo se c'e' lui. */
+        [TestMethod]
+        public void SerieCorta_OreEMinutiTornanoColDecimale() {
+            var provati = 0;
+            foreach (var (f, m, banda, q) in Serie()) {
+                Assert.AreEqual(q.OrePari is null, q.OrePariHM is null, $"{f}/{banda}: le ore del canale e i loro pezzi arrivano insieme");
+                if (q.OrePariHM != null) { provati++; TornaCol($"{f}/{banda} orePari", q.OrePariHM, q.OrePari); }
+                if (q.Equivalenti is null) continue;
+                Assert.IsNotNull(q.EquivalentiHM, $"{f}/{banda}: le ore equivalenti senza i loro pezzi");
+                foreach (var (dec, hm, forma) in new[] { (q.Equivalenti.Doppia, q.EquivalentiHM!.Doppia, "doppia"), (q.Equivalenti.Unica, q.EquivalentiHM.Unica, "unica") }) {
+                    Assert.AreEqual(dec is null, hm is null, $"{f}/{banda}: le ore equivalenti della forma {forma} e i loro pezzi arrivano insieme");
+                    if (hm != null) { provati++; TornaCol($"{f}/{banda} equivalenti {forma}", hm, dec); }
+                }
+            }
+            Assert.IsTrue(provati > 0, "nessun tempo della serie corta in ore e minuti: questo verde non vale");
+        }
+
+        /*  Chi ha deciso dice quali pezzi ci sono: la fisica porta il conto, la classe e il progetto solo la serie. E ogni
+         *  codice che arriva — chi brucia, e perche' una classe non vuole la serie — il pannello lo sa dire nelle due lingue,
+         *  dalle mappe che usa davvero. La classe che non vuole la serie non ne porta nessuna, e nemmeno un nucleo. */
+        [TestMethod]
+        public void SerieCorta_OgniCodiceDiceQualiPezziCiSonoEHaLeSueParole() {
+            var it = new ResourceManager("AstroImage.NINA.Plugin.Localization.Strings_it", typeof(SequenceModel).Assembly);
+            var en = new ResourceManager("AstroImage.NINA.Plugin.Localization.Strings_en", typeof(SequenceModel).Assembly);
+            void Parole(string dove, string chiave) {
+                Assert.IsFalse(string.IsNullOrEmpty(it.GetString(chiave, CultureInfo.InvariantCulture)), $"{dove}: manca la voce italiana {chiave}");
+                Assert.IsFalse(string.IsNullOrEmpty(en.GetString(chiave, CultureInfo.InvariantCulture)), $"{dove}: manca la voce inglese {chiave}");
+            }
+            var chi = MappaDellaPagina("PAROLA_DI_CHI_BRUCIA");
+            var senza = MappaDellaPagina("SPIEGAZIONE_SENZA_SERIE");
+            var ragioni = MappaDellaPagina("RAGIONE_DELLA_CLASSE");
+            int fisica = 0, altre = 0, senzaSerie = 0;
+            var motivi = new HashSet<string>();
+            foreach (var (f, m, banda, q) in Serie()) {
+                var dove = f + "/" + banda;
+                Assert.IsTrue(q.Forma == "doppia" || q.Forma == "unica", $"{dove}: la forma «{q.Forma}» non e' doppia ne' unica");
+                if (q.Decisa == "fisica") {
+                    fisica++;
+                    Assert.IsTrue(q.ChiBrucia != null && chi.TryGetValue(q.ChiBrucia, out _), $"{dove}: chi brucia, «{q.ChiBrucia}», il pannello non lo sa dire");
+                    Parole(dove, chi[q.ChiBrucia!]);
+                    Assert.IsTrue(q.PosaPrincipale != null && q.OrePari != null, $"{dove}: decisa dalla fisica, e senza il suo conto");
+                    Assert.AreEqual(q.ChiBrucia == "stelle", q.MagProtetta != null, $"{dove}: la magnitudine protetta c'e' se e solo se bruciano le stelle");
+                    /*  la magnitudine protetta non ha una relazione con gli altri pezzi: si prova il suo dominio, una
+                     *  magnitudine di stelle da proteggere — un limite di plausibilita', dichiarato come tale */
+                    if (q.MagProtetta != null)
+                        Assert.IsTrue(q.MagProtetta > -2 && q.MagProtetta <= 20, $"{dove}: {q.MagProtetta} non e' una magnitudine di stelle da proteggere");
+                    Assert.IsNull(q.MotivoDiClasse, $"{dove}: decisa dalla fisica, e porta il perche' di una decisione della classe");
+                } else {
+                    Assert.IsTrue(q.Decisa == "classe" || q.Decisa == "progetto", $"{dove}: decisa da «{q.Decisa}», che non e' fisica, classe ne' progetto");
+                    altre++;
+                    Assert.AreEqual("doppia", q.Forma, $"{dove}: una serie della {q.Decisa} e' sempre accanto alla posa principale");
+                    Assert.IsTrue(q.SerieSec != null && q.SeriePose != null, $"{dove}: la serie della {q.Decisa} senza i suoi secondi o le sue pose");
+                    Assert.IsTrue(q.SicuroFinoA is null && q.ChiBrucia is null && q.OrePari is null && q.Equivalenti is null && q.PosaPrincipale is null,
+                        $"{dove}: decisa dalla {q.Decisa}, e porta un conto che solo la fisica puo' fare");
+                    /*  e la classe dice PERCHE' decide lei, con un codice che il pannello sa dire: la banda senza una
+                     *  brillanza misurata, o il canale di due righe. Il progetto no: li' ha deciso una consegna. */
+                    if (q.Decisa == "classe") {
+                        Assert.IsTrue(q.MotivoDiClasse != null && ragioni.TryGetValue(q.MotivoDiClasse, out _),
+                            $"{dove}: decide la classe, e il perche' «{q.MotivoDiClasse}» il pannello non lo sa dire");
+                        Parole(dove, ragioni[q.MotivoDiClasse!]);
+                        motivi.Add(q.MotivoDiClasse!);
+                    } else {
+                        Assert.IsNull(q.MotivoDiClasse, $"{dove}: decisa dal progetto, e porta il perche' della classe");
+                    }
+                }
+            }
+            foreach (var nome in Vive) {
+                var m = Modello(nome);
+                if (m.SerieCorta?.SenzaSerie is null) continue;
+                senzaSerie++;
+                Assert.IsTrue(senza.TryGetValue(m.SerieCorta.SenzaSerie, out var chiave), $"{nome}: «{m.SerieCorta.SenzaSerie}» il pannello non lo sa dire");
+                Parole(nome, chiave!);
+                Assert.AreEqual(0, m.SerieCorta.PerBanda.Count, $"{nome}: la classe non vuole la serie corta, e ne arrivano i pezzi");
+                Assert.IsFalse(m.Blocchi.Any(b => b.Ruolo == "nucleo"), $"{nome}: la classe non vuole la serie corta, e c'e' un nucleo");
+            }
+            Assert.IsTrue(fisica > 0 && altre > 0 && senzaSerie > 0,
+                $"le fixture portano {fisica} serie della fisica, {altre} della classe o del progetto, {senzaSerie} classi senza serie: servono tutte e tre");
+            /*  e tutt'e due le ragioni della classe, o una delle due non sarebbe provata da nessuna fixture */
+            CollectionAssert.AreEquivalent(new[] { "banda_senza_misura", "canale_doppio" }, motivi.ToList(),
+                "le fixture non portano tutt'e due i perche' della classe: " + string.Join(", ", motivi));
         }
     }
 }

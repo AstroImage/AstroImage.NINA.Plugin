@@ -93,9 +93,13 @@ namespace AstroImage.NINA.Plugin.Tests {
              *  il motore. E' un tipo e non tre campi sciolti nel modello perche' sono la stessa notte vista da tre
              *  lati, e perche' l'orologio puo' mancare mentre gli altri due ci sono. Non sa fare niente nemmeno lui. */
             /*  E I PEZZI DI UN TEMPO (21 settembre 2026): ore e minuti gia' arrotondati, perche' il pannello non ricava minuti. */
-            Assert.AreEqual(23, tipi.Length,
+            /*  E I TRE DELLA SERIE CORTA (22 settembre 2026): `SerieCorta` e' la serie del piano per banda, `SerieDellaBanda`
+             *  i pezzi di una banda — la posa principale, la serie, il limite, le ore delle due forme —, `LeDueForme` un
+             *  valore per ciascuna delle due forme. Il pannello ne compone il perche'; nessuno dei tre sa fare niente. */
+            Assert.AreEqual(26, tipi.Length,
                 "il modello deve avere esattamente questi tipi: SequenceModel, Quando, Bersaglio, " +
-                "Offset, Ottica, Sito, Capacita, Blocco, TotaleDellaNotte, OreEMinuti, Dither, la busta del servizio " +
+                "Offset, Ottica, Sito, Capacita, Blocco, TotaleDellaNotte, OreEMinuti, SerieCorta, SerieDellaBanda, " +
+                "LeDueForme, Dither, la busta del servizio " +
                 "RispostaPrescrizione, ProdottoPrescrizione, SequenzaDiNotte, " +
                 "ErroreServizio, MisuraServizio, la ruota virtuale CatalogoDelMotore, " +
                 "VetroDelMotore, RuotaVirtuale, VoceRuota, il sito SitoDiRipresa, " +
@@ -103,6 +107,7 @@ namespace AstroImage.NINA.Plugin.Tests {
                 string.Join(", ", tipi.Select(t => t.Name)));
             foreach (var atteso in new[] { "SequenceModel", "Quando", "Bersaglio", "Offset",
                                            "Ottica", "Sito", "Capacita", "Blocco", "TotaleDellaNotte", "OreEMinuti", "Dither",
+                                           "SerieCorta", "SerieDellaBanda", "LeDueForme`1",
                                            "RispostaPrescrizione", "ProdottoPrescrizione",
                                            "SequenzaDiNotte",
                                            "ErroreServizio", "MisuraServizio" }) {

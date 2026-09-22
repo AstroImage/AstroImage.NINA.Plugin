@@ -192,6 +192,10 @@
     }
   },
   "nonFusi": [],
+  "serieCorta": {
+    "senzaSerie": null,
+    "perBanda": {}
+  },
   "dither": {
     "ogniPose": 2
   },

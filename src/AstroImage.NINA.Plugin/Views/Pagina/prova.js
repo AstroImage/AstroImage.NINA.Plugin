@@ -1265,6 +1265,68 @@
    *  la mappa non conosce deve tacere, come ogni altro. */
   const vocePropria = (mappa, codice) =>
     (typeof codice === 'string' && Object.prototype.hasOwnProperty.call(mappa, codice)) ? mappa[codice] : null;
+  /*  LA SERIE CORTA SPIEGATA (22 settembre 2026). Qui il nucleo aveva solo la spiegazione generica, mentre la pagina
+   *  del motore diceva il conto: le due facce non combaciavano piu'. Il servizio manda, per banda, i pezzi — fin dove
+   *  chi brucia resta al sicuro, la posa principale, la serie o la posa unica, e fin dove arriva la parte debole con
+   *  l'una e con l'altra forma — e qui si compone la frase, nelle due lingue del dizionario. Chi brucia e perche' una classe
+   *  non vuole la serie arrivano come codici: un codice che la mappa non conosce non si dice. Un pezzo che manca e' una
+   *  parte della frase che non si scrive; senza pezzi resta la sola spiegazione generica. */
+  const PAROLA_DI_CHI_BRUCIA = { soggetto: 'Pag_Serie_Chi_soggetto', nucleo_misurato: 'Pag_Serie_Chi_nucleo_misurato',
+    stelle: 'Pag_Serie_Chi_stelle' };
+  const SPIEGAZIONE_SENZA_SERIE = { membri_brillanti_a_ogni_posa: 'Pag_Serie_Senza_membri_brillanti_a_ogni_posa' };
+  /*  PERCHE' HA DECISO LA CLASSE, e le ragioni sono due: una banda senza brillanza misurata, oppure il filtro che porta
+   *  due righe insieme davanti a un sensore a colori, dove quella posa in comune ancora non si ricava. Arrivano come
+   *  codici; un codice che la mappa non conosce non si dice, e resta la serie coi suoi numeri. */
+  const RAGIONE_DELLA_CLASSE = { banda_senza_misura: 'Pag_Serie_Classe_banda_senza_misura',
+    canale_doppio: 'Pag_Serie_Classe_canale_doppio' };
+  function perCheDellaSerie(etichetta, q) {
+    if (!q) return '';
+    const n = x => cifra(x);
+    if (q.decisa === 'classe' && q.serieSec != null && q.seriePose != null) {
+      /*  la parola del tetto di classe e' quella che la riga della posa usa gia', col suo segno: e' lo stesso ripiego
+       *  dichiarato, detto al suo posto */
+      const segno = '<span class="limite classe" title="' + esc(T('Pag_LimiteClasseSpiegazione')) + '">' +
+                    esc(T('Pag_Limite_classe')) + '</span>';
+      const ragione = vocePropria(RAGIONE_DELLA_CLASSE, q.motivoDiClasse);
+      return MF('Pag_Serie_DellaClasse', esc(etichetta), segno, n(q.serieSec), n(q.seriePose)) +
+             (ragione ? ' ' + MF(ragione) : '');
+    }
+    if (q.decisa === 'progetto' && q.serieSec != null && q.seriePose != null)
+      return MF('Pag_Serie_DelProgetto', esc(etichetta), n(q.serieSec), n(q.seriePose));
+    const chi = q.decisa === 'fisica' ? vocePropria(PAROLA_DI_CHI_BRUCIA, q.chiBrucia) : null;
+    if (!chi || q.sicuroFinoA == null || q.posaPrincipale == null) return '';
+    let f = MF(chi, esc(etichetta), n(q.sicuroFinoA), n(q.magProtetta));
+    const e = q.equivalenti || {}, eh = q.equivalentiHM || {};
+    const pari = q.orePari != null ? oreScritte(q.orePariHM, q.orePari) : null;
+    const eqD = e.doppia != null ? oreScritte(eh.doppia, e.doppia) : null;
+    const eqU = e.unica != null ? oreScritte(eh.unica, e.unica) : null;
+    const rif = q.posaRiferimento != null ? n(q.posaRiferimento) : null;
+    if (q.forma === 'unica' && q.posaUnica != null) {
+      f += MF('Pag_Serie_Unica', n(q.posaPrincipale), n(q.posaUnica));
+      f += pari && eqU && rif ? (eqD ? MF('Pag_Serie_PariOreUnica', pari, eqU, rif, eqD) : MF('Pag_Serie_PariOreSoloUnica', pari, eqU, rif)) : '.';
+    } else if (q.forma === 'doppia' && q.serieSec != null && q.seriePose != null) {
+      f += MF('Pag_Serie_Doppia', n(q.posaPrincipale), n(q.serieSec), n(q.seriePose), n(q.serieDaConsegnare));
+      if (q.nonBasta === true) f += MF('Pag_Serie_NonBasta', n(q.serieSec));
+      if (pari && eqD && rif)
+        f += eqU && q.posaUnica != null ? MF('Pag_Serie_PariOreDoppia', pari, eqD, rif, eqU, n(q.posaUnica))
+                                        : MF('Pag_Serie_PariOreSoloDoppia', pari, eqD, rif);
+    } else return '';
+    return f;
+  }
+  /*  Le bande coi pezzi IDENTICI si dicono una volta, con le loro sigle insieme — come le voci della posa: R e G di un
+   *  globulare hanno spesso lo stesso conto, e ripeterlo due volte seppellirebbe quello che dice. */
+  function perCheDelleBande(serie, bande) {
+    const pb = (serie && serie.perBanda) || {}, gruppi = [];
+    for (const b of bande) {
+      const q = Object.prototype.hasOwnProperty.call(pb, b) ? pb[b] : null;
+      if (!q) continue;
+      const k = JSON.stringify(q), g = gruppi.find(x => x.k === k);
+      if (g) g.bande.push(b); else gruppi.push({ k, q, bande: [b] });
+    }
+    return gruppi.map(g => perCheDellaSerie(g.bande.join('·'), g.q)).filter(Boolean);
+  }
+  /*  Il testo semplice di un pezzo di HTML composto, per il suggerimento al passaggio del mouse. */
+  const soloTesto = h => { const d = document.createElement('div'); d.innerHTML = h; return d.textContent; };
   const PAROLA_DEL_CIELO = { buio: 'Pag_Cielo_buio', luna_non_disturba: 'Pag_Cielo_luna_non_disturba',
     luna_tollerabile: 'Pag_Cielo_luna_tollerabile', luna_pesante: 'Pag_Cielo_luna_pesante', non_usata: 'Pag_Cielo_non_usata' };
   const PAROLA_DEL_RIFERIMENTO = { brillanza_pubblicata: 'Pag_Prof_Rif_brillanza_pubblicata',
@@ -1315,12 +1377,15 @@
    *  una notte «stanotte» ripete il numero, e la ripetizione dice una cosa vera: che la notte e' il canale intero.
    *  In coda, chi ha deciso i secondi: tenue per tutti tranne il tetto di classe, che e' un ripiego dichiarato e si
    *  segna diverso. Non un allarme e non un divieto: il prodotto consiglia. */
-  function rigaDellaPosa(v, conBanda, guadagnoPerRiga) {
+  function rigaDellaPosa(v, conBanda, guadagnoPerRiga, serie) {
     const b = v.b, unite = v.blocchi.length > 1;
     let s = '';
     const parolaDelRuolo = vocePropria(PAROLA_DEL_RUOLO, b.ruolo), spiegazioneDelRuolo = vocePropria(SPIEGAZIONE_DEL_RUOLO, b.ruolo);
+    /*  sul nucleo, accanto alla spiegazione, il perche' della sua serie, banda per banda, quando i pezzi arrivano */
+    const perChe = b.ruolo === 'nucleo' ? perCheDelleBande(serie, v.bande).map(soloTesto) : [];
     if (parolaDelRuolo && spiegazioneDelRuolo)
-      s += '<span class="ruolo ' + (b.ruolo === 'nucleo' ? 'nucleo' : '') + '" title="' + esc(T(spiegazioneDelRuolo)) + '">' +
+      s += '<span class="ruolo ' + (b.ruolo === 'nucleo' ? 'nucleo' : '') + '" title="' +
+           esc([T(spiegazioneDelRuolo)].concat(perChe).join('\n\n')) + '">' +
            esc(T(parolaDelRuolo)) + '</span> ';
     s += '<span class="posa-sec">' + cifra(b.sec) + ' s</span>';
     if (b.poseCanale != null)
@@ -1377,6 +1442,10 @@
     const critico = p.prescrizione && p.prescrizione.critGroup;
     const piuNuovo = Number(d.contratto) > CONTRATTO_CONOSCIUTO
       ? '<div class="nota-rif">' + MF('Pag_ContrattoPiuNuovo', esc(d.contratto), cifra(CONTRATTO_CONOSCIUTO)) + '</div>' : '';
+    /*  il perche' della serie corta di ogni banda si scrive una volta sola, sotto il suo canale, la prima notte che lo
+     *  riprende: i pezzi sono del canale su tutto il progetto, e ripeterli ogni notte direbbe tre volte la stessa cosa */
+    const serieDette = new Set();
+    let senzaSerieDetta = false;
     const schede = (p.sequenze || []).map((s, iNotte) => {
       const m = s.modello || {}, blocchi = m.blocchi || [];
       const nt = notti.find(x => x.n === s.notte) || null;
@@ -1408,10 +1477,19 @@
         const riga = '<div class="canale"><div class="nome ' + (TINTA_DEL_CANALE[g.id] || '') + '">' + esc(g.id) +
           '<small>' + esc(vetri) + '</small></div>' +
           '<div class="ore">' + (g.h != null ? oreScritte(g.hHM, g.h) : '') + '</div>' +
-          '<div class="posa">' + voci.map(v => rigaDellaPosa(v, conBanda, perRiga)).join(' <span class="tenue">&nbsp;·&nbsp;</span> ') + '</div>' +
+          '<div class="posa">' + voci.map(v => rigaDellaPosa(v, conBanda, perRiga, m.serieCorta)).join(' <span class="tenue">&nbsp;·&nbsp;</span> ') + '</div>' +
           '<div class="fatte">' + (fatte != null ? '= ' + oreScritte(fatteHM, fatte) : '') + '</div></div>';
-        return riga + (iNotte === 0 && critico && g.id === critico ? profonditaDelCanale(p) : '');
+        const bandeNuove = [...new Set(g.blocchi.flatMap(b => b.canali || []))].filter(c => !serieDette.has(c));
+        const perChe = perCheDelleBande(m.serieCorta, bandeNuove);
+        bandeNuove.filter(c => m.serieCorta && m.serieCorta.perBanda && Object.prototype.hasOwnProperty.call(m.serieCorta.perBanda, c))
+          .forEach(c => serieDette.add(c));
+        return riga + (iNotte === 0 && critico && g.id === critico ? profonditaDelCanale(p) : '') +
+          perChe.map(x => '<div class="serie-corta">' + x + '</div>').join('');
       }).join('');
+      /*  se la classe rinuncia alla serie corta, una riga sola, dopo i canali della prima notte che lo dice */
+      const senza = !senzaSerieDetta && m.serieCorta ? vocePropria(SPIEGAZIONE_SENZA_SERIE, m.serieCorta.senzaSerie) : null;
+      if (senza) senzaSerieDetta = true;
+      const senzaSerie = senza ? '<div class="serie-corta senza">' + MF(senza) + '</div>' : '';
       const t = m.totale || {};
       const totale = t.ore == null ? '' : (t.orologio != null
         ? MF('Pag_TotaleNotte', oreScritte(t.oreHM, t.ore), oreScritte(t.orologioHM, t.orologio))
@@ -1431,7 +1509,7 @@
           T('Pag_MandaANina') + '</button>' : '';
       const piede = '<div class="notte-piede"><span>' + totale + restano + '</span>' +
         (!perRiga && guadagni.length === 1 ? '<span>· ' + guadagni[0] + '</span>' : '') + tasto + '</div>';
-      return '<div class="notte">' + testa + righeDellaLuna(p.luna, s.notte) + canali + piede + '</div>';
+      return '<div class="notte">' + testa + righeDellaLuna(p.luna, s.notte) + canali + senzaSerie + piede + '</div>';
     }).join('');
     return piuNuovo + schede;
   }
