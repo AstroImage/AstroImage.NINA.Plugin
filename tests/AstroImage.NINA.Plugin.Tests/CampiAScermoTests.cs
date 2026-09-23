@@ -119,6 +119,23 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsTrue(provati > 0, "nessuna fixture porta le ore dei canali: questo verde non vale");
         }
 
+        /*  `totale.pose`: tutte le pose della notte. La relazione e' la stessa delle ore — il numero che il pannello scrive
+         *  torna con quelli da cui viene —: sommando `n` di ogni blocco si riottiene. Fino al 23 settembre 2026 nessuna prova
+         *  si sarebbe accorta se questo numero fosse cambiato da solo: il pannello lo mostra, e lo mostrava senza garanzia. */
+        [TestMethod]
+        public void PoseDellaNotte_SonoLaSommaDeiBlocchi() {
+            var provati = 0;
+            foreach (var nome in Vive) {
+                var m = Modello(nome);
+                if (m.Totale?.Pose is null) continue;
+                provati++;
+                var somma = m.Blocchi.Sum(b => b.N ?? 0);
+                Assert.AreEqual(somma, m.Totale.Pose!.Value,
+                    $"{nome}: i blocchi fanno {somma} pose e la notte ne dice {m.Totale.Pose}");
+            }
+            Assert.IsTrue(provati > 0, "nessuna fixture porta le pose della notte: questo verde non vale");
+        }
+
         /*  I PEZZI IN ORE E MINUTI tornano col decimale che accompagnano, entro mezzo minuto: sono lo stesso tempo, arrotondato
          *  una volta. Se un pezzo cambiasse da solo, il pannello scriverebbe un tempo che non e' quello della prescrizione. */
         private static void TornaCol(string dove, OreEMinuti? p, double? h) {

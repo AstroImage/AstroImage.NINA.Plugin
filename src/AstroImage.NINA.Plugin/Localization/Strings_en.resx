@@ -1657,7 +1657,7 @@
     <value> At equal sky time ({0}) the faint part gets as much as {1} at {2} s with the short series; no step of the scale allows everything at the short exposure.</value>
   </data>
   <data name="Pag_Serie_Pareggio" xml:space="preserve">
-    <value> — at this exposure no HDR is needed, so the single form is chosen.</value>
+    <value> — at this exposure no HDR is needed, so the single exposure is chosen.</value>
   </data>
   <data name="Pag_Serie_DellaClasse" xml:space="preserve">
     <value>{0}: {1} — the class's short series, at {2} s, {3} frames.</value>
