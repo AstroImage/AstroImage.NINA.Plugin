@@ -5,13 +5,15 @@ AstroImage-Strategy, fatta girare su banchi ottici veri del suo catalogo. È l'u
 che rende utile un test sul contratto: un JSON inventato dimostra soltanto che chi l'ha
 scritto e chi lo legge hanno avuto la stessa idea sbagliata.
 
-## I dieci casi, e perché proprio questi
+## I dodici casi, e perché proprio questi
 
 | file | che cosa esercita |
 |---|---|
 | `mono.json` | camera monocromatica, cinque filtri, ogni canale il suo vetro: nessuna fusione |
 | `osc.json` | sensore a matrice: la banda larga arriva come un canale solo, `RGB`, in un blocco; niente da fondere, e `nonFusi` vuoto |
-| `osc-hdr.json` | matrice con serie corta: due pose diverse sullo stesso filtro, che restano due blocchi e sono dichiarate in `nonFusi` |
+| `osc-hdr.json` | matrice con serie corta: due pose diverse sullo stesso filtro, che restano due blocchi e sono dichiarate in `nonFusi`; la serie è della classe, col limite nel verso `al_piu` e il suo fotosito |
+| `duale-al-piu.json` | il filtro a due righe sulla matrice, con la serie della fisica e il limite nel verso `al_piu`: il pannello dice «al più fino a», e il colore che si riempie per primo |
+| `duale-almeno.json` | lo stesso filtro, con la serie della fisica e il limite nel verso `almeno`, su un altro colore: la frase resta quella di sempre |
 | `completo.json` | campo spostato (`off` con `spostato: true`), rotazione, rotatore **dichiarato**, dither ogni 3 pose |
 | `mono-hdr.json` | monocromatica con la serie corta su più bande: R, G e B a posa corta, ciascuna con `ruolo: "nucleo"`, accanto alla serie lunga della stessa banda |
 | `forma-unica.json` | una banda che va tutta alla posa corta invece di fare la serie corta: in `serieCorta` i pezzi della forma unica, e nessun nucleo |
@@ -20,7 +22,7 @@ scritto e chi lo legge hanno avuto la stessa idea sbagliata.
 | `pareggio.json` | su una banda le due forme finiscono nello stesso minuto, sulle altre no: i due rami della frase in una fixture sola |
 | `scarno.json` | il caso povero: niente sito, niente autoguida, nessun nome di attrezzatura — tutti i campi che devono restare `null` |
 
-Tutte e dieci portano `quando`, perché il motore lo riempie da una notte vera. Il caso
+Tutte e dodici portano `quando`, perché il motore lo riempie da una notte vera. Il caso
 con `quando` nullo — una notte costruita a mano, senza tempo — non è raggiungibile dalla
 pagina, e i test lo ottengono degradando una fixture invece di inventarne una.
 
@@ -42,7 +44,9 @@ servizio, con la ruota L-Ultimate + P2:
 | file | richiesta |
 |---|---|
 | `osc.json` | M31 · RedCat 51 + ASI 2600MC + AM5 · 1 settembre 2026 · una notte |
-| `osc-hdr.json` | M27 · Askar 71F 0,75× + ASI 2600MC + AM5 · 1 settembre 2026 · una notte (la serie corta è della notte 1) |
+| `osc-hdr.json` | NGC 6543 · Askar 71F 0,75× + ASI 2600MC + AM5 · 1 settembre 2026 · una notte. Fino al 23 settembre 2026 era M27, che sullo stesso banco una serie corta non la riceve più |
+| `duale-al-piu.json` | M42 · Askar 71F 0,75× + ASI 2600MC + AM5 · 12 gennaio 2027 · una notte; entrata il 23 settembre 2026 |
+| `duale-almeno.json` | NGC 2392 · Askar 71F 0,75× + ASI 2600MC + AM5 · 12 gennaio 2027 · una notte; entrata il 23 settembre 2026 |
 | `servizio/prescrizione-ok.json` | NGC 6888 · Askar 71F 0,75× + ASI 2600MC + AM5 · 15 settembre 2026 · una notte |
 | `mono-hdr.json` | M3 · Askar 71F 0,75× + ASI 2600MM + CEM70G · 19 novembre 2026 · tre notti (la serie corta è della notte 1); entrata il 21 settembre 2026 sull'RC8, spostata sull'Askar il 22 settembre, quando sull'RC8 R, G e B hanno smesso di avere la serie corta. È la notte che il servizio prescrive per M3 da quel sito: chiesta a settembre, la spostava lì |
 | `forma-unica.json` | NGC 2392 · RC8 + ASI 2600MM + CEM70G · 12 gennaio 2027 · tre notti; entrata il 22 settembre 2026 |

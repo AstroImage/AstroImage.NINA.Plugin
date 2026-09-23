@@ -1663,15 +1663,24 @@
     <value>{0}: {1} — the class's short series, at {2} s, {3} frames.</value>
   </data>
   <data name="Pag_Serie_Classe_banda_senza_misura" xml:space="preserve">
-    <value>In this band the subject's brightness is not measured.</value>
-  </data>
-  <data name="Pag_Serie_Classe_canale_doppio" xml:space="preserve">
-    <value>The engine does not compute the common Hα and OIII exposure from brightness yet.</value>
+    <value>In this band the subject's brightness is not measured, or not in all of its lines.</value>
   </data>
   <data name="Pag_Serie_DelProgetto" xml:space="preserve">
     <value>{0}: the project's short series, at {1} s, {2} frames.</value>
   </data>
   <data name="Pag_Serie_Senza_membri_brillanti_a_ogni_posa" xml:space="preserve">
     <value>No short series: in an open cluster the brightest members reach full scale even at the shortest exposure, and a short series would not save them.</value>
+  </data>
+  <data name="Pag_Serie_Chi_soggetto_al_piu" xml:space="preserve">
+    <value>{0}: the subject stays safe at most up to {1} s</value>
+  </data>
+  <data name="Pag_Serie_Fotosito_rosso" xml:space="preserve">
+    <value> (the red pixels are the first to fill)</value>
+  </data>
+  <data name="Pag_Serie_Fotosito_verde" xml:space="preserve">
+    <value> (the green pixels are the first to fill)</value>
+  </data>
+  <data name="Pag_Serie_Fotosito_blu" xml:space="preserve">
+    <value> (the blue pixels are the first to fill)</value>
   </data>
 </root>

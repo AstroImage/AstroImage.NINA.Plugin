@@ -1663,15 +1663,24 @@
     <value>{0}: {1} — serie corta della classe, a {2} s, {3} pose.</value>
   </data>
   <data name="Pag_Serie_Classe_banda_senza_misura" xml:space="preserve">
-    <value>In questa banda la brillanza del soggetto non è misurata.</value>
-  </data>
-  <data name="Pag_Serie_Classe_canale_doppio" xml:space="preserve">
-    <value>La posa comune di Hα e OIII il motore non la calcola ancora dalla brillanza.</value>
+    <value>In questa banda la brillanza del soggetto non è misurata, o non lo è in tutte le sue righe.</value>
   </data>
   <data name="Pag_Serie_DelProgetto" xml:space="preserve">
     <value>{0}: serie corta del progetto, a {1} s, {2} pose.</value>
   </data>
   <data name="Pag_Serie_Senza_membri_brillanti_a_ogni_posa" xml:space="preserve">
     <value>Nessuna serie corta: in un ammasso aperto i membri più luminosi vanno a fondo scala anche alla posa più breve, e una serie corta non li salverebbe.</value>
+  </data>
+  <data name="Pag_Serie_Chi_soggetto_al_piu" xml:space="preserve">
+    <value>{0}: il soggetto resta al sicuro al più fino a {1} s</value>
+  </data>
+  <data name="Pag_Serie_Fotosito_rosso" xml:space="preserve">
+    <value> (i primi a riempirsi sono i fotositi rossi)</value>
+  </data>
+  <data name="Pag_Serie_Fotosito_verde" xml:space="preserve">
+    <value> (i primi a riempirsi sono i fotositi verdi)</value>
+  </data>
+  <data name="Pag_Serie_Fotosito_blu" xml:space="preserve">
+    <value> (i primi a riempirsi sono i fotositi blu)</value>
   </data>
 </root>

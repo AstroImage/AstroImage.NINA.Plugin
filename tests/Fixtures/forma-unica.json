@@ -256,7 +256,9 @@
             "ore": 3,
             "minuti": 44
           }
-        }
+        },
+        "tettoFotosito": null,
+        "tettoDaRighe": "almeno"
       }
     }
   },

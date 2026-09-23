@@ -516,11 +516,13 @@ namespace AstroImage.NINA.Plugin.Tests {
             /*  e i pezzi di una banda nell'ordine in cui il motore li scrive, su una fixture che ne porta */
             var conSerie = JsonNode.Parse(SequenceModel.Leggi(Testo("nucleo-di-classe"))!.Scrivi())!["serieCorta"]!;
             CollectionAssert.AreEqual(new[] { "senzaSerie", "perBanda" }, conSerie.AsObject().Select(p => p.Key).ToArray());
+            /*  In coda, dal 23 settembre 2026, i due codici del sensore a colori: `tettoFotosito`, il colore che arriva
+             *  pieno prima degli altri, e `tettoDaRighe`, se il numero del limite e' esatto, per difetto o per eccesso. */
             foreach (var banda in conSerie["perBanda"]!.AsObject())
                 CollectionAssert.AreEqual(
                     new[] { "decisa", "forma", "motivoDiClasse", "pareggio", "posaPrincipale", "serieSec", "seriePose", "serieDaConsegnare", "nonBasta",
                             "posaUnica", "sicuroFinoA", "chiBrucia", "magProtetta", "orologioPari", "orologioPariHM",
-                            "posaRiferimento", "equivalenti", "equivalentiHM" },
+                            "posaRiferimento", "equivalenti", "equivalentiHM", "tettoFotosito", "tettoDaRighe" },
                     banda.Value!.AsObject().Select(p => p.Key).ToArray(), banda.Key);
             CollectionAssert.AreEqual(
                 new[] { "data", "inizio", "fine", "oreUtili" },

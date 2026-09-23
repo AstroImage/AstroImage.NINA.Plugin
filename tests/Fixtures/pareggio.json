@@ -218,7 +218,9 @@
             "ore": 0,
             "minuti": 36
           }
-        }
+        },
+        "tettoFotosito": null,
+        "tettoDaRighe": null
       },
       "G": {
         "decisa": "fisica",
@@ -253,7 +255,9 @@
             "ore": 0,
             "minuti": 36
           }
-        }
+        },
+        "tettoFotosito": null,
+        "tettoDaRighe": null
       },
       "B": {
         "decisa": "fisica",
@@ -288,7 +292,9 @@
             "ore": 0,
             "minuti": 37
           }
-        }
+        },
+        "tettoFotosito": null,
+        "tettoDaRighe": null
       }
     }
   },

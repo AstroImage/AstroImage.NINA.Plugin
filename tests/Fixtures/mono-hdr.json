@@ -238,7 +238,9 @@
             "minuti": 4
           },
           "unica": null
-        }
+        },
+        "tettoFotosito": null,
+        "tettoDaRighe": null
       },
       "G": {
         "decisa": "fisica",
@@ -270,7 +272,9 @@
             "minuti": 4
           },
           "unica": null
-        }
+        },
+        "tettoFotosito": null,
+        "tettoDaRighe": null
       },
       "B": {
         "decisa": "fisica",
@@ -302,7 +306,9 @@
             "minuti": 5
           },
           "unica": null
-        }
+        },
+        "tettoFotosito": null,
+        "tettoDaRighe": null
       }
     }
   },

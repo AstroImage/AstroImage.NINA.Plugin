@@ -1,18 +1,18 @@
 {
   "notte": 1,
   "quando": {
-    "data": "2026-09-01",
-    "inizio": "2026-09-01T19:45:00.000Z",
-    "fine": "2026-09-02T03:00:00.000Z",
-    "oreUtili": 6.567
+    "data": "2027-01-12",
+    "inizio": "2027-01-12T17:55:00.000Z",
+    "fine": "2027-01-13T01:00:00.000Z",
+    "oreUtili": 6.483
   },
   "nome": null,
   "bersaglio": {
-    "nome": "NGC 6543",
+    "nome": "M42",
     "rot": 0,
     "off": null,
-    "ra_deg": 269.65,
-    "dec_deg": 66.6333,
+    "ra_deg": 83.825,
+    "dec_deg": -5.3833,
     "spostato": false
   },
   "ottica": {
@@ -49,10 +49,10 @@
       ],
       "gruppo": "Ha+OIII",
       "filtro": "HO",
-      "sec": 20,
-      "n": 25,
-      "poseCanale": 25,
-      "oreCanale": 0.1388888888888889,
+      "sec": 30,
+      "n": 16,
+      "poseCanale": 16,
+      "oreCanale": 0.13333333333333333,
       "oreCanaleHM": {
         "ore": 0,
         "minuti": 8
@@ -64,7 +64,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.1388888888888889
+      "ore": 0.13333333333333333
     },
     {
       "canali": [
@@ -72,22 +72,22 @@
       ],
       "gruppo": "Ha+OIII",
       "filtro": "HO",
-      "sec": 180,
-      "n": 112,
-      "poseCanale": 112,
-      "oreCanale": 5.6,
+      "sec": 600,
+      "n": 36,
+      "poseCanale": 36,
+      "oreCanale": 6,
       "oreCanaleHM": {
-        "ore": 5,
-        "minuti": 36
+        "ore": 6,
+        "minuti": 0
       },
       "perBanda": true,
-      "limite": "classe",
+      "limite": "montatura",
       "ruolo": null,
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 5.6
+      "ore": 6
     },
     {
       "canali": [
@@ -96,75 +96,90 @@
       "gruppo": "RGB",
       "filtro": "L",
       "sec": 60,
-      "n": 48,
-      "poseCanale": 48,
-      "oreCanale": 0.8,
+      "n": 17,
+      "poseCanale": 17,
+      "oreCanale": 0.2833333333333333,
       "oreCanaleHM": {
         "ore": 0,
-        "minuti": 48
+        "minuti": 17
       },
       "perBanda": true,
-      "limite": "stelle_sature",
+      "limite": "pose_minime",
       "ruolo": null,
       "gain": 100,
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.8
+      "ore": 0.2833333333333333
     }
   ],
   "totale": {
-    "pose": 185,
-    "ore": 6.538888888888889,
+    "pose": 69,
+    "ore": 6.416666666666667,
     "oreHM": {
       "ore": 6,
-      "minuti": 32
+      "minuti": 25
     },
-    "orologio": 6.95,
+    "orologio": 6.57,
     "orologioHM": {
       "ore": 6,
-      "minuti": 57
+      "minuti": 34
     },
     "perGruppo": {
-      "Ha+OIII": 5.738888888888889,
-      "RGB": 0.8
+      "Ha+OIII": 6.133333333333334,
+      "RGB": 0.2833333333333333
     },
     "perGruppoHM": {
       "Ha+OIII": {
-        "ore": 5,
-        "minuti": 44
+        "ore": 6,
+        "minuti": 8
       },
       "RGB": {
         "ore": 0,
-        "minuti": 48
+        "minuti": 17
       }
     }
   },
   "nonFusi": [
-    "Ha+OIII 180s contro Ha+OIII 20s"
+    "Ha+OIII 600s contro Ha+OIII 30s"
   ],
   "serieCorta": {
     "senzaSerie": null,
     "perBanda": {
       "Ha+OIII": {
-        "decisa": "classe",
+        "decisa": "fisica",
         "forma": "doppia",
-        "motivoDiClasse": "banda_senza_misura",
-        "pareggio": null,
-        "posaPrincipale": null,
-        "serieSec": 20,
-        "seriePose": 25,
-        "serieDaConsegnare": null,
-        "nonBasta": null,
-        "posaUnica": null,
-        "sicuroFinoA": null,
-        "chiBrucia": null,
+        "motivoDiClasse": null,
+        "pareggio": false,
+        "posaPrincipale": 600,
+        "serieSec": 30,
+        "seriePose": 16,
+        "serieDaConsegnare": 15,
+        "nonBasta": false,
+        "posaUnica": 30,
+        "sicuroFinoA": 53,
+        "chiBrucia": "soggetto",
         "magProtetta": null,
-        "orologioPari": null,
-        "orologioPariHM": null,
-        "posaRiferimento": null,
-        "equivalenti": null,
-        "equivalentiHM": null,
+        "orologioPari": 6.234349480444047,
+        "orologioPariHM": {
+          "ore": 6,
+          "minuti": 14
+        },
+        "posaRiferimento": 600,
+        "equivalenti": {
+          "doppia": 5.985651899561011,
+          "unica": 2.8469273014462857
+        },
+        "equivalentiHM": {
+          "doppia": {
+            "ore": 5,
+            "minuti": 59
+          },
+          "unica": {
+            "ore": 2,
+            "minuti": 51
+          }
+        },
         "tettoFotosito": "rosso",
         "tettoDaRighe": "al_piu"
       }

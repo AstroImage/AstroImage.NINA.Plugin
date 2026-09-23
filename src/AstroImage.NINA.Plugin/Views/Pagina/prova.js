@@ -1274,11 +1274,24 @@
   const PAROLA_DI_CHI_BRUCIA = { soggetto: 'Pag_Serie_Chi_soggetto', nucleo_misurato: 'Pag_Serie_Chi_nucleo_misurato',
     stelle: 'Pag_Serie_Chi_stelle' };
   const SPIEGAZIONE_SENZA_SERIE = { membri_brillanti_a_ogni_posa: 'Pag_Serie_Senza_membri_brillanti_a_ogni_posa' };
-  /*  PERCHE' HA DECISO LA CLASSE, e le ragioni sono due: una banda senza brillanza misurata, oppure il filtro che porta
-   *  due righe insieme davanti a un sensore a colori, dove quella posa in comune ancora non si ricava. Arrivano come
-   *  codici; un codice che la mappa non conosce non si dice, e resta la serie coi suoi numeri. */
-  const RAGIONE_DELLA_CLASSE = { banda_senza_misura: 'Pag_Serie_Classe_banda_senza_misura',
-    canale_doppio: 'Pag_Serie_Classe_canale_doppio' };
+  /*  PERCHE' HA DECISO LA CLASSE: la banda non ha la brillanza del soggetto, o non ce l'ha per ogni riga che porta. Era
+   *  una ragione di due; la seconda — il filtro a due righe sul sensore a colori — il servizio non la manda piu', perche'
+   *  quella posa adesso la ricava (23 settembre 2026), e qui non resta nemmeno la parola. Un codice che la mappa non
+   *  conosce non si dice, e resta la serie coi suoi numeri. */
+  const RAGIONE_DELLA_CLASSE = { banda_senza_misura: 'Pag_Serie_Classe_banda_senza_misura' };
+  /*  IL COLORE CHE SI RIEMPIE PER PRIMO, sul sensore a colori: e' quello a cui si riferisce il numero di «fino a». Si dice
+   *  il colore e basta — quale riga cada su quale colore il pezzo non lo dice, e qui non si deduce. */
+  const PAROLA_DEL_FOTOSITO = { rosso: 'Pag_Serie_Fotosito_rosso', verde: 'Pag_Serie_Fotosito_verde',
+    blu: 'Pag_Serie_Fotosito_blu' };
+  /*  IL NUMERO NON PROMETTE PIU' DEL SUO VERSO. Col verso `al_piu` il limite che arriva e' il piu' lungo possibile, e
+   *  quello vero puo' stare prima: la frase lo dice. La mappa elenca solo chi dipende da quel verso — il soggetto —; il
+   *  limite delle stelle non ne dipende, e per loro resta la parola di sempre. Col verso `almeno` la frase resta quella di
+   *  sempre: il numero e' prudente per una ragione e non per tutte, e dire «almeno» prometterebbe di piu'. */
+  const PAROLA_DI_CHI_BRUCIA_AL_PIU = { soggetto: 'Pag_Serie_Chi_soggetto_al_piu' };
+  const fotositoDi = q => {
+    const k = q.chiBrucia === 'soggetto' ? vocePropria(PAROLA_DEL_FOTOSITO, q.tettoFotosito) : null;
+    return k ? MF(k) : '';
+  };
   function perCheDellaSerie(etichetta, q) {
     if (!q) return '';
     const n = x => cifra(x);
@@ -1293,9 +1306,11 @@
     }
     if (q.decisa === 'progetto' && q.serieSec != null && q.seriePose != null)
       return MF('Pag_Serie_DelProgetto', esc(etichetta), n(q.serieSec), n(q.seriePose));
-    const chi = q.decisa === 'fisica' ? vocePropria(PAROLA_DI_CHI_BRUCIA, q.chiBrucia) : null;
+    const chi = q.decisa === 'fisica'
+      ? ((q.tettoDaRighe === 'al_piu' ? vocePropria(PAROLA_DI_CHI_BRUCIA_AL_PIU, q.chiBrucia) : null) ||
+         vocePropria(PAROLA_DI_CHI_BRUCIA, q.chiBrucia)) : null;
     if (!chi || q.sicuroFinoA == null || q.posaPrincipale == null) return '';
-    let f = MF(chi, esc(etichetta), n(q.sicuroFinoA), n(q.magProtetta));
+    let f = MF(chi, esc(etichetta), n(q.sicuroFinoA), n(q.magProtetta)) + fotositoDi(q);
     const e = q.equivalenti || {}, eh = q.equivalentiHM || {};
     const pari = q.orologioPari != null ? oreScritte(q.orologioPariHM, q.orologioPari) : null;
     const eqD = e.doppia != null ? oreScritte(eh.doppia, e.doppia) : null;

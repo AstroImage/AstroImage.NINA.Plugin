@@ -1,0 +1,192 @@
+{
+  "notte": 1,
+  "quando": {
+    "data": "2027-01-12",
+    "inizio": "2027-01-12T17:55:00.000Z",
+    "fine": "2027-01-13T04:50:00.000Z",
+    "oreUtili": 10.317
+  },
+  "nome": null,
+  "bersaglio": {
+    "nome": "NGC 2392",
+    "rot": 0,
+    "off": null,
+    "ra_deg": 112.3,
+    "dec_deg": 20.9167,
+    "spostato": false
+  },
+  "ottica": {
+    "tel": "Askar 71F",
+    "camera": "ZWO ASI 2600MC Pro",
+    "montatura": "ZWO AM5",
+    "focale_mm": 367,
+    "rapporto": 5.17,
+    "pixel_um": 3.76,
+    "riduttore": 0.75,
+    "scala_arcsec_px": 2.113,
+    "bin": 1,
+    "matrice": true
+  },
+  "sito": {
+    "lat": 46.0167,
+    "lon": 10.3333
+  },
+  "cap": {
+    "raffredda": true,
+    "ruota": true,
+    "focheggiatore": true,
+    "guida": true,
+    "rotatore": false,
+    "home": true,
+    "tempC": -10,
+    "minutiFreddo": 8,
+    "minutiCaldo": 10
+  },
+  "blocchi": [
+    {
+      "canali": [
+        "Ha+OIII"
+      ],
+      "gruppo": "Ha+OIII",
+      "filtro": "HO",
+      "sec": 120,
+      "n": 16,
+      "poseCanale": 16,
+      "oreCanale": 0.5333333333333333,
+      "oreCanaleHM": {
+        "ore": 0,
+        "minuti": 32
+      },
+      "perBanda": true,
+      "limite": null,
+      "ruolo": "nucleo",
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 0.5333333333333333
+    },
+    {
+      "canali": [
+        "Ha+OIII"
+      ],
+      "gruppo": "Ha+OIII",
+      "filtro": "HO",
+      "sec": 600,
+      "n": 51,
+      "poseCanale": 51,
+      "oreCanale": 8.5,
+      "oreCanaleHM": {
+        "ore": 8,
+        "minuti": 30
+      },
+      "perBanda": true,
+      "limite": "montatura",
+      "ruolo": null,
+      "gain": 100,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "HCG",
+      "ore": 8.5
+    },
+    {
+      "canali": [
+        "RGB"
+      ],
+      "gruppo": "RGB",
+      "filtro": "L",
+      "sec": 120,
+      "n": 39,
+      "poseCanale": 39,
+      "oreCanale": 1.3,
+      "oreCanaleHM": {
+        "ore": 1,
+        "minuti": 18
+      },
+      "perBanda": true,
+      "limite": "strategia",
+      "ruolo": null,
+      "gain": 0,
+      "offset": 50,
+      "gainFonte": "motore",
+      "modo": "LCG",
+      "ore": 1.3
+    }
+  ],
+  "totale": {
+    "pose": 106,
+    "ore": 10.333333333333334,
+    "oreHM": {
+      "ore": 10,
+      "minuti": 20
+    },
+    "orologio": 10.568888888888889,
+    "orologioHM": {
+      "ore": 10,
+      "minuti": 34
+    },
+    "perGruppo": {
+      "Ha+OIII": 9.033333333333333,
+      "RGB": 1.3
+    },
+    "perGruppoHM": {
+      "Ha+OIII": {
+        "ore": 9,
+        "minuti": 2
+      },
+      "RGB": {
+        "ore": 1,
+        "minuti": 18
+      }
+    }
+  },
+  "nonFusi": [
+    "Ha+OIII 600s contro Ha+OIII 120s"
+  ],
+  "serieCorta": {
+    "senzaSerie": null,
+    "perBanda": {
+      "Ha+OIII": {
+        "decisa": "fisica",
+        "forma": "doppia",
+        "motivoDiClasse": null,
+        "pareggio": false,
+        "posaPrincipale": 600,
+        "serieSec": 120,
+        "seriePose": 16,
+        "serieDaConsegnare": 15,
+        "nonBasta": false,
+        "posaUnica": 120,
+        "sicuroFinoA": 173,
+        "chiBrucia": "soggetto",
+        "magProtetta": null,
+        "orologioPari": 9.079278282489453,
+        "orologioPariHM": {
+          "ore": 9,
+          "minuti": 5
+        },
+        "posaRiferimento": 600,
+        "equivalenti": {
+          "doppia": 8.398410585790034,
+          "unica": 6.78160615590024
+        },
+        "equivalentiHM": {
+          "doppia": {
+            "ore": 8,
+            "minuti": 24
+          },
+          "unica": {
+            "ore": 6,
+            "minuti": 47
+          }
+        },
+        "tettoFotosito": "verde",
+        "tettoDaRighe": "almeno"
+      }
+    }
+  },
+  "dither": {
+    "ogniPose": 2
+  },
+  "flip": true
+}

@@ -302,7 +302,9 @@
             "ore": 0,
             "minuti": 39
           }
-        }
+        },
+        "tettoFotosito": null,
+        "tettoDaRighe": "misurato"
       },
       "OIII": {
         "decisa": "classe",
@@ -322,7 +324,9 @@
         "orologioPariHM": null,
         "posaRiferimento": null,
         "equivalenti": null,
-        "equivalentiHM": null
+        "equivalentiHM": null,
+        "tettoFotosito": null,
+        "tettoDaRighe": null
       }
     }
   },

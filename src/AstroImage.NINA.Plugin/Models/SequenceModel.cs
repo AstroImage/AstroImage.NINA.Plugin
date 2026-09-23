@@ -721,7 +721,8 @@ namespace AstroImage.NINA.Plugin.Models {
         public string? Forma { get; set; }
 
         /// <summary>
-        /// Perche' ha deciso la classe: <c>banda_senza_misura</c> oppure <c>canale_doppio</c>. Nullo quando non decide lei.
+        /// Perche' ha deciso la classe: <c>banda_senza_misura</c> — la brillanza del soggetto non e' misurata in quella banda,
+        /// o non in tutte le sue righe. Nullo quando non decide lei.
         /// </summary>
         [JsonPropertyName("motivoDiClasse")]
         public string? MotivoDiClasse { get; set; }
@@ -788,6 +789,20 @@ namespace AstroImage.NINA.Plugin.Models {
         /// <summary>Le stesse, in ore e minuti.</summary>
         [JsonPropertyName("equivalentiHM")]
         public LeDueForme<OreEMinuti?>? EquivalentiHM { get; set; }
+
+        /// <summary>
+        /// Quale fotosito si riempie per primo: <c>rosso</c>, <c>verde</c> o <c>blu</c>. Nullo su una monocromatica, dove
+        /// di fotositi ce n'e' un tipo solo.
+        /// </summary>
+        [JsonPropertyName("tettoFotosito")]
+        public string? TettoFotosito { get; set; }
+
+        /// <summary>
+        /// Che verso ha <see cref="SicuroFinoA"/>: <c>misurato</c>, <c>almeno</c> — un estremo inferiore — o <c>al_piu</c>
+        /// — un estremo superiore, e allora il limite vero puo' essere piu' corto.
+        /// </summary>
+        [JsonPropertyName("tettoDaRighe")]
+        public string? TettoDaRighe { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement>? Extra { get; set; }

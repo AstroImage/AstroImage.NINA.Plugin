@@ -30,7 +30,8 @@ namespace AstroImage.NINA.Plugin.Tests {
     public class CampiAScermoTests {
 
         private static readonly string[] Vive = { "mono", "completo", "osc", "osc-hdr", "mono-hdr",
-                                                  "forma-unica", "nucleo-di-classe", "senza-serie", "pareggio" };
+                                                  "forma-unica", "nucleo-di-classe", "senza-serie", "pareggio",
+                                                  "duale-al-piu", "duale-almeno" };
 
         /*  LE MAPPE CHE LA PAGINA USA DAVVERO. Una prova che compone la chiave — "Pag_Ruolo_" + codice — guarda il
          *  dizionario, non il pannello: se il codice entrasse nei .resx e non nella mappa della pagina, la prova
@@ -483,9 +484,56 @@ namespace AstroImage.NINA.Plugin.Tests {
             }
             Assert.IsTrue(fisica > 0 && altre > 0 && senzaSerie > 0,
                 $"le fixture portano {fisica} serie della fisica, {altre} della classe o del progetto, {senzaSerie} classi senza serie: servono tutte e tre");
-            /*  e tutt'e due le ragioni della classe, o una delle due non sarebbe provata da nessuna fixture */
-            CollectionAssert.AreEquivalent(new[] { "banda_senza_misura", "canale_doppio" }, motivi.ToList(),
-                "le fixture non portano tutt'e due i perche' della classe: " + string.Join(", ", motivi));
+            /*  e la ragione della classe e' una sola: il canale di due righe non e' piu' una ragione, perche' il servizio ne
+             *  ricava la posa (23 settembre 2026). Se un giorno tornasse, la mappa della pagina non la direbbe. */
+            CollectionAssert.AreEquivalent(new[] { "banda_senza_misura" }, motivi.ToList(),
+                "le fixture non portano la ragione della classe, o ne portano una che il pannello non conosce: " + string.Join(", ", motivi));
+        }
+
+        /*  IL LIMITE COL SUO VERSO, E IL FOTOSITO CHE LO FISSA (23 settembre 2026). Il verso e' un codice di tre, e il
+         *  pannello lo sa dire dove cambia la frase: `al_piu` quando a bruciare e' il soggetto. Il fotosito e' un codice di
+         *  tre colori, con le sue parole, e c'e' SOLO sul sensore a colori: su una monocromatica di fotositi ce n'e' un tipo
+         *  solo. E sul sensore a colori, dove il limite viene dalle righe, il fotosito c'e' sempre — un limite senza il suo
+         *  colore sarebbe un numero di cui non si sa di chi e'. Le fixture portano i due versi del duale e i due colori. */
+        [TestMethod]
+        public void SerieCorta_IlLimiteDiceIlSuoVersoEIlFotositoCheLoFissa() {
+            var it = new ResourceManager("AstroImage.NINA.Plugin.Localization.Strings_it", typeof(SequenceModel).Assembly);
+            var en = new ResourceManager("AstroImage.NINA.Plugin.Localization.Strings_en", typeof(SequenceModel).Assembly);
+            void Parole(string dove, string chiave) {
+                Assert.IsFalse(string.IsNullOrEmpty(it.GetString(chiave, CultureInfo.InvariantCulture)), $"{dove}: manca la voce italiana {chiave}");
+                Assert.IsFalse(string.IsNullOrEmpty(en.GetString(chiave, CultureInfo.InvariantCulture)), $"{dove}: manca la voce inglese {chiave}");
+            }
+            var versi = new HashSet<string> { "misurato", "almeno", "al_piu" };
+            var alPiu = MappaDellaPagina("PAROLA_DI_CHI_BRUCIA_AL_PIU");
+            var fotositi = MappaDellaPagina("PAROLA_DEL_FOTOSITO");
+            var vistiVersi = new HashSet<string>();
+            var vistiColori = new HashSet<string>();
+            int alPiuDetti = 0;
+            foreach (var (f, m, banda, q) in Serie()) {
+                var dove = f + "/" + banda;
+                if (q.TettoDaRighe != null) {
+                    Assert.IsTrue(versi.Contains(q.TettoDaRighe), $"{dove}: il verso «{q.TettoDaRighe}» non e' misurato, almeno ne' al_piu");
+                    vistiVersi.Add(q.TettoDaRighe);
+                }
+                if (q.TettoFotosito != null) {
+                    Assert.IsTrue(m.Ottica?.Matrice == true, $"{dove}: il fotosito «{q.TettoFotosito}» su una monocromatica");
+                    Assert.IsTrue(fotositi.TryGetValue(q.TettoFotosito, out var chiave), $"{dove}: il fotosito «{q.TettoFotosito}» il pannello non lo sa dire");
+                    Parole(dove, chiave!);
+                    vistiColori.Add(q.TettoFotosito);
+                } else {
+                    Assert.IsFalse(m.Ottica?.Matrice == true && q.TettoDaRighe != null,
+                        $"{dove}: sul sensore a colori il limite viene dalle righe e arriva senza il suo fotosito");
+                }
+                if (q.Decisa == "fisica" && q.TettoDaRighe == "al_piu" && q.ChiBrucia != null && alPiu.TryGetValue(q.ChiBrucia, out var detta)) {
+                    Parole(dove, detta);
+                    alPiuDetti++;
+                }
+            }
+            Assert.IsTrue(vistiVersi.Contains("al_piu") && vistiVersi.Contains("almeno"),
+                "le fixture non portano i due versi del duale: " + string.Join(", ", vistiVersi));
+            Assert.IsTrue(vistiColori.Contains("rosso") && vistiColori.Contains("verde"),
+                "le fixture non portano i due colori del duale: " + string.Join(", ", vistiColori));
+            Assert.IsTrue(alPiuDetti > 0, "nessuna serie della fisica col limite «al piu'» del soggetto: la sua frase non e' provata");
         }
     }
 }
