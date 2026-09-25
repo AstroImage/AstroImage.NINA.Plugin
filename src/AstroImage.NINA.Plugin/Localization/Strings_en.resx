@@ -374,7 +374,7 @@
     <value>Send to N.I.N.A.</value>
   </data>
   <data name="Pag_ModoNota_dinamica" xml:space="preserve">
-    <value>Shortens the sub so the stars do not saturate, starting from Balance and reducing it only where needed. More frames, but more dynamic range in the highlights.</value>
+    <value>Shortens the sub for the highlights, starting from Balance: on colour until the stars do not saturate, on luminance and narrowband by one step, to leave headroom in the well. More frames, but more dynamic range in the highlights.</value>
   </data>
   <data name="Pag_ModoNota_equilibrio" xml:space="preserve">
     <value>Shortens the sub as far as it pays off: a fair trade between acquisition time and the length of the single sub.</value>
@@ -1550,6 +1550,9 @@
   </data>
   <data name="Pag_Limite_montatura" xml:space="preserve">
     <value>mount ceiling</value>
+  </data>
+  <data name="Pag_Limite_sommersione" xml:space="preserve">
+    <value>the sky buries the read noise</value>
   </data>
   <data name="Pag_LimiteClasseSpiegazione" xml:space="preserve">
     <value>The exposure is held at the ceiling of its family of objects: documented practice for the class, not a calculation on this object. It is a declared fallback.</value>

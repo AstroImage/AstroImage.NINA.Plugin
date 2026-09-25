@@ -1260,7 +1260,7 @@
     soggetto_satura: 'Pag_Limite_soggetto_satura', pose_minime: 'Pag_Limite_pose_minime',
     tetto_di_posa: 'Pag_Limite_tetto_di_posa', pavimento: 'Pag_Limite_pavimento',
     stelle_sature: 'Pag_Limite_stelle_sature', classe: 'Pag_Limite_classe', lettura: 'Pag_Limite_lettura',
-    montatura: 'Pag_Limite_montatura' };
+    montatura: 'Pag_Limite_montatura', sommersione: 'Pag_Limite_sommersione' };
   /*  CHE COSA FA LA SERIE NEL SUO CANALE (21 settembre 2026). La serie corta dell'HDR si segna in testa alla riga, e si
    *  segna diversa: senza la parola, «20 s · 25 pose» si leggerebbe come una seconda posa del canale. */
   const PAROLA_DEL_RUOLO = { nucleo: 'Pag_Ruolo_nucleo' };
