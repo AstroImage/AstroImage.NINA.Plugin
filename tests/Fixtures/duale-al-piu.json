@@ -160,24 +160,24 @@
         "sicuroFinoA": 53,
         "chiBrucia": "soggetto",
         "magProtetta": null,
-        "orologioPari": 6.234349480444047,
+        "orologioPari": 6.149051968651912,
         "orologioPariHM": {
           "ore": 6,
-          "minuti": 14
+          "minuti": 9
         },
         "posaRiferimento": 600,
         "equivalenti": {
-          "doppia": 5.985651899561011,
-          "unica": 2.8469273014462857
+          "doppia": 5.901476723450353,
+          "unica": 2.816487523609041
         },
         "equivalentiHM": {
           "doppia": {
             "ore": 5,
-            "minuti": 59
+            "minuti": 54
           },
           "unica": {
             "ore": 2,
-            "minuti": 51
+            "minuti": 49
           }
         },
         "tettoFotosito": "rosso",

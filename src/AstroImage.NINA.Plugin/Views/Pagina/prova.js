@@ -1345,8 +1345,12 @@
   }
   /*  Il testo semplice di un pezzo di HTML composto, per il suggerimento al passaggio del mouse. */
   const soloTesto = h => { const d = document.createElement('div'); d.innerHTML = h; return d.textContent; };
+  /*  `luna_sotto_soglia` (25 settembre 2026): la Luna e' piu' vicina di quanto il filtro di almeno un canale sopporti, e
+   *  il pannello non colora di verde quella notte, qualunque moltiplicatore scriva. Con `buio` la Luna semplicemente
+   *  non c'e': la voce dice «senza Luna», perche' il fondo del posto resta quello che e'. */
   const PAROLA_DEL_CIELO = { buio: 'Pag_Cielo_buio', luna_non_disturba: 'Pag_Cielo_luna_non_disturba',
-    luna_tollerabile: 'Pag_Cielo_luna_tollerabile', luna_pesante: 'Pag_Cielo_luna_pesante', non_usata: 'Pag_Cielo_non_usata' };
+    luna_tollerabile: 'Pag_Cielo_luna_tollerabile', luna_pesante: 'Pag_Cielo_luna_pesante', non_usata: 'Pag_Cielo_non_usata',
+    luna_sotto_soglia: 'Pag_Cielo_luna_sotto_soglia' };
   const PAROLA_DEL_RIFERIMENTO = { brillanza_pubblicata: 'Pag_Prof_Rif_brillanza_pubblicata',
     bordo_galassia: 'Pag_Prof_Rif_bordo_galassia' };
   const PAROLA_DEL_REGIME = { fondo: 'Pag_Prof_Regime_fondo', transizione: 'Pag_Prof_Regime_transizione',
@@ -1596,10 +1600,11 @@
       const nt = notti.find(x => x.n === s.notte) || null;
       /*  LA TESTA DELLA NOTTE: il numero, la data, le ore che il cielo concede, e il giudizio sulla Luna come codice,
        *  con i tre numeri che lo spiegano al passaggio del mouse. */
-      const TONO = { buio: 'ok', luna_non_disturba: 'ok', luna_tollerabile: 'attenzione', luna_pesante: 'pesante', non_usata: 'spento' };
+      const TONO = { buio: 'ok', luna_non_disturba: 'ok', luna_tollerabile: 'attenzione', luna_pesante: 'pesante', non_usata: 'spento',
+        luna_sotto_soglia: 'attenzione' };
       /*  Il perche' della pastiglia dice di quanto la Luna alza il fondo stanotte — il numero come arriva. */
       const cielo = nt && PAROLA_DEL_CIELO[nt.cielo]
-        ? ' <span class="cielo ' + (TONO[nt.cielo] || 'spento') + '"' +
+        ? ' <span class="cielo ' + (TONO[nt.cielo] || 'spento') + '" data-cielo="' + esc(nt.cielo) + '"' +
           (nt.dMagV != null ? ' title="' + esc(T('Pag_CieloSpiegazione').replace('{0}', cifra(nt.dMagV, 2))) + '"' : '') +
           '>' + esc(T(PAROLA_DEL_CIELO[nt.cielo])) + '</span>' : '';
       const testa = '<div class="notte-testa"><span class="titolo">' + MF('Pag_NotteN', cifra(s.notte)) + '</span>' +

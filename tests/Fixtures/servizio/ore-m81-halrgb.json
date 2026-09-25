@@ -7,9 +7,9 @@
    "road": {
     "banda_larga": "soggetto"
    },
-   "hours": 16.639657048694076,
-   "spent": 16.639657048694076,
-   "unused": 0,
+   "hours": 11.330188469428345,
+   "spent": 11.330188469428343,
+   "unused": 1.7763568394002505e-15,
    "avanzanoDaDire": null,
    "oltreITettiARiga": false,
    "alloc": [
@@ -23,7 +23,7 @@
      "floor": 0.023019998196574146,
      "useful": 1.9089825366546227,
      "sat": 2.863473804981934,
-     "hours": 6.308718871923357,
+     "hours": 4.58486543709682,
      "comanda": true,
      "oreProprie": {
       "floor": 0.023019998196574146,
@@ -49,7 +49,7 @@
      "floor": 0.011882930827826363,
      "useful": 1.035150405770636,
      "sat": 1.552725608655954,
-     "hours": 7.195765165854024,
+     "hours": 5.178856647106976,
      "puntiDArresto": {
       "colore": 1.552725608655954,
       "luminanza": 2.863473804981934,
@@ -69,7 +69,7 @@
      "floor": 1.1337920815192135,
      "useful": 2.267584163038427,
      "sat": 3.968272285317247,
-     "hours": 3.135173010916695,
+     "hours": 1.5664663852245473,
      "additivo": true,
      "aggiunta": {
       "rapportoDellaPratica": 0.91,
@@ -180,12 +180,12 @@
    "banda": "L",
    "snr": 12,
    "unita": "mag/arcsec²",
-   "arrivi": 25.138442435148935,
+   "arrivi": 25.274536460199663,
    "elemento": {
     "fwhm": 1.940326079663993
    },
    "muLim": {
-    "valore": 28.56302802900739,
+    "valore": 28.6981877254459,
     "unita": "mag/arcsec²",
     "sigma": 3,
     "lato": 10

@@ -7,9 +7,9 @@
    "road": {
     "banda_larga": "stelle"
    },
-   "hours": 27.40343751097209,
-   "spent": 27.403437510972086,
-   "unused": 3.552713678800501e-15,
+   "hours": 27.180664938618605,
+   "spent": 27.180664938618552,
+   "unused": 5.3290705182007514e-14,
    "avanzanoDaDire": null,
    "oltreITettiARiga": true,
    "alloc": [
@@ -23,7 +23,7 @@
      "floor": 2.375323746853346,
      "useful": 4.750647493706692,
      "sat": 8.313633113986711,
-     "hours": 10.098627798248794,
+     "hours": 10.02437027413095,
      "praticaARiga": {
       "campioneSHO": 415,
       "campioneHOO": 102
@@ -39,7 +39,7 @@
      "floor": 4.493891220925961,
      "useful": 6.740836831388941,
      "sat": 10.111255247083411,
-     "hours": 11.896249931345494,
+     "hours": 11.82199240722765,
      "praticaARiga": {
       "campioneSHO": 415,
       "campioneHOO": 102
@@ -55,7 +55,7 @@
      "floor": 0.5668960407596068,
      "useful": 1.4172401018990168,
      "sat": 2.8344802037980337,
-     "hours": 4.619474888060116,
+     "hours": 4.545217363942272,
      "praticaARiga": {
       "campioneSHO": 415,
       "campioneHOO": 102

@@ -73,12 +73,12 @@
       "gruppo": "OIII",
       "filtro": "O",
       "sec": 180,
-      "n": 46,
-      "poseCanale": 138,
-      "oreCanale": 6.9,
+      "n": 101,
+      "poseCanale": 308,
+      "oreCanale": 15.4,
       "oreCanaleHM": {
-        "ore": 6,
-        "minuti": 54
+        "ore": 15,
+        "minuti": 24
       },
       "perBanda": true,
       "limite": "classe",
@@ -87,30 +87,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 2.3
-    },
-    {
-      "canali": [
-        "SII"
-      ],
-      "gruppo": "SII",
-      "filtro": "S",
-      "sec": 180,
-      "n": 95,
-      "poseCanale": 294,
-      "oreCanale": 14.7,
-      "oreCanaleHM": {
-        "ore": 14,
-        "minuti": 42
-      },
-      "perBanda": true,
-      "limite": "classe",
-      "ruolo": null,
-      "gain": 100,
-      "offset": 50,
-      "gainFonte": "motore",
-      "modo": "HCG",
-      "ore": 4.75
+      "ore": 5.05
     },
     {
       "canali": [
@@ -141,13 +118,13 @@
       ],
       "gruppo": "Ha",
       "filtro": "H",
-      "sec": 180,
-      "n": 3,
-      "poseCanale": 19,
-      "oreCanale": 0.9500000000000001,
+      "sec": 300,
+      "n": 5,
+      "poseCanale": 24,
+      "oreCanale": 2,
       "oreCanaleHM": {
-        "ore": 0,
-        "minuti": 57
+        "ore": 2,
+        "minuti": 0
       },
       "perBanda": true,
       "limite": "pose_minime",
@@ -156,7 +133,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.15
+      "ore": 0.4166666666666667
     },
     {
       "canali": [
@@ -164,13 +141,13 @@
       ],
       "gruppo": "RGB",
       "filtro": "R",
-      "sec": 30,
+      "sec": 60,
       "n": 10,
       "poseCanale": 27,
-      "oreCanale": 0.22499999999999998,
+      "oreCanale": 0.44999999999999996,
       "oreCanaleHM": {
         "ore": 0,
-        "minuti": 14
+        "minuti": 27
       },
       "perBanda": true,
       "limite": "pose_minime",
@@ -179,7 +156,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.08333333333333333
+      "ore": 0.16666666666666666
     },
     {
       "canali": [
@@ -187,13 +164,13 @@
       ],
       "gruppo": "RGB",
       "filtro": "G",
-      "sec": 30,
+      "sec": 60,
       "n": 10,
       "poseCanale": 27,
-      "oreCanale": 0.22499999999999998,
+      "oreCanale": 0.44999999999999996,
       "oreCanaleHM": {
         "ore": 0,
-        "minuti": 14
+        "minuti": 27
       },
       "perBanda": true,
       "limite": "pose_minime",
@@ -202,7 +179,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.08333333333333333
+      "ore": 0.16666666666666666
     },
     {
       "canali": [
@@ -210,13 +187,13 @@
       ],
       "gruppo": "RGB",
       "filtro": "B",
-      "sec": 30,
+      "sec": 60,
       "n": 10,
       "poseCanale": 27,
-      "oreCanale": 0.22499999999999998,
+      "oreCanale": 0.44999999999999996,
       "oreCanaleHM": {
         "ore": 0,
-        "minuti": 14
+        "minuti": 27
       },
       "perBanda": true,
       "limite": "pose_minime",
@@ -225,43 +202,38 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 0.08333333333333333
+      "ore": 0.16666666666666666
     }
   ],
   "totale": {
-    "pose": 215,
-    "ore": 7.855555555555555,
+    "pose": 177,
+    "ore": 6.372222222222222,
     "oreHM": {
-      "ore": 7,
-      "minuti": 51
+      "ore": 6,
+      "minuti": 22
     },
-    "orologio": 8.333333333333336,
+    "orologio": 6.765555555555557,
     "orologioHM": {
-      "ore": 8,
-      "minuti": 20
+      "ore": 6,
+      "minuti": 46
     },
     "perGruppo": {
-      "OIII": 2.4388888888888887,
-      "SII": 4.75,
-      "Ha": 0.41666666666666663,
-      "RGB": 0.25
+      "OIII": 5.188888888888889,
+      "Ha": 0.6833333333333333,
+      "RGB": 0.5
     },
     "perGruppoHM": {
       "OIII": {
-        "ore": 2,
-        "minuti": 26
-      },
-      "SII": {
-        "ore": 4,
-        "minuti": 45
+        "ore": 5,
+        "minuti": 11
       },
       "Ha": {
         "ore": 0,
-        "minuti": 25
+        "minuti": 41
       },
       "RGB": {
         "ore": 0,
-        "minuti": 15
+        "minuti": 30
       }
     }
   },
@@ -274,7 +246,7 @@
         "forma": "doppia",
         "motivoDiClasse": null,
         "pareggio": false,
-        "posaPrincipale": 180,
+        "posaPrincipale": 300,
         "serieSec": 60,
         "seriePose": 16,
         "serieDaConsegnare": 15,
@@ -283,24 +255,24 @@
         "sicuroFinoA": 117,
         "chiBrucia": "soggetto",
         "magProtetta": null,
-        "orologioPari": 1.1597086665906575,
+        "orologioPari": 1.9959089630221305,
         "orologioPariHM": {
-          "ore": 1,
-          "minuti": 10
+          "ore": 2,
+          "minuti": 0
         },
-        "posaRiferimento": 180,
+        "posaRiferimento": 300,
         "equivalenti": {
-          "doppia": 0.8209976595016938,
-          "unica": 0.6424680056976443
+          "doppia": 1.649694877402508,
+          "unica": 0.8862808952139186
         },
         "equivalentiHM": {
           "doppia": {
-            "ore": 0,
-            "minuti": 49
+            "ore": 1,
+            "minuti": 39
           },
           "unica": {
             "ore": 0,
-            "minuti": 39
+            "minuti": 53
           }
         },
         "tettoFotosito": null,

@@ -1483,7 +1483,7 @@
     <value>{0} disponibili</value>
   </data>
   <data name="Pag_Cielo_buio" xml:space="preserve">
-    <value>cielo buio</value>
+    <value>senza Luna</value>
   </data>
   <data name="Pag_Cielo_luna_non_disturba" xml:space="preserve">
     <value>la Luna non disturba questi canali</value>
@@ -1493,6 +1493,9 @@
   </data>
   <data name="Pag_Cielo_luna_pesante" xml:space="preserve">
     <value>Luna pesante su questi canali</value>
+  </data>
+  <data name="Pag_Cielo_luna_sotto_soglia" xml:space="preserve">
+    <value>Luna sotto la soglia di un filtro</value>
   </data>
   <data name="Pag_Cielo_non_usata" xml:space="preserve">
     <value>notte non utilizzata</value>

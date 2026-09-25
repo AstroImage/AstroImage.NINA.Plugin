@@ -73,7 +73,7 @@ campi, mai valori. Sito e strategia sono gli stessi delle fixture del modello.
 | file | richiesta | che cosa esercita |
 |---|---|---|
 | `ore-m81-lrgb.json` | M81 · RC8 0,80× + ASI 2600MM + CEM70G · 25 settembre 2026 · tre notti | oltre i tetti, la divisione della pratica nella LRGB; la L che comanda, con le sue ore proprie |
-| `ore-m81-halrgb.json` | lo stesso, cinque notti | l'Hα come aggiunta: la sua quota, il suo pavimento sul progetto, le parti dopo l'entrata |
+| `ore-m81-halrgb.json` | lo stesso, sei notti | l'Hα come aggiunta: la sua quota, il suo pavimento sul progetto, le parti dopo l'entrata |
 | `ore-sho-oltre-i-tetti.json` | NGC 7380 · stesso banco · 15 ottobre 2026 · tre notti | la SHO come tavolozza, e le righe oltre i loro tetti in parti uguali |
 | `ore-bordo-stimato.json` | NGC 281 · stesso banco e data | l'utile al bordo stimato dal rapporto delle regioni col bordo misurato |
 | `ore-bordo-misurato.json` | IC 1805 · stesso banco e data | l'utile al bordo catalogato; quindici riquadri; l'RGB del soggetto accanto a quello delle stelle; il limite del SII sull'Hα |

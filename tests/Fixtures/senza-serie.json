@@ -51,11 +51,11 @@
       "filtro": "R",
       "sec": 60,
       "n": 31,
-      "poseCanale": 92,
-      "oreCanale": 1.5333333333333334,
+      "poseCanale": 93,
+      "oreCanale": 1.5500000000000003,
       "oreCanaleHM": {
         "ore": 1,
-        "minuti": 32
+        "minuti": 33
       },
       "perBanda": true,
       "limite": "pavimento",
@@ -74,11 +74,11 @@
       "filtro": "G",
       "sec": 60,
       "n": 31,
-      "poseCanale": 92,
-      "oreCanale": 1.5333333333333334,
+      "poseCanale": 93,
+      "oreCanale": 1.5500000000000003,
       "oreCanaleHM": {
         "ore": 1,
-        "minuti": 32
+        "minuti": 33
       },
       "perBanda": true,
       "limite": "pavimento",
@@ -97,11 +97,11 @@
       "filtro": "B",
       "sec": 60,
       "n": 31,
-      "poseCanale": 92,
-      "oreCanale": 1.5333333333333334,
+      "poseCanale": 93,
+      "oreCanale": 1.5500000000000003,
       "oreCanaleHM": {
         "ore": 1,
-        "minuti": 32
+        "minuti": 33
       },
       "perBanda": true,
       "limite": "pavimento",
@@ -119,12 +119,12 @@
       "gruppo": "L",
       "filtro": "L",
       "sec": 60,
-      "n": 69,
-      "poseCanale": 205,
-      "oreCanale": 3.4166666666666665,
+      "n": 70,
+      "poseCanale": 207,
+      "oreCanale": 3.4499999999999997,
       "oreCanaleHM": {
         "ore": 3,
-        "minuti": 25
+        "minuti": 27
       },
       "perBanda": true,
       "limite": "pavimento",
@@ -133,24 +133,24 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 1.15
+      "ore": 1.1666666666666667
     }
   ],
   "totale": {
-    "pose": 162,
-    "ore": 2.7,
+    "pose": 163,
+    "ore": 2.716666666666667,
     "oreHM": {
       "ore": 2,
-      "minuti": 42
+      "minuti": 43
     },
-    "orologio": 3.06,
+    "orologio": 3.078888888888889,
     "orologioHM": {
       "ore": 3,
-      "minuti": 4
+      "minuti": 5
     },
     "perGruppo": {
       "RGB": 1.5500000000000003,
-      "L": 1.15
+      "L": 1.1666666666666667
     },
     "perGruppoHM": {
       "RGB": {
@@ -159,7 +159,7 @@
       },
       "L": {
         "ore": 1,
-        "minuti": 9
+        "minuti": 10
       }
     }
   },

@@ -222,20 +222,20 @@
         "sicuroFinoA": 16,
         "chiBrucia": "stelle",
         "magProtetta": 11,
-        "orologioPari": 1.3116094575275492,
+        "orologioPari": 1.2760372899942374,
         "orologioPariHM": {
           "ore": 1,
-          "minuti": 19
+          "minuti": 17
         },
         "posaRiferimento": 60,
         "equivalenti": {
-          "doppia": 1.0671063840929356,
+          "doppia": 1.0357191774458958,
           "unica": null
         },
         "equivalentiHM": {
           "doppia": {
             "ore": 1,
-            "minuti": 4
+            "minuti": 2
           },
           "unica": null
         },
@@ -256,20 +256,20 @@
         "sicuroFinoA": 16,
         "chiBrucia": "stelle",
         "magProtetta": 11,
-        "orologioPari": 1.3116094575275492,
+        "orologioPari": 1.2760372899942374,
         "orologioPariHM": {
           "ore": 1,
-          "minuti": 19
+          "minuti": 17
         },
         "posaRiferimento": 60,
         "equivalenti": {
-          "doppia": 1.0671063840929353,
+          "doppia": 1.0357191774458958,
           "unica": null
         },
         "equivalentiHM": {
           "doppia": {
             "ore": 1,
-            "minuti": 4
+            "minuti": 2
           },
           "unica": null
         },
@@ -290,20 +290,20 @@
         "sicuroFinoA": 14,
         "chiBrucia": "stelle",
         "magProtetta": 11,
-        "orologioPari": 1.3116094575275492,
+        "orologioPari": 1.2760372899942374,
         "orologioPariHM": {
           "ore": 1,
-          "minuti": 19
+          "minuti": 17
         },
         "posaRiferimento": 60,
         "equivalenti": {
-          "doppia": 1.0867142272301904,
+          "doppia": 1.0553270205831509,
           "unica": null
         },
         "equivalentiHM": {
           "doppia": {
             "ore": 1,
-            "minuti": 5
+            "minuti": 3
           },
           "unica": null
         },
