@@ -1314,19 +1314,25 @@ namespace AstroImage.NINA.Plugin.Tests {
             var blocco = Tratto(js, "function bloccoDelProgetto(p, r) {", "\n  }");
             foreach (var pezzo in new[] { "p.profilo", "p.dark", "p.progetto", "pr.frase", "pr.nota", "p.saltati_stanotte",
                                           "d.dark_nuovi", "'Pag_Progetto_ConsegnaApre'", "'Pag_Progetto_Aperto'", "'Pag_Progetto_Nuovo'",
-                                          "id=\"nuovoProgetto\"", "pf.pareggio" })
+                                          "id=\"nuovoProgetto\"", "pf.pareggio", "'Pag_Progetto_Nessuno'" })
                 StringAssert.Contains(blocco, pezzo, "il blocco del progetto non usa " + pezzo);
-            /*  dal 25 settembre 2026 il progetto aperto sta in cima, sopra il menu' delle tecniche: in fondo il pulsante
-             *  «apri un progetto nuovo» non si vedeva. Il progetto solo proposto resta fra le notti e la consegna. */
-            var uscita = Tratto(js, "$('uscita').innerHTML =", "'<div id=\"consegna\"></div>'");
+            /*  dal 25 settembre 2026 il riquadro del progetto sta SEMPRE in cima, sopra il menu' delle tecniche, aperto o
+             *  proposto: cambiava posto e contenuto, e chi cercava il pulsante non sapeva dove guardare. Proposto, dice per
+             *  primo che per quell'oggetto nessun progetto e' aperto e che lo apre la consegna. Una volta sola. */
+            /*  l'assegnazione che disegna la risposta: l'ultima a `uscita` prima del menu' delle tecniche — la prima del file
+             *  e' quella del ritiro, e da li' il tratto comprenderebbe anche la definizione del riquadro */
+            var iMenu = js.IndexOf("disegnaMenu(p.prescrizione) +", StringComparison.Ordinal);
+            Assert.IsTrue(iMenu > 0, "nella pagina non c'e' il menu' delle tecniche");
+            var i0 = js.LastIndexOf("$('uscita').innerHTML =", iMenu, StringComparison.Ordinal);
+            var i1 = js.IndexOf("'<div id=\"consegna\"></div>'", iMenu, StringComparison.Ordinal);
+            Assert.IsTrue(i0 >= 0 && i1 > iMenu, "l'assegnazione della risposta non si trova");
+            var uscita = js.Substring(i0, i1 - i0);
             int Dove(string s) => uscita.IndexOf(s, StringComparison.Ordinal);
-            StringAssert.Contains(js, "const aperto = !!(p.profilo && p.profilo.stato === 'congelato');",
-                "la pagina non distingue il progetto aperto da quello proposto");
-            Assert.IsTrue(Dove("(aperto ? bloccoDelProgetto(p, r) : '')") >= 0 &&
-                Dove("(aperto ? bloccoDelProgetto(p, r) : '')") < Dove("disegnaMenu(p.prescrizione)"),
-                "il progetto aperto non sta sopra il menu' delle tecniche");
-            Assert.IsTrue(Dove("(aperto ? '' : bloccoDelProgetto(p, r))") > Dove("riquadro +") && Dove("riquadro +") >= 0,
-                "il progetto proposto non sta fra le notti e la consegna");
+            var volte = uscita.Split(new[] { "bloccoDelProgetto(p, r)" }, StringSplitOptions.None).Length - 1;
+            Assert.AreEqual(1, volte, "il riquadro del progetto non compare una volta sola nell'uscita");
+            Assert.IsTrue(Dove("bloccoDelProgetto(p, r)") >= 0 && Dove("bloccoDelProgetto(p, r)") < Dove("disegnaMenu(p.prescrizione)"),
+                "il riquadro del progetto non sta sopra il menu' delle tecniche");
+            Assert.IsFalse(uscita.Contains("aperto ?"), "il posto del riquadro dipende ancora dallo stato del progetto");
             StringAssert.Contains(js, "chiedi('nuovoProgetto'", "«apri un progetto nuovo» non chiede niente all'ospite");
             StringAssert.Contains(js, "r.progettoAperto", "la consegna non dice che ha aperto il progetto");
             StringAssert.Contains(js, "MF('Pag_CalcolataColProgetto'", "«calcolata su» tace i filtri del progetto che stanotte non sono in ruota");
@@ -1334,8 +1340,10 @@ namespace AstroImage.NINA.Plugin.Tests {
                 var t = Tutte(lingua);
                 foreach (var k in new[] { "Pag_Progetto_Titolo", "Pag_Progetto_ConsegnaApre", "Pag_Progetto_Aperto", "Pag_Progetto_Dark",
                                           "Pag_Progetto_Saltato", "Pag_Progetto_Nuovo", "Pag_Progetto_NuovoCosto", "Pag_Progetto_NuovoSenzaDark",
-                                          "Pag_Progetto_NuovoNessunDark", "Pag_Progetto_ApertoOra", "Pag_Progetto_NonSalvato", "Pag_CalcolataColProgetto" })
+                                          "Pag_Progetto_NuovoNessunDark", "Pag_Progetto_ApertoOra", "Pag_Progetto_NonSalvato", "Pag_CalcolataColProgetto",
+                                          "Pag_Progetto_Nessuno" })
                     Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+                StringAssert.Contains(t["Pag_Progetto_Nessuno"], "{0}", lingua + ": «nessun progetto aperto» non nomina l'oggetto");
             }
         }
 

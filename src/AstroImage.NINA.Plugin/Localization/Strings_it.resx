@@ -564,6 +564,9 @@
   <data name="Pag_Progetto_ConsegnaApre" xml:space="preserve">
     <value>Consegnando questa sequenza apri il progetto: il profilo si congela. Modo di guadagno, pose, strada e temperatura restano questi per tutte le notti di questo oggetto con questo banco, e ogni notte si ricalcola solo il piano.</value>
   </data>
+  <data name="Pag_Progetto_Nessuno" xml:space="preserve">
+    <value>Nessun progetto aperto per {0}: si apre con «Manda a N.I.N.A.».</value>
+  </data>
   <data name="Pag_Progetto_Aperto" xml:space="preserve">
     <value>Progetto aperto il {0}: il profilo è congelato, e ogni notte si ricalcola solo il piano.</value>
   </data>

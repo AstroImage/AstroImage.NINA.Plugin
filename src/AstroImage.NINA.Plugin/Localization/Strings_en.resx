@@ -561,6 +561,9 @@
   <data name="Pag_Progetto_ConsegnaApre" xml:space="preserve">
     <value>Sending this sequence opens the project: the profile freezes. Gain mode, sub lengths, road and temperature stay these for every night of this object with this setup, and each night only the plan is recalculated.</value>
   </data>
+  <data name="Pag_Progetto_Nessuno" xml:space="preserve">
+    <value>No project open for {0}: «Send to N.I.N.A.» opens one.</value>
+  </data>
   <data name="Pag_Progetto_Aperto" xml:space="preserve">
     <value>Project opened on {0}: the profile is frozen, and each night only the plan is recalculated.</value>
   </data>

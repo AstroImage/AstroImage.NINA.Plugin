@@ -460,6 +460,9 @@
     const riga = (t, stile) => '<div style="margin-top:6px' + (stile ? ';' + stile : '') + '">' + t + '</div>';
     let h = '<b>' + T('Pag_Progetto_Titolo') + '</b>';
     if (pf.stato !== 'congelato') {
+      /*  il riquadro sta sempre in cima: da proposto, prima di tutto dice che un progetto per questo oggetto non c'e' */
+      const nome = ((p.bersaglio && p.bersaglio.nomi) || [p.bersaglio && p.bersaglio.id])[0] || '';
+      h += riga('<b>' + MF('Pag_Progetto_Nessuno', esc(nome)) + '</b>');
       h += riga(MF('Pag_Progetto_ConsegnaApre'));
       if (dark) h += riga(MF('Pag_Progetto_Dark', esc(dark)), 'opacity:.85');
       for (const x of pf.pareggio || []) h += riga(esc(nella(x.frase)), 'opacity:.75;font-size:12.5px');
@@ -999,17 +1002,16 @@
       '</table></div>' +
       parzialeDelProdotto(p.parziale) +
       notaDeiRiferimenti(p.parziale);
-    /*  IL PROGETTO APERTO STA IN CIMA, sopra il menu' delle tecniche: la tecnica la congela lui, e chi ne sceglie un'altra
-     *  deve vedere subito perche' non cambia e come aprirne uno nuovo. In fondo, sotto tutte le notti, il pulsante non lo
-     *  vedeva nessuno. Il progetto solo proposto resta accanto alla consegna, che e' quella che lo apre. */
-    const aperto = !!(p.profilo && p.profilo.stato === 'congelato');
+    /*  IL PROGETTO STA SEMPRE IN CIMA, sopra il menu' delle tecniche. Aperto, la tecnica la congela lui, e chi ne sceglie
+     *  un'altra deve vedere subito perche' non cambia e come aprirne uno nuovo; proposto, dice per primo che per questo
+     *  oggetto nessun progetto e' aperto e che lo apre la consegna. Il riquadro cambiava posto col suo stato — in cima
+     *  aperto, in fondo proposto —, e chi cercava il pulsante non sapeva dove guardare. */
     $('uscita').innerHTML =
-      (aperto ? bloccoDelProgetto(p, r) : '') +
+      bloccoDelProgetto(p, r) +
       disegnaMenu(p.prescrizione) +
       (p.banco && p.banco.camera ? cameraDelCalcolo(p.banco.camera, soloVoce) : '') +
       nottiGiuste(p) +
       riquadro +
-      (aperto ? '' : bloccoDelProgetto(p, r)) +
       (r.consegnabile ? '' :
         '<div class="box err"><b>' + T('Pag_NonSiPuoMandare') + '</b>' +
         '<div style="margin-top:6px;opacity:.85">' +
