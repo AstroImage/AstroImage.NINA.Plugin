@@ -1,0 +1,170 @@
+{
+ "contratto": "1",
+ "prodotto": {
+  "prescrizione": {
+   "panels": 1,
+   "critGroup": "L",
+   "road": {
+    "banda_larga": "soggetto"
+   },
+   "hours": 8.42953019466447,
+   "spent": 8.429530194664427,
+   "unused": 4.263256414560601e-14,
+   "avanzanoDaDire": null,
+   "oltreITettiARiga": false,
+   "alloc": [
+    {
+     "id": "L",
+     "bands": [
+      "L"
+     ],
+     "critical": true,
+     "dropped": false,
+     "floor": 0.023019998196574146,
+     "useful": 1.9089825366546227,
+     "sat": 2.863473804981934,
+     "hours": 4.616019997569943,
+     "comanda": true,
+     "oreProprie": {
+      "floor": 0.023019998196574146,
+      "saturates": 2.863473804981934,
+      "useful": 1.9089825366546227
+     },
+     "pratica": {
+      "coloreSuL": 1.29,
+      "campione": 89,
+      "percentuali": {
+       "colore": 56.33187772925764,
+       "luminanza": 43.66812227074236
+      }
+     }
+    },
+    {
+     "id": "RGB",
+     "bands": [
+      "RGB"
+     ],
+     "critical": false,
+     "dropped": false,
+     "floor": 0.011882930827826363,
+     "useful": 1.035150405770636,
+     "sat": 1.552725608655954,
+     "hours": 3.8135101970944847,
+     "puntiDArresto": {
+      "colore": 1.552725608655954,
+      "luminanza": 2.863473804981934,
+      "luminanzaSenzaArresto": true,
+      "oltreDallaPratica": true,
+      "coloreDiProgetto": 1.552725608655954,
+      "luminanzaDiProgetto": 2.863473804981934
+     }
+    }
+   ]
+  },
+  "valutazione": {
+   "budget": {
+    "L": {
+     "floor": 0.023019998196574146,
+     "useful": 1.9089825366546227,
+     "saturates": 2.863473804981934,
+     "confidence": "media",
+     "tettoDellaScheda": {
+      "scritto": 5.555229910631585,
+      "sotto": false
+     },
+     "ore": {
+      "da": "fotometria",
+      "snr": 12,
+      "alPiu": false,
+      "elemento": {
+       "fwhm": 1.940326079663993,
+       "scala": "elemento"
+      },
+      "soglia": {
+       "codice": "media_d25",
+       "valore": 21.369,
+       "unita": "mag/arcsec²",
+       "banda": "V",
+       "ore": 0.023019998196574146
+      },
+      "utile": {
+       "codice": "bordo_d25",
+       "valore": 23.985,
+       "unita": "mag/arcsec²",
+       "banda": "V",
+       "ore": 1.9089825366546227
+      }
+     }
+    },
+    "RGB": {
+     "floor": 0.011882930827826363,
+     "useful": 1.035150405770636,
+     "saturates": 1.552725608655954,
+     "confidence": "media",
+     "tettoDellaScheda": {
+      "scritto": 4.518640042526626,
+      "sotto": false
+     },
+     "ore": {
+      "da": "fotometria",
+      "snr": 5,
+      "alPiu": false,
+      "elemento": {
+       "fwhm": 1.940326079663993,
+       "scala": "2×2"
+      },
+      "soglia": {
+       "codice": "media_d25",
+       "valore": 21.369,
+       "unita": "mag/arcsec²",
+       "banda": "V",
+       "ore": 0.011882930827826363
+      },
+      "utile": {
+       "codice": "bordo_d25",
+       "valore": 23.985,
+       "unita": "mag/arcsec²",
+       "banda": "V",
+       "ore": 1.035150405770636
+      }
+     }
+    },
+    "Ha": {
+     "floor": 1.1337920815192135,
+     "useful": 2.267584163038427,
+     "saturates": 3.968272285317247,
+     "ore": {
+      "da": "famiglia",
+      "motivo": "senza_misura"
+     }
+    },
+    "OIII": {
+     "floor": 0,
+     "useful": 0,
+     "saturates": 0
+    },
+    "SII": {
+     "floor": 0,
+     "useful": 0,
+     "saturates": 0
+    }
+   }
+  },
+  "profondita": {
+   "canale": "L",
+   "banda": "L",
+   "snr": 12,
+   "unita": "mag/arcsec²",
+   "arrivi": 25.005606472616204,
+   "elemento": {
+    "fwhm": 1.940326079663993
+   },
+   "muLim": {
+    "valore": 28.431222280684196,
+    "unita": "mag/arcsec²",
+    "sigma": 3,
+    "lato": 10
+   }
+  }
+ }
+}

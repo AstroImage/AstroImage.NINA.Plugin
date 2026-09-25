@@ -1,0 +1,66 @@
+{
+ "contratto": "1",
+ "prodotto": {
+  "prescrizione": {
+   "panels": 1,
+   "critGroup": "RGB",
+   "road": {
+    "banda_larga": "soggetto"
+   },
+   "hours": 27.73666694366419,
+   "spent": 11.562229539629472,
+   "unused": 16.17443740403472,
+   "avanzanoDaDire": 16.17443740403472,
+   "oltreITettiARiga": false,
+   "alloc": [
+    {
+     "id": "RGB",
+     "bands": [
+      "RGB"
+     ],
+     "critical": true,
+     "dropped": false,
+     "floor": 1.927038256604912,
+     "useful": 5.781114769814736,
+     "sat": 11.562229539629472,
+     "hours": 11.562229539629472,
+     "tettoUnico": true,
+     "satDiProgetto": 11.562229539629472
+    }
+   ]
+  },
+  "valutazione": {
+   "budget": {
+    "RGB": {
+     "floor": 1.927038256604912,
+     "useful": 5.781114769814736,
+     "saturates": 11.562229539629472,
+     "ore": {
+      "da": "famiglia",
+      "motivo": "stelle_risolte"
+     }
+    },
+    "L": {
+     "floor": 0,
+     "useful": 0,
+     "saturates": 0
+    },
+    "Ha": {
+     "floor": 0,
+     "useful": 0,
+     "saturates": 0
+    },
+    "OIII": {
+     "floor": 0,
+     "useful": 0,
+     "saturates": 0
+    },
+    "SII": {
+     "floor": 0,
+     "useful": 0,
+     "saturates": 0
+    }
+   }
+  }
+ }
+}

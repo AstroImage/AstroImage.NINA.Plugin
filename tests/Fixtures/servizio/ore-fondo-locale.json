@@ -1,0 +1,180 @@
+{
+ "contratto": "1",
+ "prodotto": {
+  "prescrizione": {
+   "panels": 1,
+   "critGroup": "OIII",
+   "road": {
+    "banda_larga": "stelle"
+   },
+   "hours": 18.8283586521297,
+   "spent": 18.828358652129673,
+   "unused": 2.842170943040401e-14,
+   "avanzanoDaDire": null,
+   "oltreITettiARiga": false,
+   "alloc": [
+    {
+     "id": "OIII",
+     "bands": [
+      "OIII"
+     ],
+     "critical": true,
+     "dropped": false,
+     "floor": 2.375323746853346,
+     "useful": 4.750647493706692,
+     "sat": 8.313633113986711,
+     "hours": 8.034684886518345,
+     "praticaARiga": {
+      "campioneSHO": 415,
+      "campioneHOO": 102
+     }
+    },
+    {
+     "id": "SII",
+     "bands": [
+      "SII"
+     ],
+     "critical": false,
+     "dropped": false,
+     "floor": 4.493891220925961,
+     "useful": 6.740836831388941,
+     "sat": 10.111255247083411,
+     "hours": 9.85997343678284,
+     "praticaARiga": {
+      "campioneSHO": 415,
+      "campioneHOO": 102
+     }
+    },
+    {
+     "id": "RGB",
+     "bands": [
+      "RGB"
+     ],
+     "critical": false,
+     "dropped": false,
+     "floor": 0.2630282977725611,
+     "useful": 0.5260565955451222,
+     "sat": 0.7890848933176833,
+     "hours": 0.7808081607061274
+    },
+    {
+     "id": "Ha",
+     "bands": [
+      "Ha"
+     ],
+     "critical": false,
+     "dropped": false,
+     "floor": 0.025159592757849913,
+     "useful": 0.10192811208157394,
+     "sat": 0.15289216812236092,
+     "hours": 0.15289216812236092,
+     "praticaARiga": {
+      "campioneSHO": 415,
+      "campioneHOO": 102
+     }
+    }
+   ]
+  },
+  "valutazione": {
+   "budget": {
+    "Ha": {
+     "floor": 0.025159592757849913,
+     "useful": 0.10192811208157394,
+     "saturates": 0.15289216812236092,
+     "confidence": "media",
+     "tettoDellaScheda": {
+      "scritto": 2.8344802037980337,
+      "sotto": false
+     },
+     "ore": {
+      "da": "fotometria",
+      "snr": 12,
+      "alPiu": false,
+      "elemento": {
+       "fwhm": 1.940326079663993,
+       "scala": "elemento"
+      },
+      "soglia": {
+       "codice": "media",
+       "valore": 2356.1,
+       "unita": "R",
+       "banda": "Ha",
+       "ore": 0.025159592757849913,
+       "alPiu": false
+      },
+      "utile": {
+       "codice": "fondo_locale",
+       "valore": 646.54,
+       "unita": "R",
+       "banda": "Ha",
+       "ore": 0.10192811208157394,
+       "motivoCodice": "dentro_un_altro",
+       "dentro": "M42"
+      }
+     }
+    },
+    "OIII": {
+     "floor": 2.375323746853346,
+     "useful": 4.750647493706692,
+     "saturates": 8.313633113986711,
+     "ore": {
+      "da": "famiglia",
+      "motivo": "senza_misura"
+     }
+    },
+    "SII": {
+     "floor": 4.493891220925961,
+     "useful": 6.740836831388941,
+     "saturates": 10.111255247083411,
+     "ore": {
+      "da": "limite",
+      "snr": 12,
+      "alzato": false,
+      "elemento": {
+       "fwhm": 1.940326079663993,
+       "scala": "elemento"
+      },
+      "soglia": {
+       "codice": "sii_da_ha",
+       "valore": 706.8299999999999,
+       "unita": "R",
+       "banda": "SII",
+       "ore": 0.09878680661985778,
+       "rapporto": 0.3
+      }
+     }
+    },
+    "RGB": {
+     "floor": 0.2630282977725611,
+     "useful": 0.5260565955451222,
+     "saturates": 0.7890848933176833,
+     "ore": {
+      "da": "famiglia",
+      "motivo": "senza_misura"
+     }
+    },
+    "L": {
+     "floor": 0,
+     "useful": 0,
+     "saturates": 0
+    }
+   }
+  },
+  "profondita": {
+   "canale": "OIII",
+   "banda": "OIII",
+   "snr": 12,
+   "unita": "R",
+   "arrivi": 30.967436928829084,
+   "elemento": {
+    "fwhm": 1.940326079663993
+   },
+   "muLim": {
+    "valore": 1.2356579701658028,
+    "unita": "R",
+    "sigma": 3,
+    "lato": 10
+   }
+  }
+ }
+}

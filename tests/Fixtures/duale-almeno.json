@@ -11,8 +11,8 @@
     "nome": "NGC 2392",
     "rot": 0,
     "off": null,
-    "ra_deg": 112.3,
-    "dec_deg": 20.9167,
+    "ra_deg": 112.2948,
+    "dec_deg": 20.9118,
     "spostato": false
   },
   "ottica": {
@@ -160,15 +160,15 @@
         "sicuroFinoA": 173,
         "chiBrucia": "soggetto",
         "magProtetta": null,
-        "orologioPari": 9.079278282489453,
+        "orologioPari": 9.079281221039635,
         "orologioPariHM": {
           "ore": 9,
           "minuti": 5
         },
         "posaRiferimento": 600,
         "equivalenti": {
-          "doppia": 8.398410585790034,
-          "unica": 6.78160615590024
+          "doppia": 8.398413485675075,
+          "unica": 6.781608147189647
         },
         "equivalentiHM": {
           "doppia": {

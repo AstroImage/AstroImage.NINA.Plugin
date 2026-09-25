@@ -37,14 +37,15 @@ namespace AstroImage.NINA.Plugin.Tests {
          *  dizionario, non il pannello: se il codice entrasse nei .resx e non nella mappa della pagina, la prova
          *  resterebbe verde e il pannello non scriverebbe niente. Qui si legge la mappa letterale da prova.js, com'e'
          *  incorporata nel plugin, e si pretendono le chiavi che lei nomina. */
-        private static Dictionary<string, string> MappaDellaPagina(string nome) {
+        internal static Dictionary<string, string> MappaDellaPagina(string nome) {
             using var s = typeof(SequenceModel).Assembly.GetManifestResourceStream("AstroImage.NINA.Plugin.Views.Pagina.prova.js");
             Assert.IsNotNull(s, "prova.js non e' incorporata nel plugin");
             var js = new StreamReader(s!).ReadToEnd();
             var m = System.Text.RegularExpressions.Regex.Match(js, @"const\s+" + nome + @"\s*=\s*\{([^}]*)\}");
             Assert.IsTrue(m.Success, "la pagina non ha piu' la mappa " + nome);
             var mappa = new Dictionary<string, string>();
-            foreach (System.Text.RegularExpressions.Match c in System.Text.RegularExpressions.Regex.Matches(m.Groups[1].Value, @"(\w+)\s*:\s*'(Pag_\w+)'"))
+            /*  la chiave puo' stare fra apici, quando il codice ha un trattino: `'media-bassa': 'Pag_…'` */
+            foreach (System.Text.RegularExpressions.Match c in System.Text.RegularExpressions.Regex.Matches(m.Groups[1].Value, @"'?([\w-]+)'?\s*:\s*'(Pag_\w+)'"))
                 mappa[c.Groups[1].Value] = c.Groups[2].Value;
             Assert.IsTrue(mappa.Count > 0, "la mappa " + nome + " non ha voci: questo verde non varrebbe");
             return mappa;

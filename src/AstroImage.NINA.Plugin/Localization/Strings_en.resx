@@ -1594,7 +1594,7 @@
     <value>the source dominates the noise</value>
   </data>
   <data name="Pag_Prof_Pavimento" xml:space="preserve">
-    <value>below the SNR {0} per arcsec² floor: with these hours the subject does not get there</value>
+    <value>below the SNR {0} floor in the exposure element: with these hours the subject does not get there</value>
   </data>
   <data name="Pag_Prof_PavimentoOre" xml:space="preserve">
     <value>, it would take *{0}*</value>
@@ -1682,5 +1682,158 @@
   </data>
   <data name="Pag_Serie_Fotosito_blu" xml:space="preserve">
     <value> (the blue pixels are the first to fill)</value>
+  </data>
+  <data name="Pag_Prof_Elemento" xml:space="preserve">
+    <value>in a *{0}″* element</value>
+  </data>
+  <data name="Pag_Prof_MuLim" xml:space="preserve">
+    <value>μlim at {0}σ in {1}″×{1}″: *{2} {3}*</value>
+  </data>
+  <data name="Pag_InTutto" xml:space="preserve">
+    <value>in total</value>
+  </data>
+  <data name="Pag_Arr_OltreDallaPratica" xml:space="preserve">
+    <value>The colour reaches its physical ceiling at {0}; beyond the ceilings the hours are split the way galaxies imaged in LRGB split them — across {1} images the colour has {2} hours for every hour of L —: {3} to the colour, {4} to the luminance.</value>
+  </data>
+  <data name="Pag_Arr_LuminanzaSenzaArresto" xml:space="preserve">
+    <value>The colour is saturated at {0}; beyond it, depth is bought with the luminance, and the hours beyond the other channels' ceilings go to it.</value>
+  </data>
+  <data name="Pag_Arr_ColoreEPoiLuminanza" xml:space="preserve">
+    <value>The colour is saturated at {0}; beyond it, depth is bought with the luminance, up to {1}.</value>
+  </data>
+  <data name="Pag_Arr_LuminanzaEPoiColore" xml:space="preserve">
+    <value>The luminance is full at {0}; the colour goes up to {1}.</value>
+  </data>
+  <data name="Pag_Arr_TettoUnico" xml:space="preserve">
+    <value>On a colour camera there is a single stopping point: the colour is saturated at {0}, and the luminance is not a channel, it is derived from the same frames.</value>
+  </data>
+  <data name="Pag_Arr_AggiuntaPratica" xml:space="preserve">
+    <value>{0} is an addition: it is paid for with new hours, not with the luminance and the colour. It comes in when luminance and colour are at their ceilings and its share — {1} of the hours beyond the ceilings that would go to the luminance — reaches its floor, {2}. After that, the new hours go {3} to the luminance, {4} to the colour and {5} to {0} — across {6} HaLRGB images of galaxies Hα has {7} hours for every hour of L, and the colour {8}.</value>
+  </data>
+  <data name="Pag_Arr_Aggiunta" xml:space="preserve">
+    <value>{0} is an addition: it is paid for with new hours, not with the luminance and the colour. It comes in when luminance and colour are at their ceilings, and of the hours beyond the ceilings that would go to the luminance it takes {1} — across {2} HaLRGB images of galaxies Hα has {3} hours for every hour of L.</value>
+  </data>
+  <data name="Pag_Arr_ShoTavolozza" xml:space="preserve">
+    <value>SHO is a different palette, not HOO with one more channel: SII comes in as a channel of equal rank, and at the same hours Hα and OIII receive fewer than in HOO — as in the {0} SHO and {1} HOO images of HII regions in practice.</value>
+  </data>
+  <data name="Pag_Arr_OltreARiga" xml:space="preserve">
+    <value>Beyond the physical ceilings the hours are split equally among the line channels, as in HII regions imaged in HOO and SHO.</value>
+  </data>
+  <data name="Pag_Arr_Avanzano" xml:space="preserve">
+    <value>{0} h left over</value>
+  </data>
+  <data name="Pag_Prov_Titolo" xml:space="preserve">
+    <value>Where the hours come from</value>
+  </data>
+  <data name="Pag_Prov_Ore" xml:space="preserve">
+    <value>threshold {0} · useful {1}</value>
+  </data>
+  <data name="Pag_Prov_Tetto" xml:space="preserve">
+    <value> · ceiling {0}</value>
+  </data>
+  <data name="Pag_Prov_Scheda" xml:space="preserve">
+    <value> (the card said {0})</value>
+  </data>
+  <data name="Pag_Prov_Confidenza" xml:space="preserve">
+    <value> · confidence {0}</value>
+  </data>
+  <data name="Pag_Prov_Conf_bassa" xml:space="preserve">
+    <value>low</value>
+  </data>
+  <data name="Pag_Prov_Conf_media_bassa" xml:space="preserve">
+    <value>medium-low</value>
+  </data>
+  <data name="Pag_Prov_Conf_media" xml:space="preserve">
+    <value>medium</value>
+  </data>
+  <data name="Pag_Prov_Conf_media_alta" xml:space="preserve">
+    <value>medium-high</value>
+  </data>
+  <data name="Pag_Prov_Conf_alta" xml:space="preserve">
+    <value>high</value>
+  </data>
+  <data name="Pag_Prov_Famiglia" xml:space="preserve">
+    <value>from the class: {0}</value>
+  </data>
+  <data name="Pag_Prov_Motivo_senza_misura" xml:space="preserve">
+    <value>the object carries no measurement for this channel</value>
+  </data>
+  <data name="Pag_Prov_Motivo_matrice" xml:space="preserve">
+    <value>on a colour sensor the form of the hours is not decided yet</value>
+  </data>
+  <data name="Pag_Prov_Motivo_fondo_sopra" xml:space="preserve">
+    <value>the local background exceeds the object: the measurement cannot carry the hours</value>
+  </data>
+  <data name="Pag_Prov_Motivo_planetaria_dopo_il_cielo" xml:space="preserve">
+    <value>planetary nebulae wait for the return under the sky</value>
+  </data>
+  <data name="Pag_Prov_Motivo_stelle_risolte" xml:space="preserve">
+    <value>resolved stars: the hours do not come from a surface brightness</value>
+  </data>
+  <data name="Pag_Prov_Motivo_banda_non_singola" xml:space="preserve">
+    <value>the band does not carry a single line</value>
+  </data>
+  <data name="Pag_Prov_Motivo_tasso_non_calcolabile" xml:space="preserve">
+    <value>the rate cannot be computed on this setup</value>
+  </data>
+  <data name="Pag_Prov_Limite" xml:space="preserve">
+    <value>at least the hours of {0}, {1} × the measured Hα</value>
+  </data>
+  <data name="Pag_Prov_LimiteAlza" xml:space="preserve">
+    <value>: it raises the class threshold</value>
+  </data>
+  <data name="Pag_Prov_LimiteSopra" xml:space="preserve">
+    <value>; the class threshold is already above</value>
+  </data>
+  <data name="Pag_Prov_Base" xml:space="preserve">
+    <value>from the object's photometry, SNR {0} in the {1}″ element</value>
+  </data>
+  <data name="Pag_Prov_Base2x2" xml:space="preserve">
+    <value>from the object's photometry, SNR {0} per filter in 2×2 elements of {1}″</value>
+  </data>
+  <data name="Pag_Prov_Soglia_media_d25" xml:space="preserve">
+    <value>threshold at the mean inside D25, {0} in {1}</value>
+  </data>
+  <data name="Pag_Prov_Soglia_media" xml:space="preserve">
+    <value>threshold at the mean, {0}</value>
+  </data>
+  <data name="Pag_Prov_Almeno" xml:space="preserve">
+    <value> (at least)</value>
+  </data>
+  <data name="Pag_Prov_UtileFamiglia" xml:space="preserve">
+    <value>useful from the class</value>
+  </data>
+  <data name="Pag_Prov_UtileMotivo_colore_mancante" xml:space="preserve">
+    <value>: the D25 edge in V is not measured, the colour is missing</value>
+  </data>
+  <data name="Pag_Prov_UtileMotivo_fondo_non_misurato" xml:space="preserve">
+    <value>: the local background is not measured</value>
+  </data>
+  <data name="Pag_Prov_Utile_bordo_d25" xml:space="preserve">
+    <value>useful at the D25 edge, {0} in {1}</value>
+  </data>
+  <data name="Pag_Prov_Utile_bordo_catalogato" xml:space="preserve">
+    <value>useful at the catalogued edge, {0}</value>
+  </data>
+  <data name="Pag_Prov_Utile_bordo_stimato" xml:space="preserve">
+    <value>useful at the estimated edge, {0}: the mean times {1}, the median edge / mean ratio of the {2} regions with a measured edge (from {3} to {4}), because the map does not resolve the edge</value>
+  </data>
+  <data name="Pag_Prov_Utile_fondo_locale" xml:space="preserve">
+    <value>useful at the local background, {0}</value>
+  </data>
+  <data name="Pag_Prov_Bordo_non_risolto" xml:space="preserve">
+    <value>the map's beam does not resolve the catalogued edge</value>
+  </data>
+  <data name="Pag_Prov_Bordo_sotto_il_fondo" xml:space="preserve">
+    <value>the catalogued edge is fainter than the local background</value>
+  </data>
+  <data name="Pag_Prov_Bordo_dentro_un_altro" xml:space="preserve">
+    <value>the catalogued edge falls inside a brighter region</value>
+  </data>
+  <data name="Pag_Prov_Bordo_sopra_la_media" xml:space="preserve">
+    <value>the catalogued edge is brighter than the mean</value>
+  </data>
+  <data name="Pag_Prov_Bordo_stima_sotto_il_fondo" xml:space="preserve">
+    <value>the map's beam does not resolve the edge, and its estimate from the edge / mean ratio lies below the local background</value>
   </data>
 </root>

@@ -61,6 +61,34 @@ guadagno —, e il ponte lo sa ancora trattare. Le prove lo esercitano su una fi
 (`TraduzioneTests.UnBloccoSuPiuCanali_LEtichettaLiNominaTutti`,
 `RuotaVirtualeTests.UnBloccoSuPiuCanali_HaUnVetroSOLO`), invece di lasciarlo un ramo che nessuno esegue.
 
+## Il capitolo delle ore — `servizio/ore-*.json`, 25 settembre 2026
+
+Otto risposte vere del servizio, tagliate a quello che servono tre sezioni del pannello: le frasi sotto
+il piano, l'origine delle ore riga per riga, e l'elemento con μ<sub>lim</sub> nella profondità. Dentro ci
+sono i gruppi della prescrizione con i loro pezzi, il budget di ogni canale con l'origine in codici, e la
+profondità del canale critico; in più qualche numero che nessuna sezione mostra ma che serve alle prove
+per verificare quelli mostrati. Le prove stanno in `OreDelCanaleTests` e controllano relazioni fra i
+campi, mai valori. Sito e strategia sono gli stessi delle fixture del modello.
+
+| file | richiesta | che cosa esercita |
+|---|---|---|
+| `ore-m81-lrgb.json` | M81 · RC8 0,80× + ASI 2600MM + CEM70G · 25 settembre 2026 · tre notti | oltre i tetti, la divisione della pratica nella LRGB; la L che comanda, con le sue ore proprie |
+| `ore-m81-halrgb.json` | lo stesso, cinque notti | l'Hα come aggiunta: la sua quota, il suo pavimento sul progetto, le parti dopo l'entrata |
+| `ore-sho-oltre-i-tetti.json` | NGC 7380 · stesso banco · 15 ottobre 2026 · tre notti | la SHO come tavolozza, e le righe oltre i loro tetti in parti uguali |
+| `ore-bordo-stimato.json` | NGC 281 · stesso banco e data | l'utile al bordo stimato dal rapporto delle regioni col bordo misurato |
+| `ore-bordo-misurato.json` | IC 1805 · stesso banco e data | l'utile al bordo catalogato; quindici riquadri; l'RGB del soggetto accanto a quello delle stelle; il limite del SII sull'Hα |
+| `ore-fondo-locale.json` | M43 · stesso banco · 12 gennaio 2027 · tre notti | l'utile al fondo locale col suo motivo: il bordo cade dentro M42 |
+| `ore-tetto-unico.json` | M35 · Askar 71F 0,75× + ASI 2600MC + AM5, L-Ultimate e P2 · 12 gennaio 2027 · tre notti | sensore a matrice con un solo punto d'arresto; ore d'avanzo dichiarate |
+| `ore-punti-d-arresto.json` | M13 · RC8 0,80× + ASI 2600MM + CEM70G · 2 giugno 2027 · cinque notti | la L si ferma prima del colore, nessuna divisione della pratica; ore d'avanzo dichiarate |
+
+Le prime cinque sono i casi scelti per il capitolo. Le altre tre ci sono perché mostrano rami del pannello
+che nessuna delle prime tocca: senza, quelle frasi non avrebbero una prova.
+
+Lo stesso giorno si sono rigenerate dal servizio di quel giorno quattro fixture che erano rimaste
+indietro: `completo.json` (le ore di Sh2-155), `duale-almeno.json` e `forma-unica.json` (le coordinate
+di NGC 2392), `servizio/prescrizione-stelle.json` (un nome di M3). Una fixture di una risposta vera
+che non si rigenera racconta un servizio che non c'è più; le prove passano sulle nuove come sulle vecchie.
+
 ## Una fixture porta solo i campi che la prova legge
 
 Questo repository è pubblico, il motore no. Una risposta del servizio porta la scheda

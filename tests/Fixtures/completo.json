@@ -53,12 +53,12 @@
       "gruppo": "OIII",
       "filtro": "OIII 3nm",
       "sec": 900,
-      "n": 19,
-      "poseCanale": 60,
-      "oreCanale": 15,
+      "n": 16,
+      "poseCanale": 51,
+      "oreCanale": 12.75,
       "oreCanaleHM": {
-        "ore": 15,
-        "minuti": 0
+        "ore": 12,
+        "minuti": 45
       },
       "perBanda": true,
       "limite": "strategia",
@@ -67,7 +67,7 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 4.75
+      "ore": 4
     },
     {
       "canali": [
@@ -75,13 +75,13 @@
       ],
       "gruppo": "Ha",
       "filtro": "Ha 3nm",
-      "sec": 600,
+      "sec": 900,
       "n": 10,
       "poseCanale": 28,
-      "oreCanale": 4.666666666666667,
+      "oreCanale": 7,
       "oreCanaleHM": {
-        "ore": 4,
-        "minuti": 40
+        "ore": 7,
+        "minuti": 0
       },
       "perBanda": true,
       "limite": "pose_minime",
@@ -90,33 +90,33 @@
       "offset": 50,
       "gainFonte": "motore",
       "modo": "HCG",
-      "ore": 1.6666666666666667
+      "ore": 2.5
     }
   ],
   "totale": {
-    "pose": 29,
-    "ore": 6.416666666666667,
+    "pose": 26,
+    "ore": 6.5,
     "oreHM": {
       "ore": 6,
-      "minuti": 25
+      "minuti": 30
     },
-    "orologio": 6.465,
+    "orologio": 6.543333333333333,
     "orologioHM": {
       "ore": 6,
-      "minuti": 28
+      "minuti": 33
     },
     "perGruppo": {
-      "OIII": 4.75,
-      "Ha": 1.6666666666666667
+      "OIII": 4,
+      "Ha": 2.5
     },
     "perGruppoHM": {
       "OIII": {
         "ore": 4,
-        "minuti": 45
+        "minuti": 0
       },
       "Ha": {
-        "ore": 1,
-        "minuti": 40
+        "ore": 2,
+        "minuti": 30
       }
     }
   },

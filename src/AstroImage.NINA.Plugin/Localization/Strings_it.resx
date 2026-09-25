@@ -1594,7 +1594,7 @@
     <value>la sorgente domina il rumore</value>
   </data>
   <data name="Pag_Prof_Pavimento" xml:space="preserve">
-    <value>sotto il pavimento di SNR {0} per arcsec²: con queste ore il soggetto non ci arriva</value>
+    <value>sotto il pavimento di SNR {0} nell'elemento della posa: con queste ore il soggetto non ci arriva</value>
   </data>
   <data name="Pag_Prof_PavimentoOre" xml:space="preserve">
     <value>, ne servirebbero *{0}*</value>
@@ -1682,5 +1682,158 @@
   </data>
   <data name="Pag_Serie_Fotosito_blu" xml:space="preserve">
     <value> (i primi a riempirsi sono i fotositi blu)</value>
+  </data>
+  <data name="Pag_Prof_Elemento" xml:space="preserve">
+    <value>nell'elemento di *{0}″*</value>
+  </data>
+  <data name="Pag_Prof_MuLim" xml:space="preserve">
+    <value>μlim a {0}σ in {1}″×{1}″: *{2} {3}*</value>
+  </data>
+  <data name="Pag_InTutto" xml:space="preserve">
+    <value>in tutto</value>
+  </data>
+  <data name="Pag_Arr_OltreDallaPratica" xml:space="preserve">
+    <value>Il colore arriva al suo tetto fisico a {0}; oltre i tetti le ore si dividono come nelle galassie riprese in LRGB — su {1} immagini il colore ha {2} ore per ogni ora di L —: {3} al colore, {4} alla luminanza.</value>
+  </data>
+  <data name="Pag_Arr_LuminanzaSenzaArresto" xml:space="preserve">
+    <value>Il colore è saturo a {0}; oltre si compra profondità con la luminanza, e le ore oltre i tetti degli altri canali vanno a lei.</value>
+  </data>
+  <data name="Pag_Arr_ColoreEPoiLuminanza" xml:space="preserve">
+    <value>Il colore è saturo a {0}; oltre si compra profondità con la luminanza, fino a {1}.</value>
+  </data>
+  <data name="Pag_Arr_LuminanzaEPoiColore" xml:space="preserve">
+    <value>La luminanza è piena a {0}; il colore arriva fino a {1}.</value>
+  </data>
+  <data name="Pag_Arr_TettoUnico" xml:space="preserve">
+    <value>Su una camera a colori c'è un punto d'arresto solo: il colore è saturo a {0}, e la luminanza non è un canale, si ricava dagli stessi fotogrammi.</value>
+  </data>
+  <data name="Pag_Arr_AggiuntaPratica" xml:space="preserve">
+    <value>L'{0} è un'aggiunta: si paga con ore nuove, non con la luminanza e il colore. Entra quando luminanza e colore sono ai loro tetti e la sua parte — il {1} delle ore oltre i tetti che andrebbero alla luminanza — arriva al suo pavimento, {2}. Dopo, le ore nuove vanno {3} alla luminanza, {4} al colore e {5} all'{0} — su {6} immagini HaLRGB di galassie l'Hα ha {7} ore per ogni ora di L, e il colore {8}.</value>
+  </data>
+  <data name="Pag_Arr_Aggiunta" xml:space="preserve">
+    <value>L'{0} è un'aggiunta: si paga con ore nuove, non con la luminanza e il colore. Entra quando luminanza e colore sono ai loro tetti, e delle ore oltre i tetti che andrebbero alla luminanza prende il {1} — su {2} immagini HaLRGB di galassie l'Hα ha {3} ore per ogni ora di L.</value>
+  </data>
+  <data name="Pag_Arr_ShoTavolozza" xml:space="preserve">
+    <value>La SHO è un'altra tavolozza, non la HOO con un canale in più: il SII vi entra come canale di pari rango, e alle stesse ore Hα e OIII ne ricevono meno che nella HOO — come nelle {0} SHO e {1} HOO di regioni HII della pratica.</value>
+  </data>
+  <data name="Pag_Arr_OltreARiga" xml:space="preserve">
+    <value>Oltre i tetti fisici le ore si dividono in parti uguali fra i canali a riga, come nelle regioni HII riprese in HOO e SHO.</value>
+  </data>
+  <data name="Pag_Arr_Avanzano" xml:space="preserve">
+    <value>ti avanzano {0} h</value>
+  </data>
+  <data name="Pag_Prov_Titolo" xml:space="preserve">
+    <value>Da dove vengono le ore</value>
+  </data>
+  <data name="Pag_Prov_Ore" xml:space="preserve">
+    <value>soglia {0} · utile {1}</value>
+  </data>
+  <data name="Pag_Prov_Tetto" xml:space="preserve">
+    <value> · tetto {0}</value>
+  </data>
+  <data name="Pag_Prov_Scheda" xml:space="preserve">
+    <value> (la scheda diceva {0})</value>
+  </data>
+  <data name="Pag_Prov_Confidenza" xml:space="preserve">
+    <value> · confidenza {0}</value>
+  </data>
+  <data name="Pag_Prov_Conf_bassa" xml:space="preserve">
+    <value>bassa</value>
+  </data>
+  <data name="Pag_Prov_Conf_media_bassa" xml:space="preserve">
+    <value>medio-bassa</value>
+  </data>
+  <data name="Pag_Prov_Conf_media" xml:space="preserve">
+    <value>media</value>
+  </data>
+  <data name="Pag_Prov_Conf_media_alta" xml:space="preserve">
+    <value>medio-alta</value>
+  </data>
+  <data name="Pag_Prov_Conf_alta" xml:space="preserve">
+    <value>alta</value>
+  </data>
+  <data name="Pag_Prov_Famiglia" xml:space="preserve">
+    <value>di famiglia: {0}</value>
+  </data>
+  <data name="Pag_Prov_Motivo_senza_misura" xml:space="preserve">
+    <value>l'oggetto non porta una misura per questo canale</value>
+  </data>
+  <data name="Pag_Prov_Motivo_matrice" xml:space="preserve">
+    <value>sulla matrice la forma delle ore non è ancora decisa</value>
+  </data>
+  <data name="Pag_Prov_Motivo_fondo_sopra" xml:space="preserve">
+    <value>il fondo locale supera l'oggetto: la misura non regge le ore</value>
+  </data>
+  <data name="Pag_Prov_Motivo_planetaria_dopo_il_cielo" xml:space="preserve">
+    <value>le planetarie aspettano il ritorno sotto il cielo</value>
+  </data>
+  <data name="Pag_Prov_Motivo_stelle_risolte" xml:space="preserve">
+    <value>stelle risolte: le ore non vengono da una brillanza</value>
+  </data>
+  <data name="Pag_Prov_Motivo_banda_non_singola" xml:space="preserve">
+    <value>la banda non porta una riga sola</value>
+  </data>
+  <data name="Pag_Prov_Motivo_tasso_non_calcolabile" xml:space="preserve">
+    <value>il tasso non si calcola su questo banco</value>
+  </data>
+  <data name="Pag_Prov_Limite" xml:space="preserve">
+    <value>almeno le ore di {0}, {1} × l'Hα misurata</value>
+  </data>
+  <data name="Pag_Prov_LimiteAlza" xml:space="preserve">
+    <value>: alza la soglia di famiglia</value>
+  </data>
+  <data name="Pag_Prov_LimiteSopra" xml:space="preserve">
+    <value>; la soglia di famiglia sta già sopra</value>
+  </data>
+  <data name="Pag_Prov_Base" xml:space="preserve">
+    <value>dalla fotometria dell'oggetto, SNR {0} nell'elemento di {1}″</value>
+  </data>
+  <data name="Pag_Prov_Base2x2" xml:space="preserve">
+    <value>dalla fotometria dell'oggetto, SNR {0} per filtro in 2×2 elementi di {1}″</value>
+  </data>
+  <data name="Pag_Prov_Soglia_media_d25" xml:space="preserve">
+    <value>soglia alla media dentro D25, {0} in {1}</value>
+  </data>
+  <data name="Pag_Prov_Soglia_media" xml:space="preserve">
+    <value>soglia alla media, {0}</value>
+  </data>
+  <data name="Pag_Prov_Almeno" xml:space="preserve">
+    <value> (almeno)</value>
+  </data>
+  <data name="Pag_Prov_UtileFamiglia" xml:space="preserve">
+    <value>utile di famiglia</value>
+  </data>
+  <data name="Pag_Prov_UtileMotivo_colore_mancante" xml:space="preserve">
+    <value>: il bordo di D25 in V non è misurato, manca il colore</value>
+  </data>
+  <data name="Pag_Prov_UtileMotivo_fondo_non_misurato" xml:space="preserve">
+    <value>: il fondo locale non è misurato</value>
+  </data>
+  <data name="Pag_Prov_Utile_bordo_d25" xml:space="preserve">
+    <value>utile al bordo di D25, {0} in {1}</value>
+  </data>
+  <data name="Pag_Prov_Utile_bordo_catalogato" xml:space="preserve">
+    <value>utile al bordo catalogato, {0}</value>
+  </data>
+  <data name="Pag_Prov_Utile_bordo_stimato" xml:space="preserve">
+    <value>utile al bordo stimato, {0}: la media per {1}, il rapporto bordo / media mediano delle {2} regioni col bordo misurato (da {3} a {4}), perché la mappa non risolve il bordo</value>
+  </data>
+  <data name="Pag_Prov_Utile_fondo_locale" xml:space="preserve">
+    <value>utile al fondo locale, {0}</value>
+  </data>
+  <data name="Pag_Prov_Bordo_non_risolto" xml:space="preserve">
+    <value>il fascio della mappa non risolve il bordo catalogato</value>
+  </data>
+  <data name="Pag_Prov_Bordo_sotto_il_fondo" xml:space="preserve">
+    <value>il bordo catalogato è più debole del fondo locale</value>
+  </data>
+  <data name="Pag_Prov_Bordo_dentro_un_altro" xml:space="preserve">
+    <value>il bordo catalogato cade dentro una regione più brillante</value>
+  </data>
+  <data name="Pag_Prov_Bordo_sopra_la_media" xml:space="preserve">
+    <value>il bordo catalogato è più brillante della media</value>
+  </data>
+  <data name="Pag_Prov_Bordo_stima_sotto_il_fondo" xml:space="preserve">
+    <value>il fascio della mappa non risolve il bordo, e la sua stima dal rapporto bordo / media sta sotto il fondo locale</value>
   </data>
 </root>

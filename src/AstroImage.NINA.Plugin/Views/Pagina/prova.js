@@ -1430,7 +1430,10 @@
     const f = p.profondita, bri = p.brillanza, righe = [];
     if (f && f.arrivi != null) {
       const dec = f.unita === 'R' ? 0 : 2;
-      let r1 = MF('Pag_Prof_Arrivi', cifra(f.arrivi, dec), esc(f.unita || ''));
+      /*  L'ELEMENTO E μ_lim (25 settembre 2026): «arriva a» e' a SNR 12 nell'elemento della posa, e il servizio manda la
+       *  sua larghezza (`elemento.fwhm`) e μ_lim a 3σ in 10″×10″ (`muLim`). Si scrivono come arrivano; senza, si tace. */
+      let r1 = MF('Pag_Prof_Arrivi', cifra(f.arrivi, dec), esc(f.unita || '')) +
+        (f.elemento && f.elemento.fwhm != null ? ' ' + MF('Pag_Prof_Elemento', cifra(f.elemento.fwhm, 2)) : '');
       if (f.riferimento == null)
         r1 += ' <span class="tenue">· ' + esc(T('Pag_Prof_SenzaRiferimento')) + '</span>';
       else if (PAROLA_DEL_RIFERIMENTO[f.riferimentoTipo])
@@ -1438,6 +1441,9 @@
               (f.coloreNonPubblicato && f.riferimentoBanda
                 ? ' <span class="tenue">(' + MF('Pag_Prof_ColoreNonPubblicato', esc(f.riferimentoBanda)) + ')</span>' : '');
       righe.push('<div>' + r1 + '</div>');
+      const ml = f.muLim;
+      if (ml && ml.valore != null && ml.sigma != null && ml.lato != null)
+        righe.push('<div>' + MF('Pag_Prof_MuLim', cifra(ml.sigma), cifra(ml.lato), cifra(ml.valore, ml.unita === 'R' ? 1 : 2), esc(ml.unita || '')) + '</div>');
       if (f.scala != null && f.ore_per_una_mag != null)
         righe.push('<div>' + MF('Pag_Prof_Scala', cifra(f.scala, 1), oreScritte(f.ore_per_una_magHM, f.ore_per_una_mag)) +
           (PAROLA_DEL_REGIME[f.regimeCodice] ? ' <span class="tenue">(' + esc(T(PAROLA_DEL_REGIME[f.regimeCodice])) + ')</span>' : '') +
@@ -1453,6 +1459,127 @@
         (bri.ereditato_da ? ' <span class="tenue">· ' + MF('Pag_Bril_Ereditato', esc(bri.ereditato_da)) + '</span>' : '') +
         '<br>' + esc(T('Pag_Bril_OreTetto')) + '</div>');
     return righe.length ? '<div class="profondita">' + righe.join('') + '</div>' : '';
+  }
+
+  /*  LE FRASI SOTTO IL PIANO, sulle ore oltre i tetti fisici (25 settembre 2026). Arrivano come pezzi sui gruppi della
+   *  prescrizione — `puntiDArresto`, `pratica`, `aggiunta`, `praticaARiga`, `tettoUnico` — e come due decisioni della
+   *  prescrizione intera, `oltreITettiARiga` e `avanzanoDaDire`. Il pannello mette insieme la frase con le sue voci, in
+   *  italiano o in inglese, e senza il suo pezzo la frase non c'e'. Le cifre arrivano gia' sul progetto e gia' in
+   *  percentuale: qui non si fa nessun conto. Un decimale per le ore, e «in tutto» se i riquadri sono piu' d'uno. */
+  function frasiOltreITetti(p) {
+    const pr = p.prescrizione || {}, alloc = (pr.alloc || []).filter(g => g && !g.dropped);
+    const ore = (h, dec) => cifra(h, dec == null ? 1 : dec) + ' h' + (pr.panels > 1 ? ' ' + esc(T('Pag_InTutto')) : '');
+    const pct = x => cifra(x, 0) + ' %';
+    const nome = id => esc(id === 'Ha' ? 'Hα' : id);
+    /*  l'RGB delle sole stelle non ha punti d'arresto da dire: lo dichiara la strada (`banda_larga`), non il pannello */
+    const soloStelle = g => g.id === 'RGB' && !g.critical && pr.road && pr.road.banda_larga === 'stelle';
+    const capo = alloc.find(x => x.pratica && x.pratica.percentuali);
+    const frase = g => {
+      const pa = g.puntiDArresto;
+      if (pa && pa.coloreDiProgetto != null) {
+        if (pa.oltreDallaPratica && capo)
+          return MF('Pag_Arr_OltreDallaPratica', ore(pa.coloreDiProgetto), cifra(capo.pratica.campione, 0), cifra(capo.pratica.coloreSuL, 2),
+            pct(capo.pratica.percentuali.colore), pct(capo.pratica.percentuali.luminanza));
+        if (pa.luminanzaSenzaArresto) return MF('Pag_Arr_LuminanzaSenzaArresto', ore(pa.coloreDiProgetto));
+        if (pa.luminanzaDiProgetto == null) return '';
+        return pa.luminanza >= pa.colore ? MF('Pag_Arr_ColoreEPoiLuminanza', ore(pa.coloreDiProgetto), ore(pa.luminanzaDiProgetto))
+                                         : MF('Pag_Arr_LuminanzaEPoiColore', ore(pa.luminanzaDiProgetto), ore(pa.coloreDiProgetto));
+      }
+      if (g.tettoUnico && g.satDiProgetto != null) return MF('Pag_Arr_TettoUnico', ore(g.satDiProgetto));
+      const a = g.aggiunta, q = a && a.percentuali;
+      if (g.additivo && q && q.quota != null && a.campione != null && a.rapportoDellaPratica != null) {
+        if (q.L != null && a.coloreSuL != null && a.pavimentoDiProgetto != null)
+          return MF('Pag_Arr_AggiuntaPratica', nome(g.id), pct(q.quota), ore(a.pavimentoDiProgetto, 2), pct(q.L), pct(q.colore),
+            pct(q.aggiunta), cifra(a.campione, 0), cifra(a.rapportoDellaPratica, 2), cifra(a.coloreSuL, 2));
+        return MF('Pag_Arr_Aggiunta', nome(g.id), pct(q.quota), cifra(a.campione, 0), cifra(a.rapportoDellaPratica, 2));
+      }
+      return '';
+    };
+    /*  i canali della base vengono prima, le aggiunte dopo: la frase di un'aggiunta parla di cio' che la base lascia */
+    const vivi = alloc.filter(g => !soloStelle(g));
+    const frasi = vivi.filter(g => !g.additivo).map(frase).concat(vivi.filter(g => g.additivo).map(frase)).filter(Boolean);
+    const riga = alloc.filter(g => g.praticaARiga);
+    if (riga.length >= 2) {
+      const c = riga[0].praticaARiga || {};
+      if (riga.length >= 3 && c.campioneSHO != null && c.campioneHOO != null)
+        frasi.push(MF('Pag_Arr_ShoTavolozza', cifra(c.campioneSHO, 0), cifra(c.campioneHOO, 0)));
+      if (pr.oltreITettiARiga === true) frasi.push(MF('Pag_Arr_OltreARiga'));
+    }
+    if (pr.avanzanoDaDire != null) frasi.push('<span class="avanzano">' + MF('Pag_Arr_Avanzano', cifra(pr.avanzanoDaDire, 1)) + '</span>');
+    return frasi.length ? '<div class="arresti">' + frasi.join(' ') + '</div>' : '';
+  }
+
+  /*  DA DOVE VENGONO LE ORE, una riga per canale (25 settembre 2026). In `valutazione.budget.<canale>` il servizio manda
+   *  le ore e, sotto `ore`, la loro origine fatta di codici; il pannello sceglie per quei codici le voci del suo
+   *  dizionario e ci mette i numeri che arrivano. Un codice che le mappe qui sotto non conoscono si mostra cosi' com'e':
+   *  indovinarne il senso vorrebbe dire scrivere una frase al posto del servizio. */
+  const PAROLA_DELLA_CONFIDENZA = { bassa: 'Pag_Prov_Conf_bassa', 'media-bassa': 'Pag_Prov_Conf_media_bassa',
+    media: 'Pag_Prov_Conf_media', 'media-alta': 'Pag_Prov_Conf_media_alta', alta: 'Pag_Prov_Conf_alta' };
+  const MOTIVO_DI_FAMIGLIA = { senza_misura: 'Pag_Prov_Motivo_senza_misura', matrice: 'Pag_Prov_Motivo_matrice',
+    fondo_sopra: 'Pag_Prov_Motivo_fondo_sopra', planetaria_dopo_il_cielo: 'Pag_Prov_Motivo_planetaria_dopo_il_cielo',
+    stelle_risolte: 'Pag_Prov_Motivo_stelle_risolte', banda_non_singola: 'Pag_Prov_Motivo_banda_non_singola',
+    tasso_non_calcolabile: 'Pag_Prov_Motivo_tasso_non_calcolabile' };
+  const MOTIVO_DEL_BORDO = { non_risolto: 'Pag_Prov_Bordo_non_risolto', sotto_il_fondo: 'Pag_Prov_Bordo_sotto_il_fondo',
+    dentro_un_altro: 'Pag_Prov_Bordo_dentro_un_altro', sopra_la_media: 'Pag_Prov_Bordo_sopra_la_media',
+    stima_sotto_il_fondo: 'Pag_Prov_Bordo_stima_sotto_il_fondo' };
+  const MOTIVO_DELL_UTILE = { colore_mancante: 'Pag_Prov_UtileMotivo_colore_mancante', fondo_non_misurato: 'Pag_Prov_UtileMotivo_fondo_non_misurato' };
+  function daDoveVengono(origine) {
+    if (!origine) return null;
+    const inR = x => cifra(x, x < 10 ? 1 : 0) + ' R', inMag = x => cifra(x, 2) + ' mag/arcsec²';
+    const voceDi = (mappa, codice) => { const chiave = vocePropria(mappa, codice); return chiave ? MF(chiave) : esc(codice); };
+    if (origine.da === 'famiglia') return MF('Pag_Prov_Famiglia', voceDi(MOTIVO_DI_FAMIGLIA, origine.motivo));
+    const lim = origine.soglia;
+    if (origine.da === 'limite' && lim && lim.valore != null && lim.rapporto != null)
+      return MF('Pag_Prov_Limite', inR(lim.valore), cifra(lim.rapporto, 1)) + MF(origine.alzato ? 'Pag_Prov_LimiteAlza' : 'Pag_Prov_LimiteSopra');
+    if (origine.da !== 'fotometria') return origine.da ? esc(origine.da) : null;
+    const elem = origine.elemento || {};
+    const pezzi = [MF(elem.scala === '2×2' ? 'Pag_Prov_Base2x2' : 'Pag_Prov_Base', cifra(origine.snr), cifra(elem.fwhm, 2))];
+    const sg = origine.soglia || {};
+    if (sg.codice === 'media_d25') pezzi.push(MF('Pag_Prov_Soglia_media_d25', inMag(sg.valore), esc(sg.banda)));
+    else if (sg.codice === 'media') pezzi.push(MF('Pag_Prov_Soglia_media', inR(sg.valore)) + (sg.alPiu ? MF('Pag_Prov_Almeno') : ''));
+    else if (sg.codice) pezzi.push(esc(sg.codice));
+    const ut = origine.utile;
+    if (!ut) {
+      const motivo = origine.motivoUtileCodice, chiave = motivo ? vocePropria(MOTIVO_DELL_UTILE, motivo) : null;
+      pezzi.push(MF('Pag_Prov_UtileFamiglia') + (!motivo ? '' : chiave ? MF(chiave) : ': ' + esc(motivo)));
+    } else if (ut.codice === 'bordo_d25') pezzi.push(MF('Pag_Prov_Utile_bordo_d25', inMag(ut.valore), esc(ut.banda)));
+    else if (ut.codice === 'bordo_catalogato') pezzi.push(MF('Pag_Prov_Utile_bordo_catalogato', inR(ut.valore)));
+    else if (ut.codice === 'bordo_stimato') pezzi.push(MF('Pag_Prov_Utile_bordo_stimato', inR(ut.valore), cifra(ut.rapporto, 3),
+      cifra(ut.regioni, 0), cifra(ut.rapportoMinimo, 3), cifra(ut.rapportoMassimo, 3)));
+    else if (ut.codice === 'fondo_locale') pezzi.push(MF('Pag_Prov_Utile_fondo_locale', inR(ut.valore)) +
+      (ut.motivoCodice ? ': ' + voceDi(MOTIVO_DEL_BORDO, ut.motivoCodice) + (ut.dentro ? ' (' + esc(ut.dentro) + ')' : '') : ''));
+    else if (ut.codice) pezzi.push(esc(ut.codice));
+    return pezzi.join('; ');
+  }
+  function righeDaDoveVengono(p) {
+    const budget = p.valutazione && p.valutazione.budget, pr = p.prescrizione || {};
+    if (!budget) return '';
+    const inOre = x => cifra(x, 2) + ' h';
+    const righe = [];
+    /*  La riga scrive le ore del canale nel modo in cui la prescrizione le usa. Un gruppo con una banda sola e' quel
+     *  canale, e i suoi numeri sono quelli del gruppo: anche quando la tecnica prende l'RGB del soggetto, che il budget
+     *  tiene accanto all'RGB delle stelle. La L che comanda porta con se' le proprie (`oreProprie`), ed e' di quelle che
+     *  l'origine racconta. Per un gruppo che unisce piu' bande si scrive il budget di ciascuna. */
+    for (const gr of (pr.alloc || [])) {
+      if (!gr || gr.dropped) continue;
+      const elenco = gr.bands || [gr.id];
+      for (const canale of elenco) {
+        const voce = Object.prototype.hasOwnProperty.call(budget, canale) ? budget[canale] : null;
+        if (!voce) continue;
+        const numeri = elenco.length > 1 ? voce
+          : (gr.oreProprie || { floor: gr.floor, useful: gr.useful, saturates: gr.sat });
+        if (!(numeri.useful > 0)) continue;
+        const origine = daDoveVengono(voce.ore);
+        const fiducia = vocePropria(PAROLA_DELLA_CONFIDENZA, voce.confidence);
+        righe.push('<div class="provenienza-riga" data-canale="' + esc(canale) + '"><b>' + esc(canale) + '</b>: ' +
+          MF('Pag_Prov_Ore', inOre(numeri.floor), inOre(numeri.useful)) +
+          (numeri.saturates > 0 ? MF('Pag_Prov_Tetto', inOre(numeri.saturates)) : '') +
+          (voce.tettoDellaScheda && voce.tettoDellaScheda.scritto != null ? MF('Pag_Prov_Scheda', inOre(voce.tettoDellaScheda.scritto)) : '') +
+          (fiducia ? MF('Pag_Prov_Confidenza', MF(fiducia)) : '') +
+          (origine ? ' — ' + origine + '.' : '') + '</div>');
+      }
+    }
+    return righe.length ? '<div class="provenienza"><b>' + esc(T('Pag_Prov_Titolo')) + '</b>' + righe.join('') + '</div>' : '';
   }
 
   function riquadroDelPiano(p, r, d) {
@@ -1529,7 +1656,7 @@
         (!perRiga && guadagni.length === 1 ? '<span>· ' + guadagni[0] + '</span>' : '') + tasto + '</div>';
       return '<div class="notte">' + testa + righeDellaLuna(p.luna, s.notte) + canali + senzaSerie + piede + '</div>';
     }).join('');
-    return piuNuovo + schede;
+    return piuNuovo + frasiOltreITetti(p) + righeDaDoveVengono(p) + schede;
   }
 
   function guadagnoDelBlocco(b) {
