@@ -542,6 +542,23 @@
     } catch (e) { return iso; }
   };
 
+  /*  LA NOTTE SPOSTATA SI SPIEGA (la regia, 25 settembre 2026). Sotto la data compariva solo il giorno nuovo — per M101,
+   *  da fine settembre a fine novembre — e sembrava un guasto. Codice e cifre arrivano dal servizio in `notte.perche`;
+   *  qui si compongono con le parole del dizionario e diventano il suggerimento di tre posti: il campo della data, la
+   *  freccia, lo spostamento fra i dettagli. Codice ignoto: la frase del servizio, mai una causa inventata; nessun
+   *  perche' in arrivo: la frase generica. */
+  const PAROLA_DELLO_SPOSTAMENTO = { 'poche-ore': 'Pag_NotteSpostata_pocheOre',
+    'sotto-la-soglia': 'Pag_NotteSpostata_sottoLaSoglia', buio: 'Pag_NotteSpostata_buio' };
+  function percheDellaNotte(x, usata) {
+    if (!x) return T('Pag_NotteSpostata_generica');
+    const k = PAROLA_DELLO_SPOSTAMENTO[x.codice];
+    if (!k) return x.frase || String(x.codice || '');
+    return soloTesto(MF(k, esc(dataScritta(x.notte, { day: 'numeric', month: 'long' })), oreScritte(x.oreSopraHM, x.oreSopra),
+      cifra(x.altezzaMassima, 0), cifra(x.soglia, 0), oreScritte(x.oreMinimeHM, x.oreMinime),
+      oreScritte(x.oreDiRipresaHM, x.oreDiRipresa), oreScritte(x.preparazioneHM, x.preparazione),
+      esc(dataScritta(usata, { weekday: 'long', day: 'numeric', month: 'long' }))));
+  }
+
   /*  LE NOTTI GIUSTE NON SONO QUESTE (regia, 17 settembre 2026): la cosa piu' utile che il motore sa, perche' dice
    *  quando smettere di pagare invece di quanto si paga. Strategy manda la data da cui le stesse notti rendono di piu',
    *  e niente quando spostarsi non conviene; il tasto mette la data e rifa' la domanda. */
@@ -952,6 +969,7 @@
     const p = d.prodotto;
     /*  la Luna sotto la data e' quella della notte che il piano usa davvero */
     notteUsata = p.notte.usata;
+    percheNotte = p.notte.perche || null;
     lunaDellaData();
 
     const riquadro = riquadroDelPiano(p, r, d);
@@ -964,8 +982,8 @@
       '<tr><th>' + T('Pag_ColOggetto') + '</th><td>' + identita(p.bersaglio, p.bersaglio.scheda) + '</td></tr>' +
       '<tr><th>' + T('Pag_ColNotte') + '</th><td>' +
         MF('Pag_NotteChiestaUsata', esc(p.notte.chiesta), esc(p.notte.usata)) +
-        (p.notte.spostataDi ? ' <span style="opacity:.55">' +
-          MF('Pag_NotteSpostata', p.notte.spostataDi) + '</span>' : '') +
+        (p.notte.spostataDi ? ' <span class="spostata" style="opacity:.55" title="' + esc(percheDellaNotte(p.notte.perche, p.notte.usata)) + '">' +
+          MF('Pag_NotteSpostata', cifra(p.notte.spostataDi)) + '</span>' : '') +
         '</td></tr>' +
       /*  Le ore utili sono la somma delle notti chieste, e il numero delle notti lo dice il servizio: senza, accanto
           alla notte chiesta, sembravano le ore di una notte sola. */
@@ -1116,7 +1134,7 @@
   for (const campo of ['oggetto', 'data', 'notti'])
     $(campo).addEventListener('input', () => { stradaScelta = null; });
   /*  una data nuova e' una notte nuova: la Luna si richiede, e la notte usata della risposta di prima non vale piu' */
-  $('data').addEventListener('input', () => { notteUsata = null; lunaDellaData(); });
+  $('data').addEventListener('input', () => { notteUsata = null; percheNotte = null; lunaDellaData(); });
 
   /*  IL CALENDARIO SI APRE DALL'ICONA (17 settembre 2026): nella riga della domanda il tasto nativo non stava piu' sotto
    *  l'icona, e il clic andava a vuoto. L'icona apre la scelta della data da se'; dove il browser non sa farlo, il campo
@@ -1138,11 +1156,34 @@
    *  del profilo. Il conto e' di Strategy, e la pagina lo chiede all'ospite quando cambiano la data o il sito. Dopo una
    *  risposta, se la notte usata non e' quella chiesta, la Luna e' quella della notte usata, con la freccia. Vince
    *  l'ultima domanda. */
-  let ultimaLuna = 0, notteUsata = null;
+  /*  LA FASE DISEGNATA (regia, 25 settembre 2026): accanto a «Luna 55%» il disco con la parte illuminata. Il 55% c'e'
+   *  prima e dopo la piena, e il verso il pannello non lo ricava: il motore manda la figura, una delle otto fasi delle
+   *  effemeridi, e qui si disegna col suo glifo fisso — il lato illuminato a destra quando cresce —, senza un conto. Le
+   *  chiavi sono letterali; una figura che la mappa non conosce non si disegna: si tace, non si indovina. */
+  const GLIFO_DELLA_FASE = { nuova: '', falce_crescente: 'M7 1A6 6 0 0 1 7 13A3 6 0 0 0 7 1Z',
+    primo_quarto: 'M7 1A6 6 0 0 1 7 13Z', gibbosa_crescente: 'M7 1A6 6 0 0 1 7 13A3 6 0 0 1 7 1Z',
+    piena: 'M7 1A6 6 0 0 1 7 13A6 6 0 0 1 7 1Z', gibbosa_calante: 'M7 1A6 6 0 0 0 7 13A3 6 0 0 0 7 1Z',
+    ultimo_quarto: 'M7 1A6 6 0 0 0 7 13Z', falce_calante: 'M7 1A6 6 0 0 0 7 13A3 6 0 0 1 7 1Z' };
+  const PAROLA_DELLA_FASE = { nuova: 'Pag_Fase_nuova', falce_crescente: 'Pag_Fase_falce_crescente',
+    primo_quarto: 'Pag_Fase_primo_quarto', gibbosa_crescente: 'Pag_Fase_gibbosa_crescente', piena: 'Pag_Fase_piena',
+    gibbosa_calante: 'Pag_Fase_gibbosa_calante', ultimo_quarto: 'Pag_Fase_ultimo_quarto', falce_calante: 'Pag_Fase_falce_calante' };
+  function iconaDellaLuna(l) {
+    const f = l && l.faseLunare;
+    if (!Object.prototype.hasOwnProperty.call(GLIFO_DELLA_FASE, f)) return '';
+    const nome = T(PAROLA_DELLA_FASE[f]), d = GLIFO_DELLA_FASE[f];
+    return '<svg class="fase-luna" viewBox="0 0 14 14" role="img" aria-label="' + esc(nome) + '"><title>' + esc(nome) + '</title>' +
+      '<circle class="ombra" cx="7" cy="7" r="6"/>' + (d ? '<path class="luce" d="' + d + '"/>' : '') + '</svg>';
+  }
+
+  let ultimaLuna = 0, notteUsata = null, percheNotte = null;
   function lunaDellaData() {
     const box = $('lunaNotte');
     const chiesta = $('data').value;
     const giorno = notteUsata && notteUsata !== chiesta ? notteUsata : chiesta;
+    /*  il perche' dello spostamento sulla data stessa, e sulla freccia sotto: si toglie quando la data cambia */
+    const motivo = giorno !== chiesta ? percheDellaNotte(percheNotte, giorno) : '';
+    const cal = $('data').closest('.data-cal');
+    if (cal) { if (motivo) cal.title = motivo; else cal.removeAttribute('title'); }
     const mia = ++ultimaLuna;
     if (!box) return;
     if (!sito || sito.lat == null || sito.lon == null || !giorno) { box.textContent = ''; return; }
@@ -1152,9 +1193,10 @@
       try { l = r.ok ? JSON.parse(r.corpo).luna : null; } catch (e) { l = null; }
       if (!l) { box.textContent = ''; return; }
       const freccia = giorno !== chiesta
-        ? '<span class="notte-usata">' + MF('Pag_NotteUsata', esc(dataScritta(giorno, { weekday: 'short', day: 'numeric', month: 'short' }))) + '</span> '
+        ? '<span class="notte-usata"' + (motivo ? ' title="' + esc(motivo) + '"' : '') + '>' +
+          MF('Pag_NotteUsata', esc(dataScritta(giorno, { weekday: 'short', day: 'numeric', month: 'short' }))) + '</span> '
         : '';
-      box.innerHTML = freccia + (l.sopra
+      box.innerHTML = freccia + iconaDellaLuna(l) + (l.sopra
         ? MF('Pag_LunaAlta', cifra(l.fasePercento), cifra(l.altezza_deg, 0))
         : MF('Pag_LunaSotto', cifra(l.fasePercento)));
     });

@@ -428,7 +428,7 @@
     <value>asked {0}, used {1}</value>
   </data>
   <data name="Pag_NotteSpostata" xml:space="preserve">
-    <value>moved by {0}</value>
+    <value>moved by {0} d</value>
   </data>
   <data name="Pag_OpzNessunFiltro" xml:space="preserve">
     <value>no filter / clear filter</value>
@@ -1352,6 +1352,42 @@
   </data>
   <data name="Pag_NotteUsata" xml:space="preserve">
     <value>→ {0}</value>
+  </data>
+  <data name="Pag_NotteSpostata_pocheOre" xml:space="preserve">
+    <value>On {0}, in darkness, the object stays above the site threshold for only {1}: it reaches at most {2}°, and the threshold on that side is {3}°. A night counts if it gives at least {4} — {5} of imaging and {6} of setup. The first night that does is {7}: hours, Moon and exposures are for that night.</value>
+  </data>
+  <data name="Pag_NotteSpostata_sottoLaSoglia" xml:space="preserve">
+    <value>On {0}, in darkness, the object never rises above the site threshold: it reaches at most {2}°, and the threshold on that side is {3}°. A night counts if it gives at least {4} — {5} of imaging and {6} of setup. The first night that does is {7}: hours, Moon and exposures are for that night.</value>
+  </data>
+  <data name="Pag_NotteSpostata_buio" xml:space="preserve">
+    <value>On {0} there is no astronomical night here. A night counts if its darkness gives at least {4} — {5} of imaging and {6} of setup. The first night that does is {7}: hours, Moon and exposures are for that night.</value>
+  </data>
+  <data name="Pag_NotteSpostata_generica" xml:space="preserve">
+    <value>The requested night is not enough for this object from this site: the engine started from the first usable night, and hours, Moon and exposures are for that night.</value>
+  </data>
+  <data name="Pag_Fase_nuova" xml:space="preserve">
+    <value>New Moon</value>
+  </data>
+  <data name="Pag_Fase_falce_crescente" xml:space="preserve">
+    <value>Waxing crescent</value>
+  </data>
+  <data name="Pag_Fase_primo_quarto" xml:space="preserve">
+    <value>First quarter</value>
+  </data>
+  <data name="Pag_Fase_gibbosa_crescente" xml:space="preserve">
+    <value>Waxing gibbous</value>
+  </data>
+  <data name="Pag_Fase_piena" xml:space="preserve">
+    <value>Full Moon</value>
+  </data>
+  <data name="Pag_Fase_gibbosa_calante" xml:space="preserve">
+    <value>Waning gibbous</value>
+  </data>
+  <data name="Pag_Fase_ultimo_quarto" xml:space="preserve">
+    <value>Last quarter</value>
+  </data>
+  <data name="Pag_Fase_falce_calante" xml:space="preserve">
+    <value>Waning crescent</value>
   </data>
   <data name="Pag_ScriviOggetto" xml:space="preserve">
     <value>type the object</value>

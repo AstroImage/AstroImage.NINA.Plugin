@@ -133,6 +133,13 @@
   .notte-rif input[type=date]:focus { outline:none; border-bottom-color:var(--acc); }
   .luna-notte { font-size:12px; color:var(--dim); min-height:1.3em; }
   .notte-usata { color:var(--warn); font-weight:600; }
+  /*  Il perche' dello spostamento sta al passaggio del mouse (25 settembre 2026): chi lo porta lo dice col cursore. */
+  .notte-usata[title], .data-cal[title], .spostata[title] { cursor:help; }
+  .notte-usata[title] { border-bottom:1px dotted var(--warn); }
+  /*  La fase della Luna sotto la data (25 settembre 2026): il disco in ombra e la parte illuminata. */
+  .fase-luna { width:13px; height:13px; vertical-align:-2px; margin-right:5px; }
+  .fase-luna .ombra { fill:#2a2f36; stroke:var(--dim2); stroke-width:.6; }
+  .fase-luna .luce { fill:#e6e1c8; }
   .azione { flex:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
   /* ── I TRE MODI ────────────────────────────────────────────────
      Ogni valore qui sotto e' copiato dal riquadro «Come riprendere» di AIS —

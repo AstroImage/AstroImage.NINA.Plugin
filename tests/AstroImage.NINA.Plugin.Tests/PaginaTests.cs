@@ -975,6 +975,85 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(gestore, "Rispondi(id, true, corpo, null, null)", "la Luna non torna come il servizio la manda");
         }
 
+        /*  LA NOTTE SPOSTATA SI SPIEGA SULLA DATA (la regia, 25 settembre 2026): un giorno nuovo sotto la data, senza
+         *  ragione, sembrava un guasto. Qui si guarda la forma: una parola per codice nelle due lingue, la frase del
+         *  servizio per un codice ignoto, la generica solo senza `notte.perche`, e il suggerimento su campo, freccia e
+         *  spostamento. La pagina resa, con le cifre vere, la legge una guardia dell'altro repository. */
+        [TestMethod]
+        public void IL_PERCHE_DELLA_NOTTE_SPOSTATA_STA_SULLA_DATA() {
+            var js = PaginaSenzaCommenti();
+            var mappa = Tratto(js, "const PAROLA_DELLO_SPOSTAMENTO = {", "};");
+            var chiavi = new System.Collections.Generic.Dictionary<string, string> { ["'poche-ore'"] = "Pag_NotteSpostata_pocheOre",
+                ["'sotto-la-soglia'"] = "Pag_NotteSpostata_sottoLaSoglia", ["buio"] = "Pag_NotteSpostata_buio" };
+            foreach (var (codice, chiave) in chiavi)
+                StringAssert.Contains(mappa, codice + ": '" + chiave + "'", "il codice " + codice + " non ha la sua parola");
+            var perche = Tratto(js, "function percheDellaNotte(x, usata) {", "\n  }");
+            StringAssert.Contains(perche, "if (!x) return T('Pag_NotteSpostata_generica');", "la generica non e' solo per quando non arriva niente");
+            StringAssert.Contains(perche, "if (!k) return x.frase", "un codice sconosciuto non scrive la frase del motore");
+            foreach (var campo in new[] { "x.notte", "x.oreSopraHM", "x.altezzaMassima", "x.soglia", "x.oreMinimeHM", "x.oreDiRipresaHM",
+                                          "x.preparazioneHM", "dataScritta(usata" })
+                StringAssert.Contains(perche, campo, "il perche' non scrive " + campo);
+            var luna = Tratto(js, "function lunaDellaData() {", "\n  }");
+            foreach (var pezzo in new[] { "percheDellaNotte(percheNotte, giorno)", "closest('.data-cal')", "cal.title = motivo",
+                                          "cal.removeAttribute('title')", "'<span class=\"notte-usata\"' + (motivo ? ' title=\"' + esc(motivo) + '\"' : '')" })
+                StringAssert.Contains(luna, pezzo, "la data non porta il perche': manca " + pezzo);
+            StringAssert.Contains(js, "percheNotte = p.notte.perche || null;", "dopo la risposta il perche' non e' quello del motore");
+            StringAssert.Contains(js, "notteUsata = null; percheNotte = null;", "cambiando la data resta il perche' vecchio");
+            StringAssert.Contains(js, "title=\"' + esc(percheDellaNotte(p.notte.perche, p.notte.usata))", "lo spostamento nei dettagli non porta il perche'");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in chiavi.Values) {
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+                    foreach (var s in new[] { "{0}", "{4}", "{5}", "{6}", "{7}" }) StringAssert.Contains(t[k], s, lingua + ": " + k + " senza " + s);
+                }
+                StringAssert.Contains(t["Pag_NotteSpostata_pocheOre"], "{1}", lingua + ": le ore sopra la soglia non si scrivono");
+                foreach (var k in new[] { "Pag_NotteSpostata_pocheOre", "Pag_NotteSpostata_sottoLaSoglia" })
+                    foreach (var s in new[] { "{2}", "{3}" }) StringAssert.Contains(t[k], s, lingua + ": " + k + " senza " + s);
+                Assert.IsTrue(t.TryGetValue("Pag_NotteSpostata_generica", out var g) && !string.IsNullOrWhiteSpace(g), lingua + ": manca la generica");
+            }
+            StringAssert.Contains(Risorsa("prova.css"), ".notte-usata[title], .data-cal[title], .spostata[title] { cursor:help; }",
+                "il cursore non dice che c'e' un perche'");
+        }
+
+        /*  LA FASE DISEGNATA ACCANTO ALLA LUNA (regia, 25 settembre 2026). Il 55% c'e' prima e dopo la piena: la figura — una
+         *  delle otto fasi delle effemeridi — la manda il motore in `luna.faseLunare`, e il pannello la disegna con un glifo
+         *  fisso, senza un conto, col nome della figura nel suggerimento; una figura che non conosce non si disegna. Guardia
+         *  strutturale: il disegno sulla pagina resa lo legge una guardia del motore. */
+        [TestMethod]
+        public void LA_FASE_DELLA_LUNA_SI_DISEGNA_CON_LA_FIGURA_DEL_MOTORE() {
+            var js = PaginaSenzaCommenti();
+            var figure = new[] { "nuova", "falce_crescente", "primo_quarto", "gibbosa_crescente", "piena", "gibbosa_calante", "ultimo_quarto", "falce_calante" };
+            var glifi = Tratto(js, "const GLIFO_DELLA_FASE = {", "};");
+            var parole = Tratto(js, "const PAROLA_DELLA_FASE = {", "};");
+            foreach (var f in figure) {
+                StringAssert.Contains(glifi, f + ": '", "la figura " + f + " non ha il suo glifo");
+                StringAssert.Contains(parole, f + ": 'Pag_Fase_" + f + "'", "la figura " + f + " non ha la sua parola");
+            }
+            /*  il lato illuminato: il primo arco va a destra quando la Luna cresce, a sinistra quando cala */
+            foreach (var f in new[] { "falce_crescente", "primo_quarto", "gibbosa_crescente" })
+                StringAssert.Contains(glifi, f + ": 'M7 1A6 6 0 0 1 7 13", f + ": la luce non sta a destra");
+            foreach (var f in new[] { "gibbosa_calante", "ultimo_quarto", "falce_calante" })
+                StringAssert.Contains(glifi, f + ": 'M7 1A6 6 0 0 0 7 13", f + ": la luce non sta a sinistra");
+            var icona = Tratto(js, "function iconaDellaLuna(l) {", "\n  }");
+            foreach (var pezzo in new[] { "if (!Object.prototype.hasOwnProperty.call(GLIFO_DELLA_FASE, f)) return '';", "T(PAROLA_DELLA_FASE[f])",
+                                          "class=\"fase-luna\"", "<title>", "class=\"ombra\"", "class=\"luce\"" })
+                StringAssert.Contains(icona, pezzo, "il disco della fase non usa " + pezzo);
+            StringAssert.Contains(Tratto(js, "function lunaDellaData() {", "\n  }"), "box.innerHTML = freccia + iconaDellaLuna(l) +",
+                "il disco non sta accanto alla Luna della notte");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                var nomi = new System.Collections.Generic.HashSet<string>();
+                foreach (var f in figure) {
+                    Assert.IsTrue(t.TryGetValue("Pag_Fase_" + f, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca Pag_Fase_" + f);
+                    nomi.Add(v!);
+                }
+                Assert.AreEqual(figure.Length, nomi.Count, lingua + ": due figure hanno lo stesso nome");
+            }
+            var css = Risorsa("prova.css");
+            foreach (var regola in new[] { ".fase-luna {", ".fase-luna .ombra {", ".fase-luna .luce {" })
+                StringAssert.Contains(css, regola, "manca lo stile «" + regola + "»");
+        }
+
         /*  LA LUNA STA NELLA NOTTE, E TACE QUANDO NON COSTA (regia, 17 settembre 2026). Il riquadro della penalizzazione
          *  aveva cinque righe di spiegazione e pallini che dicevano tutti ×1,0: un avviso che compare sempre non si legge il
          *  giorno che conta. Adesso una riga per canale dentro la notte a cui si riferisce, nella forma della pagina del

@@ -428,7 +428,7 @@
     <value>chiesta {0}, usata {1}</value>
   </data>
   <data name="Pag_NotteSpostata" xml:space="preserve">
-    <value>spostata di {0}</value>
+    <value>spostata di {0} g</value>
   </data>
   <data name="Pag_OpzNessunFiltro" xml:space="preserve">
     <value>nessun filtro / filtro trasparente</value>
@@ -1352,6 +1352,42 @@
   </data>
   <data name="Pag_NotteUsata" xml:space="preserve">
     <value>→ {0}</value>
+  </data>
+  <data name="Pag_NotteSpostata_pocheOre" xml:space="preserve">
+    <value>Il {0}, col buio, l'oggetto sta sopra la soglia del sito solo {1}: arriva al massimo a {2}°, e la soglia da quella parte è {3}°. Una notte conta se ne dà almeno {4} — {5} di ripresa e {6} di preparazione. La prima che le dà è {7}: ore, Luna e pose sono di quella notte.</value>
+  </data>
+  <data name="Pag_NotteSpostata_sottoLaSoglia" xml:space="preserve">
+    <value>Il {0}, col buio, l'oggetto non passa mai sopra la soglia del sito: arriva al massimo a {2}°, e la soglia da quella parte è {3}°. Una notte conta se ne dà almeno {4} — {5} di ripresa e {6} di preparazione. La prima che le dà è {7}: ore, Luna e pose sono di quella notte.</value>
+  </data>
+  <data name="Pag_NotteSpostata_buio" xml:space="preserve">
+    <value>Il {0} da qui non c'è notte astronomica. Una notte conta se col buio ne dà almeno {4} — {5} di ripresa e {6} di preparazione. La prima che le dà è {7}: ore, Luna e pose sono di quella notte.</value>
+  </data>
+  <data name="Pag_NotteSpostata_generica" xml:space="preserve">
+    <value>La notte chiesta non basta a questo oggetto da questo sito: il motore è partito dalla prima notte utile, e ore, Luna e pose sono di quella notte.</value>
+  </data>
+  <data name="Pag_Fase_nuova" xml:space="preserve">
+    <value>Luna nuova</value>
+  </data>
+  <data name="Pag_Fase_falce_crescente" xml:space="preserve">
+    <value>Falce crescente</value>
+  </data>
+  <data name="Pag_Fase_primo_quarto" xml:space="preserve">
+    <value>Primo quarto</value>
+  </data>
+  <data name="Pag_Fase_gibbosa_crescente" xml:space="preserve">
+    <value>Gibbosa crescente</value>
+  </data>
+  <data name="Pag_Fase_piena" xml:space="preserve">
+    <value>Luna piena</value>
+  </data>
+  <data name="Pag_Fase_gibbosa_calante" xml:space="preserve">
+    <value>Gibbosa calante</value>
+  </data>
+  <data name="Pag_Fase_ultimo_quarto" xml:space="preserve">
+    <value>Ultimo quarto</value>
+  </data>
+  <data name="Pag_Fase_falce_calante" xml:space="preserve">
+    <value>Falce calante</value>
   </data>
   <data name="Pag_ScriviOggetto" xml:space="preserve">
     <value>scrivi l'oggetto</value>
