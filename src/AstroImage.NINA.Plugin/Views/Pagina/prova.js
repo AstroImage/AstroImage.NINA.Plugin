@@ -999,12 +999,17 @@
       '</table></div>' +
       parzialeDelProdotto(p.parziale) +
       notaDeiRiferimenti(p.parziale);
+    /*  IL PROGETTO APERTO STA IN CIMA, sopra il menu' delle tecniche: la tecnica la congela lui, e chi ne sceglie un'altra
+     *  deve vedere subito perche' non cambia e come aprirne uno nuovo. In fondo, sotto tutte le notti, il pulsante non lo
+     *  vedeva nessuno. Il progetto solo proposto resta accanto alla consegna, che e' quella che lo apre. */
+    const aperto = !!(p.profilo && p.profilo.stato === 'congelato');
     $('uscita').innerHTML =
+      (aperto ? bloccoDelProgetto(p, r) : '') +
       disegnaMenu(p.prescrizione) +
       (p.banco && p.banco.camera ? cameraDelCalcolo(p.banco.camera, soloVoce) : '') +
       nottiGiuste(p) +
       riquadro +
-      bloccoDelProgetto(p, r) +
+      (aperto ? '' : bloccoDelProgetto(p, r)) +
       (r.consegnabile ? '' :
         '<div class="box err"><b>' + T('Pag_NonSiPuoMandare') + '</b>' +
         '<div style="margin-top:6px;opacity:.85">' +

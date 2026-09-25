@@ -1316,7 +1316,17 @@ namespace AstroImage.NINA.Plugin.Tests {
                                           "d.dark_nuovi", "'Pag_Progetto_ConsegnaApre'", "'Pag_Progetto_Aperto'", "'Pag_Progetto_Nuovo'",
                                           "id=\"nuovoProgetto\"", "pf.pareggio" })
                 StringAssert.Contains(blocco, pezzo, "il blocco del progetto non usa " + pezzo);
-            StringAssert.Contains(js, "bloccoDelProgetto(p, r) +", "il blocco del progetto non sta fra le notti e la consegna");
+            /*  dal 25 settembre 2026 il progetto aperto sta in cima, sopra il menu' delle tecniche: in fondo il pulsante
+             *  «apri un progetto nuovo» non si vedeva. Il progetto solo proposto resta fra le notti e la consegna. */
+            var uscita = Tratto(js, "$('uscita').innerHTML =", "'<div id=\"consegna\"></div>'");
+            int Dove(string s) => uscita.IndexOf(s, StringComparison.Ordinal);
+            StringAssert.Contains(js, "const aperto = !!(p.profilo && p.profilo.stato === 'congelato');",
+                "la pagina non distingue il progetto aperto da quello proposto");
+            Assert.IsTrue(Dove("(aperto ? bloccoDelProgetto(p, r) : '')") >= 0 &&
+                Dove("(aperto ? bloccoDelProgetto(p, r) : '')") < Dove("disegnaMenu(p.prescrizione)"),
+                "il progetto aperto non sta sopra il menu' delle tecniche");
+            Assert.IsTrue(Dove("(aperto ? '' : bloccoDelProgetto(p, r))") > Dove("riquadro +") && Dove("riquadro +") >= 0,
+                "il progetto proposto non sta fra le notti e la consegna");
             StringAssert.Contains(js, "chiedi('nuovoProgetto'", "«apri un progetto nuovo» non chiede niente all'ospite");
             StringAssert.Contains(js, "r.progettoAperto", "la consegna non dice che ha aperto il progetto");
             StringAssert.Contains(js, "MF('Pag_CalcolataColProgetto'", "«calcolata su» tace i filtri del progetto che stanotte non sono in ruota");
