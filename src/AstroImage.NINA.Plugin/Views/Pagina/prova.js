@@ -168,6 +168,8 @@
   }
 
   function ridisegna() {
+    /*  i progetti aperti sono dell'ospite, non del motore: si leggono anche a motore spento */
+    aggiornaProgettiAperti();
     chiedi('modalita').then(r => {
       /*  Qui c'era `return`, e basta: senza modi la pagina non disegnava i riquadri
           e non diceva niente. Adesso lo dice, con l'indirizzo. */
@@ -451,6 +453,63 @@
    *  perche' chi apre un progetto per sbaglio si chiederebbe poi perche' i numeri non si muovono piu'. Con un progetto
    *  aperto dice quando si e' aperto, i dark che chiede, le premesse cambiate e il loro costo — tutte frasi del motore —,
    *  i canali che stanotte saltano, e «apri un progetto nuovo» a un clic, con scritto quanti dark nuovi costa. */
+  /*  LE POSE CONGELATE DI UN PROGETTO, scritte da una funzione sola per l'elenco e per il riquadro (regia, 26 settembre
+   *  2026): canale, secondi e modo, come il profilo li porta; il modo e' quello della classe del canale. */
+  function poseDelProfilo(pf) {
+    const canali = (pf && pf.canali) || {}, modi = (pf && pf.modi) || {};
+    return Object.keys(canali).map(b => { const c = canali[b] || {}, m = modi[c.classe] || {};
+      return MF('Pag_Progetti_Posa', esc(b), cifra(c.posa), esc(m.modo || '—')); }).join(' · ');
+  }
+
+  /*  I PROGETTI APERTI SU QUESTO PROFILO (regia, 26 settembre 2026). Stavano nella memoria del profilo e si vedevano solo
+   *  chiedendo quell'oggetto: sul MiniX M82 dava la L a 60 s e M81 a 180 s, e niente diceva che M82 aveva un progetto
+   *  aperto con la posa congelata. Adesso stanno tutti qui, sempre, anche prima di chiedere: l'oggetto, il banco, il
+   *  giorno dell'apertura, la strada e le pose congelate. «Chiedi» rifa' la domanda di quell'oggetto; «Chiudi il
+   *  progetto» lo toglie, e la consegna dopo ne apre uno nuovo con le pose di adesso. Se l'ospite non li da', niente. */
+  let progettiAperti = [];
+  function aggiornaProgettiAperti() {
+    return chiedi('progetti').then(r => {
+      progettiAperti = r && r.ok && Array.isArray(r.progetti) ? r.progetti : [];
+      disegnaProgettiAperti(!!(r && r.ok));
+    });
+  }
+  function disegnaProgettiAperti(letti) {
+    const box = $('progettiAperti');
+    if (!box) return;
+    if (!letti) { box.innerHTML = ''; return; }
+    const banco = k => esc(String(k || '').split('|').filter(Boolean).join(' · '));
+    const righe = progettiAperti.map((x, i) => {
+      const pf = x.profilo || {};
+      return '<li><b>' + esc(x.bersaglio) + '</b> <span class="fine">' + MF('Pag_Progetti_Riga', banco(x.banco),
+          esc(dataScritta(x.apertoIl, { day: 'numeric', month: 'short' })), esc(String(pf.strada || '').toUpperCase())) + '</span>' +
+        '<div class="fine">' + MF('Pag_Progetti_Pose', poseDelProfilo(pf)) + '</div>' +
+        '<div class="tasti"><button data-chiedi-progetto="' + i + '">' + esc(T('Pag_Progetti_Chiedi')) + '</button> ' +
+        '<button data-chiudi-progetto="' + i + '" title="' + esc(T('Pag_Progetti_ChiudiNota')) + '">' + esc(T('Pag_Progetti_Chiudi')) +
+        '</button> ' + esito('esitoChiudi' + i) + '</div></li>';
+    });
+    box.innerHTML = '<details class="box progetti"' + (progettiAperti.length ? ' open' : '') + '><summary><b>' +
+      MF('Pag_Progetti_Titolo', cifra(progettiAperti.length)) + '</b></summary>' +
+      (righe.length ? '<ul>' + righe.join('') + '</ul>' : '<div class="fine">' + MF('Pag_Progetti_Nessuno') + '</div>') + '</details>';
+    const stesso = (a, b) => String(a || '').toLowerCase().replace(/[\s_-]/g, '') === String(b || '').toLowerCase().replace(/[\s_-]/g, '');
+    for (const tasto of box.querySelectorAll('[data-chiedi-progetto]')) tasto.addEventListener('click', () => {
+      const x = progettiAperti[Number(tasto.getAttribute('data-chiedi-progetto'))]; if (!x) return;
+      $('oggetto').value = x.bersaglio; stradaScelta = null; vai();
+    });
+    for (const tasto of box.querySelectorAll('[data-chiudi-progetto]')) tasto.addEventListener('click', async () => {
+      const i = Number(tasto.getAttribute('data-chiudi-progetto')), x = progettiAperti[i]; if (!x) return;
+      tasto.disabled = true; segnaEsito('esitoChiudi' + i, 'corso', T('Pag_Salvo'));
+      const chiuso = await chiedi('chiudiProgetto', null, { bersaglio: x.bersaglio, banco: x.banco });
+      if (chiuso.ok !== true) {
+        tasto.disabled = false;
+        segnaEsito('esitoChiudi' + i, 'no', T('Pag_NonSalvatoPerche').replace('{0}', chiuso.messaggio || chiuso.codice || ''));
+        return;
+      }
+      aggiornaProgettiAperti();
+      /*  se la risposta a schermo e' di quell'oggetto, si rifa': il riquadro del progetto torna «proposto» */
+      if (stesso($('oggetto').value, x.bersaglio)) vai();
+    });
+  }
+
   function bloccoDelProgetto(p, r) {
     const pf = p && p.profilo;
     if (!pf) return '';
@@ -471,6 +530,8 @@
     const pr = p.progetto || {};
     const d = pr.decisione_di_adesso || {};
     h += riga(MF('Pag_Progetto_Aperto', esc((r && r.progetto && r.progetto.apertoIl) || '—')));
+    /*  che cosa resta fermo, scritto (26 settembre 2026): senza, «congelato» non diceva quale posa */
+    h += riga(MF('Pag_Progetto_Congelato', poseDelProfilo(pf)));
     if (dark) h += riga(MF('Pag_Progetto_Dark', esc(dark)), 'opacity:.85');
     if (pr.frase) h += riga(esc(nella(pr.frase)), 'color:#e0a030');
     else if (pr.nota) h += riga(esc(nella(pr.nota)), 'opacity:.7;font-size:12.5px');
@@ -1052,6 +1113,7 @@
       const r2 = await chiedi('nuovoProgetto', null, {});
       nuovo.disabled = false;
       if (!r2.ok) { segnaEsito('esitoProgetto', 'no', T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '')); return; }
+      aggiornaProgettiAperti();
       vai();
     });
     /*  LE NOTTI GIUSTE: il tasto mette la data proposta e rifa' la domanda. La strada scelta non vale piu', come quando
@@ -1109,6 +1171,8 @@
       (r.progettoAperto ? '<div style="margin-top:6px">' + MF('Pag_Progetto_ApertoOra') + '</div>' : '') +
       (r.progettoNonSalvato ? '<div style="margin-top:6px;color:#e0a030">' + MF('Pag_Progetto_NonSalvato', esc(r.progettoNonSalvato)) + '</div>' : '') +
       '</div>';
+    /*  la consegna puo' aver aperto un progetto: l'elenco si rilegge */
+    if (r.progettoAperto) aggiornaProgettiAperti();
   }
 
   /*  QUALE COPERTURA E' SPUNTATA. Due segmenti, e uno lo e' sempre: il markup

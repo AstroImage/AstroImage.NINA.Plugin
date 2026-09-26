@@ -141,5 +141,20 @@ namespace AstroImage.NINA.Plugin.Services {
             var p = Trova(progetti, bersaglio, banco);
             return p != null && progetti.Remove(p);
         }
+
+        /*  I PROGETTI APERTI SI VEDONO (regia, 26 settembre 2026). Stavano nella memoria del profilo e comparivano solo
+         *  chiedendo quell'oggetto: sul MiniX M82 dava la L a 60 s e M81 a 180 s, e non c'era modo di sapere che M82 aveva un
+         *  progetto aperto la notte prima, con la posa congelata. La pagina li riceve tutti, come sono salvati — il profilo
+         *  intero, perche' le pose le scrive lei, con la stessa funzione del riquadro del progetto —, i piu' recenti prima. */
+        /// <summary>I progetti aperti per la pagina: bersaglio, banco, data d'apertura e profilo, i piu' recenti prima.</summary>
+        public static JsonArray PerLaPagina(IEnumerable<Progetto> progetti) {
+            var arr = new JsonArray();
+            foreach (var p in progetti.OrderByDescending(x => x.ApertoIl, StringComparer.Ordinal)
+                                      .ThenBy(x => x.Bersaglio, StringComparer.OrdinalIgnoreCase))
+                arr.Add(new JsonObject {
+                    ["bersaglio"] = p.Bersaglio, ["banco"] = p.Banco, ["apertoIl"] = p.ApertoIl, ["profilo"] = p.Profilo.DeepClone(),
+                });
+            return arr;
+        }
     }
 }

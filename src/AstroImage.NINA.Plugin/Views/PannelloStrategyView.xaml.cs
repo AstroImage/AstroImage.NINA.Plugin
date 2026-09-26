@@ -301,6 +301,10 @@ namespace AstroImage.NINA.Plugin.Views {
 
                 if (azione == "nuovoProgetto") { NuovoProgetto(id); return; }
 
+                if (azione == "progetti") { Progetti(id); return; }
+
+                if (azione == "chiudiProgetto") { ChiudiProgetto(id, messaggio); return; }
+
                 if (azione != "prescrizione") {
                     Rispondi(id, false, null, "azione_sconosciuta", Loc.F("Pannello_AzioneSconosciuta", azione)); return;
                 }
@@ -563,6 +567,34 @@ namespace AstroImage.NINA.Plugin.Views {
             }
             Logger.Info("[AstroImage] project closed: " + vm.InMano.Bersaglio);
             vm.InMano.Lascia();
+            Rispondi(id, true, null, null, null);
+        }
+
+        /*  I PROGETTI APERTI DEL PROFILO, per la pagina che li mostra tutti (regia, 26 settembre 2026). */
+        private void Progetti(string id) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
+            Rispondi(id, true, null, null, null, 0, null,
+                new JsonObject { ["progetti"] = ProgettiDelProfilo.PerLaPagina(vm.Dichiarazioni.Progetti) });
+        }
+
+        /*  CHIUDERE UN PROGETTO DALL'ELENCO: il bersaglio e il banco li manda la pagina come li ha ricevuti. Se e' quello della
+         *  prescrizione in mano, la prescrizione si lascia, come con «Apri un progetto nuovo». */
+        private void ChiudiProgetto(string id, JsonObject messaggio) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
+            var bersaglio = messaggio?["bersaglio"]?.ToString();
+            var banco = messaggio?["banco"]?.ToString();
+            var p = ProgettiDelProfilo.Trova(vm.Dichiarazioni.Progetti, bersaglio, banco);
+            if (p is null || !vm.Dichiarazioni.Progetti.Remove(p)) {
+                Rispondi(id, false, null, "nessun_progetto", Loc.T("Progetto_NessunoAperto")); return;
+            }
+            if (!vm.Dichiarazioni.SalvaProgetti(out var perCheNo)) {
+                Logger.Warning("[AstroImage] project not saved — " + perCheNo);
+                Rispondi(id, false, null, "progetto_non_salvato", perCheNo); return;
+            }
+            Logger.Info("[AstroImage] project closed from the list: " + p.Bersaglio);
+            if (ProgettiDelProfilo.Trova(new[] { p }, vm.InMano.Bersaglio, vm.InMano.Banco) != null) vm.InMano.Lascia();
             Rispondi(id, true, null, null, null);
         }
 

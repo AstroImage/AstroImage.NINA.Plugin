@@ -576,6 +576,33 @@
   <data name="Pag_Progetto_Nuovo" xml:space="preserve">
     <value>Open a new project</value>
   </data>
+  <data name="Pag_Progetti_Titolo" xml:space="preserve">
+    <value>Open projects on this profile: {0}</value>
+  </data>
+  <data name="Pag_Progetti_Nessuno" xml:space="preserve">
+    <value>No open project: the first «Send to N.I.N.A.» of an object opens one and freezes its exposures.</value>
+  </data>
+  <data name="Pag_Progetti_Riga" xml:space="preserve">
+    <value>{0} · opened {1} · {2}</value>
+  </data>
+  <data name="Pag_Progetti_Pose" xml:space="preserve">
+    <value>frozen exposures: {0}</value>
+  </data>
+  <data name="Pag_Progetti_Posa" xml:space="preserve">
+    <value>{0} {1} s {2}</value>
+  </data>
+  <data name="Pag_Progetti_Chiedi" xml:space="preserve">
+    <value>Ask</value>
+  </data>
+  <data name="Pag_Progetti_Chiudi" xml:space="preserve">
+    <value>Close the project</value>
+  </data>
+  <data name="Pag_Progetti_ChiudiNota" xml:space="preserve">
+    <value>Removes the project: the next «Send to N.I.N.A.» for this object opens a new one, with the exposures the engine decides now.</value>
+  </data>
+  <data name="Pag_Progetto_Congelato" xml:space="preserve">
+    <value>Frozen exposures: {0}</value>
+  </data>
   <data name="Pag_Progetto_NuovoCosto" xml:space="preserve">
     <value>It costs these new darks: {0}</value>
   </data>

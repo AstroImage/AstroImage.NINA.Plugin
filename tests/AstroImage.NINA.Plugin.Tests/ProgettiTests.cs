@@ -151,5 +151,29 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsNotNull(ProgettiDelProfilo.Trova(progetti, "M31", BancoRc8), "ha chiuso anche un altro progetto");
             Assert.IsFalse(ProgettiDelProfilo.Chiudi(progetti, "NGC 6888", BancoRc8), "non c'era piu' niente da chiudere");
         }
+
+        /*  I PROGETTI APERTI SI VEDONO (regia, 26 settembre 2026): la pagina li riceve tutti, i piu' recenti prima, col profilo
+         *  intero — le pose congelate le scrive lei. */
+        [TestMethod]
+        public void IProgettiApertiPerLaPagina_IPiuRecentiPrima_ColProfiloIntero() {
+            var progetti = new List<ProgettiDelProfilo.Progetto>();
+            ProgettiDelProfilo.Apri(progetti, "NGC 6888", BancoRc8, Proposto(), new DateTime(2026, 9, 21));
+            ProgettiDelProfilo.Apri(progetti, "M82", BancoRc8, Proposto("m82"), new DateTime(2026, 9, 26));
+            ProgettiDelProfilo.Apri(progetti, "M101", BancoRc8, Proposto("m101"), new DateTime(2026, 9, 25));
+
+            var a = ProgettiDelProfilo.PerLaPagina(progetti);
+            Assert.AreEqual(3, a.Count);
+            CollectionAssert.AreEqual(new[] { "M82", "M101", "NGC 6888" },
+                new[] { a[0]!["bersaglio"]!.ToString(), a[1]!["bersaglio"]!.ToString(), a[2]!["bersaglio"]!.ToString() },
+                "l'ordine non e' dal piu' recente");
+            Assert.AreEqual(BancoRc8, a[0]!["banco"]!.ToString());
+            Assert.AreEqual("2026-09-26", a[0]!["apertoIl"]!.ToString());
+            Assert.IsTrue(JsonNode.DeepEquals(a[0]!["profilo"], progetti.Find(p => p.Bersaglio == "M82")!.Profilo),
+                "il profilo per la pagina non e' quello congelato");
+            /*  e' una copia: la pagina non tocca quello salvato */
+            ((JsonObject)a[0]!["profilo"]!)["strada"] = "altro";
+            Assert.AreEqual("sho", progetti.Find(p => p.Bersaglio == "M82")!.Profilo["strada"]!.ToString());
+            Assert.AreEqual(0, ProgettiDelProfilo.PerLaPagina(new List<ProgettiDelProfilo.Progetto>()).Count);
+        }
     }
 }

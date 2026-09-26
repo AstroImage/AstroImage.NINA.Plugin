@@ -1019,6 +1019,53 @@ namespace AstroImage.NINA.Plugin.Tests {
          *  delle otto fasi delle effemeridi — la manda il motore in `luna.faseLunare`, e il pannello la disegna con un glifo
          *  fisso, senza un conto, col nome della figura nel suggerimento; una figura che non conosce non si disegna. Guardia
          *  strutturale: il disegno sulla pagina resa lo legge una guardia del motore. */
+        /*  I PROGETTI APERTI SI VEDONO (regia, 26 settembre 2026). Stavano nella memoria del profilo e comparivano solo
+         *  chiedendo quell'oggetto: un progetto aperto la notte prima teneva la L a 60 s, e dal pannello non si poteva
+         *  sapere. Adesso: un riquadro sempre presente, riempito dall'ospite anche a motore spento; le pose congelate le
+         *  scrive una funzione sola, per l'elenco e per il riquadro del progetto; «Chiedi» e «Chiudi il progetto» per riga. */
+        [TestMethod]
+        public void I_PROGETTI_APERTI_SI_VEDONO_SEMPRE() {
+            StringAssert.Contains(Risorsa("prova.html"), "<div id=\"progettiAperti\"></div>", "il riquadro dei progetti aperti non ha il suo posto");
+            var js = PaginaSenzaCommenti();
+            var aggiorna = Tratto(js, "function aggiornaProgettiAperti() {", "\n  }");
+            StringAssert.Contains(aggiorna, "chiedi('progetti')", "l'elenco non lo chiede all'ospite");
+            StringAssert.Contains(Tratto(js, "function ridisegna() {", "chiedi('modalita')"), "aggiornaProgettiAperti();",
+                "l'elenco non si legge all'avvio, prima del motore");
+            StringAssert.Contains(js, "if (r.progettoAperto) aggiornaProgettiAperti();", "dopo una consegna che apre un progetto l'elenco resta vecchio");
+            StringAssert.Contains(Tratto(js, "const nuovo = $('nuovoProgetto');", "vai();"), "aggiornaProgettiAperti();",
+                "dopo «Apri un progetto nuovo» l'elenco resta vecchio");
+            var disegna = Tratto(js, "function disegnaProgettiAperti(letti) {", "\n  }");
+            foreach (var pezzo in new[] { "poseDelProfilo(pf)", "'Pag_Progetti_Titolo'", "'Pag_Progetti_Riga'", "'Pag_Progetti_Pose'",
+                                          "'Pag_Progetti_Nessuno'", "chiedi('chiudiProgetto', null, { bersaglio: x.bersaglio, banco: x.banco })",
+                                          "$('oggetto').value = x.bersaglio", "aggiornaProgettiAperti();" })
+                StringAssert.Contains(disegna, pezzo, "l'elenco dei progetti non usa " + pezzo);
+            var pose = Tratto(js, "function poseDelProfilo(pf) {", "\n  }");
+            StringAssert.Contains(pose, "modi[c.classe]", "il modo della posa non e' quello della classe del canale");
+            StringAssert.Contains(pose, "'Pag_Progetti_Posa'", "la posa non ha la sua parola");
+            StringAssert.Contains(Tratto(js, "function bloccoDelProgetto(p, r) {", "\n  }"), "MF('Pag_Progetto_Congelato', poseDelProfilo(pf))",
+                "il riquadro del progetto aperto non dice che cosa e' congelato");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in new[] { "Pag_Progetti_Titolo", "Pag_Progetti_Nessuno", "Pag_Progetti_Riga", "Pag_Progetti_Pose", "Pag_Progetti_Posa",
+                                          "Pag_Progetti_Chiedi", "Pag_Progetti_Chiudi", "Pag_Progetti_ChiudiNota", "Pag_Progetto_Congelato" })
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+            }
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var i = 0; i < 8 && su is not null; i++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views", "PannelloStrategyView.xaml.cs"));
+            StringAssert.Contains(vista, "if (azione == \"progetti\") { Progetti(id); return; }", "l'ospite non risponde all'elenco");
+            StringAssert.Contains(vista, "if (azione == \"chiudiProgetto\") { ChiudiProgetto(id, messaggio); return; }", "l'ospite non chiude dall'elenco");
+            StringAssert.Contains(vista, "ProgettiDelProfilo.PerLaPagina(vm.Dichiarazioni.Progetti)", "l'elenco non e' quello del profilo");
+            var chiudi = vista.Substring(vista.IndexOf("private void ChiudiProgetto(", StringComparison.Ordinal));
+            chiudi = chiudi.Substring(0, chiudi.IndexOf("\n        }", StringComparison.Ordinal));
+            StringAssert.Contains(chiudi, "vm.Dichiarazioni.SalvaProgetti(", "chiudendo dall'elenco il profilo non si salva");
+        }
+
         [TestMethod]
         public void LA_FASE_DELLA_LUNA_SI_DISEGNA_CON_LA_FIGURA_DEL_MOTORE() {
             var js = PaginaSenzaCommenti();
