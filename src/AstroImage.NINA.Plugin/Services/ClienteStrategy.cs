@@ -50,6 +50,7 @@ namespace AstroImage.NINA.Plugin.Services {
         private readonly Uri _voci;
         private readonly Uri _luna;
         private readonly Uri _camera;
+        private readonly Uri _oggetti;
 
         /// <param name="http">Il cliente HTTP. Lo costruisce chi sa quanto deve durare
         /// una connessione e quante ne servono: non e' una decisione di questo file.</param>
@@ -65,6 +66,20 @@ namespace AstroImage.NINA.Plugin.Services {
             _voci = new Uri(baseUri, "v1/voci");
             _luna = new Uri(baseUri, "v1/luna");
             _camera = new Uri(baseUri, "v1/camera");
+            _oggetti = new Uri(baseUri, "v1/oggetti");
+        }
+
+        /*  GLI OGGETTI DI STANOTTE (26 settembre 2026): la domanda della pagina, senza bersaglio, alla porta degli oggetti. La
+         *  risposta torna come testo col suo stato anche quando il servizio rifiuta — la pagina dice il perche' —; lo stato 0
+         *  e nessun testo quando il servizio non si raggiunge. */
+        public async Task<(int Stato, string? Corpo)> Oggetti(string richiestaJson, CancellationToken ct = default) {
+            try {
+                using var contenuto = new StringContent(richiestaJson ?? "{}", Encoding.UTF8, "application/json");
+                using var r = await _http.PostAsync(_oggetti, contenuto, ct).ConfigureAwait(false);
+                return ((int)r.StatusCode, await r.Content.ReadAsStringAsync().ConfigureAwait(false));
+            } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
+                throw;
+            } catch { return (0, null); }
         }
 
         /*  IL CATALOGO DEI VETRI, per far dichiarare all'utente che cosa ha in ruota.

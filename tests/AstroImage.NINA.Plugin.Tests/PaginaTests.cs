@@ -1066,6 +1066,53 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(chiudi, "vm.Dichiarazioni.SalvaProgetti(", "chiudendo dall'elenco il profilo non si salva");
         }
 
+        /*  GLI OGGETTI DI STANOTTE (regia, 26 settembre 2026): la lista di Strategia della pagina del motore, dalla porta
+         *  degli oggetti, in due viste. La classifica la fa il motore: qui si prova che il pannello la chiede con la domanda
+         *  di sempre, che per ogni codice ha una parola nelle due lingue, e che «Chiedi» rifa' la domanda. La lista resa, con
+         *  le cifre della porta, la legge una guardia dell'altro repository. */
+        [TestMethod]
+        public void GLI_OGGETTI_DI_STANOTTE_VENGONO_DALLA_PORTA_DEGLI_OGGETTI() {
+            StringAssert.Contains(Risorsa("prova.html"), "<div id=\"oggettiStanotte\"></div>", "la lista degli oggetti non ha il suo posto");
+            var js = PaginaSenzaCommenti();
+            var aggiorna = Tratto(js, "function aggiornaOggetti() {", "\n  }");
+            foreach (var pezzo in new[] { "chiedi('oggetti'", "sito: sitoDaMandare()", "banco: bancoDaMandare(false)", "quando: { data: $('data').value.trim() }",
+                                          "copertura: coperturaScelta()", "mia !== ultimaOggetti" })
+                StringAssert.Contains(aggiorna, pezzo, "la domanda degli oggetti non usa " + pezzo);
+            var disegna = Tratto(js, "function disegnaOggetti() {", "\n  }");
+            foreach (var pezzo in new[] { "o.riquadro", "PAROLA_INQUADRATURA", "PAROLA_FATTIBILITA", "PAROLA_CLASSE[o.classe]", "localStorage.setItem('ponte_vista_oggetti'",
+                                          "$('oggetto').value = nome", "vai();", "o.oreSottoIlCielo" })
+                StringAssert.Contains(disegna, pezzo, "la lista degli oggetti non usa " + pezzo);
+            var fatt = Tratto(js, "const PAROLA_FATTIBILITA = {", "};");
+            var inq = Tratto(js, "const PAROLA_INQUADRATURA = {", "};");
+            var codiciF = new[] { "fattibile", "impegnativo", "lungo", "finestra_corta", "oltre_la_stagione", "manca" };
+            var codiciI = new[] { "mosaico", "al_limite", "ideale", "piccolo", "troppo_piccolo" };
+            foreach (var c in codiciF) StringAssert.Contains(fatt, c + ": 'Pag_Ogg_Fatt_" + c + "'", "la fattibilita' " + c + " non ha la sua parola");
+            foreach (var c in codiciI) StringAssert.Contains(inq, c + ": 'Pag_Ogg_Inq_" + c + "'", "l'inquadratura " + c + " non ha la sua parola");
+            StringAssert.Contains(js, "aggiornaOggettiPresto();", "la lista non si rilegge quando cambiano notte, sito o banco");
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in codiciF.Select(c => "Pag_Ogg_Fatt_" + c).Concat(codiciI.Select(c => "Pag_Ogg_Inq_" + c))
+                                  .Concat(new[] { "Pag_Ogg_Titolo", "Pag_Ogg_Sotto", "Pag_Ogg_Riquadri", "Pag_Ogg_Tabella", "Pag_Ogg_Chiedi",
+                                                  "Pag_Ogg_NonDisponibili", "Pag_Ogg_MostraTutti", "Pag_Ogg_ColFinestra", "Pag_Ogg_ColResa" }))
+                    Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+            }
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var i = 0; i < 8 && su is not null; i++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views", "PannelloStrategyView.xaml.cs"));
+            StringAssert.Contains(vista, "if (azione == \"oggetti\") { await Oggetti(id, messaggio); return; }", "l'ospite non porta la domanda degli oggetti");
+            var gestore = vista.Substring(vista.IndexOf("private async Task Oggetti(", StringComparison.Ordinal));
+            gestore = gestore.Substring(0, gestore.IndexOf("\n        }", StringComparison.Ordinal));
+            StringAssert.Contains(gestore, "RichiestaDelPannello.Componi(", "la domanda degli oggetti non e' composta come quella della prescrizione");
+            StringAssert.Contains(gestore, "cliente.Oggetti(", "l'ospite non chiede alla porta degli oggetti");
+            var cliente = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Services", "ClienteStrategy.cs"));
+            StringAssert.Contains(cliente, "new Uri(baseUri, \"v1/oggetti\")", "il client non conosce la porta degli oggetti");
+        }
+
         [TestMethod]
         public void LA_FASE_DELLA_LUNA_SI_DISEGNA_CON_LA_FIGURA_DEL_MOTORE() {
             var js = PaginaSenzaCommenti();

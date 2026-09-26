@@ -606,6 +606,105 @@
   <data name="Pag_Progetto_Congelato" xml:space="preserve">
     <value>Pose congelate: {0}</value>
   </data>
+  <data name="Pag_Ogg_Titolo" xml:space="preserve">
+    <value>Gli oggetti di stanotte, da qui</value>
+  </data>
+  <data name="Pag_Ogg_Sotto" xml:space="preserve">
+    <value>Ordinati dal motore su questo banco e su questa notte, non in assoluto: «Chiedi» mette l'oggetto nella domanda e la rifà.</value>
+  </data>
+  <data name="Pag_Ogg_Riquadri" xml:space="preserve">
+    <value>Riquadri</value>
+  </data>
+  <data name="Pag_Ogg_Tabella" xml:space="preserve">
+    <value>Tabella</value>
+  </data>
+  <data name="Pag_Ogg_Chiedi" xml:space="preserve">
+    <value>Chiedi</value>
+  </data>
+  <data name="Pag_Ogg_NonDisponibili" xml:space="preserve">
+    <value>La lista non è arrivata: {0}.</value>
+  </data>
+  <data name="Pag_Ogg_InArrivo" xml:space="preserve">
+    <value>La lista sta arrivando…</value>
+  </data>
+  <data name="Pag_Ogg_NessunRiquadro" xml:space="preserve">
+    <value>Da qui, in questa notte, nessun oggetto sale abbastanza da valere un riquadro: la tabella li ha tutti.</value>
+  </data>
+  <data name="Pag_Ogg_CanaleCulmina" xml:space="preserve">
+    <value>{0} · culmina a {1}°</value>
+  </data>
+  <data name="Pag_Ogg_CanaleMax" xml:space="preserve">
+    <value>in {0} · max {1}°</value>
+  </data>
+  <data name="Pag_Ogg_Culmina" xml:space="preserve">
+    <value>culmina a {0}°, soglia {1}°</value>
+  </data>
+  <data name="Pag_Ogg_Fatt_fattibile" xml:space="preserve">
+    <value>fattibile</value>
+  </data>
+  <data name="Pag_Ogg_Fatt_impegnativo" xml:space="preserve">
+    <value>impegnativo</value>
+  </data>
+  <data name="Pag_Ogg_Fatt_lungo" xml:space="preserve">
+    <value>lungo</value>
+  </data>
+  <data name="Pag_Ogg_Fatt_finestra_corta" xml:space="preserve">
+    <value>fuori portata</value>
+  </data>
+  <data name="Pag_Ogg_Fatt_oltre_la_stagione" xml:space="preserve">
+    <value>fuori portata</value>
+  </data>
+  <data name="Pag_Ogg_Fatt_manca" xml:space="preserve">
+    <value>manca {0}</value>
+  </data>
+  <data name="Pag_Ogg_Inq_mosaico" xml:space="preserve">
+    <value>mosaico</value>
+  </data>
+  <data name="Pag_Ogg_Inq_al_limite" xml:space="preserve">
+    <value>al limite</value>
+  </data>
+  <data name="Pag_Ogg_Inq_ideale" xml:space="preserve">
+    <value>ideale</value>
+  </data>
+  <data name="Pag_Ogg_Inq_piccolo" xml:space="preserve">
+    <value>piccolo</value>
+  </data>
+  <data name="Pag_Ogg_Inq_troppo_piccolo" xml:space="preserve">
+    <value>troppo piccolo</value>
+  </data>
+  <data name="Pag_Ogg_Duale" xml:space="preserve">
+    <value>dual-band</value>
+  </data>
+  <data name="Pag_Ogg_Riquadri_n" xml:space="preserve">
+    <value>{0} riquadri</value>
+  </data>
+  <data name="Pag_Ogg_Settimane" xml:space="preserve">
+    <value>≈ {0} settimane</value>
+  </data>
+  <data name="Pag_Ogg_MostraTutti" xml:space="preserve">
+    <value>mostra tutti i {0} oggetti valutati</value>
+  </data>
+  <data name="Pag_Ogg_ColOggetto" xml:space="preserve">
+    <value>Oggetto</value>
+  </data>
+  <data name="Pag_Ogg_ColClasse" xml:space="preserve">
+    <value>Classe</value>
+  </data>
+  <data name="Pag_Ogg_ColFinestra" xml:space="preserve">
+    <value>Finestra</value>
+  </data>
+  <data name="Pag_Ogg_ColInquadratura" xml:space="preserve">
+    <value>Inquadratura</value>
+  </data>
+  <data name="Pag_Ogg_ColFattibilita" xml:space="preserve">
+    <value>Fattibilità</value>
+  </data>
+  <data name="Pag_Ogg_ColProgetto" xml:space="preserve">
+    <value>Progetto</value>
+  </data>
+  <data name="Pag_Ogg_ColResa" xml:space="preserve">
+    <value>Resa</value>
+  </data>
   <data name="Pag_Progetto_NuovoCosto" xml:space="preserve">
     <value>Costa questi dark nuovi: {0}</value>
   </data>

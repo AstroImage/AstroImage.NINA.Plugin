@@ -510,6 +510,97 @@
     });
   }
 
+  /*  GLI OGGETTI DI STANOTTE, DA QUI (regia, 26 settembre 2026). La lista di Strategia della pagina del motore — la stessa
+   *  classifica, dalla porta degli oggetti — in due viste: i riquadri, quelli che il motore segna, e la tabella, tutti
+   *  nel suo ordine. «Chiedi» mette l'oggetto nella domanda e la rifa'. Qui non si classifica e non si sceglie niente: si
+   *  scrivono i numeri del motore e le parole dei suoi codici; un codice che il dizionario non ha si scrive com'e'. Si
+   *  chiede quando cambiano la notte, il sito, il banco o la copertura, e l'ultima domanda vince. La barra della notte
+   *  della pagina del motore qui non c'e' ancora. */
+  const PAROLA_FATTIBILITA = { fattibile: 'Pag_Ogg_Fatt_fattibile', impegnativo: 'Pag_Ogg_Fatt_impegnativo', lungo: 'Pag_Ogg_Fatt_lungo',
+    finestra_corta: 'Pag_Ogg_Fatt_finestra_corta', oltre_la_stagione: 'Pag_Ogg_Fatt_oltre_la_stagione', manca: 'Pag_Ogg_Fatt_manca' };
+  const PAROLA_INQUADRATURA = { mosaico: 'Pag_Ogg_Inq_mosaico', al_limite: 'Pag_Ogg_Inq_al_limite', ideale: 'Pag_Ogg_Inq_ideale',
+    piccolo: 'Pag_Ogg_Inq_piccolo', troppo_piccolo: 'Pag_Ogg_Inq_troppo_piccolo' };
+  const TONO_FATTIBILITA = { fattibile: 'p-ok', impegnativo: 'p-warn', lungo: 'p-warn', finestra_corta: 'p-bad', oltre_la_stagione: 'p-bad', manca: 'p-bad' };
+  const TONO_INQUADRATURA = { mosaico: 'p-warn', al_limite: 'p-warn', ideale: 'p-ok', piccolo: 'p-dim', troppo_piccolo: 'p-bad' };
+  let ultimaOggetti = 0, listaDegliOggetti = null, erroreOggetti = null, righeOggetti = 25, attesaOggetti = null;
+  let vistaOggetti = 'riquadri';
+  try { vistaOggetti = localStorage.getItem('ponte_vista_oggetti') === 'tabella' ? 'tabella' : 'riquadri'; } catch (e) { vistaOggetti = 'riquadri'; }
+  function aggiornaOggettiPresto() { clearTimeout(attesaOggetti); attesaOggetti = setTimeout(aggiornaOggetti, 400); }
+  function aggiornaOggetti() {
+    if (!$('oggettiStanotte')) return;
+    const mia = ++ultimaOggetti;
+    chiedi('oggetti', { sito: sitoDaMandare(), banco: bancoDaMandare(false), quando: { data: $('data').value.trim() },
+                        opzioni: { copertura: coperturaScelta() } }).then(r => {
+      if (mia !== ultimaOggetti) return;
+      let p = null;
+      try { p = r && r.corpo ? JSON.parse(r.corpo) : null; } catch (e) { p = null; }
+      listaDegliOggetti = r && r.ok && p && p.prodotto ? p.prodotto : null;
+      erroreOggetti = listaDegliOggetti ? null : ((p && p.errore) || { codice: (r && r.codice) || 'servizio_irraggiungibile' });
+      disegnaOggetti();
+    });
+  }
+  const parolaDi = (mappa, codice, ...valori) => mappa[codice] ? MF(mappa[codice], ...valori) : esc(codice || '—');
+  function disegnaOggetti() {
+    const box = $('oggettiStanotte');
+    if (!box) return;
+    const lista = (listaDegliOggetti && listaDegliOggetti.oggetti) || [];
+    const tasti = ['riquadri', 'tabella'].map(v => '<button type="button" data-vista-oggetti="' + v + '" class="' + (vistaOggetti === v ? 'on' : '') +
+      '" aria-pressed="' + (vistaOggetti === v) + '">' + esc(T(v === 'riquadri' ? 'Pag_Ogg_Riquadri' : 'Pag_Ogg_Tabella')) + '</button>').join('');
+    let corpo;
+    if (erroreOggetti) corpo = '<div class="fine">' + MF('Pag_Ogg_NonDisponibili', esc(erroreOggetti.codice || '')) + '</div>';
+    else if (!listaDegliOggetti) corpo = '<div class="fine">' + esc(T('Pag_Ogg_InArrivo')) + '</div>';
+    else if (vistaOggetti === 'riquadri') {
+      const riquadri = lista.filter(o => o.riquadro);
+      corpo = riquadri.length ? '<div class="griglia-oggetti">' + riquadri.map(o =>
+        '<div class="ogg-riquadro" data-nome="' + esc(o.nome) + '">' +
+          '<div class="alto"><b>' + esc(o.nome) + '</b><span class="ore">' + cifra(o.ore, 1) + '<i> h</i></span></div>' +
+          '<div class="basso"><span class="classe">' + esc(o.classe && PAROLA_CLASSE[o.classe] ? T(PAROLA_CLASSE[o.classe]) : (o.classe || '')) + '</span>' +
+          '<span>' + MF('Pag_Ogg_CanaleCulmina', esc(o.canale || '—'), cifra(o.altezzaMassima, 0)) + '</span></div>' +
+          '<button type="button" class="ogg-chiedi">' + esc(T('Pag_Ogg_Chiedi')) + '</button></div>').join('') + '</div>'
+        : '<div class="fine">' + esc(T('Pag_Ogg_NessunRiquadro')) + '</div>';
+    } else {
+      const righe = lista.slice(0, righeOggetti).map(o => {
+        const finestra = o.ore > 0
+          ? '<b>' + cifra(o.ore, 1) + ' h</b>' + (o.oreSottoIlCielo != null ? ' <span class="pill p-warn">→ ' + cifra(o.oreSottoIlCielo, 1) + ' h</span>' : '') +
+            '<div class="fine">' + MF('Pag_Ogg_CanaleMax', esc(o.canale || '—'), cifra(o.altezzaMassima, 0)) + '</div>'
+          : '<span class="pill p-bad">0 h</span><div class="fine">' + MF('Pag_Ogg_Culmina', cifra(o.altezzaMassima, 0), cifra(o.sogliaAlCulmine, 0)) + '</div>';
+        const fatt = o.fattibilita === 'manca' ? MF('Pag_Ogg_Fatt_manca', esc((o.mancano || []).join(', '))) : parolaDi(PAROLA_FATTIBILITA, o.fattibilita);
+        const pr = o.progetto || {};
+        return '<tr data-nome="' + esc(o.nome) + '"><td><b>' + esc(o.nome) + '</b><div class="fine">' +
+            esc([o.altroNome, o.costellazione].filter(Boolean).join(' · ')) + '</div>' +
+            '<button type="button" class="ogg-chiedi">' + esc(T('Pag_Ogg_Chiedi')) + '</button></td>' +
+          '<td class="fine">' + esc(o.classe && PAROLA_CLASSE[o.classe] ? T(PAROLA_CLASSE[o.classe]) : (o.classe || '')) + '</td>' +
+          '<td class="num">' + finestra + '</td>' +
+          '<td class="num"><span class="pill ' + (TONO_INQUADRATURA[o.inquadratura] || '') + '">' + parolaDi(PAROLA_INQUADRATURA, o.inquadratura) + '</span></td>' +
+          '<td class="num"><span class="pill ' + (TONO_FATTIBILITA[o.fattibilita] || '') + '">' + fatt + '</span>' +
+            (o.duale ? '<div class="fine">' + esc(T('Pag_Ogg_Duale')) + '</div>' : '') + '</td>' +
+          '<td class="num">' + (pr.ore != null ? cifra(pr.ore, 0) + ' h' : '—') +
+            (pr.riquadri > 1 ? '<div class="fine">' + MF('Pag_Ogg_Riquadri_n', cifra(pr.riquadri)) + '</div>' : '') +
+            (pr.settimane != null ? '<div class="fine">' + MF('Pag_Ogg_Settimane', cifra(pr.settimane, 1)) + '</div>' : '') + '</td>' +
+          '<td class="num"><b>' + cifra(o.resa) + '</b></td></tr>';
+      });
+      corpo = '<div class="tabella-oggetti"><table><thead><tr>' +
+        ['Pag_Ogg_ColOggetto', 'Pag_Ogg_ColClasse', 'Pag_Ogg_ColFinestra', 'Pag_Ogg_ColInquadratura', 'Pag_Ogg_ColFattibilita',
+         'Pag_Ogg_ColProgetto', 'Pag_Ogg_ColResa'].map(k => '<th>' + esc(T(k)) + '</th>').join('') + '</tr></thead><tbody>' + righe.join('') +
+        '</tbody></table></div>' +
+        (lista.length > righeOggetti ? '<div class="fine" style="margin-top:6px"><button type="button" id="tuttiGliOggetti">' +
+          MF('Pag_Ogg_MostraTutti', cifra(lista.length)) + '</button></div>' : '');
+    }
+    box.innerHTML = '<div class="box oggetti"><div class="oggetti-testa"><div><b>' + esc(T('Pag_Ogg_Titolo')) + '</b><div class="fine">' +
+      esc(T('Pag_Ogg_Sotto')) + '</div></div><span class="vista-oggetti" role="group">' + tasti + '</span></div>' + corpo + '</div>';
+    for (const t of box.querySelectorAll('[data-vista-oggetti]')) t.addEventListener('click', () => {
+      vistaOggetti = t.getAttribute('data-vista-oggetti') === 'tabella' ? 'tabella' : 'riquadri';
+      try { localStorage.setItem('ponte_vista_oggetti', vistaOggetti); } catch (e) {}
+      disegnaOggetti();
+    });
+    for (const t of box.querySelectorAll('.ogg-chiedi')) t.addEventListener('click', () => {
+      const nome = t.closest('[data-nome]').getAttribute('data-nome');
+      $('oggetto').value = nome; stradaScelta = null; vai();
+    });
+    const tutti = $('tuttiGliOggetti');
+    if (tutti) tutti.addEventListener('click', () => { righeOggetti = Infinity; disegnaOggetti(); });
+  }
+
   function bloccoDelProgetto(p, r) {
     const pf = p && p.profilo;
     if (!pf) return '';
@@ -951,6 +1042,8 @@
         if (r2.ok) chiedi('banco').then(r3 => { if (r3.ok) { bancoLetto = r3; disegnaBanco(); riconosciLaCamera(); } });
       });
     });
+    /*  il banco cambia la classifica di stanotte */
+    aggiornaOggettiPresto();
   }
 
   /*  «USA INVECE LA VOCE SCRITTA» (regia, 18 settembre 2026) vale per la richiesta che fa partire e basta: e' un
@@ -1198,7 +1291,9 @@
   for (const campo of ['oggetto', 'data', 'notti'])
     $(campo).addEventListener('input', () => { stradaScelta = null; });
   /*  una data nuova e' una notte nuova: la Luna si richiede, e la notte usata della risposta di prima non vale piu' */
-  $('data').addEventListener('input', () => { notteUsata = null; percheNotte = null; lunaDellaData(); });
+  $('data').addEventListener('input', () => { notteUsata = null; percheNotte = null; lunaDellaData(); aggiornaOggettiPresto(); });
+  /*  la copertura cambia la classifica di stanotte, come la notte */
+  for (const c of document.querySelectorAll('input[name="cov"]')) c.addEventListener('change', aggiornaOggettiPresto);
 
   /*  IL CALENDARIO SI APRE DALL'ICONA (17 settembre 2026): nella riga della domanda il tasto nativo non stava piu' sotto
    *  l'icona, e il clic andava a vuoto. L'icona apre la scelta della data da se'; dove il browser non sa farlo, il campo
@@ -1946,6 +2041,8 @@
         if (r2.ok) chiedi('sito').then(disegnaSito);
       });
     });
+    /*  il sito cambia la classifica di stanotte */
+    aggiornaOggettiPresto();
   }
 
   function disegnaRuota(r) {
