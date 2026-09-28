@@ -318,12 +318,14 @@
 
     Array.prototype.forEach.call($('modi').querySelectorAll('.goalcard input'), i => {
       i.addEventListener('change', () => {
-        /*  Cambia solo quale identificativo partira'. Niente si ricalcola qui: la
-         *  prescrizione gia' a schermo resta il resoconto di com'e' andata con il
-         *  modo di allora, e la prossima uscira' con quello nuovo. E non si ridisegna
-         *  niente: la spunta e il bordo li muove il foglio di stile da solo, sul
-         *  :checked, e ridisegnare qui butterebbe via il fuoco della tastiera. */
+        /*  Cambia quale identificativo partira'. E non si ridisegna niente: la spunta e il bordo li muove il foglio di
+         *  stile da solo, sul :checked, e ridisegnare qui butterebbe via il fuoco della tastiera.
+         *  CON UNA PRESCRIZIONE A SCHERMO la domanda si rifa' con la modalita' nuova, e la vista va alla prescrizione
+         *  (regia, 28 settembre 2026), per confrontare subito le modalita'. Prima la prescrizione restava quella di prima
+         *  finche' non si chiedeva di nuovo; senza prescrizione a schermo e' ancora cosi', e la prossima uscira' con la
+         *  modalita' scelta. */
         modoScelto = i.value;
+        if ($('uscita').querySelector('.notte') && $('oggetto').value.trim()) { vaiAllaPrescrizione = true; vai(); }
       });
     });
   }
@@ -1271,6 +1273,7 @@
       stato(T('Pag_NonRiuscita'), 'no');
       $('dettagli').innerHTML = '';
       $('uscita').innerHTML = disegnaRifiuto(r, soloVoce);
+      mostraLaPrescrizione();
       return;
     }
 
@@ -1388,6 +1391,24 @@
         stradaScelta = c.getAttribute('data-strada') === 'auto' ? null : c.getAttribute('data-strada');
         vai();
       });
+    mostraLaPrescrizione();
+  }
+
+  /*  LA VISTA ALLA PRESCRIZIONE RIFATTA DA UNA MODALITA' (regia, 28 settembre 2026): la risposta — prescrizione o rifiuto —
+   *  scorre in cima alla vista e il suo bordo si accende un attimo, cosi' la differenza con la modalita' di prima si vede
+   *  subito. Solo quando la domanda l'ha fatta partire il cambio di modalita'. Il cursore non si puo' spostare da una
+   *  pagina: si sposta la vista. Con «riduci il movimento» si arriva senza scorrere e senza lampeggio. */
+  let vaiAllaPrescrizione = false;
+  function mostraLaPrescrizione() {
+    if (!vaiAllaPrescrizione) return;
+    vaiAllaPrescrizione = false;
+    const u = $('uscita');
+    if (!u) return;
+    const quieto = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    u.scrollIntoView({ behavior: quieto ? 'auto' : 'smooth', block: 'start' });
+    u.classList.remove('appena-rifatta');
+    void u.offsetWidth;
+    u.classList.add('appena-rifatta');
   }
 
   /* CONSEGNARE. Alla richiesta va solo il numero della notte e l'identificativo:

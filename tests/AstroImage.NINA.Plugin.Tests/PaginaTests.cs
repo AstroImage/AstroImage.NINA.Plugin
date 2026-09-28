@@ -1117,6 +1117,27 @@ namespace AstroImage.NINA.Plugin.Tests {
             StringAssert.Contains(cliente, "new Uri(baseUri, \"v1/oggetti\")", "il client non conosce la porta degli oggetti");
         }
 
+        /*  CAMBIARE MODALITA' CON UNA PRESCRIZIONE A SCHERMO LA RIFA' E PORTA LA VISTA LI' (28 settembre 2026). Qui il
+         *  cablaggio; il gesto vero — la domanda che riparte, la vista che si sposta, il bordo che si accende — lo prova una
+         *  guardia dell'altro repository sul pannello reso. */
+        [TestMethod]
+        public void IL_CAMBIO_DI_MODALITA_RIFA_LA_PRESCRIZIONE_E_PORTA_LA_VISTA_LI() {
+            var js = PaginaSenzaCommenti();
+            var modi = Tratto(js, "function disegnaModi() {", "\n  }");
+            StringAssert.Contains(modi, "if ($('uscita').querySelector('.notte') && $('oggetto').value.trim()) { vaiAllaPrescrizione = true; vai(); }",
+                "con una prescrizione a schermo il cambio di modalita' non rifa' la domanda");
+            var vai = Tratto(js, "async function vai(domanda) {", "\n  }");
+            Assert.IsTrue(vai.Split(new[] { "mostraLaPrescrizione();" }, StringSplitOptions.None).Length - 1 >= 2,
+                "la vista va alla risposta, prescrizione o rifiuto");
+            var mostra = Tratto(js, "function mostraLaPrescrizione() {", "\n  }");
+            foreach (var pezzo in new[] { "if (!vaiAllaPrescrizione) return;", "scrollIntoView(", "prefers-reduced-motion", "appena-rifatta" })
+                StringAssert.Contains(mostra, pezzo, "la vista alla prescrizione non usa " + pezzo);
+            var css = Risorsa("prova.css");
+            StringAssert.Contains(css, "#uscita.appena-rifatta { animation:", "il bordo non si accende");
+            StringAssert.Contains(css, "@media (prefers-reduced-motion: reduce) { #uscita.appena-rifatta { animation:none; } }",
+                "con «riduci il movimento» il bordo non deve lampeggiare");
+        }
+
         /*  LE SCHEDE, TERZA VISTA DELLA LISTA (28 settembre 2026): la scheda di un oggetto arriva dalla porta della scheda, con la
          *  domanda della lista e l'oggetto, e sfogliarla non rifa' la prescrizione — solo «Chiedi» e una strada premuta la
          *  rifanno. Qui si prova il cablaggio e le parole nelle due lingue; la scheda resa, coi testi della porta, la legge una

@@ -160,6 +160,12 @@
   .tabella-oggetti { overflow-x:auto; }
   .tabella-oggetti td.num, .tabella-oggetti th { text-align:right; }
   .tabella-oggetti th:first-child, .tabella-oggetti td:first-child { text-align:left; }
+  /*  La prescrizione rifatta da un cambio di modalita' (28 settembre 2026): arriva in cima alla vista, e il suo bordo si
+   *  accende e si spegne una volta. Con «riduci il movimento» niente lampeggio. */
+  #uscita { border-radius:8px; scroll-margin-top:12px; }
+  #uscita.appena-rifatta { animation:appena-rifatta 1.6s ease-out 1; }
+  @keyframes appena-rifatta { 0% { box-shadow:0 0 0 3px rgba(var(--acc-rgb),.65); } 100% { box-shadow:0 0 0 3px rgba(var(--acc-rgb),0); } }
+  @media (prefers-reduced-motion: reduce) { #uscita.appena-rifatta { animation:none; } }
   /*  «Chiedi» e «Scheda» su ogni oggetto dei riquadri e della tabella (28 settembre 2026). */
   .ogg-tasti { display:flex; gap:6px; flex-wrap:wrap; }
   .ogg-scheda { align-self:flex-start; font-size:12px; padding:2px 10px; margin-top:4px; background:transparent; color:var(--acc);
