@@ -607,7 +607,7 @@
     <value>Tonight's objects, from here</value>
   </data>
   <data name="Pag_Ogg_Sotto" xml:space="preserve">
-    <value>Ranked by the engine on this bench and this night, not in general: «Ask» puts the object in the question and asks again.</value>
+    <value>Ranked by the engine on this bench and this night, not in general: «Ask» puts the object in the question and asks again, «Details» opens its details.</value>
   </data>
   <data name="Pag_Ogg_Riquadri" xml:space="preserve">
     <value>Cards</value>
@@ -701,6 +701,105 @@
   </data>
   <data name="Pag_Ogg_ColResa" xml:space="preserve">
     <value>Score</value>
+  </data>
+  <data name="Pag_Ogg_Schede" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Pag_Ogg_Scheda" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Pag_Sch_Nessuna" xml:space="preserve">
+    <value>Pick an object from the list.</value>
+  </data>
+  <data name="Pag_Sch_NonDisponibile" xml:space="preserve">
+    <value>Details not available: {0}.</value>
+  </data>
+  <data name="Pag_Sch_InArrivo" xml:space="preserve">
+    <value>Loading the details…</value>
+  </data>
+  <data name="Pag_Sch_Ambiguita" xml:space="preserve">
+    <value>ambiguity {0}</value>
+  </data>
+  <data name="Pag_Sch_TestiInItaliano" xml:space="preserve">
+    <value>The texts below come from the engine's catalogue, and they are in Italian.</value>
+  </data>
+  <data name="Pag_Sch_Cose" xml:space="preserve">
+    <value>What it is</value>
+  </data>
+  <data name="Pag_Sch_Spettro" xml:space="preserve">
+    <value>Expected spectrum and spatial distribution</value>
+  </data>
+  <data name="Pag_Sch_Strade" xml:space="preserve">
+    <value>Possible techniques</value>
+  </data>
+  <data name="Pag_Sch_Ore" xml:space="preserve">
+    <value>Budget and thresholds</value>
+  </data>
+  <data name="Pag_Sch_Ordine" xml:space="preserve">
+    <value>Order and conditions</value>
+  </data>
+  <data name="Pag_Sch_Attese" xml:space="preserve">
+    <value>What to expect</value>
+  </data>
+  <data name="Pag_Sch_Trappole" xml:space="preserve">
+    <value>Processing pitfalls</value>
+  </data>
+  <data name="Pag_Sch_Riscontro" xml:space="preserve">
+    <value>Field check</value>
+  </data>
+  <data name="Pag_Sch_FonteDelProfilo" xml:space="preserve">
+    <value>Profile source: {0}.</value>
+  </data>
+  <data name="Pag_Sch_Fonte" xml:space="preserve">
+    <value>source: {0}</value>
+  </data>
+  <data name="Pag_Sch_DiSerie" xml:space="preserve">
+    <value>default</value>
+  </data>
+  <data name="Pag_Sch_StessaRipresa" xml:space="preserve">
+    <value>same capture</value>
+  </data>
+  <data name="Pag_Sch_LaFa" xml:space="preserve">
+    <value>{0} makes the same capture</value>
+  </data>
+  <data name="Pag_Sch_Pro" xml:space="preserve">
+    <value>*Pros:* {0}</value>
+  </data>
+  <data name="Pag_Sch_Contro" xml:space="preserve">
+    <value>*Cons:* {0}</value>
+  </data>
+  <data name="Pag_Sch_PremiPerQuesta" xml:space="preserve">
+    <value>click to ask for this object with this technique</value>
+  </data>
+  <data name="Pag_Sch_PerRiquadro" xml:space="preserve">
+    <value>per panel</value>
+  </data>
+  <data name="Pag_Sch_Soglia" xml:space="preserve">
+    <value>threshold {0}</value>
+  </data>
+  <data name="Pag_Sch_SpiegaBarre" xml:space="preserve">
+    <value>Red marks the threshold: below it, a channel is not worth starting. Green marks the full return. With fewer hours every channel stops at the same fraction of its way, and the image stays the same, only shallower.</value>
+  </data>
+  <data name="Pag_Sch_Nessuno" xml:space="preserve">
+    <value>none</value>
+  </data>
+  <data name="Pag_Sch_FiltroCritico" xml:space="preserve">
+    <value>Filter for the critical channel: {0}.</value>
+  </data>
+  <data name="Pag_Sch_TecnicaSostituita" xml:space="preserve">
+    <value>With your filters the card's technique, «{0}», cannot be done: the numbers are those of «{1}».</value>
+  </data>
+  <data name="Pag_Sch_Mancano" xml:space="preserve">
+    <value>Missing filters for {0}.</value>
+  </data>
+  <data name="Pag_Sch_Finestra" xml:space="preserve">
+    <value>Useful window in {0}: *{1} h* (above {2}°).</value>
+  </data>
+  <data name="Pag_Sch_Servono" xml:space="preserve">
+    <value>Completing «{0}» takes *{1} h*.</value>
+  </data>
+  <data name="Pag_Sch_ServonoInTutto" xml:space="preserve">
+    <value>Completing «{0}» takes *{1} h in total*.</value>
   </data>
   <data name="Pag_Progetto_NuovoCosto" xml:space="preserve">
     <value>It costs these new darks: {0}</value>

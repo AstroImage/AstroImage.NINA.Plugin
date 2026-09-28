@@ -305,6 +305,8 @@ namespace AstroImage.NINA.Plugin.Views {
 
                 if (azione == "oggetti") { await Oggetti(id, messaggio); return; }
 
+                if (azione == "scheda") { await Scheda(id, messaggio); return; }
+
                 if (azione == "chiudiProgetto") { ChiudiProgetto(id, messaggio); return; }
 
                 if (azione != "prescrizione") {
@@ -575,13 +577,18 @@ namespace AstroImage.NINA.Plugin.Views {
         /*  GLI OGGETTI DI STANOTTE (regia, 26 settembre 2026): la domanda della pagina — sito, banco, notte, copertura —,
          *  composta come quella della prescrizione, con la ruota del profilo aggiunta solo se manca, alla porta degli
          *  oggetti. La risposta torna intera, anche quando il servizio rifiuta: la pagina ne dice il perche'. */
-        private async Task Oggetti(string id, JsonObject messaggio) {
+        private Task Oggetti(string id, JsonObject messaggio) => DallaLista(id, messaggio, (c, j) => c.Oggetti(j));
+
+        /*  LE SCHEDE (28 settembre 2026): come gli oggetti, col bersaglio nel corpo. La prescrizione in mano resta dov'e'. */
+        private Task Scheda(string id, JsonObject messaggio) => DallaLista(id, messaggio, (c, j) => c.Scheda(j));
+
+        private async Task DallaLista(string id, JsonObject messaggio, Func<ClienteStrategy, string, Task<(int Stato, string? Corpo)>> porta) {
             var vm = DataContext as PannelloStrategyVM;
             var cliente = vm?.Cliente;
             if (cliente is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaCorriere")); return; }
             var domanda = RichiestaDelPannello.Componi(messaggio["corpo"]?.AsObject(), vm?.Dichiarazione, vm?.Ruota.Nomi());
             if (domanda.Corpo is null) { Rispondi(id, false, null, "ruota_solo_orfane", domanda.Rifiuto); return; }
-            var (stato, corpo) = await cliente.Oggetti(domanda.Corpo);
+            var (stato, corpo) = await porta(cliente, domanda.Corpo);
             if (corpo is null) { Rispondi(id, false, null, "servizio_irraggiungibile", null); return; }
             Rispondi(id, stato == 200, corpo, stato == 200 ? null : "rifiutata", null);
         }

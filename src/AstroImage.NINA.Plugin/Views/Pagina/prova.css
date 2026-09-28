@@ -160,6 +160,80 @@
   .tabella-oggetti { overflow-x:auto; }
   .tabella-oggetti td.num, .tabella-oggetti th { text-align:right; }
   .tabella-oggetti th:first-child, .tabella-oggetti td:first-child { text-align:left; }
+  /*  «Chiedi» e «Scheda» su ogni oggetto dei riquadri e della tabella (28 settembre 2026). */
+  .ogg-tasti { display:flex; gap:6px; flex-wrap:wrap; }
+  .ogg-scheda { align-self:flex-start; font-size:12px; padding:2px 10px; margin-top:4px; background:transparent; color:var(--acc);
+                border:1px solid #262b32; }
+  .ogg-scheda:hover { background:rgba(var(--acc-rgb),.12); }
+  /*  LE SCHEDE, TERZA VISTA DELLA LISTA (regia, 28 settembre 2026: «stessa UI»): a sinistra gli oggetti nell'ordine
+   *  della lista, a destra la scheda con la faccia della scheda di AIS — `.sheetbox`, `.block`, `.chan`, `.road`,
+   *  `.warnbox`, `.conf` —, valore per valore, blocco `:root` compreso. I segni sulla barra li mette questo foglio, dal
+   *  tetto e dai numeri che il motore manda: la pagina non fa conti. */
+  :root { --line2:#16202b; --s3:12px; --s6:24px; --radius-sm:5px;
+          --ha:#e05252; --oiii:#3fb9c9; --sii:#e0a13f; --lum:#c9d1d9; --rgb:#8b7fd4; }
+  .schede-oggetti { display:grid; grid-template-columns:minmax(170px, 230px) minmax(0, 1fr); gap:12px; align-items:start; }
+  .schede-elenco { display:flex; flex-direction:column; gap:2px; max-height:640px; overflow-y:auto; padding-right:4px; }
+  .ogg-voce { display:flex; flex-direction:column; align-items:flex-start; gap:1px; text-align:left; background:transparent;
+              color:var(--fg); border:1px solid transparent; border-radius:6px; padding:5px 8px; font-size:13px; }
+  .ogg-voce:hover { background:#161a20; }
+  .ogg-voce.on, .ogg-voce.on:hover { background:rgba(var(--acc-rgb),.16); border-color:rgba(var(--acc-rgb),.45); }
+  .ogg-voce .fine { font-size:11.5px; color:var(--dim); opacity:1; }
+  @media (max-width:720px) {
+    .schede-oggetti { grid-template-columns:minmax(0, 1fr); }
+    .schede-elenco { max-height:220px; }
+  }
+  .scheda-oggetto .sheetbox { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+                              padding:var(--s6); box-shadow:var(--elev); }
+  .scheda-oggetto h3 { font-size:21px; margin:0 0 2px; }
+  .sch-testa { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .sch-chiedi { flex:none; font-size:12px; padding:4px 12px; }
+  .sch-lingua { margin-top:8px; font-style:italic; }
+  .scheda-oggetto .muted { color:var(--dim); }
+  .scheda-oggetto .small { font-size:12.5px; }
+  .scheda-oggetto .fonte { opacity:.75; }
+  .scheda-oggetto .block { margin-top:var(--s6); padding-top:var(--s4); border-top:1px solid var(--line2); }
+  .scheda-oggetto .block > h4 { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--dim);
+                                margin:0 0 9px; }
+  .scheda-oggetto .block p { margin:0 0 10px; }
+  .scheda-oggetto .block ul { margin:0; padding-left:19px; }
+  .scheda-oggetto .block li { margin-bottom:6px; }
+  .scheda-oggetto .chan { display:flex; align-items:center; gap:var(--s3); padding:9px 0; border-bottom:1px solid var(--line2); }
+  .scheda-oggetto .chan.riga { align-items:flex-start; }
+  .scheda-oggetto .chan:last-child { border-bottom:none; }
+  .scheda-oggetto .chan .testo { flex:1; }
+  .scheda-oggetto .chan .cn { width:52px; font-weight:700; font-size:13px; flex:none; }
+  .scheda-oggetto .cn.b-ha { color:var(--ha); }
+  .scheda-oggetto .cn.b-oiii { color:var(--oiii); }
+  .scheda-oggetto .cn.b-sii { color:var(--sii); }
+  .scheda-oggetto .cn.b-lum { color:var(--lum); }
+  .scheda-oggetto .cn.b-rgb { color:var(--rgb); }
+  .scheda-oggetto .chan .cbar { flex:1; height:20px; background:var(--bg3); border-radius:4px; position:relative; overflow:hidden;
+                                min-width:100px; }
+  .scheda-oggetto .chan .cbar u { position:absolute; top:0; bottom:0; width:2px; text-decoration:none;
+                                  left:calc(var(--segno) / var(--tetto) * 100%); }
+  .scheda-oggetto .chan .cbar u.soglia { background:var(--bad); }
+  .scheda-oggetto .chan .cbar u.utile { background:var(--ok); }
+  .scheda-oggetto .chan .cv { width:120px; text-align:right; font-variant-numeric:tabular-nums; font-size:12px; flex:none; }
+  .scheda-oggetto .tsub { font-size:12px; color:var(--dim); }
+  .scheda-oggetto .nota-canale { margin:-2px 0 8px 62px; }
+  .scheda-oggetto .spiega { margin-top:12px; }
+  .scheda-oggetto .warnbox { background:rgba(210,153,34,.09); border-left:3px solid var(--warn); padding:10px 13px;
+                             border-radius:0 var(--radius-sm) var(--radius-sm) 0; margin:10px 0; font-size:13px; }
+  .scheda-oggetto .warnbox.chiave { border-color:var(--acc); background:rgba(88,166,255,.08); }
+  .scheda-oggetto .conf { font-size:10px; padding:1px 6px; border-radius:10px; border:1px solid var(--line); color:var(--dim); }
+  .scheda-oggetto .conf.alta { color:var(--ok); border-color:var(--ok); }
+  .scheda-oggetto .conf.media { color:var(--warn); border-color:var(--warn); }
+  .scheda-oggetto .conf.bassa { color:var(--bad); border-color:var(--bad); }
+  .scheda-oggetto button.road { display:block; width:100%; text-align:left; font:inherit; color:inherit; background:none; cursor:pointer;
+                                border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:9px; }
+  .scheda-oggetto button.road:hover { border-color:var(--dim2); background:none; }
+  .scheda-oggetto button.road:focus-visible { outline:2px solid var(--acc); outline-offset:2px; }
+  .scheda-oggetto .road.def { border-color:var(--ok); }
+  .scheda-oggetto .road h5 { margin:0 0 3px; font-size:14px; }
+  .scheda-oggetto .road .when { font-size:11px; color:var(--acc); margin-bottom:6px; }
+  .scheda-oggetto .road .pc { font-size:12.5px; color:var(--dim); margin:2px 0; }
+  .scheda-oggetto .road .pc strong { color:var(--fg); font-weight:600; }
+  .scheda-oggetto .road .rc-pick { font-size:11px; color:var(--acc); margin-top:6px; font-weight:600; }
   /*  La fase della Luna sotto la data (25 settembre 2026): il disco in ombra e la parte illuminata. */
   .fase-luna { width:13px; height:13px; vertical-align:-2px; margin-right:5px; }
   .fase-luna .ombra { fill:#2a2f36; stroke:var(--dim2); stroke-width:.6; }

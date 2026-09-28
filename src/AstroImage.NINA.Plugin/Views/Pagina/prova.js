@@ -524,7 +524,14 @@
   const TONO_INQUADRATURA = { mosaico: 'p-warn', al_limite: 'p-warn', ideale: 'p-ok', piccolo: 'p-dim', troppo_piccolo: 'p-bad' };
   let ultimaOggetti = 0, listaDegliOggetti = null, erroreOggetti = null, righeOggetti = 25, attesaOggetti = null;
   let vistaOggetti = 'riquadri';
-  try { vistaOggetti = localStorage.getItem('ponte_vista_oggetti') === 'tabella' ? 'tabella' : 'riquadri'; } catch (e) { vistaOggetti = 'riquadri'; }
+  const VISTE_OGGETTI = { riquadri: 'Pag_Ogg_Riquadri', tabella: 'Pag_Ogg_Tabella', schede: 'Pag_Ogg_Schede' };
+  const vistaDi = v => Object.prototype.hasOwnProperty.call(VISTE_OGGETTI, v) ? v : 'riquadri';
+  try { vistaOggetti = vistaDi(localStorage.getItem('ponte_vista_oggetti')); } catch (e) { vistaOggetti = 'riquadri'; }
+  /*  LE SCHEDE, TERZA VISTA DELLA LISTA (regia, 28 settembre 2026): a sinistra gli oggetti nell'ordine della lista, a
+   *  destra la scheda di quello scelto, dalla porta della scheda. Sfogliare non tocca la prescrizione in mano; «Chiedi»
+   *  la rifa'. I testi sono quelli del catalogo del motore, scritti come arrivano: in italiano anche quando il pannello
+   *  parla inglese, e lo si dice. Un campo che non arriva non si scrive, e non si sostituisce con una frase del Ponte. */
+  let schedaScelta = null, schedaInMano = null, erroreScheda = null, ultimaScheda = 0;
   function aggiornaOggettiPresto() { clearTimeout(attesaOggetti); attesaOggetti = setTimeout(aggiornaOggetti, 400); }
   function aggiornaOggetti() {
     if (!$('oggettiStanotte')) return;
@@ -536,16 +543,138 @@
       try { p = r && r.corpo ? JSON.parse(r.corpo) : null; } catch (e) { p = null; }
       listaDegliOggetti = r && r.ok && p && p.prodotto ? p.prodotto : null;
       erroreOggetti = listaDegliOggetti ? null : ((p && p.errore) || { codice: (r && r.codice) || 'servizio_irraggiungibile' });
+      /*  la notte o il banco sono cambiati: la scheda aperta si richiede, su quello scelto se c'e' ancora */
+      if (vistaOggetti === 'schede' && listaDegliOggetti) scegliScheda(null);
+      else disegnaOggetti();
+    });
+  }
+  /*  la scheda di un oggetto della lista: quello chiesto, o quello gia' scelto se c'e' ancora, o il primo. Se l'oggetto
+   *  resta lo stesso — la lista si e' riletta dopo una domanda — la sua scheda resta a schermo finche' arriva la nuova */
+  function scegliScheda(chiesto) {
+    const lista = (listaDegliOggetti && listaDegliOggetti.oggetti) || [];
+    const cerca = n => lista.find(x => x.nome === n);
+    const o = (chiesto && cerca(chiesto)) || (schedaScelta && cerca(schedaScelta.nome)) || lista[0] || null;
+    const stesso = !!(o && schedaScelta && schedaScelta.nome === o.nome);
+    schedaScelta = o ? { id: o.id, nome: o.nome } : null;
+    if (!stesso) { schedaInMano = null; erroreScheda = null; }
+    disegnaOggetti();
+    if (!schedaScelta) return;
+    const mia = ++ultimaScheda;
+    chiedi('scheda', { sito: sitoDaMandare(), banco: bancoDaMandare(false), quando: { data: $('data').value.trim() },
+                       opzioni: { copertura: coperturaScelta() }, bersaglio: { id: schedaScelta.id || schedaScelta.nome } }).then(r => {
+      if (mia !== ultimaScheda) return;
+      let p = null;
+      try { p = r && r.corpo ? JSON.parse(r.corpo) : null; } catch (e) { p = null; }
+      schedaInMano = r && r.ok && p && p.prodotto ? p.prodotto : null;
+      erroreScheda = schedaInMano ? null : ((p && p.errore) || { codice: (r && r.codice) || 'servizio_irraggiungibile' });
       disegnaOggetti();
     });
+  }
+  /*  LA SCHEDA, CON LA FACCIA DELLA SCHEDA DI AIS (regia, 28 settembre 2026: «stessa UI»): gli stessi blocchi con gli
+   *  stessi titoli, le righe per banda col colore del canale, l'intuizione nel riquadro azzurro, le strade come carte, le
+   *  ore con la soglia in rosso e l'utile in verde sulla barra. Fuori, per ora: la geometria col campo sull'immagine del
+   *  cielo, e la frase della Luna di stanotte, le cui soglie stanno nella pagina di AIS e non nel motore. Sulle voci del
+   *  solo catalogo la descrizione, l'intuizione e la frase della classe sono lo stesso testo: si scrive una volta. La barra si
+   *  disegna solo dove il motore manda il tetto del canale: la posizione dei segni la fa il foglio di stile coi numeri
+   *  del motore, qui non si fa un conto. Premere una strada rifa' la domanda su questo oggetto con quella strada. */
+  const TINTA_DELLA_RIGA = { ha: 'ha', oiii: 'oiii', sii: 'sii' };
+  const TINTA_DELLA_BARRA = { ha: 'ha', oiii: 'oiii', sii: 'sii', l: 'lum' };
+  function disegnaScheda() {
+    if (!schedaScelta) return '<div class="fine">' + esc(T('Pag_Sch_Nessuna')) + '</div>';
+    if (erroreScheda) return '<div class="fine">' + MF('Pag_Sch_NonDisponibile', esc(erroreScheda.codice || '')) + '</div>';
+    if (!schedaInMano) return '<div class="fine">' + esc(T('Pag_Sch_InArrivo')) + '</div>';
+    const b = schedaInMano.bersaglio || {}, s = b.scheda || {}, v = schedaInMano.valutazione || {}, t = v.tg || {};
+    const pieno = x => typeof x === 'string' && x.trim() !== '';
+    const tinta = (mappa, banda, altrimenti) => vocePropria(mappa, String(banda || '').toLowerCase()) || altrimenti;
+    const blocco = (n, chiave, corpo) => corpo ? '<div class="block"><h4>' + (n ? n + ' · ' : '') + esc(T(chiave)) + '</h4>' + corpo + '</div>' : '';
+    const nomi = Array.isArray(t.names) ? t.names : (b.nomi || [b.id]);
+    const nome = nomi[0] || '';
+    const classe = s.classe && PAROLA_CLASSE[s.classe] ? T(PAROLA_CLASSE[s.classe]) : (s.etichetta || s.classe || '');
+    const misura = Array.isArray(t.size_arcmin) && t.size_arcmin.length === 2
+      ? cifra(t.size_arcmin[0]) + '′ × ' + cifra(t.size_arcmin[1]) + '′' : null;
+    const sotto = [nomi.slice(1).map(esc).join(' · ') || null, t.constellation ? esc(t.constellation) : null].filter(Boolean).join(' — ') +
+      (misura ? ' · ' + misura : '') + (pieno(t.ambiguity) ? ' · <span class="pill p-dim">' + MF('Pag_Sch_Ambiguita', esc(t.ambiguity)) + '</span>' : '');
+    const testa = '<div class="sch-testa"><div><h3>' + esc(nome) + '</h3><div class="muted small">' + sotto + '</div></div>' +
+      '<button type="button" class="sch-chiedi" data-nome="' + esc(nome) + '">' + esc(T('Pag_Ogg_Chiedi')) + '</button></div>' +
+      (T('Pag_CodiceLingua') !== 'it' ? '<div class="muted small sch-lingua">' + esc(T('Pag_Sch_TestiInItaliano')) + '</div>' : '');
+    const cose = (pieno(t.physics) ? '<p>' + esc(t.physics) + '</p>' : '') +
+      (pieno(s.logica) && s.logica !== t.physics ? '<p class="small muted"><b>' + esc(classe) + '</b> — ' + esc(s.logica) + '</p>' : '') +
+      (pieno(t.physics_source) ? '<p class="small muted fonte">' + MF('Pag_Sch_FonteDelProfilo', esc(t.physics_source)) + '</p>' : '');
+    const righe = (Array.isArray(t.lines) ? t.lines : []).map(l => '<div class="chan riga">' +
+        '<div class="cn b-' + tinta(TINTA_DELLA_RIGA, l.band, 'lum') + '">' + esc(l.band || '') + '</div><div class="testo">' +
+        '<div>' + (pieno(l.strength) ? '<b>' + esc(l.strength) + '</b>' : '') +
+          (pieno(l.confidence) ? ' <span class="conf ' + esc(String(l.confidence).split('-')[0]) + '">' + esc(l.confidence) + '</span>' : '') + '</div>' +
+        (pieno(l.morphology) ? '<div class="small muted">' + esc(l.morphology) + '</div>' : '') +
+        (pieno(l.source) ? '<div class="small muted fonte">' + MF('Pag_Sch_Fonte', esc(l.source)) + '</div>' : '') + '</div></div>').join('');
+    const spettro = righe +
+      (pieno(t.key_insight) && t.key_insight !== t.physics ? '<div class="warnbox chiave">' + esc(t.key_insight) + '</div>' : '') +
+      (pieno(t.field_notes) ? '<p class="small muted">' + esc(t.field_notes) + '</p>' : '');
+    const matrice = !!(schedaInMano.banco && schedaInMano.banco.matrice);
+    const strade = (Array.isArray(t.roads) ? t.roads : []).map(r => {
+      const stessa = (v.stessaRipresa || []).find(x => x.road === r.id);
+      const limitata = (v.stradeSenzaStelle || []).find(x => x.road === r.id);
+      const scelta = stradaScelta === r.id && $('oggetto').value === nome;
+      /*  il nome che la strada porta qui: quello da matrice sul sensore a colori, quello della strada che la ruota fa
+       *  quando la strada «stelle» non si riprende, altrimenti il suo */
+      const detto = [matrice ? r.nome_su_matrice : null, limitata ? limitata.name : null, r.name, r.id].find(pieno);
+      const titolo = esc(detto || '') +
+        (r.default ? ' <span class="pill p-ok">' + esc(T('Pag_Sch_DiSerie')) + '</span>' : '') +
+        (scelta ? ' <span class="pill p-ok">' + esc(T('Pag_Men_SceltaTua')) + '</span>' : '') +
+        (stessa ? ' <span class="pill p-dim">' + esc(T('Pag_Sch_StessaRipresa')) + '</span>' : '');
+      const chiLaFa = stessa ? (stessa.nomeCon || stessa.con || '') : null;
+      const avviso = limitata ? testoStelle(((limitata.limiti || [])[0] || {}).perche) : null;
+      const corpo = chiLaFa !== null
+        ? '<div class="when">' + MF('Pag_Sch_LaFa', esc(chiLaFa)) + '</div>'
+        : (avviso ? '<div class="when"><span class="p-warn">' + avviso + '</span></div>' : '') +
+          (pieno(r.when) ? '<div class="when">' + esc(r.when) + '</div>' : '') +
+          (pieno(r.pro) ? '<div class="pc">' + MF('Pag_Sch_Pro', esc(r.pro)) + '</div>' : '') +
+          (pieno(r.contro) ? '<div class="pc">' + MF('Pag_Sch_Contro', esc(r.contro)) + '</div>' : '');
+      return '<button type="button" class="road' + (r.default ? ' def' : '') + (scelta ? ' on' : '') + '" data-strada-scheda="' + esc(r.id) +
+        '" aria-pressed="' + scelta + '"><h5>' + titolo + '</h5>' + corpo + '<div class="rc-pick">' + esc(T('Pag_Sch_PremiPerQuesta')) + '</div></button>';
+    }).join('');
+    const ore = Object.keys(v.budget || {}).map(k => {
+      const x = v.budget[k] || {};
+      if (x.assenteSuMatrice || !(x.useful > 0 || pieno(x.note))) return '';
+      const senzaOre = !(x.useful > 0);
+      if (senzaOre) return '<div class="chan"><div class="muted cn">' + esc(k) + '</div><div class="small muted testo">' + esc(x.note) + '</div></div>';
+      const tt = tinta(TINTA_DELLA_BARRA, k, 'rgb');
+      const barra = x.saturates > 0
+        ? '<div class="cbar" style="--tetto:' + x.saturates + '"><u class="soglia" style="--segno:' + x.floor + '"></u>' +
+          '<u class="utile" style="--segno:' + x.useful + '"></u></div>'
+        : '<div class="cbar"></div>';
+      return '<div class="chan"><div class="cn b-' + tt + '">' + esc(k) + '</div>' + barra +
+          '<div class="cv"><b>' + cifra(x.useful, 1) + ' h' + (v.panels > 1 ? ' ' + esc(T('Pag_Sch_PerRiquadro')) : '') + '</b>' +
+          '<div class="tsub">' + MF('Pag_Sch_Soglia', cifra(x.floor, 1)) + '</div></div></div>' +
+        (pieno(x.warning) ? '<div class="warnbox">' + esc(x.warning) + '</div>' : '') +
+        (pieno(x.note) ? '<div class="small muted nota-canale">' + esc(x.note) + '</div>' : '');
+    }).join('');
+    const budget = ore ? ore + '<p class="small muted spiega">' + M(T('Pag_Sch_SpiegaBarre')) + '</p>' : '';
+    const critico = v.critFilter && pieno(v.critFilter.name) ? '<b>' + esc(v.critFilter.name) + '</b>' : '<span class="p-bad">' + esc(T('Pag_Sch_Nessuno')) + '</span>';
+    const ordine = (pieno(t.order) ? '<p>' + esc(t.order) + '</p>' : '') +
+      '<p class="small">' + MF('Pag_Sch_FiltroCritico', critico) +
+        (v.stradaSostituita && v.defRoadScheda && v.defRoad
+          ? ' <span class="p-warn">' + MF('Pag_Sch_TecnicaSostituita', esc(v.defRoadScheda.name || ''), esc(v.defRoad.name || '')) + '</span>'
+          : Array.isArray(v.missing) && v.missing.length ? ' <span class="p-bad">' + MF('Pag_Sch_Mancano', esc(v.missing.join(', '))) + '</span>' : '') + '</p>' +
+      (v.critH != null && v.critBand ? '<p class="small">' + MF('Pag_Sch_Finestra', esc(v.critBand), cifra(v.critH, 1), cifra(v.critFloor)) +
+        (v.defRoad && v.roadHTot != null ? ' ' + MF(v.panels > 1 ? 'Pag_Sch_ServonoInTutto' : 'Pag_Sch_Servono', esc(v.defRoad.name || ''), cifra(v.roadHTot, 0)) : '') + '</p>' : '');
+    const attese = Object.keys(t.expect || {}).map(k => '<li><b>' + esc(k) + '</b> — ' + esc(t.expect[k]) + '</li>').join('');
+    const trappole = (Array.isArray(t.traps) ? t.traps : []).filter(pieno).map(x => '<li>' + esc(x) + '</li>').join('');
+    return '<div class="sheetbox">' + testa +
+      blocco(1, 'Pag_Sch_Cose', cose) + blocco(2, 'Pag_Sch_Spettro', spettro) + blocco(3, 'Pag_Sch_Strade', strade) +
+      blocco(4, 'Pag_Sch_Ore', budget) + blocco(5, 'Pag_Sch_Ordine', ordine) +
+      blocco(6, 'Pag_Sch_Attese', attese ? '<ul>' + attese + '</ul>' : '') + blocco(7, 'Pag_Sch_Trappole', trappole ? '<ul>' + trappole + '</ul>' : '') +
+      blocco(0, 'Pag_Sch_Riscontro', pieno(t.validated) ? '<p class="small">' + esc(t.validated) + '</p>' : '') + '</div>';
   }
   const parolaDi = (mappa, codice, ...valori) => mappa[codice] ? MF(mappa[codice], ...valori) : esc(codice || '—');
   function disegnaOggetti() {
     const box = $('oggettiStanotte');
     if (!box) return;
     const lista = (listaDegliOggetti && listaDegliOggetti.oggetti) || [];
-    const tasti = ['riquadri', 'tabella'].map(v => '<button type="button" data-vista-oggetti="' + v + '" class="' + (vistaOggetti === v ? 'on' : '') +
-      '" aria-pressed="' + (vistaOggetti === v) + '">' + esc(T(v === 'riquadri' ? 'Pag_Ogg_Riquadri' : 'Pag_Ogg_Tabella')) + '</button>').join('');
+    const tasti = Object.keys(VISTE_OGGETTI).map(v => '<button type="button" data-vista-oggetti="' + v + '" class="' + (vistaOggetti === v ? 'on' : '') +
+      '" aria-pressed="' + (vistaOggetti === v) + '">' + esc(T(VISTE_OGGETTI[v])) + '</button>').join('');
+    const tastiDellOggetto = '<span class="ogg-tasti"><button type="button" class="ogg-chiedi">' + esc(T('Pag_Ogg_Chiedi')) + '</button>' +
+      '<button type="button" class="ogg-scheda">' + esc(T('Pag_Ogg_Scheda')) + '</button></span>';
+    const classeDi = o => esc(o.classe && PAROLA_CLASSE[o.classe] ? T(PAROLA_CLASSE[o.classe]) : (o.classe || ''));
     let corpo;
     if (erroreOggetti) corpo = '<div class="fine">' + MF('Pag_Ogg_NonDisponibili', esc(erroreOggetti.codice || '')) + '</div>';
     else if (!listaDegliOggetti) corpo = '<div class="fine">' + esc(T('Pag_Ogg_InArrivo')) + '</div>';
@@ -554,10 +683,16 @@
       corpo = riquadri.length ? '<div class="griglia-oggetti">' + riquadri.map(o =>
         '<div class="ogg-riquadro" data-nome="' + esc(o.nome) + '">' +
           '<div class="alto"><b>' + esc(o.nome) + '</b><span class="ore">' + cifra(o.ore, 1) + '<i> h</i></span></div>' +
-          '<div class="basso"><span class="classe">' + esc(o.classe && PAROLA_CLASSE[o.classe] ? T(PAROLA_CLASSE[o.classe]) : (o.classe || '')) + '</span>' +
+          '<div class="basso"><span class="classe">' + classeDi(o) + '</span>' +
           '<span>' + MF('Pag_Ogg_CanaleCulmina', esc(o.canale || '—'), cifra(o.altezzaMassima, 0)) + '</span></div>' +
-          '<button type="button" class="ogg-chiedi">' + esc(T('Pag_Ogg_Chiedi')) + '</button></div>').join('') + '</div>'
+          tastiDellOggetto + '</div>').join('') + '</div>'
         : '<div class="fine">' + esc(T('Pag_Ogg_NessunRiquadro')) + '</div>';
+    } else if (vistaOggetti === 'schede') {
+      const scelto = schedaScelta && schedaScelta.nome;
+      corpo = '<div class="schede-oggetti"><div class="schede-elenco" role="listbox">' + lista.map(o =>
+          '<button type="button" class="ogg-voce' + (o.nome === scelto ? ' on' : '') + '" data-nome="' + esc(o.nome) + '" aria-selected="' + (o.nome === scelto) + '">' +
+            '<b>' + esc(o.nome) + '</b><span class="fine">' + classeDi(o) + ' · ' + cifra(o.ore, 1) + ' h</span></button>').join('') +
+        '</div><div class="scheda-oggetto">' + disegnaScheda() + '</div></div>';
     } else {
       const righe = lista.slice(0, righeOggetti).map(o => {
         const finestra = o.ore > 0
@@ -567,9 +702,8 @@
         const fatt = o.fattibilita === 'manca' ? MF('Pag_Ogg_Fatt_manca', esc((o.mancano || []).join(', '))) : parolaDi(PAROLA_FATTIBILITA, o.fattibilita);
         const pr = o.progetto || {};
         return '<tr data-nome="' + esc(o.nome) + '"><td><b>' + esc(o.nome) + '</b><div class="fine">' +
-            esc([o.altroNome, o.costellazione].filter(Boolean).join(' · ')) + '</div>' +
-            '<button type="button" class="ogg-chiedi">' + esc(T('Pag_Ogg_Chiedi')) + '</button></td>' +
-          '<td class="fine">' + esc(o.classe && PAROLA_CLASSE[o.classe] ? T(PAROLA_CLASSE[o.classe]) : (o.classe || '')) + '</td>' +
+            esc([o.altroNome, o.costellazione].filter(Boolean).join(' · ')) + '</div>' + tastiDellOggetto + '</td>' +
+          '<td class="fine">' + classeDi(o) + '</td>' +
           '<td class="num">' + finestra + '</td>' +
           '<td class="num"><span class="pill ' + (TONO_INQUADRATURA[o.inquadratura] || '') + '">' + parolaDi(PAROLA_INQUADRATURA, o.inquadratura) + '</span></td>' +
           '<td class="num"><span class="pill ' + (TONO_FATTIBILITA[o.fattibilita] || '') + '">' + fatt + '</span>' +
@@ -588,14 +722,22 @@
     }
     box.innerHTML = '<div class="box oggetti"><div class="oggetti-testa"><div><b>' + esc(T('Pag_Ogg_Titolo')) + '</b><div class="fine">' +
       esc(T('Pag_Ogg_Sotto')) + '</div></div><span class="vista-oggetti" role="group">' + tasti + '</span></div>' + corpo + '</div>';
-    for (const t of box.querySelectorAll('[data-vista-oggetti]')) t.addEventListener('click', () => {
-      vistaOggetti = t.getAttribute('data-vista-oggetti') === 'tabella' ? 'tabella' : 'riquadri';
+    const vediLaVista = (v, nome) => {
+      vistaOggetti = vistaDi(v);
       try { localStorage.setItem('ponte_vista_oggetti', vistaOggetti); } catch (e) {}
-      disegnaOggetti();
-    });
-    for (const t of box.querySelectorAll('.ogg-chiedi')) t.addEventListener('click', () => {
+      if (vistaOggetti === 'schede') scegliScheda(nome); else disegnaOggetti();
+    };
+    for (const t of box.querySelectorAll('[data-vista-oggetti]')) t.addEventListener('click', () => vediLaVista(t.getAttribute('data-vista-oggetti'), null));
+    for (const t of box.querySelectorAll('.ogg-scheda')) t.addEventListener('click', () => vediLaVista('schede', t.closest('[data-nome]').getAttribute('data-nome')));
+    for (const t of box.querySelectorAll('.ogg-voce')) t.addEventListener('click', () => scegliScheda(t.getAttribute('data-nome')));
+    for (const t of box.querySelectorAll('.ogg-chiedi, .sch-chiedi')) t.addEventListener('click', () => {
       const nome = t.closest('[data-nome]').getAttribute('data-nome');
       $('oggetto').value = nome; stradaScelta = null; vai();
+    });
+    /*  una strada premuta nella scheda: la domanda su questo oggetto, con quella strada — come nella scheda di AIS */
+    for (const t of box.querySelectorAll('[data-strada-scheda]')) t.addEventListener('click', () => {
+      $('oggetto').value = box.querySelector('.sch-chiedi').getAttribute('data-nome');
+      stradaScelta = t.getAttribute('data-strada-scheda'); vai();
     });
     const tutti = $('tuttiGliOggetti');
     if (tutti) tutti.addEventListener('click', () => { righeOggetti = Infinity; disegnaOggetti(); });

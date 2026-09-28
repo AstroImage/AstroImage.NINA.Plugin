@@ -610,7 +610,7 @@
     <value>Gli oggetti di stanotte, da qui</value>
   </data>
   <data name="Pag_Ogg_Sotto" xml:space="preserve">
-    <value>Ordinati dal motore su questo banco e su questa notte, non in assoluto: «Chiedi» mette l'oggetto nella domanda e la rifà.</value>
+    <value>Ordinati dal motore su questo banco e su questa notte, non in assoluto: «Chiedi» mette l'oggetto nella domanda e la rifà, «Scheda» apre la sua scheda.</value>
   </data>
   <data name="Pag_Ogg_Riquadri" xml:space="preserve">
     <value>Riquadri</value>
@@ -704,6 +704,105 @@
   </data>
   <data name="Pag_Ogg_ColResa" xml:space="preserve">
     <value>Resa</value>
+  </data>
+  <data name="Pag_Ogg_Schede" xml:space="preserve">
+    <value>Schede</value>
+  </data>
+  <data name="Pag_Ogg_Scheda" xml:space="preserve">
+    <value>Scheda</value>
+  </data>
+  <data name="Pag_Sch_Nessuna" xml:space="preserve">
+    <value>Scegli un oggetto dall'elenco.</value>
+  </data>
+  <data name="Pag_Sch_NonDisponibile" xml:space="preserve">
+    <value>Scheda non disponibile: {0}.</value>
+  </data>
+  <data name="Pag_Sch_InArrivo" xml:space="preserve">
+    <value>Scheda in arrivo…</value>
+  </data>
+  <data name="Pag_Sch_Ambiguita" xml:space="preserve">
+    <value>ambiguità {0}</value>
+  </data>
+  <data name="Pag_Sch_TestiInItaliano" xml:space="preserve">
+    <value>I testi della scheda arrivano dal catalogo del motore, in italiano.</value>
+  </data>
+  <data name="Pag_Sch_Cose" xml:space="preserve">
+    <value>Cos'è</value>
+  </data>
+  <data name="Pag_Sch_Spettro" xml:space="preserve">
+    <value>Spettro atteso e distribuzione spaziale</value>
+  </data>
+  <data name="Pag_Sch_Strade" xml:space="preserve">
+    <value>Le strade percorribili</value>
+  </data>
+  <data name="Pag_Sch_Ore" xml:space="preserve">
+    <value>Budget e soglie</value>
+  </data>
+  <data name="Pag_Sch_Ordine" xml:space="preserve">
+    <value>Ordine e condizioni</value>
+  </data>
+  <data name="Pag_Sch_Attese" xml:space="preserve">
+    <value>Cosa aspettarti</value>
+  </data>
+  <data name="Pag_Sch_Trappole" xml:space="preserve">
+    <value>Trappole in elaborazione</value>
+  </data>
+  <data name="Pag_Sch_Riscontro" xml:space="preserve">
+    <value>Riscontro sul campo</value>
+  </data>
+  <data name="Pag_Sch_FonteDelProfilo" xml:space="preserve">
+    <value>Fonte del profilo: {0}.</value>
+  </data>
+  <data name="Pag_Sch_Fonte" xml:space="preserve">
+    <value>fonte: {0}</value>
+  </data>
+  <data name="Pag_Sch_DiSerie" xml:space="preserve">
+    <value>default</value>
+  </data>
+  <data name="Pag_Sch_StessaRipresa" xml:space="preserve">
+    <value>stessa ripresa</value>
+  </data>
+  <data name="Pag_Sch_LaFa" xml:space="preserve">
+    <value>la stessa ripresa la fa {0}</value>
+  </data>
+  <data name="Pag_Sch_Pro" xml:space="preserve">
+    <value>*Pro:* {0}</value>
+  </data>
+  <data name="Pag_Sch_Contro" xml:space="preserve">
+    <value>*Contro:* {0}</value>
+  </data>
+  <data name="Pag_Sch_PremiPerQuesta" xml:space="preserve">
+    <value>premi per chiedere questo oggetto con questa tecnica</value>
+  </data>
+  <data name="Pag_Sch_PerRiquadro" xml:space="preserve">
+    <value>per riquadro</value>
+  </data>
+  <data name="Pag_Sch_Soglia" xml:space="preserve">
+    <value>soglia {0}</value>
+  </data>
+  <data name="Pag_Sch_SpiegaBarre" xml:space="preserve">
+    <value>In rosso la soglia: sotto, il canale non vale la pena di iniziarlo. In verde la resa piena. Con meno ore, ogni canale si ferma alla stessa frazione del suo cammino, e l'immagine resta la stessa, meno profonda.</value>
+  </data>
+  <data name="Pag_Sch_Nessuno" xml:space="preserve">
+    <value>nessuno</value>
+  </data>
+  <data name="Pag_Sch_FiltroCritico" xml:space="preserve">
+    <value>Filtro per il canale critico: {0}.</value>
+  </data>
+  <data name="Pag_Sch_TecnicaSostituita" xml:space="preserve">
+    <value>Con i tuoi filtri la tecnica della scheda, «{0}», non si fa: i numeri sono quelli di «{1}».</value>
+  </data>
+  <data name="Pag_Sch_Mancano" xml:space="preserve">
+    <value>Mancano i filtri per {0}.</value>
+  </data>
+  <data name="Pag_Sch_Finestra" xml:space="preserve">
+    <value>Finestra utile in {0}: *{1} h* (sopra {2}°).</value>
+  </data>
+  <data name="Pag_Sch_Servono" xml:space="preserve">
+    <value>Per completare la strada «{0}» servono *{1} h*.</value>
+  </data>
+  <data name="Pag_Sch_ServonoInTutto" xml:space="preserve">
+    <value>Per completare la strada «{0}» servono *{1} h in tutto*.</value>
   </data>
   <data name="Pag_Progetto_NuovoCosto" xml:space="preserve">
     <value>Costa questi dark nuovi: {0}</value>

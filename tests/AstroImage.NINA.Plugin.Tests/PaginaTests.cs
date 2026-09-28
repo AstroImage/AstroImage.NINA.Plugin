@@ -1105,12 +1105,66 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
             var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views", "PannelloStrategyView.xaml.cs"));
             StringAssert.Contains(vista, "if (azione == \"oggetti\") { await Oggetti(id, messaggio); return; }", "l'ospite non porta la domanda degli oggetti");
-            var gestore = vista.Substring(vista.IndexOf("private async Task Oggetti(", StringComparison.Ordinal));
+            /*  dal 28 settembre 2026 gli oggetti e la scheda passano dallo stesso gestore, `DallaLista`: la domanda si compone li' */
+            var iLista = vista.IndexOf("private async Task DallaLista(", StringComparison.Ordinal);
+            Assert.IsTrue(iLista >= 0, "l'ospite non ha il gestore che compone la domanda degli oggetti e della scheda");
+            var gestore = vista.Substring(iLista);
             gestore = gestore.Substring(0, gestore.IndexOf("\n        }", StringComparison.Ordinal));
             StringAssert.Contains(gestore, "RichiestaDelPannello.Componi(", "la domanda degli oggetti non e' composta come quella della prescrizione");
-            StringAssert.Contains(gestore, "cliente.Oggetti(", "l'ospite non chiede alla porta degli oggetti");
+            StringAssert.Contains(vista, "private Task Oggetti(string id, JsonObject messaggio) => DallaLista(id, messaggio, (c, j) => c.Oggetti(j));",
+                "l'ospite non chiede alla porta degli oggetti");
             var cliente = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Services", "ClienteStrategy.cs"));
             StringAssert.Contains(cliente, "new Uri(baseUri, \"v1/oggetti\")", "il client non conosce la porta degli oggetti");
+        }
+
+        /*  LE SCHEDE, TERZA VISTA DELLA LISTA (28 settembre 2026): la scheda di un oggetto arriva dalla porta della scheda, con la
+         *  domanda della lista e l'oggetto, e sfogliarla non rifa' la prescrizione — solo «Chiedi» e una strada premuta la
+         *  rifanno. Qui si prova il cablaggio e le parole nelle due lingue; la scheda resa, coi testi della porta, la legge una
+         *  guardia dell'altro repository. */
+        [TestMethod]
+        public void LE_SCHEDE_VENGONO_DALLA_PORTA_DELLA_SCHEDA_E_NON_TOCCANO_LA_PRESCRIZIONE() {
+            var js = PaginaSenzaCommenti();
+            var viste = Tratto(js, "const VISTE_OGGETTI = {", "};");
+            foreach (var v in new[] { "riquadri: 'Pag_Ogg_Riquadri'", "tabella: 'Pag_Ogg_Tabella'", "schede: 'Pag_Ogg_Schede'" })
+                StringAssert.Contains(viste, v, "le viste della lista non hanno " + v);
+            var scegli = Tratto(js, "function scegliScheda(chiesto) {", "\n  }");
+            foreach (var pezzo in new[] { "chiedi('scheda'", "sito: sitoDaMandare()", "banco: bancoDaMandare(false)", "quando: { data: $('data').value.trim() }",
+                                          "copertura: coperturaScelta()", "bersaglio: { id: schedaScelta.id || schedaScelta.nome }", "mia !== ultimaScheda" })
+                StringAssert.Contains(scegli, pezzo, "la domanda della scheda non usa " + pezzo);
+            Assert.IsFalse(scegli.Contains("vai("), "sfogliare le schede rifa' la prescrizione in mano");
+            var disegna = Tratto(js, "function disegnaScheda() {", "\n  }");
+            foreach (var pezzo in new[] { "v.tg", "t.physics", "t.lines", "t.key_insight", "t.roads", "r.pro", "r.contro", "v.budget", "t.order", "t.expect",
+                                          "t.traps", "s.logica", "data-strada-scheda", "Pag_Sch_TestiInItaliano", "--tetto:", "--segno:" })
+                StringAssert.Contains(disegna, pezzo, "la scheda non usa " + pezzo);
+            Assert.IsFalse(disegna.Contains("Math."), "la scheda calcola: i numeri sono del motore, i segni sulla barra li mette il foglio di stile");
+            var oggetti = Tratto(js, "function disegnaOggetti() {", "\n  }");
+            foreach (var pezzo in new[] { "class=\"ogg-scheda\"", "'.ogg-scheda'", "'.ogg-voce'", "scegliScheda(t.getAttribute('data-nome'))",
+                                          "stradaScelta = t.getAttribute('data-strada-scheda')" })
+                StringAssert.Contains(oggetti, pezzo, "la lista non porta alla scheda con " + pezzo);
+            StringAssert.Contains(Risorsa("prova.css"), "left:calc(var(--segno) / var(--tetto) * 100%)", "i segni sulla barra non li mette il foglio di stile");
+            var chiavi = new[] { "Pag_Ogg_Schede", "Pag_Ogg_Scheda", "Pag_Sch_Nessuna", "Pag_Sch_NonDisponibile", "Pag_Sch_InArrivo", "Pag_Sch_Ambiguita",
+                "Pag_Sch_TestiInItaliano", "Pag_Sch_Cose", "Pag_Sch_Spettro", "Pag_Sch_Strade", "Pag_Sch_Ore", "Pag_Sch_Ordine", "Pag_Sch_Attese",
+                "Pag_Sch_Trappole", "Pag_Sch_Riscontro", "Pag_Sch_FonteDelProfilo", "Pag_Sch_Fonte", "Pag_Sch_DiSerie", "Pag_Sch_StessaRipresa",
+                "Pag_Sch_LaFa", "Pag_Sch_Pro", "Pag_Sch_Contro", "Pag_Sch_PremiPerQuesta", "Pag_Sch_PerRiquadro", "Pag_Sch_Soglia",
+                "Pag_Sch_SpiegaBarre", "Pag_Sch_Nessuno", "Pag_Sch_FiltroCritico", "Pag_Sch_TecnicaSostituita", "Pag_Sch_Mancano",
+                "Pag_Sch_Finestra", "Pag_Sch_Servono", "Pag_Sch_ServonoInTutto" };
+            foreach (var lingua in new[] { "it", "en" }) {
+                var t = Tutte(lingua);
+                foreach (var k in chiavi) Assert.IsTrue(t.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v), lingua + ": manca " + k);
+            }
+            string? radice = null;
+            var su = new System.IO.DirectoryInfo(System.AppContext.BaseDirectory);
+            for (var i = 0; i < 8 && su is not null; i++, su = su.Parent)
+                if (System.IO.Directory.Exists(System.IO.Path.Combine(su.FullName, "src", "AstroImage.NINA.Plugin"))) {
+                    radice = System.IO.Path.Combine(su.FullName, "src"); break;
+                }
+            Assert.IsNotNull(radice, "sorgenti non trovati accanto ai test");
+            var vista = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Views", "PannelloStrategyView.xaml.cs"));
+            StringAssert.Contains(vista, "if (azione == \"scheda\") { await Scheda(id, messaggio); return; }", "l'ospite non porta la domanda della scheda");
+            StringAssert.Contains(vista, "private Task Scheda(string id, JsonObject messaggio) => DallaLista(id, messaggio, (c, j) => c.Scheda(j));",
+                "l'ospite non chiede alla porta della scheda, o non compone la domanda come per gli oggetti");
+            var cliente = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!, "AstroImage.NINA.Plugin", "Services", "ClienteStrategy.cs"));
+            StringAssert.Contains(cliente, "new Uri(baseUri, \"v1/scheda\")", "il client non conosce la porta della scheda");
         }
 
         [TestMethod]

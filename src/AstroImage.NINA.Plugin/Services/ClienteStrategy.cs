@@ -51,6 +51,7 @@ namespace AstroImage.NINA.Plugin.Services {
         private readonly Uri _luna;
         private readonly Uri _camera;
         private readonly Uri _oggetti;
+        private readonly Uri _scheda;
 
         /// <param name="http">Il cliente HTTP. Lo costruisce chi sa quanto deve durare
         /// una connessione e quante ne servono: non e' una decisione di questo file.</param>
@@ -67,15 +68,24 @@ namespace AstroImage.NINA.Plugin.Services {
             _luna = new Uri(baseUri, "v1/luna");
             _camera = new Uri(baseUri, "v1/camera");
             _oggetti = new Uri(baseUri, "v1/oggetti");
+            _scheda = new Uri(baseUri, "v1/scheda");
         }
 
         /*  GLI OGGETTI DI STANOTTE (26 settembre 2026): la domanda della pagina, senza bersaglio, alla porta degli oggetti. La
          *  risposta torna come testo col suo stato anche quando il servizio rifiuta — la pagina dice il perche' —; lo stato 0
          *  e nessun testo quando il servizio non si raggiunge. */
-        public async Task<(int Stato, string? Corpo)> Oggetti(string richiestaJson, CancellationToken ct = default) {
+        public Task<(int Stato, string? Corpo)> Oggetti(string richiestaJson, CancellationToken ct = default)
+            => Posta(_oggetti, richiestaJson, ct);
+
+        /*  LE SCHEDE (28 settembre 2026): il corpo degli oggetti col bersaglio dentro, verso v1/scheda; torna nella forma
+         *  della risposta degli oggetti. */
+        public Task<(int Stato, string? Corpo)> Scheda(string richiestaJson, CancellationToken ct = default)
+            => Posta(_scheda, richiestaJson, ct);
+
+        private async Task<(int Stato, string? Corpo)> Posta(Uri via, string richiestaJson, CancellationToken ct) {
             try {
                 using var contenuto = new StringContent(richiestaJson ?? "{}", Encoding.UTF8, "application/json");
-                using var r = await _http.PostAsync(_oggetti, contenuto, ct).ConfigureAwait(false);
+                using var r = await _http.PostAsync(via, contenuto, ct).ConfigureAwait(false);
                 return ((int)r.StatusCode, await r.Content.ReadAsStringAsync().ConfigureAwait(false));
             } catch (OperationCanceledException) when (ct.IsCancellationRequested) {
                 throw;
