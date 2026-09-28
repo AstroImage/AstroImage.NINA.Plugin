@@ -52,16 +52,25 @@ namespace AstroImage.NINA.Plugin.Services {
         /*  IL PROGETTO DELLA RISPOSTA IN MANO (19 settembre 2026): il bersaglio come la pagina l'ha chiesto e il banco come
          *  l'ha mandato. La consegna apre il progetto con questi, e «apri un progetto nuovo» chiude questo. */
         /// <summary>Come `Prendi`, tenendo il bersaglio e il banco della richiesta per il progetto.</summary>
-        public string? Prendi(EsitoPrescrizione? esito, string? bersaglio, string? banco) {
+        public string? Prendi(EsitoPrescrizione? esito, string? bersaglio, string? banco) => Prendi(esito, bersaglio, banco, null);
+
+        /// <summary>Come `Prendi`, tenendo anche la camera della dichiarazione dei vetri con cui la domanda e' partita.</summary>
+        public string? Prendi(EsitoPrescrizione? esito, string? bersaglio, string? banco, string? camera) {
             _ritirata = false;
             if (esito is null || !esito.Riuscito || esito.Sequenze.Count == 0) {
-                _id = null; _esito = null; Bersaglio = null; Banco = null; return null;
+                _id = null; _esito = null; Bersaglio = null; Banco = null; Camera = null; return null;
             }
             _id = Guid.NewGuid().ToString("N");
             _esito = esito;
-            Bersaglio = bersaglio; Banco = banco;
+            Bersaglio = bersaglio; Banco = banco; Camera = camera;
             return _id;
         }
+
+        /*  LA CAMERA DEI VETRI DELLA RISPOSTA IN MANO (28 settembre 2026): con quale delle due dichiarazioni — mono o colore
+         *  — sono partiti i vetri. La consegna traduce il vetro del motore nel nome della ruota con la stessa, non con quella
+         *  che vale adesso. Null quando le due camere dicevano gli stessi vetri. */
+        /// <summary>`mono`, `colore`, o null.</summary>
+        public string? Camera { get; private set; }
 
         /// <summary>Il bersaglio della richiesta in mano, come la pagina l'ha chiesto.</summary>
         public string? Bersaglio { get; private set; }
@@ -79,7 +88,7 @@ namespace AstroImage.NINA.Plugin.Services {
         }
 
         /// <summary>Dimentica quello che ha in mano.</summary>
-        public void Lascia() { _id = null; _esito = null; _ritirata = false; Bersaglio = null; Banco = null; }
+        public void Lascia() { _id = null; _esito = null; _ritirata = false; Bersaglio = null; Banco = null; Camera = null; }
 
         /*  UNA NOTTE SI CONSEGNA QUANTE VOLTE SI VUOLE (decisione del 16 settembre 2026). Il Sequenziatore e' di N.I.N.A. e
          *  il suo contenuto e' di chi riprende: dieci sequenze identiche, cancellate e rimesse quando e come vuole.

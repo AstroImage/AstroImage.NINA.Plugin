@@ -21,7 +21,41 @@ namespace AstroImage.NINA.Plugin.Services {
     public static class DichiarazioneRuota {
 
         /// <summary>La forma che questo codice sa scrivere.</summary>
-        public const int VersioneCorrente = 1;
+        public const int VersioneCorrente = 2;
+
+        /*  LE DUE CAMERE (regia, 28 settembre 2026): sullo stesso nome della ruota di N.I.N.A. il vetro dichiarato con la
+         *  camera monocromatica e quello con la camera a colori. Le parole sono quelle con cui il servizio dice la matrice
+         *  della camera riconosciuta (`dati.matrice`), cosi' la pagina le passa com'e'. */
+        public const string CameraMono = "mono";
+        public const string CameraColore = "colore";
+
+        /// <summary>La camera come parola della dichiarazione: quella detta, se e' una delle due; altrimenti quella che
+        /// il profilo di N.I.N.A. dichiara con lo schema di Bayer; altrimenti null, che vuol dire «non si sa».</summary>
+        public static string? Camera(string? detta, bool? cameraAMatrice) {
+            var d = (detta ?? "").Trim().ToLowerInvariant();
+            if (d == CameraMono || d == CameraColore) return d;
+            return cameraAMatrice is null ? null : cameraAMatrice == true ? CameraColore : CameraMono;
+        }
+
+        /// <summary>
+        /// LA VISTA PER UNA CAMERA: la dichiarazione con un vetro per nome, quello di <paramref name="camera"/>, in
+        /// <c>Motore</c>. Tutto cio' che lavora su un vetro per nome — la domanda, la consegna, la riconciliazione — lavora
+        /// su questa. Una camera che non e' una delle due da' la vista vuota: nessun vetro, invece di uno indovinato.
+        /// </summary>
+        public static RuotaVirtuale PerCamera(RuotaVirtuale? r, string? camera) {
+            var vista = new RuotaVirtuale { Versione = VersioneCorrente };
+            if (r is null || (camera != CameraMono && camera != CameraColore)) return vista;
+            foreach (var v in r.Vetri) {
+                if (v is null || string.IsNullOrWhiteSpace(v.Nina)) continue;
+                var id = camera == CameraMono ? (v.Mono ?? v.Motore) : (v.Colore ?? v.Motore);
+                vista.Vetri.Add(new VoceRuota { Nina = v.Nina, Motore = id, Nota = v.Nota });
+            }
+            return vista;
+        }
+
+        /// <summary>Se con le due camere ogni nome ha lo stesso vetro: allora la camera non serve a scegliere.</summary>
+        public static bool UgualePerLeDueCamere(RuotaVirtuale? r) =>
+            r is null || r.Vetri.All(v => v is null || string.Equals(v.Mono ?? v.Motore, v.Colore ?? v.Motore, StringComparison.OrdinalIgnoreCase));
 
         private static readonly JsonSerializerOptions Opzioni = new JsonSerializerOptions {
             PropertyNameCaseInsensitive = true,
@@ -58,6 +92,8 @@ namespace AstroImage.NINA.Plugin.Services {
             var pulite = new List<VoceRuota>();
             var viste = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var doppie = new List<string>();
+            var diPrima = false;
+            string? Pulito(string? s) => string.IsNullOrWhiteSpace(s) ? null : s!.Trim();
 
             foreach (var v in r.Vetri ?? new List<VoceRuota>()) {
                 if (v is null || string.IsNullOrWhiteSpace(v.Nina)) continue;
@@ -66,21 +102,36 @@ namespace AstroImage.NINA.Plugin.Services {
                  *  chiave, e due valori diversi per la stessa chiave vorrebbero dire
                  *  scegliere a caso. Vince la prima, e si dice che e' successo. */
                 if (!viste.Add(nome)) { doppie.Add(nome); continue; }
-                pulite.Add(new VoceRuota {
-                    Nina = nome,
-                    Motore = string.IsNullOrWhiteSpace(v.Motore) ? null : v.Motore!.Trim(),
-                    Nota = string.IsNullOrWhiteSpace(v.Nota) ? null : v.Nota!.Trim(),
-                });
+                /*  LA FORMA DI PRIMA (versione 1): un vetro per nome, dichiarato quando le camere non si distinguevano. Vale
+                 *  per tutt'e due finche' chi riprende non le separa — la prescrizione resta quella di ieri —, e si dice. */
+                var mono = Pulito(v.Mono);
+                var colore = Pulito(v.Colore);
+                var unico = Pulito(v.Motore);
+                if (mono is null && colore is null && unico != null) { mono = unico; colore = unico; diPrima = true; }
+                pulite.Add(new VoceRuota { Nina = nome, Mono = mono, Colore = colore, Nota = Pulito(v.Nota) });
             }
 
-            if (doppie.Count > 0)
-                nota = Loc.F("Ruota_VociDoppie", string.Join(", ", doppie.Distinct()));
+            var note = new List<string>();
+            if (doppie.Count > 0) note.Add(Loc.F("Ruota_VociDoppie", string.Join(", ", doppie.Distinct())));
+            if (diPrima) note.Add(Loc.T("Ruota_DichiarazioneDiPrima"));
+            if (note.Count > 0) nota = string.Join(" ", note);
 
             return new RuotaVirtuale { Versione = VersioneCorrente, Vetri = pulite };
         }
 
+        /*  SI SCRIVE SEMPRE LA FORMA DELLE DUE CAMERE: una voce con un vetro solo — la forma di prima, o una vista per una
+         *  camera — vale per tutt'e due, e si scrive cosi'. Rileggendola non sembra una dichiarazione di prima. */
         public static string Scrivi(RuotaVirtuale? r) =>
-            JsonSerializer.Serialize(r ?? new RuotaVirtuale(), Opzioni);
+            JsonSerializer.Serialize(new RuotaVirtuale {
+                Versione = VersioneCorrente,
+                Vetri = (r?.Vetri ?? new List<VoceRuota>()).Where(v => v != null).Select(v => new VoceRuota {
+                    Nina = v.Nina,
+                    Mono = v.Mono ?? (v.Colore is null ? v.Motore : null),
+                    Colore = v.Colore ?? (v.Mono is null ? v.Motore : null),
+                    Nota = v.Nota,
+                }).ToList(),
+                Altro = r?.Altro,
+            }, Opzioni);
 
         /*  LA DICHIARAZIONE COM'E' ARRIVATA DALLA PAGINA, e la guardia che impedisce a
          *  una chiave mancante di cancellare il lavoro di qualcuno.
@@ -120,9 +171,15 @@ namespace AstroImage.NINA.Plugin.Services {
             foreach (var v in elenco) {
                 var nina = Testo(v?["nina"]);
                 if (string.IsNullOrWhiteSpace(nina)) continue;
+                /*  la pagina manda il vetro con la mono e quello con la colore; un `id` solo — la forma di prima — vale per
+                 *  tutt'e due, come quando si legge una dichiarazione della versione 1 */
+                var unico = Testo(v?["id"]);
+                var conMono = v is JsonObject o1 && o1.ContainsKey("mono");
+                var conColore = v is JsonObject o2 && o2.ContainsKey("colore");
                 r.Vetri.Add(new VoceRuota {
                     Nina = nina!.Trim(),
-                    Motore = Testo(v?["id"]),
+                    Mono = conMono ? Testo(v?["mono"]) : unico,
+                    Colore = conColore ? Testo(v?["colore"]) : unico,
                     Nota = Testo(v?["nota"]),
                 });
             }
@@ -144,13 +201,21 @@ namespace AstroImage.NINA.Plugin.Services {
         /// N.I.N.A. Null se non e' stato dichiarato — e null non e' un invito a indovinare.</summary>
         public static string? IdPerNome(RuotaVirtuale? r, string? nomeNina) =>
             r is null || string.IsNullOrWhiteSpace(nomeNina) ? null
-            : r.Vetri.FirstOrDefault(v => string.Equals(v.Nina, nomeNina, StringComparison.OrdinalIgnoreCase))?.Motore;
+            : Unico(r.Vetri.FirstOrDefault(v => string.Equals(v.Nina, nomeNina, StringComparison.OrdinalIgnoreCase)));
 
         /// <summary>Il giro all'indietro: il motore ha scelto QUESTO vetro, come si
         /// chiama sulla tua ruota? Null se non e' dichiarato da nessuna parte.</summary>
         public static string? NomePerId(RuotaVirtuale? r, string? idMotore) =>
             r is null || string.IsNullOrWhiteSpace(idMotore) ? null
-            : r.Vetri.FirstOrDefault(v => string.Equals(v.Motore, idMotore, StringComparison.OrdinalIgnoreCase))?.Nina;
+            : r.Vetri.FirstOrDefault(v => string.Equals(Unico(v), idMotore, StringComparison.OrdinalIgnoreCase))?.Nina;
+
+        /*  IL VETRO DI UN NOME, per le funzioni che ne vogliono uno: quello della vista per una camera; su una dichiarazione
+         *  salvata, quello che vale per tutt'e due le camere, e null dove le due camere dicono vetri diversi — li' serve la
+         *  camera, e senza non si sceglie. */
+        private static string? Unico(VoceRuota? v) =>
+            v is null ? null
+            : !string.IsNullOrWhiteSpace(v.Motore) ? v.Motore
+            : string.Equals(v.Mono, v.Colore, StringComparison.OrdinalIgnoreCase) ? v.Mono : null;
 
         /// <summary>
         /// Gli identificativi da mandare al motore come `ruota`. Solo quelli dichiarati,
@@ -159,10 +224,12 @@ namespace AstroImage.NINA.Plugin.Services {
         /// ruota non dichiarata sono due cose diverse: la prima direbbe al motore che
         /// non possiedi nessun filtro.
         /// </summary>
+        /// <remarks>Su una dichiarazione salvata, con le due camere, conta i vetri dell'una e dell'altra.</remarks>
         public static IReadOnlyList<string> IdDichiarati(RuotaVirtuale? r) =>
             r is null ? new List<string>()
-            : r.Vetri.Where(v => !string.IsNullOrWhiteSpace(v.Motore))
-                     .Select(v => v.Motore!)
+            : r.Vetri.SelectMany(v => new[] { v.Motore, v.Mono, v.Colore })
+                     .Where(id => !string.IsNullOrWhiteSpace(id))
+                     .Select(id => id!)
                      .Distinct(StringComparer.OrdinalIgnoreCase)
                      .ToList();
 
@@ -182,11 +249,11 @@ namespace AstroImage.NINA.Plugin.Services {
             var nomi = new HashSet<string>(
                 (nomiInRuota ?? Enumerable.Empty<string>()).Where(n => !string.IsNullOrWhiteSpace(n)).Select(n => n.Trim()),
                 StringComparer.OrdinalIgnoreCase);
-            var dichiarate = r?.Vetri.Where(v => !string.IsNullOrWhiteSpace(v.Motore) && !string.IsNullOrWhiteSpace(v.Nina))
+            var dichiarate = r?.Vetri.Where(v => !string.IsNullOrWhiteSpace(Unico(v)) && !string.IsNullOrWhiteSpace(v.Nina))
                                       .ToList() ?? new List<VoceRuota>();
             orfane = dichiarate.Where(v => !nomi.Contains(v.Nina!.Trim())).ToList();
             return dichiarate.Where(v => nomi.Contains(v.Nina!.Trim()))
-                             .Select(v => v.Motore!)
+                             .Select(v => Unico(v)!)
                              .Distinct(StringComparer.OrdinalIgnoreCase)
                              .ToList();
         }

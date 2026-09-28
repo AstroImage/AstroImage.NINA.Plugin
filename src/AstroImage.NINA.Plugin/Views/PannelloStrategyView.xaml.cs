@@ -337,7 +337,7 @@ namespace AstroImage.NINA.Plugin.Views {
                 /*  LA COMPOSIZIONE STA IN `RichiestaDelPannello`, dove si prova senza N.I.N.A.: qui si passano la
                  *  dichiarazione e i nomi che la ruota del profilo ha adesso. */
                 var domanda = RichiestaDelPannello.Componi(messaggio["corpo"]?.AsObject(), vmR?.Dichiarazione,
-                                                           vmR?.Ruota.Nomi());
+                                                           vmR?.Ruota.Nomi(), CameraDellaDomanda(messaggio, vmR));
                 var dichiarati = domanda.RuotaAggiunta ?? new List<string>();
                 JsonArray ruotaInviata = null;
                 if (domanda.RuotaAggiunta != null) {
@@ -346,7 +346,7 @@ namespace AstroImage.NINA.Plugin.Views {
                 }
                 if (domanda.Corpo is null) {
                     Logger.Warning("[AstroImage] prescription not asked — " + domanda.Rifiuto);
-                    Rispondi(id, false, null, "ruota_solo_orfane", domanda.Rifiuto); return;
+                    Rispondi(id, false, null, domanda.Codice ?? "ruota_solo_orfane", domanda.Rifiuto); return;
                 }
                 /*  IL PROFILO DEL PROGETTO VIAGGIA CON LA DOMANDA (regia, 19 settembre 2026): se per questo
                  *  bersaglio con questo banco un progetto e' aperto, il suo profilo parte, e il motore lo onora — ricalcola
@@ -376,7 +376,7 @@ namespace AstroImage.NINA.Plugin.Views {
                  *  rimandarlo: e' cio' che impedisce di mandare la riga di una
                  *  prescrizione precedente rimasta sullo schermo. */
                 var vm = DataContext as PannelloStrategyVM;
-                var idPrescrizione = vm?.InMano.Prendi(esito, bersaglioChiesto, bancoChiesto);
+                var idPrescrizione = vm?.InMano.Prendi(esito, bersaglioChiesto, bancoChiesto, domanda.Camera);
                 /*  IL DATO CHE MANCAVA. Alla prima integrazione il pannello disse «non
                  *  disponibile» e per sapere PERCHE' bisognava passarci sopra il mouse.
                  *  Adesso il motivo finisce nel log, e la domanda «e' stato chiamato
@@ -399,6 +399,9 @@ namespace AstroImage.NINA.Plugin.Views {
                                 prescrizione che si sta guardando e' stata calcolata sui
                                 vetri di serie del motore e non sui propri. */
                              ["ruotaAggiunta"] = ruotaInviata?.DeepClone(),
+                             /*  Con quale delle due dichiarazioni — mono o colore — sono partiti i vetri; null quando le
+                                 due camere dicono gli stessi. */
+                             ["cameraDeiFiltri"] = domanda.Camera,
                              /*  Il progetto aperto a cui la domanda apparteneva, o null: la pagina dice «consegnando apri il
                                  progetto» quando non c'e', e il giorno dell'apertura quando c'e'. */
                              ["progetto"] = progetto is null ? null : new JsonObject { ["apertoIl"] = progetto.ApertoIl },
@@ -481,7 +484,9 @@ namespace AstroImage.NINA.Plugin.Views {
                 if (perCheNoVetro != null && idVetro is null && b.Canali != null && b.Canali.Count > 0
                         && perCanale.Count > 0) { discordi.Add(perCheNoVetro); continue; }
                 if (idVetro is null) continue;   // il motore non l'ha detto: resta il nome di prima
-                var nome = DichiarazioneRuota.NomePerId(vm.Dichiarazione, idVetro);
+                /*  il nome con la dichiarazione della camera con cui la domanda e' partita, non con quella di adesso */
+                var nome = DichiarazioneRuota.NomePerId(
+                    DichiarazioneRuota.PerCamera(vm.Dichiarazione, vm.InMano.Camera ?? DichiarazioneRuota.CameraMono), idVetro);
                 if (string.IsNullOrWhiteSpace(nome)) {
                     var etichetta = string.Join("+", b.Canali ?? new List<string>());
                     nonDichiarati.Add(idVetro == VetriDellaPrescrizione.NessunFiltro
@@ -582,12 +587,21 @@ namespace AstroImage.NINA.Plugin.Views {
         /*  LE SCHEDE (28 settembre 2026): come gli oggetti, col bersaglio nel corpo. La prescrizione in mano resta dov'e'. */
         private Task Scheda(string id, JsonObject messaggio) => DallaLista(id, messaggio, (c, j) => c.Scheda(j));
 
-        private async Task DallaLista(string id, JsonObject messaggio, Func<ClienteStrategy, string, Task<(int Stato, string? Corpo)>> porta) {
+        /*  LA CAMERA DEI VETRI (28 settembre 2026): quella che la pagina dice — la camera del banco come il motore l'ha
+         *  riconosciuta, dove vince quella collegata —, altrimenti lo schema di Bayer del profilo, altrimenti non si sa. */
+        private static string CameraDellaDomanda(JsonObject messaggio, PannelloStrategyVM vm) {
+            string detta;
+            try { detta = messaggio?["camera"]?.GetValue<string>(); } catch { detta = null; }
+            return DichiarazioneRuota.Camera(detta, vm?.Ruota.CameraAMatrice());
+        }
+
+        private async Task DallaLista(string id, JsonObject messaggio, Func<ClienteStrategy, string, Task<(int Stato, string Corpo)>> porta) {
             var vm = DataContext as PannelloStrategyVM;
             var cliente = vm?.Cliente;
             if (cliente is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaCorriere")); return; }
-            var domanda = RichiestaDelPannello.Componi(messaggio["corpo"]?.AsObject(), vm?.Dichiarazione, vm?.Ruota.Nomi());
-            if (domanda.Corpo is null) { Rispondi(id, false, null, "ruota_solo_orfane", domanda.Rifiuto); return; }
+            var domanda = RichiestaDelPannello.Componi(messaggio["corpo"]?.AsObject(), vm?.Dichiarazione, vm?.Ruota.Nomi(),
+                                                       CameraDellaDomanda(messaggio, vm));
+            if (domanda.Corpo is null) { Rispondi(id, false, null, domanda.Codice ?? "ruota_solo_orfane", domanda.Rifiuto); return; }
             var (stato, corpo) = await porta(cliente, domanda.Corpo);
             if (corpo is null) { Rispondi(id, false, null, "servizio_irraggiungibile", null); return; }
             Rispondi(id, stato == 200, corpo, stato == 200 ? null : "rifiutata", null);
@@ -662,20 +676,33 @@ namespace AstroImage.NINA.Plugin.Views {
             if (vm.Catalogo is null) vm.Catalogo = await vm.Cliente.Filtri();
 
             var vetri = vm.Ruota.Vetri(out var perCheNo);
-            var righe = RiconciliaRuota.Righe(vetri, vm.Dichiarazione, vm.Catalogo, vm.Ruota.CameraAMatrice());
-
+            /*  LE DUE CAMERE (regia, 28 settembre 2026): la stessa ruota riconciliata con la dichiarazione della mono e con
+             *  quella della colore. «Adatto» e' della camera della riga, non dello schema di Bayer del profilo. Una riga per
+             *  nome: quelli della ruota nel loro ordine, poi quelli dichiarati che nella ruota non ci sono. */
+            var conMono = RiconciliaRuota.Righe(vetri, DichiarazioneRuota.PerCamera(vm.Dichiarazione, DichiarazioneRuota.CameraMono),
+                                                vm.Catalogo, false);
+            var conColore = RiconciliaRuota.Righe(vetri, DichiarazioneRuota.PerCamera(vm.Dichiarazione, DichiarazioneRuota.CameraColore),
+                                                  vm.Catalogo, true);
+            JsonObject DellaCamera(RiconciliaRuota.Riga r) => r is null ? null : new JsonObject {
+                ["id"] = r.IdMotore,
+                ["vetro"] = DichiarazioneRuota.Etichetta(r.Vetro),
+                ["banda"] = r.Vetro?.Banda,
+                ["stato"] = r.Stato.ToString().ToLowerInvariant(),
+                ["adatto"] = r.AdattoAllaCamera,
+                ["nota"] = r.Nota,
+            };
             var elenco = new JsonArray();
-            foreach (var r in righe) {
+            foreach (var nome in conMono.Select(x => x.Nina).Concat(conColore.Select(x => x.Nina))
+                                        .Distinct(StringComparer.OrdinalIgnoreCase)) {
+                var m = conMono.FirstOrDefault(x => string.Equals(x.Nina, nome, StringComparison.OrdinalIgnoreCase));
+                var c = conColore.FirstOrDefault(x => string.Equals(x.Nina, nome, StringComparison.OrdinalIgnoreCase));
+                var una = m ?? c;
                 elenco.Add(new JsonObject {
-                    ["nina"] = r.Nina,
-                    ["slot"] = r.Slot,
-                    ["id"] = r.IdMotore,
-                    ["vetro"] = DichiarazioneRuota.Etichetta(r.Vetro),
-                    ["banda"] = r.Vetro?.Banda,
-                    ["stato"] = r.Stato.ToString().ToLowerInvariant(),
-                    ["adatto"] = r.AdattoAllaCamera,
-                    ["ambiguo"] = r.NomeAmbiguo,
-                    ["nota"] = r.Nota,
+                    ["nina"] = una.Nina,
+                    ["slot"] = una.Slot,
+                    ["ambiguo"] = una.NomeAmbiguo,
+                    ["mono"] = DellaCamera(m),
+                    ["colore"] = DellaCamera(c),
                 });
             }
 
@@ -702,6 +729,8 @@ namespace AstroImage.NINA.Plugin.Views {
                 ["ruotaVuota"] = perCheNo,
                 ["nota"] = vm.NotaDichiarazione,
                 ["dichiarati"] = DichiarazioneRuota.IdDichiarati(vm.Dichiarazione).Count,
+                ["dichiaratiMono"] = DichiarazioneRuota.IdDichiarati(DichiarazioneRuota.PerCamera(vm.Dichiarazione, DichiarazioneRuota.CameraMono)).Count,
+                ["dichiaratiColore"] = DichiarazioneRuota.IdDichiarati(DichiarazioneRuota.PerCamera(vm.Dichiarazione, DichiarazioneRuota.CameraColore)).Count,
             });
         }
 
@@ -725,6 +754,10 @@ namespace AstroImage.NINA.Plugin.Views {
             /*  `ritirata` chiede alla pagina di ritirare la prescrizione mostrata, e dice perche' (il ritiro generalizzato) */
             Rispondi(id, ok, null, ok ? null : "salvataggio_fallito", perCheNo, 0, null,
                      new JsonObject { ["dichiarati"] = DichiarazioneRuota.IdDichiarati(nuova).Count,
+                                      ["dichiaratiMono"] = DichiarazioneRuota.IdDichiarati(
+                                          DichiarazioneRuota.PerCamera(nuova, DichiarazioneRuota.CameraMono)).Count,
+                                      ["dichiaratiColore"] = DichiarazioneRuota.IdDichiarati(
+                                          DichiarazioneRuota.PerCamera(nuova, DichiarazioneRuota.CameraColore)).Count,
                                       ["ritirata"] = ritirata ? "ruota" : null });
         }
 

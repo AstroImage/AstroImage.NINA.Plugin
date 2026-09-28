@@ -52,7 +52,9 @@ che non esiste — non le si sostituisce un coefficiente verosimile.
 **Non si deduce, si dichiara.** Dal nome di un filtro non escono nanometri: uno slot
 scritto «HA» può avere montato un L-Ultimate, e lo sa solo chi l'ha comprato. Per questo
 il ponte fa dichiarare i filtri invece di indovinarli, e non prova mai a interpretarne
-il nome.
+il nome. Lo stesso nome può tenere due filtri, uno davanti alla camera monocromatica e uno
+davanti a quella a colori: parte quello della camera del banco, e se la camera non si
+conosce e i due sono diversi la domanda non parte.
 
 **Si rifiuta, non si corregge in silenzio.** È la regola che pesa di più: *una sequenza
 che non rispetta la prescrizione, a guardarla, è identica a una che la rispetta.* Fra

@@ -322,7 +322,28 @@
     <value>Filter configuration</value>
   </data>
   <data name="Pag_ConfigFiltriNota" xml:space="preserve">
-    <value>what the filters in your wheel physically are. Declared once per profile.</value>
+    <value>what the filters in your wheel physically are. Declared once per profile, for the mono and for the colour camera: the bench camera decides which one counts.</value>
+  </data>
+  <data name="Pag_RuotaConMono" xml:space="preserve">
+    <value>Mono camera</value>
+  </data>
+  <data name="Pag_RuotaConColore" xml:space="preserve">
+    <value>Colour camera</value>
+  </data>
+  <data name="Pag_RuotaInUso" xml:space="preserve">
+    <value>in use</value>
+  </data>
+  <data name="Pag_RuotaCameraNonNota" xml:space="preserve">
+    <value>The bench camera is not recognised yet: until it is, requests go out only if you declared the same filters for both cameras.</value>
+  </data>
+  <data name="Pag_RuotaDichiaratiDue" xml:space="preserve">
+    <value>{0} filters declared for the mono, {1} for the colour camera</value>
+  </data>
+  <data name="Ruota_CameraNonNota" xml:space="preserve">
+    <value>I do not know whether the bench camera is mono or colour, and you declared different filters for the two: the request was not sent. Declare the camera in the bench, or connect it.</value>
+  </data>
+  <data name="Ruota_DichiarazioneDiPrima" xml:space="preserve">
+    <value>The declaration saved earlier applies to both the mono and the colour camera: split them by choosing the filters of each.</value>
   </data>
   <data name="Pag_Contratto" xml:space="preserve">
     <value>{0} · engine {1} · answer {2} KB intact</value>

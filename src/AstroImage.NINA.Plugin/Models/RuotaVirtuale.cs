@@ -30,8 +30,9 @@ namespace AstroImage.NINA.Plugin.Models {
     public sealed class RuotaVirtuale {
 
         /// <summary>La forma del documento. Serve perche' un JSON dentro una stringa
-        /// non si migra da solo: il giorno che la forma cambia, questo dice da dove.</summary>
-        [JsonPropertyName("versione")] public int Versione { get; set; } = 1;
+        /// non si migra da solo: il giorno che la forma cambia, questo dice da dove.
+        /// <para>1: un vetro per nome. 2 (28 settembre 2026): un vetro per nome con la mono e uno con la colore.</para></summary>
+        [JsonPropertyName("versione")] public int Versione { get; set; } = 2;
 
         [JsonPropertyName("vetri")] public List<VoceRuota> Vetri { get; set; } = new List<VoceRuota>();
 
@@ -55,8 +56,19 @@ namespace AstroImage.NINA.Plugin.Models {
 
         /// <summary>L'identificativo del vetro nel catalogo del motore, oppure null:
         /// null vuol dire «non dichiarato», e un filtro non dichiarato il motore non
-        /// sa di averlo.</summary>
+        /// sa di averlo.
+        /// <para>DUE USI, e si dicono (28 settembre 2026). Nella dichiarazione salvata e' solo la forma di prima
+        /// (versione 1, un vetro per nome), che si legge e si porta in <see cref="Mono"/> e <see cref="Colore"/>. Nella
+        /// VISTA PER UNA CAMERA (`DichiarazioneRuota.PerCamera`) e' il vetro di quella camera: tutto cio' che lavora
+        /// su un vetro per nome — la domanda, la consegna, la riconciliazione — lavora sulla vista.</para></summary>
         [JsonPropertyName("motore")] public string? Motore { get; set; }
+
+        /// <summary>IL VETRO CON LA CAMERA MONOCROMATICA (regia, 28 settembre 2026): lo stesso nome della ruota puo' tenere
+        /// un vetro diverso quando davanti c'e' la camera a colori. Null: non dichiarato con la mono.</summary>
+        [JsonPropertyName("mono")] public string? Mono { get; set; }
+
+        /// <summary>Il vetro con la camera a colori. Null: non dichiarato con la colore.</summary>
+        [JsonPropertyName("colore")] public string? Colore { get; set; }
 
         /// <summary>Testo libero di chi configura. Dichiaratamente NON usato per
         /// calcolare niente: serve a ricordarsi perche', non a decidere.</summary>

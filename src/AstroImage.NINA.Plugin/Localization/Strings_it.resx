@@ -322,7 +322,28 @@
     <value>Configurazione dei filtri</value>
   </data>
   <data name="Pag_ConfigFiltriNota" xml:space="preserve">
-    <value>che cosa sono, fisicamente, i filtri della tua ruota. Si dichiara una volta per profilo.</value>
+    <value>che cosa sono, fisicamente, i filtri della tua ruota. Si dichiara una volta per profilo, con la camera mono e con quella a colori: vale quella della camera del banco.</value>
+  </data>
+  <data name="Pag_RuotaConMono" xml:space="preserve">
+    <value>Camera mono</value>
+  </data>
+  <data name="Pag_RuotaConColore" xml:space="preserve">
+    <value>Camera a colori</value>
+  </data>
+  <data name="Pag_RuotaInUso" xml:space="preserve">
+    <value>in uso</value>
+  </data>
+  <data name="Pag_RuotaCameraNonNota" xml:space="preserve">
+    <value>La camera del banco non è ancora riconosciuta: finché non lo è, le domande partono solo se con le due camere hai dichiarato gli stessi filtri.</value>
+  </data>
+  <data name="Pag_RuotaDichiaratiDue" xml:space="preserve">
+    <value>{0} filtri dichiarati con la mono, {1} con la colore</value>
+  </data>
+  <data name="Ruota_CameraNonNota" xml:space="preserve">
+    <value>Non so se la camera del banco è monocromatica o a colori, e con le due hai dichiarato filtri diversi: la domanda non è partita. Dichiara la camera nel banco, o collegala.</value>
+  </data>
+  <data name="Ruota_DichiarazioneDiPrima" xml:space="preserve">
+    <value>La dichiarazione salvata prima vale per la camera mono e per quella a colori: separale scegliendo i filtri di ciascuna.</value>
   </data>
   <data name="Pag_Contratto" xml:space="preserve">
     <value>{0} · motore {1} · risposta {2} KB intatti</value>

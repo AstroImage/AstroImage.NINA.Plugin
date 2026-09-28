@@ -26,21 +26,43 @@ namespace AstroImage.NINA.Plugin.Services {
             public List<VoceRuota> Orfane { get; } = new List<VoceRuota>();
             /// <summary>Perche' la domanda non parte, nella lingua di chi guarda. Null quando parte.</summary>
             public string? Rifiuto { get; set; }
+            /// <summary>Il codice del rifiuto: `ruota_solo_orfane`, o `camera_non_nota` quando per scegliere i vetri serve
+            /// la camera e non si sa. Null quando parte.</summary>
+            public string? Codice { get; set; }
+            /// <summary>La camera della dichiarazione usata, `mono` o `colore`; null quando le due camere dicono gli stessi
+            /// vetri, o quando la ruota l'ha mandata la pagina.</summary>
+            public string? Camera { get; set; }
         }
 
         /// <param name="corpo">Il corpo come la pagina l'ha scritto.</param>
         /// <param name="dichiarazione">La ruota dichiarata del profilo attivo.</param>
         /// <param name="nomiInRuota">I nomi dei filtri nella ruota del profilo attivo, adesso.</param>
-        public static Esito Componi(JsonObject? corpo, RuotaVirtuale? dichiarazione, IEnumerable<string>? nomiInRuota) {
+        public static Esito Componi(JsonObject? corpo, RuotaVirtuale? dichiarazione, IEnumerable<string>? nomiInRuota) =>
+            Componi(corpo, dichiarazione, nomiInRuota, null);
+
+        /// <param name="camera">La camera del banco, `mono` o `colore` (<see cref="DichiarazioneRuota.Camera"/>), o null
+        /// se non si sa.</param>
+        /// <remarks>LE DUE CAMERE (regia, 28 settembre 2026): parte la dichiarazione della camera del banco. Senza la camera,
+        /// parte la dichiarazione se le due camere dicono gli stessi vetri; se no la domanda non parte, e si dice perche':
+        /// scegliere a caso vorrebbe dire calcolare sui vetri dell'altra camera, il difetto dell'RGB puro su una mono.</remarks>
+        public static Esito Componi(JsonObject? corpo, RuotaVirtuale? dichiarazione, IEnumerable<string>? nomiInRuota, string? camera) {
             var e = new Esito();
             var c = corpo ?? new JsonObject();
             if (c["ruota"] is null) {
-                var ids = DichiarazioneRuota.PerLaRichiesta(dichiarazione, nomiInRuota, out var orfane);
+                if (camera is null && !DichiarazioneRuota.UgualePerLeDueCamere(dichiarazione)) {
+                    e.Codice = "camera_non_nota";
+                    e.Rifiuto = Loc.T("Ruota_CameraNonNota");
+                    return e;
+                }
+                e.Camera = camera;
+                var vista = DichiarazioneRuota.PerCamera(dichiarazione, camera ?? DichiarazioneRuota.CameraMono);
+                var ids = DichiarazioneRuota.PerLaRichiesta(vista, nomiInRuota, out var orfane);
                 e.Orfane.AddRange(orfane);
                 /*  SOLO ORFANE, E LA DOMANDA NON PARTE. Mandare una ruota vuota vorrebbe dire i filtri di serie del
                  *  motore — il servizio non distingue vuota da non dichiarata —, e non mandarla sarebbe lo stesso:
                  *  una prescrizione calcolata su filtri che non sono i tuoi, dopo che li avevi dichiarati. */
                 if (ids.Count == 0 && orfane.Count > 0) {
+                    e.Codice = "ruota_solo_orfane";
                     e.Rifiuto = Loc.F("Ruota_SoloOrfane",
                         string.Join(", ", orfane.Select(o => "«" + o.Nina + "» (" + o.Motore + ")")));
                     return e;

@@ -9,6 +9,9 @@
      deve sopravvivere a un salvataggio e a un cambio di lingua: sarebbe seccante
      tornare ogni volta allo slot 0 dopo aver dichiarato il settimo. */
   let slotScelto = 0;
+  /* Le due camere della ruota (28 settembre 2026): l'ultima configurazione arrivata, per ridisegnarla quando cambia la
+     camera del banco, e quale delle due si sta guardando — null segue la camera del banco. */
+  let ultimaRuota = null, cameraRuotaVista = null;
   /* Dove sei. La geometria viene dal profilo di N.I.N.A.; il resto da uno strumento
      se c'e', dalla dichiarazione se no. Qui dentro non c'e' nessun numero di serie:
      fino a ieri ce ne erano sette, ed erano Borno. */
@@ -537,7 +540,7 @@
     if (!$('oggettiStanotte')) return;
     const mia = ++ultimaOggetti;
     chiedi('oggetti', { sito: sitoDaMandare(), banco: bancoDaMandare(false), quando: { data: $('data').value.trim() },
-                        opzioni: { copertura: coperturaScelta() } }).then(r => {
+                        opzioni: { copertura: coperturaScelta() } }, { camera: cameraDeiFiltri() }).then(r => {
       if (mia !== ultimaOggetti) return;
       let p = null;
       try { p = r && r.corpo ? JSON.parse(r.corpo) : null; } catch (e) { p = null; }
@@ -561,7 +564,8 @@
     if (!schedaScelta) return;
     const mia = ++ultimaScheda;
     chiedi('scheda', { sito: sitoDaMandare(), banco: bancoDaMandare(false), quando: { data: $('data').value.trim() },
-                       opzioni: { copertura: coperturaScelta() }, bersaglio: { id: schedaScelta.id || schedaScelta.nome } }).then(r => {
+                       opzioni: { copertura: coperturaScelta() }, bersaglio: { id: schedaScelta.id || schedaScelta.nome } },
+           { camera: cameraDeiFiltri() }).then(r => {
       if (mia !== ultimaScheda) return;
       let p = null;
       try { p = r && r.corpo ? JSON.parse(r.corpo) : null; } catch (e) { p = null; }
@@ -999,16 +1003,29 @@
    *  che la domanda manderebbe — il driver, la voce scritta, o la camera descritta — appena ci sono la camera, il banco e
    *  i suoi campi, e dopo ogni salvataggio. Vince l'ultima domanda. */
   let ultimoRiconoscimento = 0, cameraDelBanco = null;
+  /*  LA CAMERA DEI FILTRI (regia, 28 settembre 2026): la matrice della camera del banco come il motore l'ha riconosciuta —
+   *  vince quella collegata —, «mono» o «colore»; null finche' non la si conosce. Parte con ogni domanda: l'ospite sceglie
+   *  con questa quale delle due dichiarazioni dei filtri mandare. */
+  const cameraDeiFiltri = () => {
+    const m = cameraDelBanco && cameraDelBanco.dati && cameraDelBanco.dati.matrice;
+    return m === 'mono' || m === 'colore' ? m : null;
+  };
   function riconosciLaCamera() {
     const mia = ++ultimoRiconoscimento;
+    const prima = cameraDeiFiltri();
+    const cambiata = () => {
+      disegnaBanco();
+      /*  un'altra camera, altri filtri: la lista si richiede, e la vista dei filtri torna su quella della camera */
+      if (cameraDeiFiltri() !== prima) { cameraRuotaVista = null; aggiornaOggettiPresto(); if (ultimaRuota) disegnaRuota(ultimaRuota); }
+    };
     const cam = bancoDaMandare().cam;
-    if (!cam || typeof cam !== 'object' || !Object.keys(cam).length) { cameraDelBanco = null; disegnaBanco(); return; }
+    if (!cam || typeof cam !== 'object' || !Object.keys(cam).length) { cameraDelBanco = null; cambiata(); return; }
     chiedi('riconosciCamera', null, { cam: cam }).then(r => {
       if (mia !== ultimoRiconoscimento) return;
       let c = null;
       try { c = r.ok ? JSON.parse(r.corpo).camera : null; } catch (e) { c = null; }
       cameraDelBanco = c || null;
-      disegnaBanco();
+      cambiata();
     });
   }
 
@@ -1246,7 +1263,7 @@
                                modoScelto ? { strategia: modoScelto } : {},
                                politicaScelta ? { politica: politicaScelta } : {},
                                stradaScelta ? { strada: stradaScelta } : {})
-    });
+    }, { camera: cameraDeiFiltri() });
 
     $('vai').disabled = false;
 
@@ -1297,7 +1314,10 @@
          si somigliano troppo — e la prima volta ci ha fregati per mezz'ora. */
       '<tr><th>' + T('Pag_RigaCalcolataSu') + '</th><td>' +
         (r.ruotaAggiunta && r.ruotaAggiunta.length
-          ? MF('Pag_CalcolataTuaRuota', r.ruotaAggiunta.map(esc).join(' · '))
+          ? MF('Pag_CalcolataTuaRuota', r.ruotaAggiunta.map(esc).join(' · ')) +
+            /*  con quale delle due dichiarazioni sono partiti: nessuna parola quando le due camere dicono gli stessi */
+            (r.cameraDeiFiltri ? ' <span style="opacity:.7">(' +
+              esc(T(r.cameraDeiFiltri === 'colore' ? 'Pag_RuotaConColore' : 'Pag_RuotaConMono')) + ')</span>' : '')
           : '<span style="color:#e0a030">' + MF('Pag_CalcolataDiSerie') + '</span>') +
         /*  I FILTRI DEL PROGETTO: con un progetto aperto il motore calcola la strada intera, anche coi filtri che stanotte
          *  non sono in ruota; senza questa riga «la tua ruota» direbbe meno filtri di quelli del calcolo. */
@@ -2188,20 +2208,29 @@
   }
 
   function disegnaRuota(r) {
+    ultimaRuota = r;
     righeRuota = r.righe || [];
-    /*  La ruota puo' essere cambiata sotto: un filtro tolto, il profilo cambiato. Se
-     *  lo slot che si stava guardando non c'e' piu', si torna al primo invece di
-     *  leggere fuori dall'elenco. */
-    if (slotScelto >= righeRuota.length) { slotScelto = 0; }
     catalogo = r.catalogo || [];
     catalogoOk = !!r.catalogoDisponibile;
     diSerie = r.diSerie || [];
+    /*  LE DUE CAMERE (regia, 28 settembre 2026): su ogni nome della ruota due filtri dichiarati, uno per la mono e uno per
+     *  la colore. Si guarda la dichiarazione della camera del banco, o l'altra se la si sceglie; «in uso» sta sulla camera
+     *  del banco, che e' quella che parte con le domande. */
+    const inUso = cameraDeiFiltri();
+    const cam = cameraRuotaVista || inUso || 'mono';
+    const visibili = righeRuota.map((x, i) => ({ x, i })).filter(o => o.x[cam]);
+    /*  La ruota puo' essere cambiata sotto: un filtro tolto, il profilo cambiato. Se
+     *  lo slot che si stava guardando non c'e' piu', si torna al primo invece di
+     *  leggere fuori dall'elenco. E se c'e' ma con questa camera non si vede, al primo che si vede. */
+    if (slotScelto >= righeRuota.length) { slotScelto = 0; }
+    if (!righeRuota[slotScelto] || !righeRuota[slotScelto][cam]) slotScelto = visibili.length ? visibili[0].i : 0;
 
     const avvisi = [];
     if (r.ruotaVuota) avvisi.push(esc(r.ruotaVuota));
     if (r.nota) avvisi.push(esc(r.nota));
     if (!catalogoOk) avvisi.push(MF('Pag_MotoreZitto'));
     if (!r.dichiarati) avvisi.push(MF('Pag_NessunFiltroDichiarato', diSerie.map(esc).join(', ')));
+    if (!inUso) avvisi.push(esc(T('Pag_RuotaCameraNonNota')));
 
     /* «nessun filtro» e' una scelta legittima, non un'assenza: su una camera a
        matrice il motore puo' dire che davanti non ci va niente. Chi ha uno slot
@@ -2253,31 +2282,43 @@
       return '<span class="banda ' + cl + '">' + esc(x.banda) + '</span>';
     };
 
+    /*  LE DUE CAMERE, come le viste della lista: si sceglie quale dichiarazione guardare e modificare. */
+    const camere = '<div style="margin:.6em 0"><span class="vista-oggetti" role="group">' + ['mono', 'colore'].map(c =>
+      '<button type="button" data-camera-ruota="' + c + '" class="' + (c === cam ? 'on' : '') + '" aria-pressed="' + (c === cam) + '">' +
+        esc(T(c === 'mono' ? 'Pag_RuotaConMono' : 'Pag_RuotaConColore')) +
+        (c === inUso ? ' <span class="pill p-ok">' + esc(T('Pag_RuotaInUso')) + '</span>' : '') + '</button>').join('') +
+      '</span></div>';
+
     /*  LA FILA DEGLI SLOT, nell'ordine fisico in cui stanno nella ruota. Anche quelli
      *  non dichiarati ci sono: uno slot che non si vede e' un'assenza che si scopre
-     *  sotto il cielo. */
-    const fila = righeRuota.map((x, i) =>
-      '<button type="button" class="slot' + (x.stato === 'orfano' ? ' orfano' : '') + '"' +
+     *  sotto il cielo. Un nome dichiarato solo con l'altra camera, e che in ruota non c'e', qui non c'e'. */
+    const fila = visibili.map(({ x: riga, i }) => {
+      /*  `x` e' il filtro di questo nome con la camera che si guarda, `riga` il nome col suo slot */
+      const x = riga[cam];
+      return '<button type="button" class="slot' + (x.stato === 'orfano' ? ' orfano' : '') + '"' +
         ' data-riga="' + i + '" aria-pressed="' + (i === slotScelto) + '"' +
         ' title="' + esc(MF('Pag_SlotNumero',
-              x.slot === null || x.slot === undefined ? '?' : x.slot) +
-            ' · ' + x.nina + ' · ' + (spiega[x.stato] || '')) + '">' +
+              riga.slot === null || riga.slot === undefined ? '?' : riga.slot) +
+            ' · ' + riga.nina + ' · ' + (spiega[x.stato] || '')) + '">' +
         '<span class="slot-n">' +
-          (x.slot === null || x.slot === undefined ? '&mdash;' : x.slot) + '</span>' +
+          (riga.slot === null || riga.slot === undefined ? '&mdash;' : riga.slot) + '</span>' +
         pastiglia(x) +
-        '<span class="slot-nome">' + esc(x.nina) +
-          (x.ambiguo ? ' <span title="' + esc(T('Pag_TipAmbiguo')) + '">&#9888;</span>' : '') +
+        '<span class="slot-nome">' + esc(riga.nina) +
+          (riga.ambiguo ? ' <span title="' + esc(T('Pag_TipAmbiguo')) + '">&#9888;</span>' : '') +
         '</span>' +
         /*  Nella scheda solo il segno; la parola sta nel suggerimento del riquadro,
          *  e sta SEMPRE scritta per esteso nella scheda dello slot scelto. Cosi' dieci
          *  slot stanno sott'occhio insieme senza che lo stato diventi un colore muto:
          *  il suggerimento e' una comodita', non l'unico modo di saperlo. */
         '<span class="slot-stato">' + (stati[x.stato] || '') + '</span>' +
-      '</button>').join('');
+      '</button>';
+    }).join('');
 
     /*  LA SCHEDA DI QUELLO SCELTO. Una tendina sola invece di dieci: la fila si legge,
      *  la scheda si tocca. E i dati che mancano si vedono mancare. */
-    const scelto = righeRuota[slotScelto];
+    /*  `scelto` e' il filtro dello slot scelto con la camera che si guarda, `rigaScelta` il nome col suo slot */
+    const rigaScelta = righeRuota[slotScelto];
+    const scelto = rigaScelta && rigaScelta[cam];
     const vScelto = scelto && scelto.id ? vociCatalogo[scelto.id] : null;
     const dato = (chiave, valore) =>
       '<span class="dato"><span class="k">' + esc(T(chiave)) + '</span>' +
@@ -2288,9 +2329,9 @@
     const scheda = !scelto ? '' :
       '<div class="scheda">' +
         '<div class="scheda-titolo"><span class="slot-n">' +
-          esc(MF('Pag_SlotNumero', scelto.slot === null || scelto.slot === undefined
-                                    ? '&mdash;' : scelto.slot)) +
-        '</span><b>' + esc(scelto.nina) + '</b></div>' +
+          esc(MF('Pag_SlotNumero', rigaScelta.slot === null || rigaScelta.slot === undefined
+                                    ? '&mdash;' : rigaScelta.slot)) +
+        '</span><b>' + esc(rigaScelta.nina) + '</b></div>' +
         '<label>' + esc(T('Pag_ColEQuestoFiltro')) + ' ' +
           '<select data-riga="' + slotScelto + '"' + (catalogoOk ? '' : ' disabled') + '>' +
           opzioni(scelto.id) + '</select></label>' +
@@ -2304,10 +2345,9 @@
         '</div>' +
         (scelto.nota ? '<div style="margin-top:8px;opacity:.8">&#9888; ' +
           esc(scelto.nota) + '</div>' : '') +
-        /*  Il catalogo non dichiara questo filtro per la camera del profilo: non e' un
-         *  divieto, e' un dubbio, e si dice a parole invece che con un'icona muta. */
-        (scelto.stato === 'mappato' && scelto.adatto !== true &&
-         r.cameraAMatrice !== null && r.cameraAMatrice !== undefined
+        /*  Il catalogo non dichiara questo filtro per la camera della dichiarazione: non e' un divieto, e' un dubbio, e si
+         *  dice a parole invece che con un'icona muta. La camera adesso e' quella della riga, non lo schema di Bayer. */
+        (scelto.stato === 'mappato' && scelto.adatto !== true
           ? '<div style="margin-top:8px;opacity:.8">&#9888; ' +
             esc(T('Pag_TipNonAdatto')) + '</div>' : '') +
       '</div>';
@@ -2317,6 +2357,7 @@
       '<b>' + T('Pag_ConfigFiltri') + '</b> — ' + MF('Pag_ConfigFiltriNota') +
       (avvisi.length ? '<div style="margin:.6em 0;opacity:.85">' +
         avvisi.map(a => '<div>&#9888; ' + a + '</div>').join('') + '</div>' : '') +
+      camere +
       '<div class="ruota">' + fila + '</div>' +
       scheda +
       '<div style="margin-top:.7em">' +
@@ -2325,17 +2366,23 @@
         '<span id="esitoFiltri" style="margin-left:.6em;opacity:.8"></span>' +
       '</div></div>';
 
-    /*  Scegliere uno slot ridisegna: lo stato sta in slotScelto, non nel DOM. */
+    /*  Scegliere uno slot, o la camera, ridisegna: lo stato sta in slotScelto e in cameraRuotaVista, non nel DOM. */
     Array.prototype.forEach.call(document.querySelectorAll('#filtri .slot'), b => {
       b.addEventListener('click', () => {
         slotScelto = +b.getAttribute('data-riga');
         disegnaRuota(r);
       });
     });
+    Array.prototype.forEach.call(document.querySelectorAll('#filtri [data-camera-ruota]'), b => {
+      b.addEventListener('click', () => {
+        cameraRuotaVista = b.getAttribute('data-camera-ruota') === 'colore' ? 'colore' : 'mono';
+        disegnaRuota(r);
+      });
+    });
 
     Array.prototype.forEach.call(document.querySelectorAll('#filtri select'), sel => {
       sel.addEventListener('change', () => {
-        righeRuota[+sel.getAttribute('data-riga')].id = sel.value || null;
+        righeRuota[+sel.getAttribute('data-riga')][cam].id = sel.value || null;
         /*  Si ridisegna perche' cambia anche la pastiglia della fila: la scelta si
          *  deve vedere subito dove si guarda, non solo dove si e' cliccato. */
         disegnaRuota(r);
@@ -2345,11 +2392,16 @@
     const b = $('salvaFiltri');
     if (b) b.addEventListener('click', () => {
       $('esitoFiltri').textContent = T('Pag_Salvo');
-      chiedi('salvaFiltri', { vetri: righeRuota.map(x => ({ nina: x.nina, id: x.id, nota: x.nota })) })
+      /*  si manda tutto, le due camere: la dichiarazione arriva intera e sostituisce quella di prima */
+      chiedi('salvaFiltri', { vetri: righeRuota.map(x => ({ nina: x.nina, mono: x.mono ? x.mono.id : null,
+        colore: x.colore ? x.colore.id : null, nota: (x.mono && x.mono.nota) || (x.colore && x.colore.nota) || null })) })
         .then(r2 => {
-          $('esitoFiltri').textContent = r2.ok
-            ? T('Pag_FiltriDichiarati').replace('{0}', r2.dichiarati || 0)
-            : T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '');
+          /*  quanti con la mono e quanti con la colore, quando non sono gli stessi */
+          $('esitoFiltri').textContent = !r2.ok
+            ? T('Pag_NonSalvatoPerche').replace('{0}', r2.messaggio || r2.codice || '')
+            : r2.dichiaratiMono !== undefined && r2.dichiaratiMono !== r2.dichiaratiColore
+              ? T('Pag_RuotaDichiaratiDue').replace('{0}', r2.dichiaratiMono).replace('{1}', r2.dichiaratiColore)
+              : T('Pag_FiltriDichiarati').replace('{0}', r2.dichiarati || 0);
           ritiraDalloSchermo(r2.ritirata);
           if (r2.ok) chiedi('filtri').then(disegnaRuota);
         });
