@@ -222,6 +222,7 @@
         "sicuroFinoA": 16,
         "chiBrucia": "stelle",
         "magProtetta": 11,
+        "muNucleo": null,
         "orologioPari": 1.2760372899942374,
         "orologioPariHM": {
           "ore": 1,
@@ -256,6 +257,7 @@
         "sicuroFinoA": 16,
         "chiBrucia": "stelle",
         "magProtetta": 11,
+        "muNucleo": null,
         "orologioPari": 1.2760372899942374,
         "orologioPariHM": {
           "ore": 1,
@@ -290,6 +292,7 @@
         "sicuroFinoA": 14,
         "chiBrucia": "stelle",
         "magProtetta": 11,
+        "muNucleo": null,
         "orologioPari": 1.2760372899942374,
         "orologioPariHM": {
           "ore": 1,

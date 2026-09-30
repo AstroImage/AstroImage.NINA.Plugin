@@ -1926,6 +1926,12 @@
   <data name="Pag_Serie_Chi_stelle" xml:space="preserve">
     <value>{0}: le stelle fino alla magnitudine {2} restano al sicuro fino a {1} s</value>
   </data>
+  <data name="Pag_Serie_Chi_nucleo_di_galassia" xml:space="preserve">
+    <value>{0}: il nucleo della galassia, col valore che la classe gli assegna (μ_V {2}), resta al sicuro fino a {1} s</value>
+  </data>
+  <data name="Pag_Serie_NucleoDiGalassiaSpiegazione" xml:space="preserve">
+    <value>Stima della classe, non una misura su questa galassia: il centro di un nucleo di galassia visto col seeing di terra, preso dalla più brillante fra le galassie di riferimento. La serie corta lo tiene a metà pozzo, e il margine copre anche i nuclei un po' più brillanti.</value>
+  </data>
   <data name="Pag_Serie_Doppia" xml:space="preserve">
     <value>, e la posa principale è di {0} s: serie corta a {1} s, {2} pose perché ne arrivino {3}.</value>
   </data>

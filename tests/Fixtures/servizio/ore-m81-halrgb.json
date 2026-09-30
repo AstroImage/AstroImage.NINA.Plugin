@@ -7,8 +7,8 @@
    "road": {
     "banda_larga": "soggetto"
    },
-   "hours": 11.330188469428345,
-   "spent": 11.330188469428343,
+   "hours": 11.32587426154296,
+   "spent": 11.325874261542959,
    "unused": 1.7763568394002505e-15,
    "avanzanoDaDire": null,
    "oltreITettiARiga": false,
@@ -20,15 +20,15 @@
      ],
      "critical": true,
      "dropped": false,
-     "floor": 0.023019998196574146,
-     "useful": 1.9089825366546227,
-     "sat": 2.863473804981934,
-     "hours": 4.58486543709682,
+     "floor": 0.023002605293916862,
+     "useful": 1.906828901824346,
+     "sat": 2.860243352736519,
+     "hours": 4.581283116137129,
      "comanda": true,
      "oreProprie": {
-      "floor": 0.023019998196574146,
-      "saturates": 2.863473804981934,
-      "useful": 1.9089825366546227
+      "floor": 0.023002605293916862,
+      "saturates": 2.860243352736519,
+      "useful": 1.906828901824346
      },
      "pratica": {
       "coloreSuL": 1.29,
@@ -49,14 +49,14 @@
      "floor": 0.011882930827826363,
      "useful": 1.035150405770636,
      "sat": 1.552725608655954,
-     "hours": 5.178856647106976,
+     "hours": 5.178444960711273,
      "puntiDArresto": {
       "colore": 1.552725608655954,
-      "luminanza": 2.863473804981934,
+      "luminanza": 2.860243352736519,
       "luminanzaSenzaArresto": true,
       "oltreDallaPratica": true,
       "coloreDiProgetto": 1.552725608655954,
-      "luminanzaDiProgetto": 2.863473804981934
+      "luminanzaDiProgetto": 2.860243352736519
      }
     },
     {
@@ -69,7 +69,7 @@
      "floor": 1.1337920815192135,
      "useful": 2.267584163038427,
      "sat": 3.968272285317247,
-     "hours": 1.5664663852245473,
+     "hours": 1.5661461846945564,
      "additivo": true,
      "aggiunta": {
       "rapportoDellaPratica": 0.91,
@@ -89,12 +89,12 @@
   "valutazione": {
    "budget": {
     "L": {
-     "floor": 0.023019998196574146,
-     "useful": 1.9089825366546227,
-     "saturates": 2.863473804981934,
+     "floor": 0.023002605293916862,
+     "useful": 1.906828901824346,
+     "saturates": 2.860243352736519,
      "confidence": "media",
      "tettoDellaScheda": {
-      "scritto": 5.555229910631585,
+      "scritto": 5.548641937351209,
       "sotto": false
      },
      "ore": {
@@ -110,14 +110,14 @@
        "valore": 21.369,
        "unita": "mag/arcsec²",
        "banda": "V",
-       "ore": 0.023019998196574146
+       "ore": 0.023002605293916862
       },
       "utile": {
        "codice": "bordo_d25",
        "valore": 23.985,
        "unita": "mag/arcsec²",
        "banda": "V",
-       "ore": 1.9089825366546227
+       "ore": 1.906828901824346
       }
      }
     },
@@ -180,12 +180,12 @@
    "banda": "L",
    "snr": 12,
    "unita": "mag/arcsec²",
-   "arrivi": 25.274536460199663,
+   "arrivi": 25.316598352169876,
    "elemento": {
     "fwhm": 1.940326079663993
    },
    "muLim": {
-    "valore": 28.6981877254459,
+    "valore": 28.74055739229977,
     "unita": "mag/arcsec²",
     "sigma": 3,
     "lato": 10

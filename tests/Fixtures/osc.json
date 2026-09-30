@@ -49,50 +49,89 @@
       ],
       "gruppo": "RGB",
       "filtro": "L",
-      "sec": 180,
-      "n": 131,
-      "poseCanale": 131,
-      "oreCanale": 6.55,
+      "sec": 60,
+      "n": 394,
+      "poseCanale": 394,
+      "oreCanale": 6.566666666666666,
       "oreCanaleHM": {
         "ore": 6,
-        "minuti": 33
+        "minuti": 34
       },
       "perBanda": true,
-      "limite": "strategia",
+      "limite": "soggetto_satura",
       "ruolo": null,
       "gain": 0,
       "offset": 50,
       "gainFonte": "motore",
       "modo": "LCG",
-      "ore": 6.55
+      "ore": 6.566666666666666
     }
   ],
   "totale": {
-    "pose": 131,
-    "ore": 6.55,
+    "pose": 394,
+    "ore": 6.566666666666666,
     "oreHM": {
       "ore": 6,
-      "minuti": 33
+      "minuti": 34
     },
-    "orologio": 6.841111111111111,
+    "orologio": 7.442222222222222,
     "orologioHM": {
-      "ore": 6,
-      "minuti": 50
+      "ore": 7,
+      "minuti": 27
     },
     "perGruppo": {
-      "RGB": 6.55
+      "RGB": 6.566666666666666
     },
     "perGruppoHM": {
       "RGB": {
         "ore": 6,
-        "minuti": 33
+        "minuti": 34
       }
     }
   },
   "nonFusi": [],
   "serieCorta": {
     "senzaSerie": null,
-    "perBanda": {}
+    "perBanda": {
+      "RGB": {
+        "decisa": "fisica",
+        "forma": "unica",
+        "motivoDiClasse": null,
+        "pareggio": true,
+        "posaPrincipale": 180,
+        "serieSec": null,
+        "seriePose": null,
+        "serieDaConsegnare": null,
+        "nonBasta": null,
+        "posaUnica": 60,
+        "sicuroFinoA": 112,
+        "chiBrucia": "nucleo_di_galassia",
+        "magProtetta": null,
+        "muNucleo": 14,
+        "orologioPari": 1.9034361910874167,
+        "orologioPariHM": {
+          "ore": 1,
+          "minuti": 54
+        },
+        "posaRiferimento": 180,
+        "equivalenti": {
+          "doppia": 1.533077204232633,
+          "unica": 1.535280878747166
+        },
+        "equivalentiHM": {
+          "doppia": {
+            "ore": 1,
+            "minuti": 32
+          },
+          "unica": {
+            "ore": 1,
+            "minuti": 32
+          }
+        },
+        "tettoFotosito": null,
+        "tettoDaRighe": null
+      }
+    }
   },
   "dither": {
     "ogniPose": 2

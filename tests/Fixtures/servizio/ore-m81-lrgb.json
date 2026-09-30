@@ -7,9 +7,9 @@
    "road": {
     "banda_larga": "soggetto"
    },
-   "hours": 3.9333431437731665,
-   "spent": 3.933343143773126,
-   "unused": 4.04121180963557e-14,
+   "hours": 3.931695296447135,
+   "spent": 3.9316952964470744,
+   "unused": 6.039613253960852e-14,
    "avanzanoDaDire": null,
    "oltreITettiARiga": false,
    "alloc": [
@@ -20,15 +20,15 @@
      ],
      "critical": true,
      "dropped": false,
-     "floor": 0.023019998196574146,
-     "useful": 1.9089825366546227,
-     "sat": 2.863473804981934,
-     "hours": 2.5497067915544123,
+     "floor": 0.023002605293916862,
+     "useful": 1.906828901824346,
+     "sat": 2.860243352736519,
+     "hours": 2.5486336309833133,
      "comanda": true,
      "oreProprie": {
-      "floor": 0.023019998196574146,
-      "saturates": 2.863473804981934,
-      "useful": 1.9089825366546227
+      "floor": 0.023002605293916862,
+      "saturates": 2.860243352736519,
+      "useful": 1.906828901824346
      },
      "pratica": {
       "coloreSuL": 1.29,
@@ -49,14 +49,14 @@
      "floor": 0.011882930827826363,
      "useful": 1.035150405770636,
      "sat": 1.552725608655954,
-     "hours": 1.3836363522187138,
+     "hours": 1.3830616654637613,
      "puntiDArresto": {
       "colore": 1.552725608655954,
-      "luminanza": 2.863473804981934,
+      "luminanza": 2.860243352736519,
       "luminanzaSenzaArresto": true,
       "oltreDallaPratica": true,
       "coloreDiProgetto": 1.552725608655954,
-      "luminanzaDiProgetto": 2.863473804981934
+      "luminanzaDiProgetto": 2.860243352736519
      }
     }
    ]
@@ -64,12 +64,12 @@
   "valutazione": {
    "budget": {
     "L": {
-     "floor": 0.023019998196574146,
-     "useful": 1.9089825366546227,
-     "saturates": 2.863473804981934,
+     "floor": 0.023002605293916862,
+     "useful": 1.906828901824346,
+     "saturates": 2.860243352736519,
      "confidence": "media",
      "tettoDellaScheda": {
-      "scritto": 5.555229910631585,
+      "scritto": 5.548641937351209,
       "sotto": false
      },
      "ore": {
@@ -85,14 +85,14 @@
        "valore": 21.369,
        "unita": "mag/arcsec²",
        "banda": "V",
-       "ore": 0.023019998196574146
+       "ore": 0.023002605293916862
       },
       "utile": {
        "codice": "bordo_d25",
        "valore": 23.985,
        "unita": "mag/arcsec²",
        "banda": "V",
-       "ore": 1.9089825366546227
+       "ore": 1.906828901824346
       }
      }
     },
@@ -155,12 +155,12 @@
    "banda": "L",
    "snr": 12,
    "unita": "mag/arcsec²",
-   "arrivi": 25.09710035704979,
+   "arrivi": 25.13720628921171,
    "elemento": {
     "fwhm": 1.940326079663993
    },
    "muLim": {
-    "valore": 28.52199339277913,
+    "valore": 28.562476331426474,
     "unita": "mag/arcsec²",
     "sigma": 3,
     "lato": 10

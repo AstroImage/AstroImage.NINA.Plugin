@@ -97,11 +97,11 @@
       "filtro": "R",
       "sec": 30,
       "n": 18,
-      "poseCanale": 52,
-      "oreCanale": 0.4333333333333333,
+      "poseCanale": 54,
+      "oreCanale": 0.44999999999999996,
       "oreCanaleHM": {
         "ore": 0,
-        "minuti": 26
+        "minuti": 27
       },
       "perBanda": true,
       "limite": "colore_stellare",
@@ -120,11 +120,11 @@
       "filtro": "G",
       "sec": 30,
       "n": 18,
-      "poseCanale": 52,
-      "oreCanale": 0.4333333333333333,
+      "poseCanale": 54,
+      "oreCanale": 0.44999999999999996,
       "oreCanaleHM": {
         "ore": 0,
-        "minuti": 26
+        "minuti": 27
       },
       "perBanda": true,
       "limite": "colore_stellare",
@@ -143,11 +143,11 @@
       "filtro": "B",
       "sec": 30,
       "n": 18,
-      "poseCanale": 52,
-      "oreCanale": 0.4333333333333333,
+      "poseCanale": 54,
+      "oreCanale": 0.44999999999999996,
       "oreCanaleHM": {
         "ore": 0,
-        "minuti": 26
+        "minuti": 27
       },
       "perBanda": true,
       "limite": "colore_stellare",

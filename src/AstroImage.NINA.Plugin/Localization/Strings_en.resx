@@ -1926,6 +1926,12 @@
   <data name="Pag_Serie_Chi_stelle" xml:space="preserve">
     <value>{0}: stars down to magnitude {2} stay safe up to {1} s</value>
   </data>
+  <data name="Pag_Serie_Chi_nucleo_di_galassia" xml:space="preserve">
+    <value>{0}: the galaxy core, with the value its class assigns (μ_V {2}), stays safe up to {1} s</value>
+  </data>
+  <data name="Pag_Serie_NucleoDiGalassiaSpiegazione" xml:space="preserve">
+    <value>A class estimate, not a measurement on this galaxy: the centre of a galaxy core as seen through ground seeing, taken from the brightest of the reference galaxies. The short series keeps it at half well, and the margin also covers somewhat brighter cores.</value>
+  </data>
   <data name="Pag_Serie_Doppia" xml:space="preserve">
     <value>, and the main exposure is {0} s: a short series at {1} s, {2} frames so that {3} arrive.</value>
   </data>

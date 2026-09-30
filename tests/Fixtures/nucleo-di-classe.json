@@ -255,6 +255,7 @@
         "sicuroFinoA": 117,
         "chiBrucia": "soggetto",
         "magProtetta": null,
+        "muNucleo": null,
         "orologioPari": 1.9959089630221305,
         "orologioPariHM": {
           "ore": 2,
@@ -292,6 +293,7 @@
         "sicuroFinoA": null,
         "chiBrucia": null,
         "magProtetta": null,
+        "muNucleo": null,
         "orologioPari": null,
         "orologioPariHM": null,
         "posaRiferimento": null,

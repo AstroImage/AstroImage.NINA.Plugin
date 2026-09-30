@@ -762,13 +762,23 @@ namespace AstroImage.NINA.Plugin.Models {
         [JsonPropertyName("sicuroFinoA")]
         public double? SicuroFinoA { get; set; }
 
-        /// <summary>Chi pone quel limite: <c>soggetto</c>, <c>nucleo_misurato</c> o <c>stelle</c>.</summary>
+        /// <summary>
+        /// Chi pone quel limite: <c>soggetto</c>, <c>nucleo_misurato</c>, <c>stelle</c> o <c>nucleo_di_galassia</c> — il
+        /// nucleo di una galassia, col valore che la classe gli assegna.
+        /// </summary>
         [JsonPropertyName("chiBrucia")]
         public string? ChiBrucia { get; set; }
 
         /// <summary>La magnitudine protetta, quando bruciano le stelle.</summary>
         [JsonPropertyName("magProtetta")]
         public double? MagProtetta { get; set; }
+
+        /// <summary>
+        /// La brillanza del nucleo di classe, in mag/arcsec² nella banda V e al decimo, quando brucia il nucleo di una
+        /// galassia: e' un numero di classe, e il pannello lo dice come tale.
+        /// </summary>
+        [JsonPropertyName("muNucleo")]
+        public double? MuNucleo { get; set; }
 
         /// <summary>Le ore del canale nel piano: le ore a pari delle quali si confrontano le due forme.</summary>
         [JsonPropertyName("orologioPari")]

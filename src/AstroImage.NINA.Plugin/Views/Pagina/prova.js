@@ -1663,7 +1663,7 @@
    *  non vuole la serie arrivano come codici: un codice che la mappa non conosce non si dice. Un pezzo che manca e' una
    *  parte della frase che non si scrive; senza pezzi resta la sola spiegazione generica. */
   const PAROLA_DI_CHI_BRUCIA = { soggetto: 'Pag_Serie_Chi_soggetto', nucleo_misurato: 'Pag_Serie_Chi_nucleo_misurato',
-    stelle: 'Pag_Serie_Chi_stelle' };
+    stelle: 'Pag_Serie_Chi_stelle', nucleo_di_galassia: 'Pag_Serie_Chi_nucleo_di_galassia' };
   const SPIEGAZIONE_SENZA_SERIE = { membri_brillanti_a_ogni_posa: 'Pag_Serie_Senza_membri_brillanti_a_ogni_posa' };
   /*  PERCHE' HA DECISO LA CLASSE: la banda non ha la brillanza del soggetto, o non ce l'ha per ogni riga che porta. Era
    *  una ragione di due; la seconda — il filtro a due righe sul sensore a colori — il servizio non la manda piu', perche'
@@ -1701,7 +1701,14 @@
       ? ((q.tettoDaRighe === 'al_piu' ? vocePropria(PAROLA_DI_CHI_BRUCIA_AL_PIU, q.chiBrucia) : null) ||
          vocePropria(PAROLA_DI_CHI_BRUCIA, q.chiBrucia)) : null;
     if (!chi || q.sicuroFinoA == null || q.posaPrincipale == null) return '';
-    let f = MF(chi, esc(etichetta), n(q.sicuroFinoA), n(q.magProtetta)) + fotositoDi(q);
+    /*  IL NUCLEO DELLA GALASSIA ha una brillanza della sua classe, non misurata: il numero arriva coi pezzi e si segna
+     *  come il tetto di classe, in giallo, con la sua spiegazione. Senza il numero la frase non si scrive. */
+    const galassia = q.chiBrucia === 'nucleo_di_galassia';
+    if (galassia && q.muNucleo == null) return '';
+    const terzo = galassia
+      ? '<span class="limite classe" title="' + esc(T('Pag_Serie_NucleoDiGalassiaSpiegazione')) + '">' + cifra(q.muNucleo, 1) + '</span>'
+      : n(q.magProtetta);
+    let f = MF(chi, esc(etichetta), n(q.sicuroFinoA), terzo) + fotositoDi(q);
     const e = q.equivalenti || {}, eh = q.equivalentiHM || {};
     const pari = q.orologioPari != null ? oreScritte(q.orologioPariHM, q.orologioPari) : null;
     const eqD = e.doppia != null ? oreScritte(eh.doppia, e.doppia) : null;

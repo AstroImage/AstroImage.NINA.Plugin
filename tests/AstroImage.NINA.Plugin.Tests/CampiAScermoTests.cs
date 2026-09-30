@@ -30,7 +30,7 @@ namespace AstroImage.NINA.Plugin.Tests {
     public class CampiAScermoTests {
 
         private static readonly string[] Vive = { "mono", "completo", "osc", "osc-hdr", "mono-hdr",
-                                                  "forma-unica", "nucleo-di-classe", "senza-serie", "pareggio",
+                                                  "forma-unica", "nucleo-di-classe", "nucleo-di-galassia", "senza-serie", "pareggio",
                                                   "duale-al-piu", "duale-almeno" };
 
         /*  LE MAPPE CHE LA PAGINA USA DAVVERO. Una prova che compone la chiave — "Pag_Ruolo_" + codice — guarda il
@@ -408,6 +408,31 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsTrue(provati > 0, "nessuna serie decisa dalle stelle nella risposta: questo verde non vale");
         }
 
+        /*  LA BRILLANZA DEL NUCLEO DI CLASSE E' QUELLA CON CUI LA POSA E' STATA DECISA (30 settembre 2026). Il perche' della
+         *  serie la dice, in giallo, al decimo; la risposta intera la porta anche nella posa, `posa.<canale>.ex.nucleoDiClasse.mu`.
+         *  Se il numero del perche' cambiasse da solo, il pannello direbbe una brillanza su cui nessuna posa e' stata decisa. */
+        [TestMethod]
+        public void MuNucleo_ELaBrillanzaConCuiLaPosaEStataDecisa() {
+            var testo = File.ReadAllText(Path.Combine(CartellaFixture, "servizio", "prescrizione-galassia.json"));
+            var prodotto = JsonNode.Parse(testo)!["prodotto"]!;
+            var posa = prodotto["posa"]!.AsObject();
+            var provati = 0;
+            foreach (var s in prodotto["sequenze"]!.AsArray()) {
+                var sc = s!["modello"]!["serieCorta"];
+                if (sc is null) continue;
+                foreach (var kv in sc["perBanda"]!.AsObject()) {
+                    var q = kv.Value!;
+                    if (q["chiBrucia"]?.GetValue<string>() != "nucleo_di_galassia") continue;
+                    provati++;
+                    var dallaPosa = posa[kv.Key]?["ex"]?["nucleoDiClasse"]?["mu"];
+                    Assert.IsNotNull(dallaPosa, $"{kv.Key}: la serie dice il nucleo di classe, e la posa non dice con quale brillanza");
+                    Assert.AreEqual(System.Math.Round(dallaPosa!.GetValue<double>(), 1), q["muNucleo"]!.GetValue<double>(), 1e-9,
+                        $"{kv.Key}: il perche' dice μ_V {q["muNucleo"]}, la posa e' stata decisa su {dallaPosa}");
+                }
+            }
+            Assert.IsTrue(provati > 0, "nessuna serie decisa dal nucleo di una galassia nella risposta: questo verde non vale");
+        }
+
         /*  I pezzi in ore e minuti tornano col decimale che accompagnano, e ci sono se e solo se c'e' lui. */
         [TestMethod]
         public void SerieCorta_OreEMinutiTornanoColDecimale() {
@@ -439,7 +464,7 @@ namespace AstroImage.NINA.Plugin.Tests {
             var chi = MappaDellaPagina("PAROLA_DI_CHI_BRUCIA");
             var senza = MappaDellaPagina("SPIEGAZIONE_SENZA_SERIE");
             var ragioni = MappaDellaPagina("RAGIONE_DELLA_CLASSE");
-            int fisica = 0, altre = 0, senzaSerie = 0;
+            int fisica = 0, altre = 0, senzaSerie = 0, galassie = 0;
             var motivi = new HashSet<string>();
             foreach (var (f, m, banda, q) in Serie()) {
                 var dove = f + "/" + banda;
@@ -454,6 +479,15 @@ namespace AstroImage.NINA.Plugin.Tests {
                      *  magnitudine di stelle da proteggere — un limite di plausibilita', dichiarato come tale */
                     if (q.MagProtetta != null)
                         Assert.IsTrue(q.MagProtetta > -2 && q.MagProtetta <= 20, $"{dove}: {q.MagProtetta} non e' una magnitudine di stelle da proteggere");
+                    /*  la brillanza del nucleo di classe c'e' se e solo se brucia il nucleo di una galassia; il suo dominio e'
+                     *  quello di un centro di galassia visto da terra — un limite di plausibilita', dichiarato come tale: la
+                     *  relazione con la posa la prova MuNucleo_ELaBrillanzaConCuiLaPosaEStataDecisa */
+                    Assert.AreEqual(q.ChiBrucia == "nucleo_di_galassia", q.MuNucleo != null, $"{dove}: la brillanza del nucleo c'e' se e solo se brucia il nucleo di una galassia");
+                    if (q.MuNucleo != null) {
+                        galassie++;
+                        Assert.IsTrue(q.MuNucleo > 10 && q.MuNucleo < 20, $"{dove}: μ_V {q.MuNucleo} non e' la brillanza di un nucleo di galassia");
+                        Parole(dove, "Pag_Serie_NucleoDiGalassiaSpiegazione");
+                    }
                     Assert.IsNull(q.MotivoDiClasse, $"{dove}: decisa dalla fisica, e porta il perche' di una decisione della classe");
                 } else {
                     Assert.IsTrue(q.Decisa == "classe" || q.Decisa == "progetto", $"{dove}: decisa da «{q.Decisa}», che non e' fisica, classe ne' progetto");
@@ -483,8 +517,9 @@ namespace AstroImage.NINA.Plugin.Tests {
                 Assert.AreEqual(0, m.SerieCorta.PerBanda.Count, $"{nome}: la classe non vuole la serie corta, e ne arrivano i pezzi");
                 Assert.IsFalse(m.Blocchi.Any(b => b.Ruolo == "nucleo"), $"{nome}: la classe non vuole la serie corta, e c'e' un nucleo");
             }
-            Assert.IsTrue(fisica > 0 && altre > 0 && senzaSerie > 0,
-                $"le fixture portano {fisica} serie della fisica, {altre} della classe o del progetto, {senzaSerie} classi senza serie: servono tutte e tre");
+            Assert.IsTrue(fisica > 0 && altre > 0 && senzaSerie > 0 && galassie > 0,
+                $"le fixture portano {fisica} serie della fisica, {altre} della classe o del progetto, {senzaSerie} classi senza serie, " +
+                $"{galassie} nuclei di galassia: servono tutti e quattro");
             /*  e la ragione della classe e' una sola: il canale di due righe non e' piu' una ragione, perche' il servizio ne
              *  ricava la posa (23 settembre 2026). Se un giorno tornasse, la mappa della pagina non la direbbe. */
             CollectionAssert.AreEquivalent(new[] { "banda_senza_misura" }, motivi.ToList(),
