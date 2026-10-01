@@ -1452,6 +1452,12 @@
   <data name="Pag_Parziale_modi_di_guadagno_non_noti" xml:space="preserve">
     <value>No gain declared: the sequence keeps the camera's own, and for «{0}» the engine has no well depth and read noise tied to a gain; the exposure — computed with {1} e⁻ and {2} e⁻ — is only indicative.</value>
   </data>
+  <data name="Pag_Parziale_pozzo_dal_driver" xml:space="preserve">
+    <value>Gain {0}, the same on the driver and at capture: for «{1}» the limit is the ADC, {2} e⁻ ({3} bit at {4} e⁻/ADU), and the exposure is set there. The read noise, {5} e⁻, does not come from that gain: the exposure is only indicative.</value>
+  </data>
+  <data name="Pag_Banco_gain_profilo" xml:space="preserve">
+    <value>profile gain</value>
+  </data>
   <data name="Pag_Parziale_pozzo_non_noto" xml:space="preserve">
     <value>Camera full well unknown: placeholder {0} e⁻.</value>
   </data>

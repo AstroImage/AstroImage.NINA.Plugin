@@ -375,6 +375,8 @@
     'mnt.rms_caratteristico_arcsec': 'Pag_Banco_mnt_rms_caratteristico_arcsec',
     'mnt.posa_massima_s': 'Pag_Banco_mnt_posa_massima_s',
     'luna.riferimento_deg': 'Pag_Banco_luna_riferimento_deg',
+    /* il gain della camera nel profilo, letto da N.I.N.A. (1° ottobre 2026) */
+    'gain_profilo': 'Pag_Banco_gain_profilo',
     /* la camera fuori catalogo, descritta a mano (17 settembre 2026) */
     'cam.nome': 'Pag_Banco_Descritta_nome', 'cam.matrice': 'Pag_Banco_Descritta_matrice', 'cam.pixel_um': 'Pag_Banco_Descritta_pixel_um',
     'cam.width_px': 'Pag_Banco_Descritta_width_px', 'cam.height_px': 'Pag_Banco_Descritta_height_px',
@@ -412,6 +414,8 @@
     'coppia_pozzo_rumore_incerta': ['Pag_Parziale_coppia_pozzo_rumore_incerta', ['voce', 'rumore', 'pozzo']],
     /*  la camera senza modi di guadagno: il gain della sequenza, e i due numeri della posa (1° ottobre 2026) */
     'guadagno_senza_modi': ['Pag_Parziale_guadagno_senza_modi', ['gain', 'voce', 'pozzo', 'rumore']],
+    /*  il pozzo che il driver dice, al gain con cui la camera scatta (passo 2, 1° ottobre 2026) */
+    'pozzo_dal_driver': ['Pag_Parziale_pozzo_dal_driver', ['gain', 'voce', 'pozzo', 'bit', 'e_per_adu', 'rumore']],
     'modi_di_guadagno_non_noti': ['Pag_Parziale_modi_di_guadagno_non_noti', ['voce', 'pozzo', 'rumore']],
     'pozzo_non_noto': ['Pag_Parziale_pozzo_non_noto', ['assunto']],
     'filtro_davanti_non_dichiarato': ['Pag_Parziale_filtro_davanti_non_dichiarato', ['voce']],

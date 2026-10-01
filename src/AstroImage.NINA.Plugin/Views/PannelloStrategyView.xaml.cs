@@ -1022,13 +1022,19 @@ namespace AstroImage.NINA.Plugin.Views {
             var vm = DataContext as PannelloStrategyVM;
             if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
 
-            var ottica = vm.Banco.Leggi().Ottica;
+            var letto = vm.Banco.Leggi();
+            var ottica = letto.Ottica;
             var nina = new JsonObject();
             if (ottica is not null)
                 foreach (var (chiave, leggi) in LettureDiNina) {
                     var v = leggi(ottica);
                     if (v is not null) nina[chiave] = v.Value;
                 }
+            /*  IL GAIN DELLA CAMERA NEL PROFILO (1° ottobre 2026): il valore predefinito che N.I.N.A. usa per ogni posa
+             *  che non porta un gain suo. C'e' anche a camera spenta. Parte com'e', anche -1, il «non impostato» di
+             *  N.I.N.A.: che cosa ne segua lo dice il servizio. */
+            var gainProfilo = letto.Camera?.Gain?.Profilo;
+            if (gainProfilo is not null) nina["gain_profilo"] = gainProfilo.Value;
             Rispondi(id, true, null, null, null, 0, null, new JsonObject {
                 ["dichiarato"] = DichiarazioneBanco.PerLaPagina(vm.BancoScritto),
                 ["nina"] = nina,
