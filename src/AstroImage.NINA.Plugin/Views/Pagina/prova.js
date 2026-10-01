@@ -216,13 +216,16 @@
     c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
   /*  IL NUMERO DA LEGGERE (regia, 16 settembre 2026): il separatore decimale della lingua di chi guarda — una parola del
    *  dizionario, virgola o punto — e, da cinque cifre intere in su, lo spazio fine delle migliaia, come la pagina del
-   *  motore. `decimali` fissa le cifre dopo il separatore; senza, il numero resta come e' arrivato. Non si ricava
+   *  motore. `decimali` fissa le cifre dopo il separatore; senza, il numero resta come e' arrivato. Con `alPiu` quelle
+   *  cifre sono un massimo: gli zeri in coda si tolgono dalla scritta, e 45,9500 si legge 45,95. Non si ricava
    *  niente: si scrive. Quello che non e' un numero si scrive com'e', protetto. */
   const MIGLIAIA = new RegExp(String.raw`\B(?=(\d{3})+(?!\d))`, 'g');
-  const cifra = (v, decimali) => {
+  const cifra = (v, decimali, alPiu) => {
     if (v === null || v === undefined || v === '') return '—';
     if (typeof v !== 'number' || !isFinite(v)) return esc(v);
-    const s = decimali == null ? String(v) : v.toFixed(decimali);
+    let s = decimali == null ? String(v) : v.toFixed(decimali);
+    if (alPiu && s.indexOf('.') >= 0) s = s.replace(/\.?0+$/, '');
+    if (s === '-0') s = '0';
     if (s.toLowerCase().indexOf('e') >= 0) return esc(s);
     const parti = s.split('.');
     const intere = parti[0].replace('-', '');
@@ -2093,6 +2096,11 @@
   }
 
   const num = v => cifra(v);
+  /*  LE COORDINATE SI LEGGONO (1° ottobre 2026). Il profilo di N.I.N.A. le tiene come le hai scritte, in gradi, minuti
+   *  e secondi, e in decimale arrivano con quindici cifre: 10°12′07″ e' 10,201944444444443. A schermo bastano quattro
+   *  decimali — una decina di metri —, e gli zeri in coda non si aggiungono. Al motore parte il numero del profilo. */
+  const DECIMALI_DEL_SITO = { lat: 4, lon: 4 };
+  const cifraDelSito = (campo, v) => DECIMALI_DEL_SITO[campo] != null ? cifra(v, DECIMALI_DEL_SITO[campo], true) : num(v);
 
   /*  LA PROVENIENZA DI UN CAMPO DEL SITO. E' un codice, e la parola la mette il dizionario: qui si confrontava la
    *  frase italiana («non disponibile», «dichiarato»), che tradotta avrebbe sbagliato il colore in silenzio e non
@@ -2180,8 +2188,8 @@
           ? '<input data-sito="' + campo + '" value="' + (sitoScritto[campo] === null ||
               sitoScritto[campo] === undefined ? '' : sitoScritto[campo]) +
             '" style="width:70px" spellcheck="false"> ' +
-            (v === null || v === undefined ? '' : '<b>' + num(v) + '</b> ' + unita)
-          : '<b>' + num(v) + '</b> ' + unita) +
+            (v === null || v === undefined ? '' : '<b>' + cifraDelSito(campo, v) + '</b> ' + unita)
+          : '<b>' + cifraDelSito(campo, v) + '</b> ' + unita) +
         ' ' + provenienzaDelSito(campo) + ' <span class="ico spiega" tabindex="0" hidden>i</span></td></tr>';
     };
 
