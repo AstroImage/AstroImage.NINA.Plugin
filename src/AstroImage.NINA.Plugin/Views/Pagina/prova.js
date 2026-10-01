@@ -407,6 +407,9 @@
     'buio_senza_fonte': ['Pag_Parziale_buio_senza_fonte', ['voce', 'valore']],
     'camera_non_riconosciuta': ['Pag_Parziale_camera_non_riconosciuta', ['nome', 'pozzo']],
     'coppia_pozzo_rumore_incerta': ['Pag_Parziale_coppia_pozzo_rumore_incerta', ['voce', 'rumore', 'pozzo']],
+    /*  la camera senza modi di guadagno: il gain della sequenza, e i due numeri della posa (1° ottobre 2026) */
+    'guadagno_senza_modi': ['Pag_Parziale_guadagno_senza_modi', ['gain', 'voce', 'pozzo', 'rumore']],
+    'modi_di_guadagno_non_noti': ['Pag_Parziale_modi_di_guadagno_non_noti', ['voce', 'pozzo', 'rumore']],
     'pozzo_non_noto': ['Pag_Parziale_pozzo_non_noto', ['assunto']],
     'filtro_davanti_non_dichiarato': ['Pag_Parziale_filtro_davanti_non_dichiarato', ['voce']],
     'bin_non_dichiarato': ['Pag_Parziale_bin_non_dichiarato', []],
