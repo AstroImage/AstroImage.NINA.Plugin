@@ -668,8 +668,13 @@ namespace AstroImage.NINA.Plugin.Views {
             if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
             var bersaglio = messaggio?["bersaglio"]?.ToString();
             var banco = messaggio?["banco"]?.ToString();
+            /*  CHE COSA E' ARRIVATO, E CHE COSA C'ERA (2 ottobre 2026): un «Chiudi» che non chiudeva non lasciava traccia,
+             *  e dal registro non si distingueva un clic mai arrivato da un progetto non riconosciuto. */
+            Logger.Info($"[AstroImage] close from the list asked: «{bersaglio}» on «{banco}»");
             var p = ProgettiDelProfilo.Trova(vm.Dichiarazioni.Progetti, bersaglio, banco);
             if (p is null || !vm.Dichiarazioni.Progetti.Remove(p)) {
+                Logger.Warning("[AstroImage] project NOT closed: not found among " + vm.Dichiarazioni.Progetti.Count +
+                               " open — " + string.Join(", ", vm.Dichiarazioni.Progetti.Select(x => $"«{x.Bersaglio}» on «{x.Banco}»")));
                 Rispondi(id, false, null, "nessun_progetto", Loc.T("Progetto_NessunoAperto")); return;
             }
             if (!vm.Dichiarazioni.SalvaProgetti(out var perCheNo)) {
