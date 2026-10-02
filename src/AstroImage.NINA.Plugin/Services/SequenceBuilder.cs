@@ -430,5 +430,53 @@ namespace AstroImage.NINA.Plugin.Services {
             if (contenitore is null) throw new ArgumentNullException(nameof(contenitore));
             mediatore.AddAdvancedTarget(contenitore);
         }
+
+        /// <summary>
+        /// I bersagli che il Sequenziatore Avanzato ha adesso, nell'ordine in cui N.I.N.A. li elenca — lo stesso elenco
+        /// da cui il Framing Assistant fa scegliere il bersaglio da aggiornare.
+        /// </summary>
+        public static IReadOnlyList<IDeepSkyObjectContainer> BersagliPresenti(ISequenceMediator mediatore) {
+            if (mediatore is null) throw new ArgumentNullException(nameof(mediatore));
+            return mediatore.GetAllTargetsInAdvancedSequence()?.ToList() ?? new List<IDeepSkyObjectContainer>();
+        }
+
+        /// <summary>Il nome con cui chi riprende vede il bersaglio: quello dell'oggetto, o quello del contenitore.</summary>
+        public static string? NomeDelBersaglio(IDeepSkyObjectContainer? c) =>
+            string.IsNullOrWhiteSpace(c?.Target?.TargetName) ? c?.Name : c!.Target!.TargetName;
+
+        /// <summary>
+        /// Mette il contenitore al posto del bersaglio numero <paramref name="indice"/> dell'elenco di N.I.N.A., se e'
+        /// ancora quello di nome <paramref name="nome"/>: stesso padre, stessa posizione. Il resto della sequenza non si
+        /// tocca. Vedi SostituzioneDelBersaglio.
+        /// </summary>
+        public static bool Sostituisci(ISequenceMediator mediatore, int indice, string? nome,
+                                       IDeepSkyObjectContainer contenitore, out string? perCheNo) {
+            if (mediatore is null) throw new ArgumentNullException(nameof(mediatore));
+            if (contenitore is null) throw new ArgumentNullException(nameof(contenitore));
+            var presenti = BersagliPresenti(mediatore);
+            if (!SostituzioneDelBersaglio.AncoraQuello(presenti.Select(NomeDelBersaglio).ToList(), indice, nome, out perCheNo))
+                return false;
+            var vecchio = presenti[indice];
+            /*  L'inserimento in una posizione, con l'aggancio al padre, N.I.N.A. lo offre sulla classe e non
+             *  sull'interfaccia (3.2.0.9001): un padre che non e' un SequenceContainer non si tocca. */
+            if (vecchio.Parent is not SequenceContainer padre) {
+                perCheNo = Loc.F("Manda_NonSostituibile", nome ?? string.Empty);
+                return false;
+            }
+            return SostituzioneDelBersaglio.Sostituisci(new PostoNelPadre(padre), vecchio, contenitore, out perCheNo);
+        }
+
+        /*  I quattro gesti di IPostoNellaSequenza, fatti sul contenitore padre di N.I.N.A. */
+        private sealed class PostoNelPadre : IPostoNellaSequenza {
+            private readonly SequenceContainer padre;
+            public PostoNelPadre(SequenceContainer padre) => this.padre = padre;
+            public int Indice(object elemento) => elemento is ISequenceItem i ? padre.Items.IndexOf(i) : -1;
+            public bool Togli(object elemento) => elemento is ISequenceItem i && padre.Remove(i);
+            public void Metti(int indice, object elemento) {
+                if (elemento is not ISequenceItem i) throw new ArgumentException(nameof(elemento));
+                padre.InsertIntoSequenceBlocks(indice, i);
+            }
+            public object? In(int indice) => indice >= 0 && indice < padre.Items.Count ? padre.Items[indice] : null;
+        }
     }
 }

@@ -141,6 +141,24 @@
   <data name="Manda_FiltroNonRisolto" xml:space="preserve">
     <value>{0}. The target was NOT delivered: declare that filter in the filter configuration, or ask for the prescription again with the wheel you actually have.</value>
   </data>
+  <data name="Manda_SostituzioneSenzaNome" xml:space="preserve">
+    <value>No target to replace was indicated: nothing was changed.</value>
+  </data>
+  <data name="Manda_BersaglioCambiato" xml:space="preserve">
+    <value>In the Sequencer, target no. {0} is no longer «{1}»: the sequence changed after you looked at it. Nothing was changed; press «Send» again to see the list again.</value>
+  </data>
+  <data name="Manda_BersaglioNonTrovato" xml:space="preserve">
+    <value>The target to replace is no longer in the Sequencer: nothing was changed.</value>
+  </data>
+  <data name="Manda_SostituzioneRifiutata" xml:space="preserve">
+    <value>The Sequencer did not accept the new target ({0}): the previous one has been put back in its place.</value>
+  </data>
+  <data name="Manda_SostituzioneNonAttecchita" xml:space="preserve">
+    <value>Reading the Sequencer back, the new target was not where the previous one was: the previous one has been put back in its place.</value>
+  </data>
+  <data name="Manda_NonSostituibile" xml:space="preserve">
+    <value>«{0}» is not in a container that can be changed from here: nothing was changed. You can send it as a new target.</value>
+  </data>
   <data name="Manda_NessunFiltroDaDichiarare" xml:space="preserve">
     <value>for “{0}” the engine says to put NO filter in front (the Bayer matrix does the colour). If you have an empty slot or a clear filter, declare it as “no filter” in the configuration</value>
   </data>
@@ -444,6 +462,27 @@
   </data>
   <data name="Pag_NotteAggiunta" xml:space="preserve">
     <value>Night {0} added to the Advanced Sequencer.</value>
+  </data>
+  <data name="Pag_NotteAlPostoDi" xml:space="preserve">
+    <value>Night {0} in the Advanced Sequencer, in place of «{1}».</value>
+  </data>
+  <data name="Pag_Manda_Dove" xml:space="preserve">
+    <value>The Sequencer already has targets. Where should this go?</value>
+  </data>
+  <data name="Pag_Manda_ComeNuovo" xml:space="preserve">
+    <value>As a new target</value>
+  </data>
+  <data name="Pag_Manda_AlPostoDi" xml:space="preserve">
+    <value>In place of «{0}»</value>
+  </data>
+  <data name="Pag_Manda_StessoNome" xml:space="preserve">
+    <value>same name</value>
+  </data>
+  <data name="Pag_Manda_AlPostoNota" xml:space="preserve">
+    <value>Replacing removes that target with all its instructions and puts this night in its place; the start and the end of the sequence stay as they are. N.I.N.A. has no «undo».</value>
+  </data>
+  <data name="Pag_Manda_Annulla" xml:space="preserve">
+    <value>Never mind</value>
   </data>
   <data name="Pag_NotteChiestaUsata" xml:space="preserve">
     <value>asked {0}, used {1}</value>

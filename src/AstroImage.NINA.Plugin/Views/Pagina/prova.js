@@ -1421,15 +1421,47 @@
     u.classList.add('appena-rifatta');
   }
 
+  /*  DOVE VA LA NOTTE (2 ottobre 2026). Se il Sequenziatore ha gia' dei bersagli, prima di consegnare si chiede dove
+   *  metterla: come bersaglio nuovo, o al posto di uno di quelli — l'elenco e' quello del Sequenziatore, come nel
+   *  Framing Assistant di N.I.N.A. Quello che ha il nome di questo oggetto si propone per primo; nessuno e' scelto da
+   *  solo. Senza bersagli, o se l'elenco non arriva, un clic come sempre. */
+  async function manda(tasto) {
+    for (const b of document.querySelectorAll('button.manda')) b.disabled = true;
+    const r = await chiedi('bersagli');
+    for (const b of document.querySelectorAll('button.manda')) b.disabled = false;
+    const presenti = r && r.ok && Array.isArray(r.bersagli)
+      ? r.bersagli.filter(x => x && x.nome != null && Number.isInteger(x.indice)) : [];
+    if (!presenti.length) return consegna(tasto, null);
+
+    const chiave = s => String(s == null ? '' : s).trim().toLowerCase();
+    const suo = chiave(tasto.dataset.bersaglio);
+    const ordinati = presenti.filter(x => suo && chiave(x.nome) === suo).concat(presenti.filter(x => !suo || chiave(x.nome) !== suo));
+    const u = $('consegna');
+    u.innerHTML = '<div class="box dove"><b>' + esc(T('Pag_Manda_Dove')) + '</b>' +
+      '<div class="dove-scelte" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">' +
+        '<button type="button" data-dove="nuovo">' + esc(T('Pag_Manda_ComeNuovo')) + '</button>' +
+        ordinati.map(x => '<button type="button" data-dove="posto" data-indice="' + x.indice + '" data-nome="' + esc(x.nome) + '">' +
+          MF('Pag_Manda_AlPostoDi', esc(x.nome)) +
+          (suo && chiave(x.nome) === suo ? ' <span class="tenue">· ' + esc(T('Pag_Manda_StessoNome')) + '</span>' : '') +
+          '</button>').join('') +
+        '<button type="button" data-dove="annulla" class="tenue">' + esc(T('Pag_Manda_Annulla')) + '</button>' +
+      '</div>' +
+      '<div style="margin-top:8px;font-size:12.5px;opacity:.8">' + esc(T('Pag_Manda_AlPostoNota')) + '</div></div>';
+    for (const s of u.querySelectorAll('button[data-dove]')) s.addEventListener('click', () => {
+      if (s.dataset.dove === 'annulla') { u.innerHTML = ''; return; }
+      consegna(tasto, s.dataset.dove === 'posto' ? { indice: Number(s.dataset.indice), nome: s.dataset.nome } : null);
+    });
+  }
+
   /* CONSEGNARE. Alla richiesta va solo il numero della notte e l'identificativo:
      la sequenza ce l'ha gia' il ponte, e non deve tornare indietro da qui. */
-  async function manda(tasto) {
+  async function consegna(tasto, sostituisci) {
     const notte = Number(tasto.dataset.notte);
-    for (const b of document.querySelectorAll('button.manda')) b.disabled = true;
+    for (const b of document.querySelectorAll('button.manda, #consegna button[data-dove]')) b.disabled = true;
     tasto.textContent = T('Pag_StoMandando');
 
-    const r = await chiedi('manda', null,
-      { prescrizione: tasto.dataset.prescrizione || null, notte });
+    const r = await chiedi('manda', null, Object.assign(
+      { prescrizione: tasto.dataset.prescrizione || null, notte }, sostituisci ? { sostituisci } : {}));
 
     for (const b of document.querySelectorAll('button.manda')) b.disabled = false;
     tasto.textContent = T('Pag_MandaANina');
@@ -1448,7 +1480,7 @@
         a.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>' : '';
 
     u.innerHTML = '<div class="box fatto">' +
-      '<b>' + MF('Pag_NotteAggiunta', notte) + '</b>' +
+      '<b>' + (r.sostituito != null ? MF('Pag_NotteAlPostoDi', notte, esc(r.sostituito)) : MF('Pag_NotteAggiunta', notte)) + '</b>' +
       '<div style="margin-top:6px;opacity:.85">' + esc(r.bersaglio || '') + ' — ' +
       MF('Pag_BlocchiPose', cifra(r.blocchi), cifra(r.pose)) + ' ' +
       '<span style="opacity:.7">' + T('Pag_NienteAvviato') + '</span></div>' +
@@ -2063,7 +2095,8 @@
          con l'aria di mandare il vecchio — e il ponte non avrebbe modo di accorgersene,
          perche' l'identificativo che riceve sarebbe quello giusto. Provato: succedeva. */
       const tasto = r.consegnabile
-        ? '<button class="manda" data-notte="' + s.notte + '" data-prescrizione="' + esc(r.prescrizione || '') + '">' +
+        ? '<button class="manda" data-notte="' + s.notte + '" data-prescrizione="' + esc(r.prescrizione || '') + '"' +
+          ' data-bersaglio="' + esc((m.bersaglio && m.bersaglio.nome) || m.nome || '') + '">' +
           T('Pag_MandaANina') + '</button>' : '';
       const piede = '<div class="notte-piede"><span>' + totale + restano + '</span>' +
         (!perRiga && guadagni.length === 1 ? '<span>· ' + guadagni[0] + '</span>' : '') + tasto + '</div>';

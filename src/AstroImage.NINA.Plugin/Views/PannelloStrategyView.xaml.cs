@@ -53,8 +53,12 @@ namespace AstroImage.NINA.Plugin.Views {
      *      riconosciCamera  { id, azione: "riconosciCamera", cam: { … } }
      *                 -> { id, ok, corpo: "<il JSON di v1/camera>" }
      *
-     *      manda         { id, azione: "manda", prescrizione: "<identificativo>", notte: n }
-     *                 -> { id, ok, nome, bersaglio, blocchi, pose, note[], scartati[] }
+     *      bersagli      { id, azione: "bersagli" }
+     *                 -> { id, ok, bersagli: [{ indice, nome }] }   quelli gia' nel Sequenziatore Avanzato
+     *
+     *      manda         { id, azione: "manda", prescrizione: "<identificativo>", notte: n,
+     *                      sostituisci?: { indice, nome } }
+     *                 -> { id, ok, nome, bersaglio, blocchi, pose, note[], scartati[], sostituito }
      *
      *      in errore  -> { id, ok: false, codice, messaggio }
      *
@@ -262,6 +266,8 @@ namespace AstroImage.NINA.Plugin.Views {
                 }
 
                 if (azione == "manda") { Manda(id, messaggio); return; }
+
+                if (azione == "bersagli") { Bersagli(id); return; }
 
                 /*  LA PAGINA CHIEDE LA CONFIGURAZIONE, e la compone lei.
                  *
@@ -528,9 +534,26 @@ namespace AstroImage.NINA.Plugin.Views {
 
             Logger.Info(IO + $"send: built «{ricetta.NomeBersaglio}», {ricetta.Blocchi.Count} blocks, " +
                              $"{ricetta.Blocchi.Sum(b => b.Pose)} exposures; dropped {ricetta.Scartati.Count}");
+            /*  AL POSTO DI UN BERSAGLIO CHE C'E' GIA' (2 ottobre 2026), quando chi riprende l'ha scelto dall'elenco: stesso
+             *  posto, e il bersaglio di prima va via solo quando il nuovo e' al suo posto. Senza scelta, come sempre, un
+             *  bersaglio nuovo. */
+            var sostituisci = messaggio["sostituisci"] as JsonObject;
+            string sostituito = null;
             try {
-                SequenceBuilder.Consegna(vm.Mediatore, contenitore);
-                Logger.Info(IO + "send: AddAdvancedTarget called, no exception");
+                if (sostituisci is not null) {
+                    var indice = sostituisci["indice"]?.GetValue<int>() ?? -1;
+                    var nome = sostituisci["nome"]?.GetValue<string>();
+                    if (!SequenceBuilder.Sostituisci(vm.Mediatore, indice, nome, contenitore, out var perCheNoSostituito)) {
+                        Logger.Warning(IO + $"send: target {indice + 1} «{nome}» NOT replaced — {perCheNoSostituito}");
+                        Rispondi(id, false, null, "sostituzione_non_fatta", perCheNoSostituito);
+                        return;
+                    }
+                    sostituito = nome;
+                    Logger.Info(IO + $"send: target {indice + 1} «{nome}» replaced in the same place");
+                } else {
+                    SequenceBuilder.Consegna(vm.Mediatore, contenitore);
+                    Logger.Info(IO + "send: AddAdvancedTarget called, no exception");
+                }
             } catch (Exception ex) {
                 Logger.Error(IO + "send: AddAdvancedTarget threw", ex);
                 Rispondi(id, false, null, "consegna_fallita", ex.Message);
@@ -559,7 +582,28 @@ namespace AstroImage.NINA.Plugin.Views {
                 ["scartati"] = new JsonArray(ricetta.Scartati.Select(x => (JsonNode)x!).ToArray()),
                 ["progettoAperto"] = progettoAperto,
                 ["progettoNonSalvato"] = progettoNonSalvato,
+                ["sostituito"] = sostituito,
             });
+        }
+
+        /*  I BERSAGLI GIA' NEL SEQUENZIATORE (2 ottobre 2026): l'elenco da cui chi riprende sceglie quale sostituire, lo
+         *  stesso che il Framing Assistant di N.I.N.A. offre per aggiornare un bersaglio. Indice e nome viaggiano
+         *  insieme: alla consegna si ricontrolla che quell'indice indichi ancora quel nome. Un elenco che non si legge
+         *  e' un elenco vuoto, e «Manda» resta quello di sempre. */
+        private void Bersagli(string id) {
+            var vm = DataContext as PannelloStrategyVM;
+            if (vm is null) { Rispondi(id, false, null, "senza_cliente", Loc.T("Pannello_SenzaViewModel")); return; }
+            var elenco = new JsonArray();
+            if (vm.Mediatore is not null) {
+                try {
+                    var presenti = SequenceBuilder.BersagliPresenti(vm.Mediatore);
+                    for (var i = 0; i < presenti.Count; i++)
+                        elenco.Add(new JsonObject { ["indice"] = i, ["nome"] = SequenceBuilder.NomeDelBersaglio(presenti[i]) });
+                } catch (Exception ex) {
+                    Logger.Warning("[AstroImage] the targets in the sequencer could not be read — " + ex.Message);
+                }
+            }
+            Rispondi(id, true, null, null, null, 0, null, new JsonObject { ["bersagli"] = elenco });
         }
 
         /*  APRI UN PROGETTO NUOVO (regia, 19 settembre 2026): a un clic. Toglie il profilo del progetto della prescrizione

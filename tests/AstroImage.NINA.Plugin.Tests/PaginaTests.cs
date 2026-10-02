@@ -721,8 +721,10 @@ namespace AstroImage.NINA.Plugin.Tests {
             foreach (var lingua in new[] { "it", "en" })
                 Assert.IsFalse(Tutte(lingua).Keys.Any(k => k.IndexOf("GiaConsegnata", StringComparison.Ordinal) >= 0),
                     lingua + ": il dizionario ha di nuovo la frase del rifiuto");
-            StringAssert.Contains(Tratto(PaginaSenzaCommenti(), "async function manda(tasto)", "\n  }"), "'Pag_NotteAggiunta'",
-                "la risposta non dice che cosa ha consegnato");
+            /*  dal 2 ottobre 2026 la risposta la scrive `consegna`: `manda` prima chiede dove mettere la notte */
+            var risposta = Tratto(PaginaSenzaCommenti(), "async function consegna(tasto, sostituisci)", "\n  }");
+            StringAssert.Contains(risposta, "'Pag_NotteAggiunta'", "la risposta non dice che cosa ha consegnato");
+            StringAssert.Contains(risposta, "'Pag_NotteAlPostoDi'", "la risposta non dice al posto di quale bersaglio");
         }
 
         /*  IL RIFIUTO SI SCRIVE COI MOTIVI DEL MOTORE, E LA CAMERA DEL CALCOLO SI DICE (regia, 18 settembre 2026). Il

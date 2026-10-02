@@ -141,6 +141,24 @@
   <data name="Manda_FiltroNonRisolto" xml:space="preserve">
     <value>{0}. Il bersaglio NON è stato consegnato: dichiara quel filtro nella configurazione, oppure chiedi di nuovo la prescrizione con la ruota che hai davvero.</value>
   </data>
+  <data name="Manda_SostituzioneSenzaNome" xml:space="preserve">
+    <value>Non è stato indicato quale bersaglio sostituire: niente è stato cambiato.</value>
+  </data>
+  <data name="Manda_BersaglioCambiato" xml:space="preserve">
+    <value>Nel Sequenziatore il bersaglio n. {0} non è più «{1}»: la sequenza è cambiata dopo che l'hai vista. Niente è stato cambiato; premi di nuovo «Manda» per rivedere l'elenco.</value>
+  </data>
+  <data name="Manda_BersaglioNonTrovato" xml:space="preserve">
+    <value>Il bersaglio da sostituire non è più nel Sequenziatore: niente è stato cambiato.</value>
+  </data>
+  <data name="Manda_SostituzioneRifiutata" xml:space="preserve">
+    <value>Il Sequenziatore non ha accettato il bersaglio nuovo ({0}): quello di prima è stato rimesso al suo posto.</value>
+  </data>
+  <data name="Manda_SostituzioneNonAttecchita" xml:space="preserve">
+    <value>Riletto il Sequenziatore, al posto del bersaglio di prima non c'era quello nuovo: quello di prima è stato rimesso al suo posto.</value>
+  </data>
+  <data name="Manda_NonSostituibile" xml:space="preserve">
+    <value>«{0}» non sta in un contenitore che si possa modificare da qui: niente è stato cambiato. Puoi mandarla come bersaglio nuovo.</value>
+  </data>
   <data name="Manda_NessunFiltroDaDichiarare" xml:space="preserve">
     <value>per «{0}» il motore dice di non mettere NESSUN filtro davanti (il colore lo fa la matrice di Bayer). Se hai uno slot vuoto o un filtro trasparente, dichiaralo come «nessun filtro» nella configurazione</value>
   </data>
@@ -444,6 +462,27 @@
   </data>
   <data name="Pag_NotteAggiunta" xml:space="preserve">
     <value>Notte {0} aggiunta al Sequenziatore Avanzato.</value>
+  </data>
+  <data name="Pag_NotteAlPostoDi" xml:space="preserve">
+    <value>Notte {0} nel Sequenziatore Avanzato, al posto di «{1}».</value>
+  </data>
+  <data name="Pag_Manda_Dove" xml:space="preserve">
+    <value>Nel Sequenziatore ci sono già dei bersagli. Dove la metto?</value>
+  </data>
+  <data name="Pag_Manda_ComeNuovo" xml:space="preserve">
+    <value>Come bersaglio nuovo</value>
+  </data>
+  <data name="Pag_Manda_AlPostoDi" xml:space="preserve">
+    <value>Al posto di «{0}»</value>
+  </data>
+  <data name="Pag_Manda_StessoNome" xml:space="preserve">
+    <value>ha lo stesso nome</value>
+  </data>
+  <data name="Pag_Manda_AlPostoNota" xml:space="preserve">
+    <value>Sostituire toglie quel bersaglio con tutte le sue istruzioni e mette questa notte al suo posto; l'inizio e la fine della sequenza restano come sono. N.I.N.A. non ha un «annulla».</value>
+  </data>
+  <data name="Pag_Manda_Annulla" xml:space="preserve">
+    <value>Lascia stare</value>
   </data>
   <data name="Pag_NotteChiestaUsata" xml:space="preserve">
     <value>chiesta {0}, usata {1}</value>
