@@ -219,6 +219,9 @@
   <data name="Montaggio_SenzaGuida" xml:space="preserve">
     <value>Avvio della guida: nessun blocco disponibile da cui copiarlo.</value>
   </data>
+  <data name="Montaggio_SenzaCentratura" xml:space="preserve">
+    <value>Il modello di bersaglio non ha una centratura («Center» o «Center and rotate»): il bersaglio è consegnato senza puntamento. Aggiungila al modello, oppure punta e centra prima di avviare.</value>
+  </data>
   <data name="Montaggio_SenzaRipresa" xml:space="preserve">
     <value>nessun blocco di ripresa disponibile da cui copiare la posa.</value>
   </data>

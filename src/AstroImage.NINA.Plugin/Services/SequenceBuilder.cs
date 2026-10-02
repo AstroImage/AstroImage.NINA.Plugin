@@ -16,6 +16,7 @@ using NINA.Sequencer.SequenceItem.Autofocus;
 using NINA.Sequencer.SequenceItem.FilterWheel;
 using NINA.Sequencer.SequenceItem.Guider;
 using NINA.Sequencer.SequenceItem.Imaging;
+using NINA.Sequencer.SequenceItem.Platesolving;
 using NINA.Sequencer.Trigger.Guider;
 using AstroImage.NINA.Plugin.Localization;
 
@@ -153,6 +154,27 @@ namespace AstroImage.NINA.Plugin.Services {
             dso.Target.InputCoordinates.Coordinates =
                 new Coordinates(ricetta.RaGradi, ricetta.DecGradi, Epoch.J2000, Coordinates.RAType.Degrees);
             dso.Target.PositionAngle = ricetta.AngoloDiPosa;
+
+            /*  PRIMA DI TUTTO SI PUNTA (3 ottobre 2026, sul campo). Il contenitore e' clonato dal modello e svuotato, e
+             *  qui dentro tornavano solo fuoco, guida e pose: le coordinate del bersaglio da sole in N.I.N.A. non muovono
+             *  il telescopio. Sostituito al bersaglio di chi riprende, la sequenza e' andata alle pose senza centrare.
+             *  La centratura e' quella del modello — tutti quelli di chi riprende la portano per prima — e va prima del
+             *  fuoco e della guida, come nei suoi modelli. Entra DOPO le coordinate: agganciandosi al contenitore le
+             *  eredita. Un modello senza centratura si dice, e non si inventa. */
+            var centratura = fonte.Centratura();
+            if (centratura is not null) {
+                dso.Add(centratura);
+                try {
+                    var c = centratura.Coordinates?.Coordinates;
+                    Logger.Info($"[AstroImage] centering «{centratura.Name}» first in the target, coordinates " +
+                                (c is null ? "none" : $"RA {c.RADegrees:0.####}° Dec {c.Dec:0.####}°") +
+                                $" (target RA {ricetta.RaGradi:0.####}° Dec {ricetta.DecGradi:0.####}°)");
+                } catch (Exception e) {
+                    Logger.Warning("[AstroImage] centering added, coordinates not read back — " + e.Message);
+                }
+            } else {
+                ricetta.Note.Add(Loc.T("Montaggio_SenzaCentratura"));
+            }
 
             /*  PRIMA DI RIPRENDERE: fuoco e guida, e in quest'ordine.
              *

@@ -9,6 +9,7 @@ using NINA.Sequencer.SequenceItem;
 using NINA.Sequencer.SequenceItem.Autofocus;
 using NINA.Sequencer.SequenceItem.Guider;
 using NINA.Sequencer.SequenceItem.Imaging;
+using NINA.Sequencer.SequenceItem.Platesolving;
 using NINA.Sequencer.Trigger;
 using NINA.Sequencer.Trigger.Guider;
 using AstroImage.NINA.Plugin.Localization;
@@ -109,6 +110,9 @@ namespace AstroImage.NINA.Plugin.Services {
         public SmartExposure? Posa() => Clona(Dentro<SmartExposure>(Modello(out _)));
         public RunAutofocus? Autofocus() => Clona(Dentro<RunAutofocus>(Modello(out _)));
         public StartGuiding? AvvioGuida() => Clona(Dentro<StartGuiding>(Modello(out _)));
+        /*  LA CENTRATURA DEL MODELLO (3 ottobre 2026): «Center and rotate» e' un «Center», quindi una ricerca trova
+         *  l'una o l'altra, quella che chi riprende ha scelto. Le coordinate le eredita dal contenitore. */
+        public Center? Centratura() => Clona(Dentro<Center>(Modello(out _)));
 
 
         private static T? Clona<T>(T? originale) where T : class =>

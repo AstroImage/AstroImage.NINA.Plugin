@@ -4,6 +4,7 @@ using NINA.Sequencer.Container;
 using NINA.Sequencer.SequenceItem.Autofocus;
 using NINA.Sequencer.SequenceItem.Guider;
 using NINA.Sequencer.SequenceItem.Imaging;
+using NINA.Sequencer.SequenceItem.Platesolving;
 using NINA.Sequencer.Trigger.Guider;
 
 #nullable enable
@@ -62,6 +63,12 @@ namespace AstroImage.NINA.Plugin.Services {
 
         StartGuiding? AvvioGuida();
 
+        /// <summary>
+        /// La centratura sul bersaglio — «Center» o «Center and rotate», quella che chi riprende ha nel modello — con le
+        /// coordinate ereditate dal contenitore. Null se il modello non ne ha una.
+        /// </summary>
+        Center? Centratura();
+
     }
 
     /*  LA FONTE CHE USA LA FABBRICA, se un giorno arrivasse.
@@ -87,5 +94,6 @@ namespace AstroImage.NINA.Plugin.Services {
         public SmartExposure? Posa() => fabbrica.GetItem<SmartExposure>();
         public RunAutofocus? Autofocus() => fabbrica.GetItem<RunAutofocus>();
         public StartGuiding? AvvioGuida() => fabbrica.GetItem<StartGuiding>();
+        public Center? Centratura() => fabbrica.GetItem<Center>();
     }
 }

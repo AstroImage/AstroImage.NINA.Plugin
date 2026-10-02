@@ -219,6 +219,9 @@
   <data name="Montaggio_SenzaGuida" xml:space="preserve">
     <value>Start guiding: no block available to copy it from.</value>
   </data>
+  <data name="Montaggio_SenzaCentratura" xml:space="preserve">
+    <value>The target template has no centering («Center» or «Center and rotate»): the target is delivered without pointing. Add it to the template, or slew and center before starting.</value>
+  </data>
   <data name="Montaggio_SenzaRipresa" xml:space="preserve">
     <value>no imaging block available to copy the exposure from.</value>
   </data>

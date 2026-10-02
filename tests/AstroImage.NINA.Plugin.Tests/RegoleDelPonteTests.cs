@@ -176,6 +176,32 @@ namespace AstroImage.NINA.Plugin.Tests {
         }
 
         [TestMethod]
+        public void IlBersaglioSiPuntaPrimaDiRiprendere() {
+            /*  IL BERSAGLIO SENZA PUNTAMENTO (3 ottobre 2026, sul campo). Il contenitore consegnato si clonava dal modello
+             *  e si svuotava, e dentro tornavano solo fuoco, guida e pose: nessuna centratura. Finche' «Manda» aggiungeva,
+             *  il telescopio era spesso gia' puntato; sostituito al bersaglio di chi riprende — che la centratura ce
+             *  l'aveva, come tutti i suoi modelli — la sequenza e' andata alle pose senza centrare. La centratura si
+             *  prende dal modello, come fuoco e guida, e va per prima.
+             *
+             *  Due verifiche deboli e dichiarate: il binario deve chiedere la centratura alla fonte, e il montaggio la
+             *  deve chiedere prima del fuoco e della guida. Un contenitore di N.I.N.A. fuori da N.I.N.A. non si
+             *  costruisce: la prova vera e' la sequenza consegnata, letta nel Sequenziatore. */
+            /*  i metadati elencano i membri di ALTRE assembly: della centratura di N.I.N.A. il montaggio rilegge le
+                coordinate ereditate, e quel riferimento c'e' solo se la centratura entra nel bersaglio */
+            Assert.IsTrue(MembriNominati().Contains("Center::get_Coordinates"),
+                "il ponte non tocca la centratura di N.I.N.A.: il bersaglio non si punta");
+            var radice = new System.IO.DirectoryInfo(AppContext.BaseDirectory);
+            while (radice is not null && !System.IO.Directory.Exists(System.IO.Path.Combine(radice.FullName, "src"))) radice = radice.Parent;
+            Assert.IsNotNull(radice, "sorgenti non trovati");
+            var src = System.IO.File.ReadAllText(System.IO.Path.Combine(radice!.FullName, "src", "AstroImage.NINA.Plugin", "Services", "SequenceBuilder.cs"));
+            int centra = src.IndexOf("fonte.Centratura()", StringComparison.Ordinal),
+                fuoco = src.IndexOf("fonte.Autofocus()", StringComparison.Ordinal),
+                guida = src.IndexOf("fonte.AvvioGuida()", StringComparison.Ordinal);
+            Assert.IsTrue(centra >= 0 && fuoco > centra && guida > centra,
+                "la centratura non viene chiesta prima del fuoco e della guida");
+        }
+
+        [TestMethod]
         public void LaProvaNonEVuota() {
             /*  Le due verifiche sopra passerebbero anche su un DLL che non nomina
              *  N.I.N.A. per niente. Questa controlla che stiano guardando un binario
