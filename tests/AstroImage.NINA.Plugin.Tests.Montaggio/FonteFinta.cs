@@ -4,6 +4,7 @@ using global::NINA.Sequencer.Container;
 using global::NINA.Sequencer.SequenceItem.Autofocus;
 using global::NINA.Sequencer.SequenceItem.Guider;
 using global::NINA.Sequencer.SequenceItem.Imaging;
+using global::NINA.Sequencer.SequenceItem.Platesolving;
 using global::NINA.Sequencer.Trigger.Guider;
 
 #nullable enable
@@ -44,12 +45,14 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
         public RunAutofocus? AutofocusDaDare { get; set; }
         public StartGuiding? GuidaDaDare { get; set; }
         public DitherAfterExposures? DitherDaDare { get; set; }
+        public Center? CentraturaDaDare { get; set; }
 
         public IDeepSkyObjectContainer? Contenitore() { Chieste.Add(nameof(Contenitore)); return DaDare; }
         public SmartExposure? Posa() { Chieste.Add(nameof(Posa)); return PosaDaDare; }
         public RunAutofocus? Autofocus() { Chieste.Add(nameof(Autofocus)); return AutofocusDaDare; }
         public StartGuiding? AvvioGuida() { Chieste.Add(nameof(AvvioGuida)); return GuidaDaDare; }
         public DitherAfterExposures? Dither() { Chieste.Add(nameof(Dither)); return DitherDaDare; }
+        public Center? Centratura() { Chieste.Add(nameof(Centratura)); return CentraturaDaDare; }
 
         /// <summary>Una fonte che non ha niente e lo dichiara.</summary>
         internal static FonteFinta Vuota(string perche = "niente in magazzino") =>

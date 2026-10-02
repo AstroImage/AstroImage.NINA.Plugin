@@ -157,9 +157,13 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
                     $"IFonteDiPezzi.{m.Name} offre {reso}: la vita della sessione non e' " +
                     "affare di un bersaglio, e cio' che non si puo' chiedere non si puo' aggiungere");
             }
-            Assert.AreEqual(4, pezzi.Length,
-                "quattro pezzi: contenitore, posa, autofocus, guida. Se sono di piu', qualcuno " +
+            /*  IL QUINTO PEZZO, LA CENTRATURA (3 ottobre 2026, sul campo): il bersaglio consegnato non si puntava, e
+             *  sostituito a quello di chi riprende la sequenza e' andata alle pose senza centrare. Non e' vita della
+             *  sessione: si centra una volta per bersaglio, ed e' per questo che sta nel bersaglio. */
+            Assert.AreEqual(5, pezzi.Length,
+                "cinque pezzi: contenitore, posa, autofocus, guida, centratura. Se sono di piu', qualcuno " +
                 "ha allargato il magazzino e va detto qui");
+            Assert.IsTrue(pezzi.Any(m => m.Name == "Centratura"), "il magazzino non da' piu' la centratura");
             /*  IL DITHER NON E' PIU' UN PEZZO, e non e' una semplificazione: ogni
              *  SmartExposure porta gia' il proprio, e un secondo innesco sul contenitore
              *  ditherebbe DUE volte contando le stesse pose. Cio' che non si puo'
