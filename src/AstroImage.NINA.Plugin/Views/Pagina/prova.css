@@ -497,6 +497,17 @@
                  border-top:1px dashed var(--line); font-size:12px; color:var(--dim); flex-wrap:wrap; }
   .notte-piede strong { color:var(--fg); }
   .notte-piede .manda { margin-left:auto; }
+  /*  IL MENU DI «MANDA» (2 ottobre 2026): si apre sotto il tasto premuto, come il menu del Framing Assistant — dove
+   *  va la notte, se nel Sequenziatore ci sono gia' dei bersagli. Prima la scelta finiva in fondo alla pagina. */
+  .notte-piede { position:relative; }
+  .menu-dove { position:absolute; right:0; top:calc(100% + 4px); z-index:30; min-width:240px; max-width:min(420px, 92vw);
+               background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:6px;
+               box-shadow:var(--elev); display:flex; flex-direction:column; gap:4px; color:var(--fg); }
+  .menu-dove button { text-align:left; width:100%; background:var(--surface); color:var(--fg); border:1px solid var(--line); }
+  .menu-dove button:hover, .menu-dove button:focus-visible { background:#2b6cb0; color:#fff; outline:none; }
+  .menu-dove button.lascia { color:var(--dim); }
+  .menu-dove-titolo { font-size:12px; color:var(--dim); padding:2px 4px 4px; }
+  .menu-dove-nota { font-size:11.5px; color:var(--dim); padding:5px 4px 2px; border-top:1px solid var(--line); margin-top:2px; }
   @media (max-width:560px) {
     .canale { grid-template-columns:70px 56px 1fr; }
     .canale .fatte { grid-column:3; text-align:left; }

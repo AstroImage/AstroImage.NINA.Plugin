@@ -1436,22 +1436,42 @@
     const chiave = s => String(s == null ? '' : s).trim().toLowerCase();
     const suo = chiave(tasto.dataset.bersaglio);
     const ordinati = presenti.filter(x => suo && chiave(x.nome) === suo).concat(presenti.filter(x => !suo || chiave(x.nome) !== suo));
-    const u = $('consegna');
-    u.innerHTML = '<div class="box dove"><b>' + esc(T('Pag_Manda_Dove')) + '</b>' +
-      '<div class="dove-scelte" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">' +
-        '<button type="button" data-dove="nuovo">' + esc(T('Pag_Manda_ComeNuovo')) + '</button>' +
-        ordinati.map(x => '<button type="button" data-dove="posto" data-indice="' + x.indice + '" data-nome="' + esc(x.nome) + '">' +
-          MF('Pag_Manda_AlPostoDi', esc(x.nome)) +
-          (suo && chiave(x.nome) === suo ? ' <span class="tenue">· ' + esc(T('Pag_Manda_StessoNome')) + '</span>' : '') +
-          '</button>').join('') +
-        '<button type="button" data-dove="annulla" class="tenue">' + esc(T('Pag_Manda_Annulla')) + '</button>' +
-      '</div>' +
-      '<div style="margin-top:8px;font-size:12.5px;opacity:.8">' + esc(T('Pag_Manda_AlPostoNota')) + '</div></div>';
-    for (const s of u.querySelectorAll('button[data-dove]')) s.addEventListener('click', () => {
-      if (s.dataset.dove === 'annulla') { u.innerHTML = ''; return; }
+    /*  Il menu sta sotto il tasto premuto, nel piede della sua notte: e' li' che chi ha premuto sta guardando. */
+    chiudiMenuDove();
+    const menu = document.createElement('div');
+    menu.className = 'menu-dove';
+    menu.setAttribute('role', 'menu');
+    menu.innerHTML = '<div class="menu-dove-titolo">' + esc(T('Pag_Manda_Dove')) + '</div>' +
+      '<button type="button" role="menuitem" data-dove="nuovo">' + esc(T('Pag_Manda_ComeNuovo')) + '</button>' +
+      ordinati.map(x => '<button type="button" role="menuitem" data-dove="posto" data-indice="' + x.indice + '" data-nome="' + esc(x.nome) + '">' +
+        MF('Pag_Manda_AlPostoDi', esc(x.nome)) +
+        (suo && chiave(x.nome) === suo ? ' <span class="tenue">· ' + esc(T('Pag_Manda_StessoNome')) + '</span>' : '') +
+        '</button>').join('') +
+      '<button type="button" role="menuitem" data-dove="annulla" class="lascia">' + esc(T('Pag_Manda_Annulla')) + '</button>' +
+      '<div class="menu-dove-nota">' + esc(T('Pag_Manda_AlPostoNota')) + '</div>';
+    tasto.parentNode.appendChild(menu);
+    menuDove = { menu, tasto };
+    for (const s of menu.querySelectorAll('button[data-dove]')) s.addEventListener('click', ev => {
+      ev.stopPropagation();
+      chiudiMenuDove();
+      if (s.dataset.dove === 'annulla') return;
       consegna(tasto, s.dataset.dove === 'posto' ? { indice: Number(s.dataset.indice), nome: s.dataset.nome } : null);
     });
+    menu.scrollIntoView({ block: 'nearest' });
+    const primo = menu.querySelector('button[data-dove]');
+    if (primo) primo.focus();
   }
+
+  /*  Un menu aperto alla volta; si chiude cliccando fuori, con Esc, o scegliendo. */
+  let menuDove = null;
+  function chiudiMenuDove() {
+    if (menuDove && menuDove.menu.parentNode) menuDove.menu.parentNode.removeChild(menuDove.menu);
+    menuDove = null;
+  }
+  document.addEventListener('click', ev => {
+    if (menuDove && !menuDove.menu.contains(ev.target) && ev.target !== menuDove.tasto) chiudiMenuDove();
+  });
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape') chiudiMenuDove(); });
 
   /* CONSEGNARE. Alla richiesta va solo il numero della notte e l'identificativo:
      la sequenza ce l'ha gia' il ponte, e non deve tornare indietro da qui. */
@@ -1491,6 +1511,8 @@
       '</div>';
     /*  la consegna puo' aver aperto un progetto: l'elenco si rilegge */
     if (r.progettoAperto) aggiornaProgettiAperti();
+    /*  l'esito sta in fondo alla prescrizione, e chi ha premuto «Manda» guarda la sua notte: lo si porta in vista */
+    u.scrollIntoView({ block: 'nearest' });
   }
 
   /*  QUALE COPERTURA E' SPUNTATA. Due segmenti, e uno lo e' sempre: il markup

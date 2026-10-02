@@ -599,6 +599,8 @@ namespace AstroImage.NINA.Plugin.Views {
                     var presenti = SequenceBuilder.BersagliPresenti(vm.Mediatore);
                     for (var i = 0; i < presenti.Count; i++)
                         elenco.Add(new JsonObject { ["indice"] = i, ["nome"] = SequenceBuilder.NomeDelBersaglio(presenti[i]) });
+                    Logger.Info($"[AstroImage] targets in the sequencer: {presenti.Count}" +
+                                (presenti.Count > 0 ? " — " + string.Join(", ", presenti.Select(SequenceBuilder.NomeDelBersaglio)) : ""));
                 } catch (Exception ex) {
                     Logger.Warning("[AstroImage] the targets in the sequencer could not be read — " + ex.Message);
                 }
