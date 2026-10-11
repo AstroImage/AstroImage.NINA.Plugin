@@ -422,7 +422,7 @@
     <value>Accorcia la posa fin dove conviene: un buon compromesso tra tempo di acquisizione e durata della singola posa.</value>
   </data>
   <data name="Pag_ModoNota_resa" xml:space="preserve">
-    <value>La posa più lunga che i limiti fisici consentono; meno tempo totale di acquisizione per raggiungere la stessa profondità.</value>
+    <value>La posa che rende di più per ora di notte: lunga quanto basta a battere il rumore di lettura, non tanto da perdere fotogrammi; meno tempo totale di acquisizione per raggiungere la stessa profondità.</value>
   </data>
   <data name="Pag_Modo_dinamica" xml:space="preserve">
     <value>Dinamica</value>
@@ -1892,6 +1892,9 @@
   </data>
   <data name="Pag_Limite_sommersione" xml:space="preserve">
     <value>il cielo sommerge la lettura</value>
+  </data>
+  <data name="Pag_Limite_perdita" xml:space="preserve">
+    <value>perdita dei fotogrammi</value>
   </data>
   <data name="Pag_LimiteClasseSpiegazione" xml:space="preserve">
     <value>La posa è ferma al tetto della sua famiglia di oggetti: è la pratica documentata per la classe, non un calcolo su questo oggetto. È un ripiego dichiarato.</value>

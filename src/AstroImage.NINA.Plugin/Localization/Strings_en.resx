@@ -422,7 +422,7 @@
     <value>Shortens the sub as far as it pays off: a fair trade between acquisition time and the length of the single sub.</value>
   </data>
   <data name="Pag_ModoNota_resa" xml:space="preserve">
-    <value>The longest sub the physical limits allow; less total acquisition time to reach the same depth.</value>
+    <value>The sub that yields the most per hour of night: long enough to beat the read noise, not so long that frames get lost; less total acquisition time to reach the same depth.</value>
   </data>
   <data name="Pag_Modo_dinamica" xml:space="preserve">
     <value>Dynamic</value>
@@ -1892,6 +1892,9 @@
   </data>
   <data name="Pag_Limite_sommersione" xml:space="preserve">
     <value>the sky buries the read noise</value>
+  </data>
+  <data name="Pag_Limite_perdita" xml:space="preserve">
+    <value>frame loss</value>
   </data>
   <data name="Pag_LimiteClasseSpiegazione" xml:space="preserve">
     <value>The exposure is held at the ceiling of its family of objects: documented practice for the class, not a calculation on this object. It is a declared fallback.</value>
