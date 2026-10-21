@@ -160,8 +160,10 @@ namespace AstroImage.NINA.Plugin.Views {
 
         private void AlCambioProfilo(object mittente, EventArgs e) => AvvisaSeIlProfiloECambiato();
 
+        /*  ANCHE LA PAGINA VERA LO DEVE SAPERE (passo 4, 21 ottobre 2026): le sue dichiarazioni e il banco sono del
+         *  profilo di prima. L'avviso e' lo stesso, {evento: "profilo"}; quello che ne fa lo decide la pagina. */
         private void AvvisaSeIlProfiloECambiato() {
-            if (!_pronto || _pagina is not null) { return; }
+            if (!_pronto) { return; }
             Dispatcher.BeginInvoke(new Action(() => {
                 if (!(DataContext is PannelloStrategyVM vm) || vm.CambiDiProfilo == _cambiDiProfiloVisti) { return; }
                 _cambiDiProfiloVisti = vm.CambiDiProfilo;
@@ -299,6 +301,12 @@ namespace AstroImage.NINA.Plugin.Views {
                 servizi.Bersagli = () => ConsegnaDallaPagina.Bersagli(vm.Mediatore);
                 servizi.Consegna = (modello, indice, nome) =>
                     ConsegnaDallaPagina.Esegui(vm.PerCheNonConsegna, vm.Costruttore, vm.Mediatore, modello, indice, nome);
+                /*  le dichiarazioni della pagina stanno nel profilo attivo, accanto a quelle della pagina di prova */
+                servizi.Dichiarazioni = new DichiarazioniDellaPagina {
+                    Profilo = () => vm.LettoreDelProfilo.Chi(),
+                    Leggi = () => vm.Memoria.Leggi(OspiteDellaPagina.ChiaveDellaPaginaVera),
+                    Scrivi = busta => vm.Memoria.Scrivi(OspiteDellaPagina.ChiaveDellaPaginaVera, busta, out var perche) ? null : (perche ?? ""),
+                };
             }
             var risposta = OspiteDellaPagina.Rispondi(testo, e.Source, pagina, servizi,
                 typeof(PannelloStrategyView).Assembly.GetName().Version?.ToString(), out var nota);

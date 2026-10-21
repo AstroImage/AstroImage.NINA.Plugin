@@ -330,5 +330,86 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.AreEqual(500, (int?)rotto["StatusCode"]);
             StringAssert.Contains((string?)rotto["Error"], "sparito");
         }
+
+        // 8 ──────────────────────────────── le dichiarazioni della pagina nel profilo attivo (passo 4)
+        private sealed class Memoria {
+            public string Id = "11111111-1111-1111-1111-111111111111", Nome = "Profilo di casa";
+            public string? Documento; public int Scritture; public string? Guasto;
+            public DichiarazioniDellaPagina Servizio() => new DichiarazioniDellaPagina {
+                Profilo = () => (Id, Nome), Leggi = () => Documento,
+                Scrivi = d => { if (Guasto is not null) return Guasto; Documento = d; Scritture++; return null; },
+            };
+        }
+
+        private static JsonObject Dichiarazioni(Memoria m, string metodo = "GET", string? corpo = null) =>
+            ViaCon(new ServiziDellOspite { Profilo = Banco, Dichiarazioni = m.Servizio() }, "/ponte/dichiarazioni", metodo, corpo);
+
+        private static string DaSalvare(string id, JsonNode? dati) => new JsonObject { ["id"] = id, ["dati"] = dati }.ToJsonString();
+
+        [TestMethod]
+        public void LeDichiarazioni_SiDichiaranoSoloSeCeLaMemoria() {
+            CollectionAssert.Contains(OspiteDellaPagina.VieDi(new ServiziDellOspite { Dichiarazioni = new Memoria().Servizio() }).ToArray(), "/ponte/dichiarazioni");
+            CollectionAssert.DoesNotContain(OspiteDellaPagina.VieDi(new ServiziDellOspite()).ToArray(), "/ponte/dichiarazioni");
+        }
+
+        [TestMethod]
+        public void UnProfiloSenzaDichiarazioni_DaNull_ColNomeEConLIdentita() {
+            var r = Dichiarazioni(new Memoria());
+            Assert.AreEqual(true, (bool?)r["Success"]);
+            Assert.IsNull(r["Response"]!["dati"]);
+            Assert.AreEqual("Profilo di casa", (string?)r["Response"]!["nome"]);
+            Assert.AreEqual("11111111-1111-1111-1111-111111111111", (string?)r["Response"]!["id"]);
+        }
+
+        [TestMethod]
+        public void SalvateERilette_SonoLeStesse_DentroUnaBustaConLaVersione() {
+            var m = new Memoria();
+            var dati = JsonNode.Parse("{\"versione\":1,\"chiavi\":{\"ap_cfg\":\"{\\\"tel\\\":\\\"rc8\\\"}\",\"ap_site\":\"borno\"}}")!;
+            var s1 = Dichiarazioni(m, "POST", DaSalvare(m.Id, dati));
+            Assert.AreEqual(true, (bool?)s1["Success"], (string?)s1["Error"]);
+            Assert.AreEqual(1, m.Scritture);
+            var busta = JsonNode.Parse(m.Documento!)!;
+            Assert.AreEqual(1, (int?)busta["versione"], "la busta non porta la sua versione");
+            Assert.IsTrue(JsonNode.DeepEquals(dati, busta["dati"]), "nella busta non c'e' quello che la pagina ha mandato");
+            var letto = Dichiarazioni(m)["Response"]!["dati"];
+            Assert.IsTrue(JsonNode.DeepEquals(dati, letto), "riletto, non e' quello salvato: " + letto?.ToJsonString());
+        }
+
+        [TestMethod]
+        public void UnaBustaCheNonSiLegge_ValeNessuna_ENonSiCancella() {
+            foreach (var rotta in new[] { "non e' JSON", "{\"versione\":2,\"dati\":{}}", "{\"dati\":{}}", "{\"versione\":1,\"dati\":\"testo\"}" }) {
+                var m = new Memoria { Documento = rotta };
+                var r = Dichiarazioni(m)["Response"]!;
+                Assert.IsNull(r["dati"], rotta);
+                StringAssert.Contains((string?)r["nota"], "non si leggono", rotta);
+                Assert.AreEqual(rotta, m.Documento, "una lettura ha toccato la memoria");
+            }
+        }
+
+        [TestMethod]
+        public void SiSalvaSoloNelProfiloDaCuiSonoStateLette() {
+            var m = new Memoria { Documento = "{\"versione\":1,\"dati\":{\"chiavi\":{}}}" };
+            var r = Dichiarazioni(m, "POST", DaSalvare("22222222-2222-2222-2222-222222222222", JsonNode.Parse("{\"chiavi\":{\"ap_site\":\"milano\"}}")));
+            Assert.AreEqual(false, (bool?)r["Success"]);
+            Assert.AreEqual(409, (int?)r["StatusCode"]);
+            StringAssert.Contains((string?)r["Error"], "Profilo di casa", "il rifiuto non dice qual e' il profilo attivo");
+            Assert.AreEqual(0, m.Scritture, "le dichiarazioni di un altro profilo sono state scritte in questo");
+            var ok = Dichiarazioni(m, "POST", DaSalvare(m.Id.ToUpperInvariant(), JsonNode.Parse("{\"chiavi\":{}}")));
+            Assert.AreEqual(true, (bool?)ok["Success"], "controllo positivo: lo stesso profilo, scritto in maiuscolo, e' lo stesso profilo");
+        }
+
+        [TestMethod]
+        public void SenzaDati_TroppoGrandi_OConLaMemoriaGuasta_NonSiSalva() {
+            var m = new Memoria();
+            Assert.AreEqual(400, (int?)Dichiarazioni(m, "POST", "{\"id\":\"" + m.Id + "\"}")["StatusCode"]);
+            Assert.AreEqual(400, (int?)Dichiarazioni(m, "POST", DaSalvare(m.Id, JsonValue.Create("testo")))["StatusCode"]);
+            var grande = new JsonObject { ["chiavi"] = new JsonObject { ["ap_sites"] = new string('x', 300 * 1024) } };
+            Assert.AreEqual(413, (int?)Dichiarazioni(m, "POST", DaSalvare(m.Id, grande))["StatusCode"]);
+            Assert.AreEqual(0, m.Scritture);
+            m.Guasto = "il disco e' pieno";
+            var g = Dichiarazioni(m, "POST", DaSalvare(m.Id, JsonNode.Parse("{\"chiavi\":{}}")));
+            Assert.AreEqual(500, (int?)g["StatusCode"]);
+            StringAssert.Contains((string?)g["Error"], "disco");
+        }
     }
 }

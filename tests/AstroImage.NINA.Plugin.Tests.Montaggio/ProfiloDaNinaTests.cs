@@ -40,6 +40,7 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
             };
             return PersistenzaDelProfiloTests.Finto.Crea<IProfile>((m, x) => m.Name switch {
                 "get_Name" => "Profilo di prova",
+                "get_Id" => Guid.Parse("0F3C2A10-0000-4000-8000-00000000C0DE"),
                 "get_AstrometrySettings" => a,
                 "get_CameraSettings" => c,
                 "get_TelescopeSettings" => t,
@@ -102,6 +103,16 @@ namespace AstroImage.NINA.Plugin.Tests.Montaggio {
             Assert.IsNull(new ProfiloDaNina(Servizio(Profilo(Sito(false)))).Leggi()!.Orizzonte);
             Assert.IsNull(new ProfiloDaNina(Servizio(null)).Leggi());
             Assert.IsNull(new ProfiloDaNina(null).Leggi());
+        }
+
+        [TestMethod]
+        public void ChiEIlProfiloAttivo_IdentitaENome() {
+            var (id, nome) = new ProfiloDaNina(Servizio(Profilo(Sito()))).Chi();
+            Assert.AreEqual("0f3c2a10-0000-4000-8000-00000000c0de", id, "l'identificativo deve essere quello di N.I.N.A., scritto da Guid");
+            Assert.AreEqual("Profilo di prova", nome);
+            var (nessuno, senzaNome) = new ProfiloDaNina(Servizio(null)).Chi();
+            Assert.IsNull(nessuno);
+            Assert.IsNull(senzaNome);
         }
     }
 }

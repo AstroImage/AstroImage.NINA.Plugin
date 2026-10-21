@@ -2229,4 +2229,16 @@
   <data name="Ospite_BersaglioInRipresa" xml:space="preserve">
     <value>Il bersaglio «{0}» è in ripresa adesso: si sostituisce a sequenza ferma.</value>
   </data>
+  <data name="Ospite_ProfiloCambiato" xml:space="preserve">
+    <value>Il profilo attivo di N.I.N.A. adesso è «{0}»: le dichiarazioni del profilo di prima non si scrivono qui.</value>
+  </data>
+  <data name="Ospite_DichiarazioniIlleggibili" xml:space="preserve">
+    <value>Le dichiarazioni salvate in questo profilo non si leggono: valgono come nessuna, e restano dove sono.</value>
+  </data>
+  <data name="Ospite_DichiarazioniTroppoGrandi" xml:space="preserve">
+    <value>Le dichiarazioni sono troppo grandi per il profilo di N.I.N.A.: non si salvano.</value>
+  </data>
+  <data name="Ospite_DichiarazioniSenzaDati" xml:space="preserve">
+    <value>La richiesta non porta le dichiarazioni da salvare.</value>
+  </data>
 </root>

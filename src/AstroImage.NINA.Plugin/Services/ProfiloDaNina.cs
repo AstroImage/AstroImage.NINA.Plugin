@@ -27,6 +27,13 @@ namespace AstroImage.NINA.Plugin.Services {
 
         public ProfiloDaNina(IProfileService? profili) => this.profili = profili;
 
+        /// <summary>Chi e' il profilo attivo: l'identificativo di N.I.N.A. e il nome. Null e null se non ce n'e' uno.</summary>
+        public (string? Id, string? Nome) Chi() {
+            var p = Protetto(() => profili?.ActiveProfile);
+            if (p is null) return (null, null);
+            return (Protetto(() => p.Id.ToString()), Protetto(() => p.Name));
+        }
+
         /// <summary>Il banco del profilo attivo, o null se N.I.N.A. non ne ha uno.</summary>
         public ProfiloPerLaPagina? Leggi() {
             var p = Protetto(() => profili?.ActiveProfile);

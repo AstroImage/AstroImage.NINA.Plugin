@@ -2229,4 +2229,16 @@
   <data name="Ospite_BersaglioInRipresa" xml:space="preserve">
     <value>Target «{0}» is being imaged right now: replace it with the sequence stopped.</value>
   </data>
+  <data name="Ospite_ProfiloCambiato" xml:space="preserve">
+    <value>The active N.I.N.A. profile is now «{0}»: the previous profile's declarations are not written here.</value>
+  </data>
+  <data name="Ospite_DichiarazioniIlleggibili" xml:space="preserve">
+    <value>The declarations saved in this profile cannot be read: they count as none, and stay where they are.</value>
+  </data>
+  <data name="Ospite_DichiarazioniTroppoGrandi" xml:space="preserve">
+    <value>The declarations are too large for the N.I.N.A. profile: they are not saved.</value>
+  </data>
+  <data name="Ospite_DichiarazioniSenzaDati" xml:space="preserve">
+    <value>The request carries no declarations to save.</value>
+  </data>
 </root>

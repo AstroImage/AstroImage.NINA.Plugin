@@ -37,6 +37,8 @@ namespace AstroImage.NINA.Plugin.Services {
      *
      *      /ponte/bersagli   GET    i bersagli del Sequenziatore Avanzato, [{ indice, nome, stato }], lo stato coi nomi
      *                               di N.I.N.A. (CREATED, RUNNING, FINISHED, FAILED, SKIPPED, DISABLED)
+     *      /ponte/dichiarazioni  GET  { id, nome, dati }: il documento che la pagina ha salvato nel profilo attivo, o null
+     *                        POST corpo { id, dati }: lo salva nel profilo attivo, se e' ancora quello di nome id
      *      /ponte/consegna   POST   corpo { modello, sostituisci: null | { indice, nome } }: il modello della sequenza
      *                               — lo stesso contratto che il servizio consegnava —, come bersaglio nuovo o al
      *                               posto di quello che ha quell'indice E quel nome
@@ -59,6 +61,15 @@ namespace AstroImage.NINA.Plugin.Services {
         public const string ViaDellOrizzonte = "/profile/horizon";
         public const string ViaDeiBersagli = "/ponte/bersagli";
         public const string ViaDellaConsegna = "/ponte/consegna";
+        public const string ViaDelleDichiarazioni = "/ponte/dichiarazioni";
+
+        /*  LE DICHIARAZIONI DELLA PAGINA VERA (passo 4, 21 ottobre 2026). La pagina tiene le sue dichiarazioni della
+         *  postazione — banco, sito, filtri — e le salva nel profilo attivo, dove il Ponte teneva gia' le sue: cosi'
+         *  ogni profilo ha le proprie. Il Ponte non le legge: le custodisce in una busta con la sua versione, perche'
+         *  un JSON dentro una stringa non si migra da solo, e le ridà com'erano. */
+        public const string ChiaveDellaPaginaVera = "paginaVera";
+        public const int VersioneDelleDichiarazioni = 1;
+        public const int MassimoDelleDichiarazioni = 262144;   // 256 KB
 
         /// <summary>Le vie del profilo, che l'ospite da' sempre: la lettura non ha bisogno di nessun servizio.</summary>
         public static readonly IReadOnlyList<string> Vie = new[] { ViaDelProfilo, ViaDellOrizzonte };
@@ -68,6 +79,7 @@ namespace AstroImage.NINA.Plugin.Services {
             var v = new List<string>(Vie);
             if (servizi.Bersagli is not null) v.Add(ViaDeiBersagli);
             if (servizi.Consegna is not null) v.Add(ViaDellaConsegna);
+            if (servizi.Dichiarazioni is not null) v.Add(ViaDelleDichiarazioni);
             return v;
         }
 
@@ -157,6 +169,8 @@ namespace AstroImage.NINA.Plugin.Services {
                 if (!post) return No(405, Loc.T("Ospite_ConsegnaConPost"));
                 return Consegna(corpo, servizi.Consegna!);
             }
+            if (percorso == ViaDelleDichiarazioni)
+                return post ? SalvaDichiarazioni(corpo, servizi.Dichiarazioni!) : LeggiDichiarazioni(servizi.Dichiarazioni!);
             if (!string.IsNullOrEmpty(metodo) && !string.Equals(metodo, "GET", StringComparison.OrdinalIgnoreCase))
                 return No(405, Loc.T("Ospite_SoloLettura"));
             if (percorso == ViaDeiBersagli) {
@@ -217,6 +231,45 @@ namespace AstroImage.NINA.Plugin.Services {
             return no;
         }
 
+        /*  SI LEGGONO col nome e l'identita' del profilo, perche' la pagina sappia di chi sono; una busta che non si
+         *  legge torna come nessuna dichiarazione, con la nota accanto, e non si cancella: chi l'ha scritta a mano la
+         *  ritrova. */
+        private static JsonObject LeggiDichiarazioni(DichiarazioniDellaPagina d) {
+            var (id, nome) = d.Profilo();
+            if (id is null) return No(500, Loc.T("Ospite_SenzaProfilo"));
+            JsonNode? dati = null; string? nota = null;
+            var s = d.Leggi();
+            if (s is not null) {
+                try {
+                    var busta = JsonNode.Parse(s) as JsonObject;
+                    int? versione = null;
+                    try { versione = busta?["versione"]?.GetValue<int>(); } catch (Exception) { versione = null; }
+                    if (busta?["dati"] is JsonObject o && versione == VersioneDelleDichiarazioni) dati = o.DeepClone();
+                    else nota = Loc.T("Ospite_DichiarazioniIlleggibili");
+                } catch (JsonException) { nota = Loc.T("Ospite_DichiarazioniIlleggibili"); }
+            }
+            return Si(new JsonObject { ["id"] = id, ["nome"] = nome, ["dati"] = dati, ["nota"] = nota });
+        }
+
+        /*  SI SALVANO SOLO NEL PROFILO DA CUI SI SONO LETTE. Fra la lettura e il salvataggio chi riprende puo'
+         *  cambiare profilo: le dichiarazioni del profilo di prima, scritte in quello nuovo, sarebbero di Borno dentro
+         *  Milano. Quindi la pagina dice di chi sono, e se il profilo attivo e' un altro non si scrive niente. */
+        private static JsonObject SalvaDichiarazioni(string? corpo, DichiarazioniDellaPagina d) {
+            JsonObject? c;
+            try { c = JsonNode.Parse(corpo ?? "") as JsonObject; } catch (JsonException) { c = null; }
+            if (c?["dati"] is not JsonObject dati) return No(400, Loc.T("Ospite_DichiarazioniSenzaDati"));
+            var (id, nome) = d.Profilo();
+            if (id is null) return No(500, Loc.T("Ospite_SenzaProfilo"));
+            if (!string.Equals(Testo(c["id"]), id, StringComparison.OrdinalIgnoreCase))
+                return No(409, Loc.F("Ospite_ProfiloCambiato", nome));
+            var busta = new JsonObject { ["versione"] = VersioneDelleDichiarazioni, ["dati"] = dati.DeepClone() }.ToJsonString();
+            if (busta.Length > MassimoDelleDichiarazioni) return No(413, Loc.T("Ospite_DichiarazioniTroppoGrandi"));
+            string? perCheNo;
+            try { perCheNo = d.Scrivi(busta); } catch (Exception e) { perCheNo = e.Message; }
+            if (perCheNo is not null) return No(500, perCheNo);
+            return Si(new JsonObject { ["salvato"] = true, ["id"] = id, ["nome"] = nome });
+        }
+
         /*  I NOMI DI N.I.N.A., gruppo per gruppo, come li scrive l'Advanced API: il profilo, il sito, la camera, il
          *  telescopio, il Framing Assistant e la ruota. Un valore che il profilo non ha parte null, e non zero. */
         private static JsonObject Profilo(ProfiloPerLaPagina p) => new JsonObject {
@@ -275,6 +328,15 @@ namespace AstroImage.NINA.Plugin.Services {
         public Func<ProfiloPerLaPagina?> Profilo { get; set; } = () => null;
         public Func<IReadOnlyList<BersaglioDelSequenziatore>>? Bersagli { get; set; }
         public Func<SequenceModel, int?, string?, EsitoDellaConsegna>? Consegna { get; set; }
+        public DichiarazioniDellaPagina? Dichiarazioni { get; set; }
+    }
+
+    /*  DOVE STANNO LE DICHIARAZIONI DELLA PAGINA: il profilo attivo, chi e', e la sua memoria. Scrivi torna null se ha
+     *  scritto, e il perche' se no. */
+    public sealed class DichiarazioniDellaPagina {
+        public Func<(string? Id, string? Nome)> Profilo { get; set; } = () => (null, null);
+        public Func<string?> Leggi { get; set; } = () => null;
+        public Func<string, string?> Scrivi { get; set; } = _ => "";
     }
 
     /// <summary>Un bersaglio del Sequenziatore Avanzato: il nome con cui lo vede chi riprende, e lo stato di N.I.N.A.</summary>

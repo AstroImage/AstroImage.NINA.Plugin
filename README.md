@@ -22,6 +22,8 @@ Sequenziatore Avanzato la prescrizione decisa da **AstroImage-Strategy**.
 > quel plugin serva. E consegna lui: l'app gli manda il modello della sequenza, e il Ponte
 > monta il bersaglio coi pezzi dei modelli di N.I.N.A., accanto agli altri o al posto di uno
 > scelto dall'elenco, rileggendo ogni valore; un bersaglio in ripresa non si sostituisce.
+> Le dichiarazioni che l'app fa per la postazione il Ponte le tiene nel profilo attivo di
+> N.I.N.A., una busta per profilo che non legge, e al cambio di profilo glielo dice.
 > Vuoto, il pannello resta quello di sempre.
 
 ## Ti serve anche il motore
