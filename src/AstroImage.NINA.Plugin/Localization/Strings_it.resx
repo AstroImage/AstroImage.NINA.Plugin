@@ -2190,4 +2190,31 @@
   <data name="Pag_Prov_Bordo_stima_sotto_il_fondo" xml:space="preserve">
     <value>il fascio della mappa non risolve il bordo, e la sua stima dal rapporto bordo / media sta sotto il fondo locale</value>
   </data>
+  <data name="Opzioni_Pagina" xml:space="preserve">
+    <value>Pagina del pannello</value>
+  </data>
+  <data name="Opzioni_PaginaAiuto" xml:space="preserve">
+    <value>Vuoto: la pagina del ponte, che chiede i conti al motore all'indirizzo qui sopra. Con l'indirizzo di AstroImage-Strategy, https://astroimage.github.io/, il pannello apre l'app vera, e il ponte le dà il profilo di N.I.N.A.: telescopio, camera, filtri, sito e orizzonte. Il pannello la apre quando torni da qui.</value>
+  </data>
+  <data name="Ospite_IndirizzoNonValido" xml:space="preserve">
+    <value>L'indirizzo della pagina nelle Opzioni non va bene: «{0}». Serve un indirizzo https, oppure http su questo PC (localhost).</value>
+  </data>
+  <data name="Ospite_AzioneSconosciuta" xml:space="preserve">
+    <value>Il ponte non conosce l'azione «{0}».</value>
+  </data>
+  <data name="Ospite_ViaSconosciuta" xml:space="preserve">
+    <value>Il ponte non risponde a «{0}»: risponde a {1}.</value>
+  </data>
+  <data name="Ospite_SoloLettura" xml:space="preserve">
+    <value>Qui il ponte risponde solo alle letture.</value>
+  </data>
+  <data name="Ospite_SoloProfiloAttivo" xml:space="preserve">
+    <value>Il ponte dà solo il profilo attivo.</value>
+  </data>
+  <data name="Ospite_SenzaProfilo" xml:space="preserve">
+    <value>N.I.N.A. non ha un profilo attivo da leggere.</value>
+  </data>
+  <data name="Ospite_SenzaOrizzonte" xml:space="preserve">
+    <value>Il profilo attivo non ha un orizzonte.</value>
+  </data>
 </root>

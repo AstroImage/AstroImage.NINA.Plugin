@@ -52,6 +52,19 @@
                  Text="{Binding Indirizzo, UpdateSourceTrigger=LostFocus}" />
 
         <!--
+            LA PAGINA DEL PANNELLO. Vuota, la pagina di prova del Ponte; con l'indirizzo di AstroImage-Strategy, l'app vera,
+            e il Ponte le da' il profilo di N.I.N.A. Il pannello la riapre quando si torna da qui.
+        -->
+        <TextBlock FontWeight="SemiBold" Margin="0,6,0,2"
+                   Text="{Binding [Opzioni_Pagina], Source={x:Static loc:Loc.Instance}}" />
+
+        <TextBlock TextWrapping="Wrap" FontSize="10" Opacity="0.7" Margin="0,0,0,4"
+                   Text="{Binding [Opzioni_PaginaAiuto], Source={x:Static loc:Loc.Instance}}" />
+
+        <TextBox Width="420" HorizontalAlignment="Left" Margin="0,0,0,12"
+                 Text="{Binding Pagina, UpdateSourceTrigger=LostFocus}" />
+
+        <!--
             LA LINGUA, E NON E' PER FORZA QUELLA DI N.I.N.A.
             Serve a chi sviluppa quanto a chi usa: tenere N.I.N.A. in inglese per
             provare come si comporta il plugin per gli altri, e leggere intanto in

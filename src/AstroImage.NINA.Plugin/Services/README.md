@@ -68,5 +68,6 @@ della separazione.
 |---|---|
 | parlare con Strategy | `ClienteStrategy` (il corriere), `RichiestaDelPannello`, `PrescrizioneCorrente`, `MessaggioDelMotore` (la frase la scrive chi ha uno schermo), `IndirizzoDelMotore` |
 | le dichiarazioni | `DichiarazioniDelProfilo`, `DichiarazioneSito`, `DichiarazioneBanco`, `DichiarazioneRuota`, `MemoriaRuota`, `MappaFiltri`, `ProgettiDelProfilo`, `ImpostazioniPonte` |
-| leggere N.I.N.A. | `LettoreSetup`, `SitoDelProfilo`, `RuotaDelProfilo`, `RiconciliaRuota`, `VetriDellaPrescrizione` |
+| leggere N.I.N.A. | `LettoreSetup`, `SitoDelProfilo`, `RuotaDelProfilo`, `RiconciliaRuota`, `VetriDellaPrescrizione`, `ProfiloDaNina` (il banco del profilo per la pagina vera) |
+| ospitare la pagina vera | `OspiteDellaPagina`: quale indirizzo si apre, a chi si risponde, e le vie che il Ponte dà con le domande e la busta dell'Advanced API |
 | il montaggio | `Traduzione`, `SequenceBuilder`, `FonteDaModello`, `IFonteDiPezzi`, `FiltroPerPosizione` (in N.I.N.A. 3.3 il filtro si sceglie per posizione), `Iterazioni`, `Garanzia` (scrivere non è aver scritto), `SostituzioneDelBersaglio` |

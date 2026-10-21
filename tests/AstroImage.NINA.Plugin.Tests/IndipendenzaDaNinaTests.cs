@@ -96,21 +96,26 @@ namespace AstroImage.NINA.Plugin.Tests {
             /*  E I TRE DELLA SERIE CORTA (22 settembre 2026): `SerieCorta` e' la serie del piano per banda, `SerieDellaBanda`
              *  i pezzi di una banda — la posa principale, la serie, il limite, le ore delle due forme —, `LeDueForme` un
              *  valore per ciascuna delle due forme. Il pannello ne compone il perche'; nessuno dei tre sa fare niente. */
-            Assert.AreEqual(26, tipi.Length,
+            /*  E I TRE DEL PROFILO PER LA PAGINA VERA (21 ottobre 2026): `ProfiloPerLaPagina` e' il banco del profilo attivo
+             *  che l'ospite da' alla pagina, `FiltroDelProfilo` un filtro della ruota, `OrizzonteDelProfilo` le due liste
+             *  dell'orizzonte. Li legge ProfiloDaNina, li scrive OspiteDellaPagina; loro non sanno fare niente. */
+            Assert.AreEqual(29, tipi.Length,
                 "il modello deve avere esattamente questi tipi: SequenceModel, Quando, Bersaglio, " +
                 "Offset, Ottica, Sito, Capacita, Blocco, TotaleDellaNotte, OreEMinuti, SerieCorta, SerieDellaBanda, " +
                 "LeDueForme, Dither, la busta del servizio " +
                 "RispostaPrescrizione, ProdottoPrescrizione, SequenzaDiNotte, " +
                 "ErroreServizio, MisuraServizio, la ruota virtuale CatalogoDelMotore, " +
                 "VetroDelMotore, RuotaVirtuale, VoceRuota, il sito SitoDiRipresa, " +
-                "SitoDichiarato, e il banco BancoDichiarato. Trovati: " +
+                "SitoDichiarato, il banco BancoDichiarato, e il profilo per la pagina ProfiloPerLaPagina, " +
+                "FiltroDelProfilo, OrizzonteDelProfilo. Trovati: " +
                 string.Join(", ", tipi.Select(t => t.Name)));
             foreach (var atteso in new[] { "SequenceModel", "Quando", "Bersaglio", "Offset",
                                            "Ottica", "Sito", "Capacita", "Blocco", "TotaleDellaNotte", "OreEMinuti", "Dither",
                                            "SerieCorta", "SerieDellaBanda", "LeDueForme`1",
                                            "RispostaPrescrizione", "ProdottoPrescrizione",
                                            "SequenzaDiNotte",
-                                           "ErroreServizio", "MisuraServizio" }) {
+                                           "ErroreServizio", "MisuraServizio",
+                                           "ProfiloPerLaPagina", "FiltroDelProfilo", "OrizzonteDelProfilo" }) {
                 Assert.IsTrue(tipi.Any(t => t.Name == atteso), $"{atteso} non si e' caricato");
             }
         }

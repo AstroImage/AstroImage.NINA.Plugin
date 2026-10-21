@@ -10,10 +10,17 @@ Sequenziatore Avanzato la prescrizione decisa da **AstroImage-Strategy**.
 > Assistant. Provato su una montatura vera con filtri veri: nebulosa a banda stretta,
 > planetaria e ammasso globulare, su N.I.N.A. 3.3 con un plugin compilato per la 3.2.
 >
-> Le Opzioni del plugin portano per ora l'indirizzo del motore e la lingua; le
-> dichiarazioni — sito, banco, filtri — vivono ancora nel pannello, sotto i dettagli.
-> Il banco si legge in parte da N.I.N.A.: la camera dal driver, focale e rapporto dal
-> profilo; l'ottica e la montatura si scelgono ancora per voce.
+> Le Opzioni del plugin portano l'indirizzo del motore, la lingua e la pagina del
+> pannello; le dichiarazioni — sito, banco, filtri — vivono ancora nel pannello, sotto i
+> dettagli. Il banco si legge in parte da N.I.N.A.: la camera dal driver, focale e
+> rapporto dal profilo; l'ottica e la montatura si scelgono ancora per voce.
+>
+> **In corso: il pannello come casa dell'app vera.** Con l'indirizzo di AstroImage-Strategy
+> nelle Opzioni («Pagina del pannello», per esempio `https://astroimage.github.io/`) il
+> pannello apre l'app intera, e il Ponte le dà il profilo attivo di N.I.N.A. — telescopio,
+> camera, filtri, sito e orizzonte — con le domande e i nomi dell'Advanced API, senza che
+> quel plugin serva. Il resto, per ora, l'app lo chiede ancora all'Advanced API; vuoto,
+> il pannello resta quello di sempre.
 
 ## Ti serve anche il motore
 

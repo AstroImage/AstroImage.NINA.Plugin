@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -77,6 +78,14 @@ namespace AstroImage.NINA.Plugin.Views {
 
         private bool _pronto;
 
+        /*  LA PAGINA VERA, quando le Opzioni la nominano (21 ottobre 2026): null e' la pagina di prova, e tutto quello che
+         *  sta sopra vale per lei. Con la pagina vera il protocollo e' un altro — quello di OspiteDellaPagina —, e gli
+         *  avvisi di lingua, profilo e camera non partono: sono parole della pagina di prova, e quella vera non le conosce.
+         *  `_paginaChiesta` e' cio' che stava scritto nelle Opzioni quando si e' aperta: tornando, se e' cambiato, si
+         *  riapre. */
+        private Uri _pagina;
+        private string _paginaChiesta = "";
+
         public PannelloStrategyView() {
             InitializeComponent();
             Loaded += AlCaricamento;
@@ -110,7 +119,9 @@ namespace AstroImage.NINA.Plugin.Views {
             }
             /*  Alla PRIMA apertura _pronto e' ancora falso — AlCaricamento sta aspettando
              *  WebView2 — e la pagina nascera' gia' nella lingua giusta da se'. */
-            if (_pronto) { ChiediRidisegno(); AvvisaSeIlProfiloECambiato(); AvvisaSeLaCameraECambiata(); }
+            if (!_pronto) { return; }
+            if ((ImpostazioniPonte.Corrente?.Pagina ?? "") != _paginaChiesta) { Apri(); return; }
+            ChiediRidisegno(); AvvisaSeIlProfiloECambiato(); AvvisaSeLaCameraECambiata();
         }
 
         /*  Loc e' un oggetto solo che vive quanto N.I.N.A.: un suo evento agganciato a
@@ -129,7 +140,7 @@ namespace AstroImage.NINA.Plugin.Views {
         private void AlCambioCamera(object mittente, EventArgs e) => AvvisaSeLaCameraECambiata();
 
         private void AvvisaSeLaCameraECambiata() {
-            if (!_pronto) { return; }
+            if (!_pronto || _pagina is not null) { return; }
             Dispatcher.BeginInvoke(new Action(() => {
                 if (!(DataContext is PannelloStrategyVM vm) || vm.CambiDiCamera == _cambiDiCameraVisti) { return; }
                 _cambiDiCameraVisti = vm.CambiDiCamera;
@@ -150,7 +161,7 @@ namespace AstroImage.NINA.Plugin.Views {
         private void AlCambioProfilo(object mittente, EventArgs e) => AvvisaSeIlProfiloECambiato();
 
         private void AvvisaSeIlProfiloECambiato() {
-            if (!_pronto) { return; }
+            if (!_pronto || _pagina is not null) { return; }
             Dispatcher.BeginInvoke(new Action(() => {
                 if (!(DataContext is PannelloStrategyVM vm) || vm.CambiDiProfilo == _cambiDiProfiloVisti) { return; }
                 _cambiDiProfiloVisti = vm.CambiDiProfilo;
@@ -179,7 +190,7 @@ namespace AstroImage.NINA.Plugin.Views {
         /// niente: le frasi rinascono di la', nella lingua che vale adesso.
         /// </summary>
         private void ChiediRidisegno() {
-            if (!_pronto) { return; }
+            if (!_pronto || _pagina is not null) { return; }
             /*  L'evento puo' arrivare da un thread qualunque; toccare WebView2 fuori dal
              *  suo thread e' un guasto che compare a caso. */
             Dispatcher.BeginInvoke(new Action(() => {
@@ -224,15 +235,76 @@ namespace AstroImage.NINA.Plugin.Views {
                 nucleo.Settings.IsWebMessageEnabled = true;
                 nucleo.WebMessageReceived += AlMessaggio;
                 nucleo.NavigationCompleted += AlNavigazione;
+                nucleo.NavigationStarting += AlPartenza;
+                nucleo.NewWindowRequested += AlNuovaFinestra;
 
-                nucleo.NavigateToString(Pagina.Prova);
+                Apri();
                 _pronto = true;
             } catch (Exception ex) {
                 MostraRipiego(Loc.T("Pannello_WebViewNonPartito"), ex.Message);
             }
         }
 
+        /*  QUALE PAGINA: quella che le Opzioni dicono adesso. Un indirizzo che non va bene non apre la pagina di prova al
+         *  suo posto — chi l'ha scritto crederebbe di vedere l'app vera —: lo dice il riquadro di ripiego, col perche'. */
+        private void Apri() {
+            var nucleo = Vetro?.CoreWebView2;
+            if (nucleo is null) { return; }
+            _paginaChiesta = ImpostazioniPonte.Corrente?.Pagina ?? "";
+            _pagina = OspiteDellaPagina.Pagina(_paginaChiesta, out var perCheNo);
+            if (perCheNo is not null) {
+                Logger.Warning("[AstroImage] panel page refused — " + perCheNo);
+                MostraRipiego(Loc.T("Pannello_PaginaNonCaricata"), perCheNo);
+                return;
+            }
+            if (_pagina is null) { nucleo.NavigateToString(Pagina.Prova); return; }
+            Logger.Info("[AstroImage] panel opens the page " + _pagina.AbsoluteUri);
+            nucleo.Navigate(_pagina.AbsoluteUri);
+        }
+
+        /*  IL PANNELLO TIENE LA SUA PAGINA: un collegamento verso altro si apre nel browser di sistema, e la pagina resta
+         *  dov'e'. Con la pagina di prova non si tocca niente: e' un documento senza collegamenti. */
+        private void AlPartenza(object mittente, CoreWebView2NavigationStartingEventArgs e) {
+            var pagina = _pagina;
+            if (pagina is null || OspiteDellaPagina.RestaNelPannello(e.Uri, pagina)) { return; }
+            e.Cancel = true;
+            ApriNelBrowser(e.Uri);
+        }
+
+        private void AlNuovaFinestra(object mittente, CoreWebView2NewWindowRequestedEventArgs e) {
+            if (_pagina is null) { return; }
+            e.Handled = true;
+            ApriNelBrowser(e.Uri);
+        }
+
+        private static void ApriNelBrowser(string indirizzo) {
+            if (!OspiteDellaPagina.SiApreNelBrowser(indirizzo)) {
+                Logger.Warning("[AstroImage] the panel page asked to open «" + indirizzo + "»: not a web address, not opened");
+                return;
+            }
+            try { Process.Start(new ProcessStartInfo(indirizzo) { UseShellExecute = true }); }
+            catch (Exception ex) { Logger.Warning("[AstroImage] could not open «" + indirizzo + "» in the browser — " + ex.Message); }
+        }
+
+        /*  LA PAGINA VERA CHIEDE, e risponde OspiteDellaPagina: qui si legge il messaggio e si spedisce la risposta. Il
+         *  profilo si legge solo se la domanda lo vuole, e a ogni domanda. */
+        private void AlMessaggioDellaPagina(CoreWebView2WebMessageReceivedEventArgs e, Uri pagina) {
+            string testo;
+            try { testo = e.TryGetWebMessageAsString(); } catch (Exception) { return; }
+            var vm = DataContext as PannelloStrategyVM;
+            var risposta = OspiteDellaPagina.Rispondi(testo, e.Source, pagina, () => vm?.LettoreDelProfilo.Leggi(),
+                typeof(PannelloStrategyView).Assembly.GetName().Version?.ToString(), out var nota);
+            if (nota is not null) { Logger.Warning("[AstroImage] " + nota); }
+            if (risposta is null) { return; }
+            try { Vetro?.CoreWebView2?.PostWebMessageAsString(risposta); } catch (Exception) {
+                /*  La pagina puo' essere andata via mentre si leggeva il profilo: la risposta non ha piu' a chi andare. */
+            }
+        }
+
         private void AlNavigazione(object mittente, CoreWebView2NavigationCompletedEventArgs e) {
+            /*  Un collegamento trattenuto da AlPartenza finisce qui come navigazione annullata: la pagina e' ancora quella
+             *  di prima, e il ripiego la nasconderebbe per niente. */
+            if (_pagina is not null && !e.IsSuccess && e.WebErrorStatus == CoreWebView2WebErrorStatus.OperationCanceled) { return; }
             /*  La pagina nasce sul profilo attivo, senza prescrizione: i cambi avvenuti prima non le riguardano. */
             if (e.IsSuccess && DataContext is PannelloStrategyVM vm) {
                 _cambiDiProfiloVisti = vm.CambiDiProfilo;
@@ -243,6 +315,7 @@ namespace AstroImage.NINA.Plugin.Views {
         }
 
         private async void AlMessaggio(object mittente, CoreWebView2WebMessageReceivedEventArgs e) {
+            if (_pagina is Uri vera) { AlMessaggioDellaPagina(e, vera); return; }
             string testo;
             try { testo = e.TryGetWebMessageAsString(); }
             catch { return; }
@@ -1110,7 +1183,7 @@ namespace AstroImage.NINA.Plugin.Views {
         }
 
         private void AlRiprova(object mittente, RoutedEventArgs e) {
-            if (Vetro?.CoreWebView2 != null) { Vetro.CoreWebView2.NavigateToString(Pagina.Prova); }
+            if (Vetro?.CoreWebView2 != null) { Apri(); }
             else { AlCaricamento(mittente, e); }
         }
 

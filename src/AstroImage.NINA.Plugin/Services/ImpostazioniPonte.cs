@@ -56,6 +56,7 @@ namespace AstroImage.NINA.Plugin.Services {
         private readonly string _percorso;
         private string _lingua = LinguaDiSerie;
         private string _indirizzo = "";
+        private string _pagina = "";
         private bool _zitto;
 
         /*  LE IMPOSTAZIONI CHE VALGONO ADESSO, per chi non le riceve da nessuno. Le carica il plugin all'avvio, e il
@@ -108,6 +109,21 @@ namespace AstroImage.NINA.Plugin.Services {
             }
         }
 
+        /*  LA PAGINA DEL PANNELLO (21 ottobre 2026). Vuoto e' la pagina di prova, come prima: chi non scrive niente non
+         *  vede cambiare niente. Con l'indirizzo di AstroImage-Strategy il pannello apre l'app vera e il Ponte le fa da
+         *  ospite (OspiteDellaPagina). Come per l'indirizzo del motore, quello che non va bene non si butta via qui: lo
+         *  dice il pannello, e chi l'ha scritto lo ritrova e lo corregge. */
+        public string Pagina {
+            get => _pagina;
+            set {
+                var v = (value ?? "").Trim();
+                if (_pagina == v && !_zitto) { return; }
+                _pagina = v;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Pagina)));
+                if (!_zitto) { Salva(); }
+            }
+        }
+
         /*  UN VALORE CHE NON CONOSCO VALE COME NON AVERLO DETTO, e «non detto» qui e'
          *  l'inglese. E' l'unico modo di avere una regola sola: file assente, file
          *  rotto, valore sconosciuto — tre strade che finiscono nello stesso posto.
@@ -138,6 +154,7 @@ namespace AstroImage.NINA.Plugin.Services {
                         }
                         i.Lingua = letta;
                         i.Indirizzo = d.Indirizzo ?? "";
+                        i.Pagina = d.Pagina ?? "";
                     }
                 }
             } catch (Exception e) {
@@ -163,7 +180,7 @@ namespace AstroImage.NINA.Plugin.Services {
                 var cartella = Path.GetDirectoryName(_percorso);
                 if (!string.IsNullOrEmpty(cartella)) { Directory.CreateDirectory(cartella!); }
                 File.WriteAllText(_percorso, JsonSerializer.Serialize(
-                    new Documento { Lingua = _lingua, Indirizzo = _indirizzo },
+                    new Documento { Lingua = _lingua, Indirizzo = _indirizzo, Pagina = _pagina },
                     new JsonSerializerOptions { WriteIndented = true }));
                 return true;
             } catch (Exception e) {
@@ -172,7 +189,7 @@ namespace AstroImage.NINA.Plugin.Services {
             }
         }
 
-        /*  Il documento su disco. Una chiave sola, e il nome per esteso: fra due anni
+        /*  Il documento su disco. Poche chiavi, e il nome per esteso: fra due anni
          *  chi lo apre deve capirlo senza avere il codice davanti. */
         private sealed class Documento {
             [JsonPropertyName("lingua")]
@@ -180,6 +197,9 @@ namespace AstroImage.NINA.Plugin.Services {
 
             [JsonPropertyName("indirizzo")]
             public string? Indirizzo { get; set; }
+
+            [JsonPropertyName("pagina")]
+            public string? Pagina { get; set; }
         }
     }
 }

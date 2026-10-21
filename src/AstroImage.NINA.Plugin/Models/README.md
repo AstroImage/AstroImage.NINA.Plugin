@@ -49,3 +49,6 @@ giorno comparisse un campo con dentro dei nanometri.
 - `BancoDichiarato` — quello che di un banco non sanno né N.I.N.A. né il riconoscimento del
   catalogo, e che si dichiara.
 - `SitoDiRipresa` — da dove stai riprendendo, e da dove lo sappiamo.
+- `ProfiloPerLaPagina` — il banco del profilo attivo che l'ospite dà alla pagina vera di
+  AstroImage-Strategy, coi suoi `FiltroDelProfilo` e `OrizzonteDelProfilo`: solo i campi del banco,
+  non le chiavi e i percorsi che il profilo tiene accanto.

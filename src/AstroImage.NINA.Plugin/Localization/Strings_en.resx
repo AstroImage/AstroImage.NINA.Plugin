@@ -2190,4 +2190,31 @@
   <data name="Pag_Prov_Bordo_stima_sotto_il_fondo" xml:space="preserve">
     <value>the map's beam does not resolve the edge, and its estimate from the edge / mean ratio lies below the local background</value>
   </data>
+  <data name="Opzioni_Pagina" xml:space="preserve">
+    <value>Panel page</value>
+  </data>
+  <data name="Opzioni_PaginaAiuto" xml:space="preserve">
+    <value>Empty: the bridge's own page, which asks the engine at the address above. With the AstroImage-Strategy address, https://astroimage.github.io/, the panel opens the real app, and the bridge gives it the N.I.N.A. profile: telescope, camera, filters, site and horizon. The panel opens it when you come back from here.</value>
+  </data>
+  <data name="Ospite_IndirizzoNonValido" xml:space="preserve">
+    <value>The page address in the Options can't be used: «{0}». It must be https, or http on this PC (localhost).</value>
+  </data>
+  <data name="Ospite_AzioneSconosciuta" xml:space="preserve">
+    <value>The bridge doesn't know the action «{0}».</value>
+  </data>
+  <data name="Ospite_ViaSconosciuta" xml:space="preserve">
+    <value>The bridge doesn't answer «{0}»: it answers {1}.</value>
+  </data>
+  <data name="Ospite_SoloLettura" xml:space="preserve">
+    <value>Here the bridge only answers reads.</value>
+  </data>
+  <data name="Ospite_SoloProfiloAttivo" xml:space="preserve">
+    <value>The bridge only gives the active profile.</value>
+  </data>
+  <data name="Ospite_SenzaProfilo" xml:space="preserve">
+    <value>N.I.N.A. has no active profile to read.</value>
+  </data>
+  <data name="Ospite_SenzaOrizzonte" xml:space="preserve">
+    <value>The active profile has no horizon.</value>
+  </data>
 </root>

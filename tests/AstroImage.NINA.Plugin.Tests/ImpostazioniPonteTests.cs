@@ -223,5 +223,15 @@ namespace AstroImage.NINA.Plugin.Tests {
             Assert.IsFalse(i.Salva());
             Assert.IsNotNull(i.Nota);
         }
+
+        // ─────────────────────────────────────────────── la pagina del pannello (21 ottobre 2026)
+        [TestMethod]
+        public void LaPaginaDelPannello_NasceVuota_SiScrive_ESiRitrova() {
+            var i = ImpostazioniPonte.Carica(Percorso);
+            Assert.AreEqual("", i.Pagina, "la pagina nasce vuota: la pagina di prova, come prima");
+            i.Pagina = "  https://astroimage.github.io/ ";
+            Assert.AreEqual("https://astroimage.github.io/", ImpostazioniPonte.Carica(Percorso).Pagina);
+            StringAssert.Contains(File.ReadAllText(Percorso), "\"pagina\"");
+        }
     }
 }

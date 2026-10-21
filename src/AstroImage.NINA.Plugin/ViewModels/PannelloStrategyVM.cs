@@ -258,6 +258,7 @@ namespace AstroImage.NINA.Plugin.ViewModels {
              *  stazione meteo e senza guider il pannello deve aprirsi lo stesso e dire
              *  che quei valori mancano, non sparire dall'elenco dei plugin. */
             Sito = new SitoDelProfilo(profileService, meteo);
+            LettoreDelProfilo = new ProfiloDaNina(profileService);
             var letto = Sito.Leggi(out var perCheSito);
             Logger.Info("[AstroImage] site: " + (perCheSito ?? $"lat {letto.Lat}, lon {letto.Lon}" +
                         (letto.Sqm is null ? ", SQM not measured" : $", SQM {letto.Sqm} measured")) +
@@ -274,6 +275,9 @@ namespace AstroImage.NINA.Plugin.ViewModels {
         public LettoreSetup Banco { get; }
 
         public RuotaDelProfilo Ruota { get; }
+
+        /// <summary>Il banco del profilo attivo per la pagina vera, quando il pannello la ospita. Si rilegge a ogni domanda.</summary>
+        public ProfiloDaNina LettoreDelProfilo { get; }
 
         /// <summary>Dove vive la dichiarazione dei vetri.</summary>
         public IMemoriaRuota Memoria { get; }
