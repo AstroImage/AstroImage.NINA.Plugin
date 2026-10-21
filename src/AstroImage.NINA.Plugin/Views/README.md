@@ -11,7 +11,8 @@ pagina web.
 
 Con l'indirizzo di AstroImage-Strategy scritto nelle Opzioni («Pagina del pannello») il
 contenitore apre invece l'app vera, e il Ponte le fa da ospite (`Services/OspiteDellaPagina`):
-risponde solo a quella pagina, e un collegamento verso altro si apre nel browser di sistema.
+risponde solo a quella pagina, le dà il profilo e consegna i bersagli che lei prepara
+(`Services/ConsegnaDallaPagina`), e un collegamento verso altro si apre nel browser di sistema.
 Vuoto, resta la pagina di prova.
 
 Regola due: **non si pesca nell'albero visuale di N.I.N.A.** Cercare a runtime un

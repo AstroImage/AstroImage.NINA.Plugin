@@ -217,5 +217,118 @@ namespace AstroImage.NINA.Plugin.Tests {
             foreach (var no in new[] { "file:///C:/Windows/System32/calc.exe", "ms-settings:privacy", "javascript:alert(1)", "" })
                 Assert.IsFalse(OspiteDellaPagina.SiApreNelBrowser(no), no + " si consegnerebbe al sistema");
         }
+
+        // 7 ──────────────────────────────── le due vie del Ponte: i bersagli e la consegna (passo 3)
+        private static string Fixture(string nome) => System.IO.File.ReadAllText(System.IO.Path.Combine(
+            System.IO.Path.GetDirectoryName(typeof(OspiteDellaPaginaTests).Assembly.Location)!, "Fixtures", nome + ".json"));
+
+        private sealed class Registro {
+            public SequenceModel? Modello; public int? Indice; public string? Nome; public int Chiamate;
+        }
+
+        private static ServiziDellOspite Servizi(Registro r, Func<EsitoDellaConsegna>? esito = null) => new ServiziDellOspite {
+            Profilo = Banco,
+            Bersagli = () => new[] { new BersaglioDelSequenziatore { Nome = "M 31", Stato = "RUNNING" },
+                                     new BersaglioDelSequenziatore { Nome = "NGC 7000", Stato = "CREATED" } },
+            Consegna = (m, i, n) => { r.Modello = m; r.Indice = i; r.Nome = n; r.Chiamate++;
+                return esito?.Invoke() ?? new EsitoDellaConsegna { Fatta = true, Nome = m.Nome, Bersaglio = m.Bersaglio?.Nome,
+                    Blocchi = m.Blocchi?.Count ?? 0, PosePerBlocco = new List<int> { 10, 12, 20 }, Note = new List<string> { "una nota" }, Sostituito = n }; },
+        };
+
+        private static JsonObject ViaCon(ServiziDellOspite servizi, string via, string metodo = "GET", string? corpo = null) {
+            var m = new JsonObject { ["id"] = "c1", ["azione"] = "nina", ["via"] = via, ["metodo"] = metodo, ["corpo"] = corpo };
+            var t = OspiteDellaPagina.Rispondi(m.ToJsonString(), DalSito, Sito, servizi, "versione-di-prova", out var nota);
+            Assert.IsNotNull(t, nota);
+            return JsonNode.Parse(t!)!["risposta"]!.AsObject();
+        }
+
+        private static string Corpo(string fixture, JsonObject? sostituisci = null) => new JsonObject {
+            ["modello"] = JsonNode.Parse(Fixture(fixture)), ["sostituisci"] = sostituisci,
+        }.ToJsonString();
+
+        [TestMethod]
+        public void LeVieDelPonte_SiDichiaranoSoloSeCeChiLeServe() {
+            var r = new Registro();
+            var con = JsonNode.Parse(OspiteDellaPagina.Rispondi("{\"id\":\"p\",\"azione\":\"presentati\"}", DalSito, Sito, Servizi(r),
+                null, out _)!)!["vie"]!.AsArray().Select(v => (string)v!).ToArray();
+            CollectionAssert.AreEqual(new[] { "/profile/show", "/profile/horizon", "/ponte/bersagli", "/ponte/consegna" }, con);
+            var senza = OspiteDellaPagina.VieDi(new ServiziDellOspite { Profilo = Banco });
+            CollectionAssert.AreEqual(new[] { "/profile/show", "/profile/horizon" }, senza.ToArray(),
+                "senza chi consegna, la consegna non si dichiara");
+            var rifiutata = Via("/ponte/consegna", null, "POST");
+            Assert.AreEqual(404, (int?)rifiutata["StatusCode"], "una via non dichiarata ha risposto");
+        }
+
+        [TestMethod]
+        public void IBersagli_ConIndiceENome_NellOrdineDiNina() {
+            var b = ViaCon(Servizi(new Registro()), "/ponte/bersagli");
+            Assert.AreEqual(true, (bool?)b["Success"]);
+            var l = b["Response"]!.AsArray();
+            Assert.AreEqual(2, l.Count);
+            Assert.AreEqual(1, (int?)l[1]!["indice"]);
+            Assert.AreEqual("NGC 7000", (string?)l[1]!["nome"]);
+            Assert.AreEqual("RUNNING", (string?)l[0]!["stato"], "lo stato di N.I.N.A. non arriva alla pagina, che non saprebbe che cosa non toccare");
+            Assert.AreEqual(405, (int?)ViaCon(Servizi(new Registro()), "/ponte/bersagli", "POST")["StatusCode"], "i bersagli si leggono, non si scrivono");
+        }
+
+        [TestMethod]
+        public void LaConsegna_PortaIlModelloDelContratto_ComeLoLeggevaIlServizio() {
+            var r = new Registro();
+            var b = ViaCon(Servizi(r), "/ponte/consegna", "POST", Corpo("mono"));
+            Assert.AreEqual(true, (bool?)b["Success"], (string?)b["Error"]);
+            Assert.AreEqual(1, r.Chiamate);
+            var atteso = SequenceModel.Leggi(Fixture("mono"))!;
+            Assert.IsNotNull(r.Modello);
+            Assert.AreEqual(atteso.Scrivi(), r.Modello!.Scrivi(), "il modello arrivato non e' quello del contratto, letto come il servizio");
+            Assert.IsNull(r.Indice, "senza sostituzione e' un bersaglio nuovo");
+            var d = b["Response"]!.AsObject();
+            Assert.AreEqual(5, (int?)d["blocchi"]);
+            CollectionAssert.AreEqual(new[] { 10, 12, 20 }, d["pose"]!.AsArray().Select(x => (int)x!).ToArray(), "le pose blocco per blocco, non un totale");
+            Assert.AreEqual("una nota", (string?)d["note"]![0]);
+            Assert.AreEqual(0, d["scartati"]!.AsArray().Count);
+        }
+
+        [TestMethod]
+        public void LaSostituzione_PortaIndiceENome_OppureNonParte() {
+            var r = new Registro();
+            var b = ViaCon(Servizi(r), "/ponte/consegna", "POST", Corpo("mono", new JsonObject { ["indice"] = 1, ["nome"] = "NGC 7000" }));
+            Assert.AreEqual(true, (bool?)b["Success"]);
+            Assert.AreEqual(1, r.Indice);
+            Assert.AreEqual("NGC 7000", r.Nome);
+            Assert.AreEqual("NGC 7000", (string?)b["Response"]!["sostituito"]);
+            foreach (var storta in new[] { new JsonObject { ["indice"] = 1 }, new JsonObject { ["nome"] = "M 31" },
+                                           new JsonObject { ["indice"] = -1, ["nome"] = "M 31" }, new JsonObject { ["indice"] = "uno", ["nome"] = "M 31" } }) {
+                var n = r.Chiamate;
+                var x = ViaCon(Servizi(r), "/ponte/consegna", "POST", Corpo("mono", storta));
+                Assert.AreEqual(400, (int?)x["StatusCode"], storta.ToJsonString());
+                Assert.AreEqual(n, r.Chiamate, "una sostituzione storta ha raggiunto chi consegna: " + storta.ToJsonString());
+            }
+        }
+
+        [TestMethod]
+        public void SenzaModello_OConUnaLettura_NonSiConsegnaNiente() {
+            var r = new Registro();
+            Assert.AreEqual(405, (int?)ViaCon(Servizi(r), "/ponte/consegna", "GET", Corpo("mono"))["StatusCode"]);
+            Assert.AreEqual(400, (int?)ViaCon(Servizi(r), "/ponte/consegna", "POST", "{}")["StatusCode"]);
+            Assert.AreEqual(400, (int?)ViaCon(Servizi(r), "/ponte/consegna", "POST", "non e' JSON")["StatusCode"]);
+            Assert.AreEqual(400, (int?)ViaCon(Servizi(r), "/ponte/consegna", "POST", null)["StatusCode"]);
+            Assert.AreEqual(0, r.Chiamate, "una richiesta senza modello ha raggiunto chi consegna");
+        }
+
+        [TestMethod]
+        public void UnRifiuto_TornaColPerche_EConGliScarti() {
+            var r = new Registro();
+            var no = ViaCon(Servizi(r, () => new EsitoDellaConsegna {
+                PerCheNo = "il filtro «O» non e' nella ruota", Scartati = new List<string> { "il filtro «O» non e' nella ruota", "NON è stato consegnato" },
+            }), "/ponte/consegna", "POST", Corpo("mono"));
+            Assert.AreEqual(false, (bool?)no["Success"]);
+            Assert.AreEqual(409, (int?)no["StatusCode"]);
+            StringAssert.Contains((string?)no["Error"], "«O»");
+            Assert.AreEqual(2, no["Response"]!["scartati"]!.AsArray().Count, "gli scarti non viaggiano col rifiuto");
+            var rotto = ViaCon(new ServiziDellOspite { Profilo = Banco, Consegna = (m, i, n) => throw new InvalidOperationException("il Sequenziatore e' sparito") },
+                "/ponte/consegna", "POST", Corpo("mono"));
+            Assert.AreEqual(500, (int?)rotto["StatusCode"]);
+            StringAssert.Contains((string?)rotto["Error"], "sparito");
+        }
     }
 }

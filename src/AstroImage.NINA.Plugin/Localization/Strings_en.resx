@@ -2217,4 +2217,16 @@
   <data name="Ospite_SenzaOrizzonte" xml:space="preserve">
     <value>The active profile has no horizon.</value>
   </data>
+  <data name="Ospite_ConsegnaConPost" xml:space="preserve">
+    <value>Delivery is asked with POST: a read delivers nothing.</value>
+  </data>
+  <data name="Ospite_ConsegnaSenzaModello" xml:space="preserve">
+    <value>The delivery request carries no readable sequence model: the bridge delivers nothing.</value>
+  </data>
+  <data name="Ospite_SostituzioneMalformata" xml:space="preserve">
+    <value>To replace a target the bridge needs its index and its name: without them, it touches nothing.</value>
+  </data>
+  <data name="Ospite_BersaglioInRipresa" xml:space="preserve">
+    <value>Target «{0}» is being imaged right now: replace it with the sequence stopped.</value>
+  </data>
 </root>

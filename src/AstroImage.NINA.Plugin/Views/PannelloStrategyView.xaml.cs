@@ -292,7 +292,15 @@ namespace AstroImage.NINA.Plugin.Views {
             string testo;
             try { testo = e.TryGetWebMessageAsString(); } catch (Exception) { return; }
             var vm = DataContext as PannelloStrategyVM;
-            var risposta = OspiteDellaPagina.Rispondi(testo, e.Source, pagina, () => vm?.LettoreDelProfilo.Leggi(),
+            /*  Senza il modello del pannello non c'e' chi consegna: le due vie del Ponte non si dichiarano, e la pagina
+             *  resta sulla sua strada. */
+            var servizi = new ServiziDellOspite { Profilo = () => vm?.LettoreDelProfilo.Leggi() };
+            if (vm is not null) {
+                servizi.Bersagli = () => ConsegnaDallaPagina.Bersagli(vm.Mediatore);
+                servizi.Consegna = (modello, indice, nome) =>
+                    ConsegnaDallaPagina.Esegui(vm.PerCheNonConsegna, vm.Costruttore, vm.Mediatore, modello, indice, nome);
+            }
+            var risposta = OspiteDellaPagina.Rispondi(testo, e.Source, pagina, servizi,
                 typeof(PannelloStrategyView).Assembly.GetName().Version?.ToString(), out var nota);
             if (nota is not null) { Logger.Warning("[AstroImage] " + nota); }
             if (risposta is null) { return; }

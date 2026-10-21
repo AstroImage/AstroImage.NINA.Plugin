@@ -2217,4 +2217,16 @@
   <data name="Ospite_SenzaOrizzonte" xml:space="preserve">
     <value>Il profilo attivo non ha un orizzonte.</value>
   </data>
+  <data name="Ospite_ConsegnaConPost" xml:space="preserve">
+    <value>La consegna si chiede con POST: una lettura non consegna niente.</value>
+  </data>
+  <data name="Ospite_ConsegnaSenzaModello" xml:space="preserve">
+    <value>La richiesta di consegna non porta un modello della sequenza leggibile: il ponte non consegna niente.</value>
+  </data>
+  <data name="Ospite_SostituzioneMalformata" xml:space="preserve">
+    <value>Per sostituire un bersaglio servono il suo indice e il suo nome: senza, il ponte non tocca niente.</value>
+  </data>
+  <data name="Ospite_BersaglioInRipresa" xml:space="preserve">
+    <value>Il bersaglio «{0}» è in ripresa adesso: si sostituisce a sequenza ferma.</value>
+  </data>
 </root>

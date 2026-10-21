@@ -19,8 +19,10 @@ Sequenziatore Avanzato la prescrizione decisa da **AstroImage-Strategy**.
 > nelle Opzioni («Pagina del pannello», per esempio `https://astroimage.github.io/`) il
 > pannello apre l'app intera, e il Ponte le dà il profilo attivo di N.I.N.A. — telescopio,
 > camera, filtri, sito e orizzonte — con le domande e i nomi dell'Advanced API, senza che
-> quel plugin serva. Il resto, per ora, l'app lo chiede ancora all'Advanced API; vuoto,
-> il pannello resta quello di sempre.
+> quel plugin serva. E consegna lui: l'app gli manda il modello della sequenza, e il Ponte
+> monta il bersaglio coi pezzi dei modelli di N.I.N.A., accanto agli altri o al posto di uno
+> scelto dall'elenco, rileggendo ogni valore; un bersaglio in ripresa non si sostituisce.
+> Vuoto, il pannello resta quello di sempre.
 
 ## Ti serve anche il motore
 
