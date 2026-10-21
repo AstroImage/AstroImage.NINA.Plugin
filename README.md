@@ -4,14 +4,16 @@ Un plugin per [N.I.N.A.](https://nighttime-imaging.eu/) che porta dentro il
 Sequenziatore Avanzato la prescrizione decisa da **AstroImage-Strategy**.
 
 > **Stato: il giro si chiude, e regge sul campo.** Il pannello chiede una prescrizione
-> al servizio di Strategy, la mostra, e su richiesta costruisce il bersaglio nel
-> Sequenziatore Avanzato. Provato su una montatura vera con filtri veri: nebulosa a
-> banda stretta, planetaria e ammasso globulare, su N.I.N.A. 3.3 con un plugin
-> compilato per la 3.2.
+> al servizio di Strategy, la mostra, fa sfogliare gli oggetti di stanotte e le loro
+> schede, e su richiesta costruisce il bersaglio nel Sequenziatore Avanzato: come
+> bersaglio nuovo, o al posto di uno che c'è già, scelto dall'elenco come nel Framing
+> Assistant. Provato su una montatura vera con filtri veri: nebulosa a banda stretta,
+> planetaria e ammasso globulare, su N.I.N.A. 3.3 con un plugin compilato per la 3.2.
 >
-> Manca la pagina delle Opzioni vera — la configurazione dei filtri vive per ora nella
-> pagina di prova dentro il pannello — e manca la traduzione da equipaggiamento di
-> N.I.N.A. a banco del motore, che oggi si sceglie a mano.
+> Le Opzioni del plugin portano per ora l'indirizzo del motore e la lingua; le
+> dichiarazioni — sito, banco, filtri — vivono ancora nel pannello, sotto i dettagli.
+> Il banco si legge in parte da N.I.N.A.: la camera dal driver, focale e rapporto dal
+> profilo; l'ottica e la montatura si scelgono ancora per voce.
 
 ## Ti serve anche il motore
 
@@ -23,8 +25,9 @@ che il motore non risponde.
 aperto che fa da mediatore verso un servizio esterno. Il ponte è il tubo; quello che ci
 passa dentro è un'altra cosa.
 
-Il motore può stare su un'altra macchina: il plugin legge l'indirizzo da un file
-`strategy.url` accanto al DLL. **Questo va detto, non scoperto.** Di serie il servizio
+Il motore può stare su un'altra macchina: l'indirizzo si scrive nelle Opzioni del
+plugin, e in mancanza vale il file `strategy.url` accanto al DLL; senza l'uno e l'altro,
+`http://127.0.0.1:8791/`. **Questo va detto, non scoperto.** Di serie il servizio
 ascolta soltanto sulla macchina dove gira; acceso per la rete (`--ascolta 0.0.0.0`)
 risponde a chiunque stia sulla stessa rete, in chiaro e senza sapere chi chiede. È l'uso
 previsto su una rete di casa, fra macchine proprie; non su una rete condivisa con altri.
@@ -162,21 +165,30 @@ decide che cosa riprendere.
 
 ## Il contratto
 
-Fra il motore e il ponte passa una cosa sola: un **modello di sequenza**, circa un
-chilobyte di JSON che non nomina N.I.N.A. da nessuna parte.
+Per costruire la sequenza, fra il motore e il ponte passa una cosa sola: un **modello di
+sequenza**, pochi chilobyte di JSON che non nominano N.I.N.A. da nessuna parte. Questo è
+`tests/Fixtures/osc.json` — una notte su una camera a colori, un blocco solo, 2,8 KB —
+accorciato per leggerlo: i puntini stanno per i campi che le altre fixture mostrano interi.
 
 ```json
 {
   "notte": 1,
   "quando":    { "data": "2026-09-01", "inizio": "2026-09-01T19:45:00.000Z",
-                 "fine": "2026-09-02T01:55:00.000Z", "oreUtili": 5.317 },
-  "bersaglio": { "nome": "IC 1318", "rot": 245, "ra_deg": 305.55, "dec_deg": 40.25 },
-  "ottica":    { "camera": "…", "focale_mm": 367, "pixel_um": 3.76, "bin": 1, "matrice": false },
-  "sito":      { "lat": 45.9, "lon": 10.2 },
-  "cap":       { "raffredda": true, "ruota": true, "guida": true, "rotatore": false },
-  "blocchi":   [ { "canali": ["OIII"], "filtro": "O", "sec": 600, "n": 22,
-                   "gain": 100, "offset": 50 } ],
-  "dither":    { "ogniPose": 2 }
+                 "fine": "2026-09-02T03:00:00.000Z", "oreUtili": 6.567 },
+  "nome": null,
+  "bersaglio": { "nome": "M31", "rot": 0, "off": null, "ra_deg": 10.68, "dec_deg": 41.27, "spostato": false },
+  "ottica":    { "tel": "William Optics RedCat 51", "camera": "ZWO ASI 2600MC Pro", "montatura": "ZWO AM5",
+                 "focale_mm": 250, "rapporto": 4.9, "pixel_um": 3.76, "riduttore": 1,
+                 "scala_arcsec_px": 3.102, "bin": 1, "matrice": true },
+  "sito":      { "lat": 46.0167, "lon": 10.3333 },
+  "cap":       { "raffredda": true, "ruota": true, "focheggiatore": true, … },
+  "blocchi":   [ { "canali": ["RGB"], "gruppo": "RGB", "filtro": "L", "sec": 60, "n": 394,
+                   "gain": 0, "offset": 50, "modo": "LCG", "ore": 6.567, … } ],
+  "totale":    { "pose": 394, "ore": 6.567, "orologio": 7.442, … },
+  "nonFusi":   [],
+  "serieCorta": { … },
+  "dither":    { "ogniPose": 2 },
+  "flip": true
 }
 ```
 
@@ -214,7 +226,7 @@ dotnet build -c Release
 ```
 
 Il DLL esce sempre in `src/AstroImage.NINA.Plugin/bin/x64/Release` — uno solo, circa
-260 KB — **e viene installato subito** in
+630 KB — **e viene installato subito** in
 `%LOCALAPPDATA%\NINA\Plugins\3.0.0\AstroImage.NINA.Plugin`,
 così quello che si prova è sempre l'ultimo compilato. N.I.N.A. legge quella cartella
 all'avvio: se è già aperto, il plugin compare al riavvio successivo. Per toglierlo si
@@ -247,7 +259,8 @@ parte; se accanto al plugin trova altri DLL li nomina e non li tocca. I nomi del
 stanno in `scripts/installa.locale.psd1`, che git ignora: il modello è
 `scripts/installa.esempio.psd1`. Con `-SoloControlli` guarda e basta.
 
-Per eseguire i test del contratto:
+Per eseguire le prove — due progetti, `Tests` e `Tests.Montaggio`, tutti e due dalla
+soluzione:
 
 ```
 dotnet test -c Release

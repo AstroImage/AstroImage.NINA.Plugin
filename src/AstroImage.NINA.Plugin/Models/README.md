@@ -4,8 +4,8 @@ Le forme dei dati che attraversano il confine, e nient'altro.
 
 Qui vive `SequenceModel`: la trascrizione in C# del contratto che AstroImage-Strategy
 già produce — bersaglio con le coordinate risolte, ottica, sito, capacità del banco,
-blocchi di ripresa, dithering. Circa un chilobyte di JSON, senza un solo nome di tipo
-di N.I.N.A. dentro.
+blocchi di ripresa, totali, serie corta, dithering. Pochi chilobyte di JSON, senza un solo
+nome di tipo di N.I.N.A. dentro.
 
 **Non ci va**: nessun calcolo. Un modello che sa fare qualcosa non è un modello.
 
@@ -36,7 +36,16 @@ Dove la stessa grandezza esiste in due posti — il passo del pixel, il sito —
 **entrambe** invece di sceglierne una. Il ponte non decide chi ha ragione: rende la
 differenza visibile.
 
-E dai nomi dei filtri non ricava bande. N.I.N.A. sa che quel vetro si chiama «Ha 3nm» e
+E dai nomi dei filtri non ricava bande. N.I.N.A. sa che quel filtro si chiama «Ha 3nm» e
 sta in posizione 1; non sa che sia centrato su 656,3 nm. C'è un test che fallisce se un
 giorno comparisse un campo con dentro dei nanometri.
 
+
+## Gli altri
+
+- `RispostaPrescrizione` — la busta del servizio, e non un centimetro più di quanto serva.
+- `CatalogoDelMotore` — i filtri che il motore conosce: l'elenco fra cui chi riprende dichiara.
+- `RuotaVirtuale` — che cosa sono, fisicamente, i filtri che hai in ruota.
+- `BancoDichiarato` — quello che di un banco non sanno né N.I.N.A. né il riconoscimento del
+  catalogo, e che si dichiara.
+- `SitoDiRipresa` — da dove stai riprendendo, e da dove lo sappiamo.

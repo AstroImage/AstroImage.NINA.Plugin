@@ -5,11 +5,11 @@ AstroImage-Strategy, fatta girare su banchi ottici veri del suo catalogo. È l'u
 che rende utile un test sul contratto: un JSON inventato dimostra soltanto che chi l'ha
 scritto e chi lo legge hanno avuto la stessa idea sbagliata.
 
-## I dodici casi, e perché proprio questi
+## I tredici casi, e perché proprio questi
 
 | file | che cosa esercita |
 |---|---|
-| `mono.json` | camera monocromatica, cinque filtri, ogni canale il suo vetro: nessuna fusione |
+| `mono.json` | camera monocromatica, cinque filtri, ogni canale il suo filtro: nessuna fusione |
 | `osc.json` | sensore a matrice: la banda larga arriva come un canale solo, `RGB`, in un blocco; niente da fondere, e `nonFusi` vuoto |
 | `osc-hdr.json` | matrice con serie corta: due pose diverse sullo stesso filtro, che restano due blocchi e sono dichiarate in `nonFusi`; la serie è della classe, col limite nel verso `al_piu` e il suo fotosito |
 | `duale-al-piu.json` | il filtro a due righe sulla matrice, con la serie della fisica e il limite nel verso `al_piu`: il pannello dice «al più fino a», e il colore che si riempie per primo |
@@ -18,11 +18,12 @@ scritto e chi lo legge hanno avuto la stessa idea sbagliata.
 | `mono-hdr.json` | monocromatica con la serie corta su più bande: R, G e B a posa corta, ciascuna con `ruolo: "nucleo"`, accanto alla serie lunga della stessa banda |
 | `forma-unica.json` | una banda che va tutta alla posa corta invece di fare la serie corta: in `serieCorta` i pezzi della forma unica, e nessun nucleo |
 | `nucleo-di-classe.json` | due serie corte decise in due modi: una dalla fisica del canale, coi pezzi del suo conto, e una dalla classe, coi soli secondi e pose |
+| `nucleo-di-galassia.json` | M31: la serie corta decisa dal nucleo di una galassia, col valore che la classe gli assegna — il pannello lo segna in giallo come numero di classe, con la sua spiegazione; entrata il 1° ottobre 2026 |
 | `senza-serie.json` | una classe che la serie corta non la vuole, e lo dice col suo codice in `serieCorta.senzaSerie` |
 | `pareggio.json` | su una banda le due forme finiscono nello stesso minuto, sulle altre no: i due rami della frase in una fixture sola |
 | `scarno.json` | il caso povero: niente sito, niente autoguida, nessun nome di attrezzatura — tutti i campi che devono restare `null` |
 
-Tutte e dodici portano `quando`, perché il motore lo riempie da una notte vera. Il caso
+Tutte e tredici portano `quando`, perché il motore lo riempie da una notte vera. Il caso
 con `quando` nullo — una notte costruita a mano, senza tempo — non è raggiungibile dalla
 pagina, e i test lo ottengono degradando una fixture invece di inventarne una.
 
@@ -89,6 +90,14 @@ indietro: `completo.json` (le ore di Sh2-155), `duale-almeno.json` e `forma-unic
 di NGC 2392), `servizio/prescrizione-stelle.json` (un nome di M3). Una fixture di una risposta vera
 che non si rigenera racconta un servizio che non c'è più; le prove passano sulle nuove come sulle vecchie.
 
+## Le altre risposte del servizio
+
+| file | che cosa esercita | chi la legge |
+|---|---|---|
+| `servizio/prescrizione-errore.json` | il rifiuto più semplice, `bersaglio_sconosciuto`, 144 byte | `ClienteStrategyTests` |
+| `servizio/rifiuto-camera-mono.json` | `nessuna_prescrizione` con le strade bloccate e il perché di ciascuna: il pannello le scrive senza sostituire il motivo | `MotiviDelMotoreTests` |
+| `servizio/prescrizione-galassia.json` | M31 ridotta ai campi a schermo, col nucleo della galassia; entrata il 1° ottobre 2026 | `CampiAScermoTests` |
+
 ## Una fixture porta solo i campi che la prova legge
 
 Questo repository è pubblico, il motore no. Una risposta del servizio porta la scheda
@@ -137,8 +146,8 @@ sorgente è N.I.N.A., e N.I.N.A. non si mette dentro un test.
 | file | da dove viene |
 |---|---|
 | `profilo-osc.json` | generata dal file `.profile` **vero** di N.I.N.A.: focale 800, f/6.9, pixel 3,76 µm, matrice RGGB, sito 45,9 / 10,2 a 1000 m, guadagno 100, offset 50, **ruota vuota** |
-| `campo-mono.json` | letta dal **mini PC operativo in campo**, N.I.N.A. 3.3, attraverso l'Advanced API: CEM70 + ASI 2600MM + RC8, focale 1624 f/8, matrice `None`, guadagno 0 (modo LCG), e una **ruota con sette vetri** — L R G B S H O con gli offset di fuoco veri, negativi, e binning di autofocus diverso fra banda larga e stretta |
-| `collegato.json` | **letta dal mini PC in campo**, N.I.N.A. 3.3, Advanced API in sola lettura: AM5 + ASI 2600MC + Askar 71F a 490 mm f/6.9, ruota EFW con cinque vetri, focheggiatore EAF, guida PHD2, rotatore manuale. Solo il meteo non è collegato. **Nessun numero è scritto a mano**, tranne le coordinate: vedi in fondo |
+| `campo-mono.json` | letta dal **mini PC operativo in campo**, N.I.N.A. 3.3, attraverso l'Advanced API: CEM70 + ASI 2600MM + RC8, focale 1624 f/8, matrice `None`, guadagno 0 (modo LCG), e una **ruota con sette filtri** — L R G B S H O con gli offset di fuoco veri, negativi, e binning di autofocus diverso fra banda larga e stretta |
+| `collegato.json` | **letta dal mini PC in campo**, N.I.N.A. 3.3, Advanced API in sola lettura: AM5 + ASI 2600MC + Askar 71F a 490 mm f/6.9, ruota EFW con cinque filtri, focheggiatore EAF, guida PHD2, rotatore manuale. Solo il meteo non è collegato. **Nessun numero è scritto a mano**, tranne le coordinate: vedi in fondo |
 
 Nelle due generate dai profili la parte dei **dispositivi è nulla**, e non è una
 semplificazione: è la verità. Un profilo letto a telescopio spento non sa che cosa
