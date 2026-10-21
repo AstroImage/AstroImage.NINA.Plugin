@@ -214,31 +214,62 @@ namespace AstroImage.NINA.Plugin.Views {
             }));
         }
 
+        /*  UN PANNELLO SOLO VIVO (prova in N.I.N.A., 21 ottobre 2026). Al cambio di profilo N.I.N.A. ricrea il pannello,
+         *  e quello di prima non spariva: restava nascosto, con la sua pagina viva, e riceveva lui l'avviso del profilo
+         *  mentre quello nuovo ripartiva da capo. Due pagine sulla stessa memoria: misurato sulla porta di debug, due
+         *  pagine dopo un cambio di profilo, e le dichiarazioni di un profilo salvate senza che nessuno le cambiasse.
+         *  Adesso l'ultimo pannello che parte spegne quello di prima: la sua pagina va a vuoto, e lui smette di
+         *  ascoltare. Se N.I.N.A. lo rimostra, AlRitorno lo riattacca e AlCaricamento lo riaccende, e a sua volta spegne
+         *  l'altro. */
+        private static WeakReference<PannelloStrategyView> _vivo;
+
+        private void DiventaIlVivo() {
+            if (_vivo != null && _vivo.TryGetTarget(out var prima) && !ReferenceEquals(prima, this)) { prima.Spegni(); }
+            _vivo = new WeakReference<PannelloStrategyView>(this);
+        }
+
+        private void Spegni() {
+            if (!_pronto) { return; }
+            _pronto = false;
+            _pagina = null;
+            _paginaChiesta = "";
+            Loc.Instance.PropertyChanged -= AlCambioLingua;
+            if (DataContext is PannelloStrategyVM vm) { vm.ProfiloCambiato -= AlCambioProfilo; vm.CameraCambiata -= AlCambioCamera; }
+            try { Vetro?.CoreWebView2?.Navigate("about:blank"); } catch (Exception) {
+                /*  Un pannello gia' smontato da N.I.N.A. non ha piu' niente da spegnere. */
+            }
+            Logger.Info("[AstroImage] an older panel was switched off: N.I.N.A. created a new one");
+        }
+
         private async void AlCaricamento(object mittente, RoutedEventArgs e) {
             if (_pronto) { return; }
+            DiventaIlVivo();
             try {
-                /*  UNA CARTELLA DATI TUTTA NOSTRA, e non e' pignoleria: due istanze di
-                 *  WebView2 nello stesso processo che condividono la cartella fanno
-                 *  fallire la navigazione della seconda IN SILENZIO — nessuna
-                 *  eccezione, solo IsSuccess falso. N.I.N.A. ne ha gia' una sua, e i
-                 *  plugin che la usano sono piu' di uno. */
-                var cartella = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "NINA", "WebView2", "AstroImageStrategyBridge");
+                /*  Un pannello spento e rimostrato ha gia' il suo WebView2: si riapre la pagina, senza rifarlo. */
+                if (Vetro.CoreWebView2 is null) {
+                    /*  UNA CARTELLA DATI TUTTA NOSTRA, e non e' pignoleria: due istanze di
+                     *  WebView2 nello stesso processo che condividono la cartella fanno
+                     *  fallire la navigazione della seconda IN SILENZIO — nessuna
+                     *  eccezione, solo IsSuccess falso. N.I.N.A. ne ha gia' una sua, e i
+                     *  plugin che la usano sono piu' di uno. */
+                    var cartella = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "NINA", "WebView2", "AstroImageStrategyBridge");
 
-                var ambiente = await CoreWebView2Environment.CreateAsync(
-                    browserExecutableFolder: null, userDataFolder: cartella);
-                await Vetro.EnsureCoreWebView2Async(ambiente);
+                    var ambiente = await CoreWebView2Environment.CreateAsync(
+                        browserExecutableFolder: null, userDataFolder: cartella);
+                    await Vetro.EnsureCoreWebView2Async(ambiente);
 
-                var nucleo = Vetro.CoreWebView2;
-                /*  La pagina parla solo per messaggi. Niente oggetti dell'ospite
-                 *  esposti al JavaScript: una superficie in meno da sorvegliare. */
-                nucleo.Settings.AreHostObjectsAllowed = false;
-                nucleo.Settings.IsWebMessageEnabled = true;
-                nucleo.WebMessageReceived += AlMessaggio;
-                nucleo.NavigationCompleted += AlNavigazione;
-                nucleo.NavigationStarting += AlPartenza;
-                nucleo.NewWindowRequested += AlNuovaFinestra;
+                    var nucleo = Vetro.CoreWebView2;
+                    /*  La pagina parla solo per messaggi. Niente oggetti dell'ospite
+                     *  esposti al JavaScript: una superficie in meno da sorvegliare. */
+                    nucleo.Settings.AreHostObjectsAllowed = false;
+                    nucleo.Settings.IsWebMessageEnabled = true;
+                    nucleo.WebMessageReceived += AlMessaggio;
+                    nucleo.NavigationCompleted += AlNavigazione;
+                    nucleo.NavigationStarting += AlPartenza;
+                    nucleo.NewWindowRequested += AlNuovaFinestra;
+                }
 
                 Apri();
                 _pronto = true;

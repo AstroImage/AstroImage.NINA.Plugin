@@ -13,6 +13,8 @@ Con l'indirizzo di AstroImage-Strategy scritto nelle Opzioni («Pagina del panne
 contenitore apre invece l'app vera, e il Ponte le fa da ospite (`Services/OspiteDellaPagina`):
 risponde solo a quella pagina, le dà il profilo e consegna i bersagli che lei prepara
 (`Services/ConsegnaDallaPagina`), e un collegamento verso altro si apre nel browser di sistema.
+Al cambio di profilo N.I.N.A. costruisce un pannello nuovo: il più recente spegne quello di prima,
+così una pagina sola parla col Ponte.
 Vuoto, resta la pagina di prova.
 
 Regola due: **non si pesca nell'albero visuale di N.I.N.A.** Cercare a runtime un
